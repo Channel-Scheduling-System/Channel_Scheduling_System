@@ -1,0 +1,43 @@
+# Node / npm / yarn / pnpm
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# TypeScript
+*.tsbuildinfo
+dist/
+build/
+out/
+lib/
+
+# Angular
+.angular/
+.cache/
+coverage/
+tmp/
+.sass-cache/
+.angular/cache/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+
+# IDEs
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Testing
+coverage/
+.nyc_output/
+
+# Angular build outputs
+/dist
+/dist-*/
