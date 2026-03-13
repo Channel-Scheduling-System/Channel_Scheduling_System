@@ -1,26 +1,30 @@
 import js from '@eslint/js';
-import tseslint from '@typescript-eslint/eslint-plugin';
-import tsparser from '@typescript-eslint/parser';
-import { defineConfig } from 'eslint/config';
+import tseslint from 'typescript-eslint';
 import prettier from 'eslint-config-prettier';
 import globals from 'globals';
 
-export default defineConfig([
-    { ignores: ['dist/**', 'node_modules/**', 'prisma/generated/**'] },
-    js.configs.recommended, // Base JS
-    ...tseslint.configs['recommended-type-checked'], // Base TS
+export default [
     {
+        ignores: [
+            'dist/**',
+            'node_modules/**',
+            'prisma/generated/**',
+            '*.config.*',
+        ],
+    },
+    js.configs.recommended, // Base JS
+    ...tseslint.configs.recommended, // Base TS
+    {
+        files: ['**/*.ts', '**/*.tsx'],
+        ignores: ['**/*.test.ts', '**/*.spec.ts', '**/__tests__/**/*.ts'],
         languageOptions: {
-            parser: tsparser,
+            parser: tseslint.parser,
             parserOptions: {
                 project: './tsconfig.json',
             },
             globals: {
                 ...globals.node,
             },
-        },
-        plugins: {
-            '@typescript-eslint': tseslint,
         },
         rules: {
             //TypeScript
@@ -71,4 +75,4 @@ export default defineConfig([
         },
     },
     prettier,
-]);
+];
