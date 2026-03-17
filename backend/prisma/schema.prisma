@@ -1,8 +1,200 @@
 generator client {
   provider = "prisma-client"
-  output = "../generated/client"
+  output   = "../generated/client"
 }
 
 datasource db {
   provider = "mysql"
+}
+
+//* USERS
+// ============================================
+model User {
+  id            Int        @id @default(autoincrement())
+  alias         String     @unique @db.VarChar(50)
+  firstName     String     @db.VarChar(80)
+  lastName      String     @db.VarChar(80)
+  phone         String?    @db.VarChar(15)
+  email         String?    @db.VarChar(250)
+  passwordHash  String     @db.VarChar(50)
+  role          SystemRole @default(CLIENT)
+  mustChangePwd Boolean    @default(false)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  services           Service[]
+  workerAppointments Appointment[]  @relation("assignedWorker")
+  clientAppointments Appointment[]  @relation("scheduledClient")
+  notifications      Notification[]
+  blockedTimes       BlockedTime[]
+  workingHours       WorkingHour[]
+  recoveryCodes      RecoveryCode[]
+
+  @@index([alias])
+  @@index([firstName, lastName])
+  @@index([role])
+  @@map("users")
+}
+
+enum SystemRole {
+  ADMIN  @map("admin")
+  CLIENT @map("client")
+  WORKER @map("worker")
+
+  @@map("system_user_role")
+}
+
+//* SERVICES
+// ============================================
+model Service {
+  id                 Int                   @id @default(autoincrement())
+  name               String                @unique @db.VarChar(100)
+  description        String?               @db.VarChar(300)
+  colorHex           String                @db.Char(7)
+  defaultDurationMin Int                   @db.UnsignedSmallInt
+  defaultPrice       Int                   @db.UnsignedMediumInt
+  isActive           Boolean               @default(true)
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+  worker             User                  @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  workerId           Int
+  appointments       AppointmentServices[]
+
+  @@index([workerId])
+  @@map("services")
+}
+
+//* APPOINTMENTS
+// ============================================
+model Appointment {
+  id            Int                   @id @default(autoincrement())
+  startAt       DateTime              @db.DateTime()
+  endAt         DateTime              @db.DateTime()
+  status        Status                @default(PENDING)
+  createdBy     AppointmentRole       @default(CLIENT)
+  notes         String?               @db.VarChar(300)
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  worker        User                  @relation("assignedWorker", fields: [workerId], references: [id], onDelete: Cascade)
+  workerId      Int
+  client        User                  @relation("scheduledClient", fields: [clientId], references: [id], onDelete: Cascade)
+  clientId      Int
+  services      AppointmentServices[]
+  notifications Notification[]
+
+  @@index([workerId])
+  @@index([clientId])
+  @@index([startAt, endAt])
+  @@index([status])
+  @@map("appointments")
+}
+
+enum Status {
+  PENDING     @map("pending")
+  REJECTED    @map("rejected")
+  SCHEDULED   @map("scheduled")
+  IN_PROGRESS @map("in_progress")
+  CANCELLED   @map("cancelled")
+  COMPLETED   @map("completed")
+  NO_SHOW     @map("no_show")
+
+  @@map("appointment_status")
+}
+
+enum AppointmentRole {
+  CLIENT @map("client")
+  WORKER @map("worker")
+
+  @@map("appointment_user_role")
+}
+
+//* APPOINTMENTS <-> SERVICES
+// ============================================
+model AppointmentServices {
+  id                Int         @id @default(autoincrement())
+  customDurationMin Int         @db.UnsignedSmallInt
+  customPrice       Int         @db.UnsignedMediumInt
+  appointment       Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  appointmentId     Int
+  service           Service     @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  serviceId         Int
+
+  @@index([appointmentId])
+  @@index([serviceId])
+  @@map("appointments_services")
+}
+
+//* NOTIFICATIONS
+// ============================================
+model Notification {
+  id            Int         @id @default(autoincrement())
+  type          Status      @default(PENDING)
+  title         String      @db.VarChar(100)
+  message       String      @db.VarChar(200)
+  sent_email    Boolean
+  sending_date  DateTime    @db.DateTime()
+  createdAt     DateTime    @default(now())
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        Int
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  appointmentId Int
+
+  @@index([userId])
+  @@index([appointmentId])
+  @@index([type])
+  @@map("notifications")
+}
+
+//* BLOCKED TIMES
+// ============================================
+model BlockedTime {
+  id        Int          @id @default(autoincrement())
+  type      TimeInterval @default(HOUR)
+  startDate DateTime?    @db.Date
+  endDate   DateTime?    @db.Date
+  startHour DateTime?    @db.Time()
+  endHour   DateTime?    @db.Time()
+  reason    String?      @db.VarChar(200)
+  worker    User         @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  workerId  Int
+
+  @@index([workerId])
+  @@map("blocked_times")
+}
+
+enum TimeInterval {
+  HOUR     @map("hour")
+  DAY      @map("day")
+  VACATION @map("vacation")
+
+  @@map("time_interval")
+}
+
+//* WORKING HOURS
+// ============================================
+model WorkingHour {
+  id        Int      @id @default(autoincrement())
+  dayOfWeek Int      @db.UnsignedTinyInt
+  startTime DateTime @db.Time()
+  endTime   DateTime @db.Time()
+  worker    User     @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  workerId  Int
+
+  @@index([workerId])
+  @@map("working_hours")
+}
+
+//* RECOVERY CODES
+// ============================================
+model RecoveryCode {
+  id        Int      @id @default(autoincrement())
+  code      String   @db.Char(5)
+  used      Boolean  @default(false)
+  expireAt  DateTime @db.DateTime()
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+
+  @@index([userId])
+  @@map("recovery_codes")
 }
