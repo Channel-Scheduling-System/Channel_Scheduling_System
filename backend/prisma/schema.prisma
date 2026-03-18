@@ -196,5 +196,6 @@ model RecoveryCode {
   userId    Int
 
   @@index([userId])
+  @@index([userId, used])
   @@map("recovery_codes")
 }
