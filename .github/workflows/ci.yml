@@ -39,12 +39,12 @@ jobs:
           cache-dependency-path: backend/package-lock.json
       - name: Instalar dependencias
         run: npm ci
+      - name: Generar cliente Prisma
+        run: npx prisma generate
       - name: Build TypeScript
         run: npm run build
       - name: Lint
         run: npm run lint
-      - name: Generar cliente Prisma
-        run: npx prisma generate
       - name: Ejecutar migraciones
         run: npx prisma migrate deploy
       - name: Ejecutar tests
