@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 3000;
 
 async function run() {
     try {
-        // await prisma.$connect();
+        await prisma.$connect();
         app.listen(PORT, async () => {
             console.info(`Backend escuchando en http://localhost:${PORT}`);
         });
