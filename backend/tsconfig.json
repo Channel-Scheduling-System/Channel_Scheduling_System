@@ -14,7 +14,8 @@
         "noImplicitAny": true,
         "baseUrl": ".",
         "paths": {
-            "#/*": ["./src/*", "src/generated/*"]
+            "#/*": ["./src/*"],
+            "@prisma/*": ["generated/client/*"]
         }
     },
     "include": ["src", "src/generated", "prisma.config.ts"],

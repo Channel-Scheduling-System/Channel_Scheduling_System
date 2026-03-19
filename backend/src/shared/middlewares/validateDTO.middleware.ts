@@ -32,6 +32,7 @@ export const validateDTO =
             const safeData = schema.parse(dataToValidate);
 
             // 3. Adjuntar los datos limpios y tipados a la request
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (req as any)[
                 `validated${source.charAt(0).toUpperCase() + source.slice(1)}`
             ] = safeData;

@@ -5,12 +5,7 @@ import globals from 'globals';
 
 export default [
     {
-        ignores: [
-            'dist/**',
-            'node_modules/**',
-            'prisma/generated/**',
-            '*.config.*',
-        ],
+        ignores: ['dist/**', 'node_modules/**', 'generated/**', '*.config.*'],
     },
     js.configs.recommended, // Base JS
     ...tseslint.configs.recommended, // Base TS
@@ -59,7 +54,7 @@ export default [
             '@typescript-eslint/await-thenable': 'error',
 
             // Generales
-            'no-console': 'warn',
+            'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
             'no-unused-vars': 'off',
         },
     },
