@@ -7,12 +7,14 @@ const allowedOrigins = [FRONTEND_URL];
 
 const options: cors.CorsOptions = {
     origin: allowedOrigins,
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
 };
 
 const app = express();
 app.use(express.json());
-app.use((cors as (options: cors.CorsOptions) => express.RequestHandler)(options));
+app.use(
+    (cors as (options: cors.CorsOptions) => express.RequestHandler)(options),
+);
 
 app.get('/health', (req, res) => {
     res.json({ status: 'ok' });

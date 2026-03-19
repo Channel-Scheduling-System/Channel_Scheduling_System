@@ -7,10 +7,12 @@ const send = (
     res: Response,
     status: number,
     message: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     extra: any = {},
 ) => res.status(status).json({ message, ...extra });
 
 export function handleErrorMiddleware(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     error: any,
     req: Request,
     res: Response,
