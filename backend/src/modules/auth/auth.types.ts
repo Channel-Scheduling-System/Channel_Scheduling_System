@@ -14,6 +14,11 @@ export interface CreateUserData {
 
 // INPUTS
 //* -----------------------------
+export interface LoginInput {
+    identifier: string; // alias, email or phone
+    password: string;
+}
+
 export interface RegisterInput {
     firstName: string;
     lastName: string;
@@ -24,12 +29,36 @@ export interface RegisterInput {
     role: SystemRole;
 }
 
+export interface RecoveryRequestInput {
+    email: string;
+}
+
+export interface ResetPasswordInput {
+    email: string;
+    code: string;
+    newPassword: string;
+}
+
+// TOKENS
+//* -----------------------------
+export interface AuthTokens {
+    accessToken: string;
+    refreshToken: string;
+}
+
 // AUTH USER
 //* -----------------------------
 export interface AuthUser {
     id: number;
     name: string;
     alias: string;
+    role: SystemRole;
+}
+
+// JWT
+//* -----------------------------
+export interface JwtPayload {
+    sub: number;
     role: SystemRole;
 }
 

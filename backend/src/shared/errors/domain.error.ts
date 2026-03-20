@@ -31,3 +31,9 @@ export class BusinessValidationError extends DomainError {
         super(message, 422, 'BUSINESS_VALIDATION_ERROR');
     }
 }
+
+export class InvalidCredentialsError extends DomainError {
+    constructor(message: string = 'Invalid credentials') {
+        super(message, 401, 'INVALID_CREDENTIALS_ERROR');
+    }
+}
