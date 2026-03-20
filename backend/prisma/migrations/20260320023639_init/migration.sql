@@ -5,14 +5,16 @@ CREATE TABLE `users` (
     `firstName` VARCHAR(80) NOT NULL,
     `lastName` VARCHAR(80) NOT NULL,
     `phone` VARCHAR(15) NULL,
-    `email` VARCHAR(250) NULL,
-    `passwordHash` VARCHAR(50) NOT NULL,
+    `email` VARCHAR(250) NOT NULL,
+    `passwordHash` VARCHAR(60) NOT NULL,
     `role` ENUM('admin', 'client', 'worker') NOT NULL DEFAULT 'client',
     `mustChangePwd` BOOLEAN NOT NULL DEFAULT false,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
     UNIQUE INDEX `users_alias_key`(`alias`),
+    UNIQUE INDEX `users_phone_key`(`phone`),
+    UNIQUE INDEX `users_email_key`(`email`),
     INDEX `users_alias_idx`(`alias`),
     INDEX `users_firstName_lastName_idx`(`firstName`, `lastName`),
     INDEX `users_role_idx`(`role`),
@@ -125,6 +127,7 @@ CREATE TABLE `recovery_codes` (
     `userId` INTEGER NOT NULL,
 
     INDEX `recovery_codes_userId_idx`(`userId`),
+    INDEX `recovery_codes_userId_used_idx`(`userId`, `used`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 

@@ -18,6 +18,6 @@
             "@prisma/*": ["generated/client/*"]
         }
     },
-    "include": ["src", "src/generated", "prisma.config.ts"],
+    "include": ["src", "prisma.config.ts"],
     "exclude": ["node_modules", "dist"]
 }
