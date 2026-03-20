@@ -15,6 +15,7 @@ for (const key of requiredEnvVars) {
 export const env = {
     jwt: {
         secret: process.env.JWT_SECRET as string,
+        refresh: process.env.JWT_SECRET_REFRESH as string,
         expiresIn: process.env.JWT_EXPIRES_IN as string,
     },
     database: {
