@@ -5,6 +5,7 @@
     <div class="flex flex-col items-center gap-4 mb-10">
       <div class="logo-icon">
         <span class="material-symbols-outlined logo-icon__scissors">content_cut</span>
+        <img class="logo-icon__scissors-closed" src="/icons/scissor-closed.png" alt="Tijeras cerradas">
       </div>
       <div class="text-center">
         <h1 class="text-3xl font-black tracking-tight text-primary">Bienvenido</h1>
@@ -20,7 +21,7 @@
           <span class="material-symbols-outlined input-icon">person</span>
           <input
             class="input-field"
-            placeholder="Ej: carlgonz10 / 3232882912 / carl01@gmail.com"
+            placeholder="carlgonz10 / 3232882912 / carl01@gmail.com"
             type="text"
             formControlName="identifier"
             name="identifier"
@@ -86,7 +87,7 @@
     <div class="mt-8 text-center">
       <p class="text-sm text-gray-600">
         No tienes cuenta?
-        <a class="font-semibold text-primary register-link" href="#">Registrate aqui</a>
+        <a class="font-semibold text-primary register-link" routerLink="/auth/register">Registrate aqui</a>
       </p>
     </div>
 
