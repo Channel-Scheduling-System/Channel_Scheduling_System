@@ -1,6 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { AuthService } from './features/auth/services/auth.service';
+import { SessionService } from './core/services/session.service';
 
 @Component({
   selector: 'app-root',
@@ -11,16 +11,13 @@ import { AuthService } from './features/auth/services/auth.service';
 export class App implements OnInit { 
   protected readonly title = signal('frontend');
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private sessionService: SessionService
+  ) {}
 
   ngOnInit(): void {
-    this.authService.initAuth().subscribe({
-      next: () => {
-        console.log('✅ Sesión restaurada automáticamente');
-      },
-      error: () => {
-        console.log('ℹ️ No hay sesión activa');
-      }
+    this.sessionService.initAuth().subscribe({
+      error: () => {}
     });
   }
 }

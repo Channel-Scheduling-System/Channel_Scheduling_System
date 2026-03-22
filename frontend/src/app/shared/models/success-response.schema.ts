@@ -1,9 +1,9 @@
-// shared/models/api/success-response.schema.ts
 import { z } from 'zod';
 
 export const BaseSuccessResponseSchema = z.object({
-  success: z.literal(true),
   message: z.string()
+    .min(1, 'El mensaje es requerido')
+    .max(300, 'El mensaje no puede exceder 300 caracteres')
 });
 
 export type BaseSuccessResponse = z.infer<typeof BaseSuccessResponseSchema>;
