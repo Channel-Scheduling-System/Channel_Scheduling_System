@@ -5,9 +5,10 @@ import {
     SuccessResponseWithDataSchema,
     BaseSuccessResponseSchema
 } from '../../../shared/models/success-response.schema';
+import { IResponseHandler } from '../../interfaces/response-handler.interface';
 
 @Injectable({ providedIn: 'root' })
-export class ResponseHandler {
+export class ResponseHandler implements IResponseHandler {
     handleSuccess<S extends z.ZodTypeAny>(
         response: unknown,
         schema: S
