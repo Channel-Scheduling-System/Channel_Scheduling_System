@@ -1,37 +1,43 @@
 import { Injectable } from '@angular/core';
 import { HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { AlertType } from '../utils/enums/AlertType';
-import { MessageService } from './message.service';
+import { TokenService } from './token.service';
+import { IHeaderService } from '../interfaces/header-service.interface';
 
 @Injectable({
   providedIn: 'root'
 })
-export class HeaderService {
+export class HeaderService implements IHeaderService {
   
   constructor(
     private router: Router,
-    private message: MessageService
+    private tokenService: TokenService,
   ) {}
 
   getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('access_token');
+    const token = this.tokenService.getToken();
+    
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+
+    if (token) {
+      return headers.set('Authorization', `Bearer ${token}`);
+    }
+
+    return headers;
+  }
+
+  getHeadersWithAuth(): HttpHeaders | null {
+    const token = this.tokenService.getToken();
     
     if (!token) {
-      console.warn('No hay un token válido');
-      this.message.showMessage('Sesión expirada', AlertType.ERROR);
-      this.goToLogin();
+      return null;
     }
 
     return new HttpHeaders({
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token || ''}`
+      'Authorization': `Bearer ${token}`
     });
-  }
-
-  private goToLogin(): void {
-    setTimeout(() => {
-      this.router.navigate(['/auth/login']);
-    }, 1000);
   }
 }
