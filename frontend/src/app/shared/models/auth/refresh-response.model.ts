@@ -1,8 +1,10 @@
 import { z } from 'zod';
 import { SuccessResponseWithDataSchema } from '../success-response.schema';
+import { SessionSchema } from '../entities/session.schema';
 
 export const RefreshDataSchema = z.object({
-  token: z.string()
+    user: SessionSchema,
+    token: z.string()
     .min(10, 'El token debe tener al menos 10 caracteres')
     .max(500, 'El token no puede exceder 500 caracteres')
     .regex(

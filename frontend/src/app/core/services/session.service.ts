@@ -11,6 +11,7 @@ import { RefreshResponse, RefreshResponseSchema } from '../../shared/models/auth
 import { HeaderService } from './header.service';
 import { ResponseHandler } from '../utils/handlers/response.handler';
 import { ISessionService } from '../interfaces/session-service.interface';
+import { Session } from '../../shared/models/entities/session.schema';
 
 @Injectable({ providedIn: 'root' })
 export class SessionService implements ISessionService {
@@ -23,12 +24,15 @@ export class SessionService implements ISessionService {
     private router: Router
   ) { }
 
+  private session: Session | null = null;
+
   initAuth(): Observable<RefreshResponse> {
     return this.http.post(API_ENDPOINTS.AUTH.REFRESH, {}, {
       withCredentials: true
     }).pipe(
       map(response => this.responseHandler.handleSuccess(response, RefreshResponseSchema)),
       tap((response: RefreshResponse) => {
+        this.setSession(response.data.user);
         this.tokenService.setToken(response.data.token);
       }),
       catchError(error => this.errorHandler.handleError(error))
@@ -45,15 +49,40 @@ export class SessionService implements ISessionService {
       headers
     }).pipe(
       map(response => this.responseHandler.handleSuccess(response, LogoutResponseSchema)),
-      tap(() => this.router.navigate(['/auth/login'])),
-      catchError(error => {
+      tap(() => {
+        this.clearSession();
         this.router.navigate(['/auth/login']);
+      }),
+      catchError(error => {
+        this.clearSession();
         return this.errorHandler.handleError(error);
       })
     );
   }
 
   isAuthenticated(): boolean {
-    return this.tokenService.hasToken();
+    return this.session != null;;
   }
+
+  setSession(session: Session): void {
+    this.session = session;
+  }
+
+  getSession(): Session | null {
+    return this.session;
+  }
+
+  getRole(): string | null {
+    return this.session?.role || null;
+  }
+
+  getUserId(): number | null {
+    return this.session?.id || null;
+  }
+
+  clearSession(): void {
+    this.session = null;
+    this.tokenService.clearToken();
+  }
+
 }

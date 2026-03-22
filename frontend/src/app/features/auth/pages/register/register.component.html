@@ -1,0 +1,207 @@
+<div class="page-wrapper">
+
+  <div class="card card--animate">
+
+    <div class="flex flex-col items-center gap-4 mb-8">
+      <div class="logo-icon">
+        <span class="material-symbols-outlined logo-icon__scissors">content_cut</span>
+        <img class="logo-icon__scissors-closed" src="/icons/scissor-closed.png" alt="Tijeras cerradas">
+      </div>
+      <div class="text-center">
+        <h1 class="text-3xl font-black tracking-tight text-primary">Crear cuenta</h1>
+        <p class="text-sm font-medium mt-1 text-primary/70">Ingresa los datos básicos de usuario</p>
+      </div>
+    </div>
+
+    <form [formGroup]="registerForm" class="flex flex-col gap-5" (ngSubmit)="onSubmit()">
+
+      <div class="flex flex-col gap-2">
+        <label class="input-label">Alias</label>
+        <div class="input-wrapper">
+          <span class="material-symbols-outlined input-icon">alternate_email</span>
+          <input
+            class="input-field"
+            placeholder="Lucas_Sanchez84"
+            type="text"
+            formControlName="alias"
+            name="alias"
+          >
+        </div>
+        <div *ngIf="getFieldError('alias')" class="error-message">
+          {{ getFieldError('alias') }}
+        </div>
+      </div>
+
+      <div class="name-grid">
+        <div class="flex flex-col gap-2">
+          <label class="input-label">Nombres</label>
+          <div class="input-wrapper">
+            <input
+              class="input-field input-field--no-icon"
+              placeholder="Jhon"
+              type="text"
+              formControlName="firstName"
+              name="firstName"
+            >
+          </div>
+          <div *ngIf="getFieldError('firstName')" class="error-message">
+            {{ getFieldError('firstName') }}
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label class="input-label">Apellidos</label>
+          <div class="input-wrapper">
+            <input
+              class="input-field input-field--no-icon"
+              placeholder="Pinzon"
+              type="text"
+              formControlName="lastName"
+              name="lastName"
+            >
+          </div>
+          <div *ngIf="getFieldError('lastName')" class="error-message">
+            {{ getFieldError('lastName') }}
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="input-label">Teléfono</label>
+        <div class="input-wrapper">
+          <span class="material-symbols-outlined input-icon">call</span>
+          <input
+            class="input-field"
+            placeholder="3224434221"
+            type="tel"
+            formControlName="phone"
+            name="phone"
+          >
+        </div>
+        <div *ngIf="getFieldError('phone')" class="error-message">
+          {{ getFieldError('phone') }}
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="input-label">Correo electrónico</label>
+        <div class="input-wrapper">
+          <span class="material-symbols-outlined input-icon">mail</span>
+          <input
+            class="input-field"
+            placeholder="lucgod@gmail.com"
+            type="email"
+            formControlName="email"
+            name="email"
+          >
+        </div>
+        <div *ngIf="getFieldError('email')" class="error-message">
+          {{ getFieldError('email') }}
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="input-label">Contraseña</label>
+        <div class="input-wrapper">
+          <span class="material-symbols-outlined input-icon">lock</span>
+          <input
+            class="input-field input-field--password"
+            placeholder="••••••••"
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="password"
+            name="password"
+          >
+          <button class="toggle-password" type="button" (click)="togglePassword()">
+            <span class="material-symbols-outlined">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+          </button>
+        </div>
+ 
+        <div class="pwd-checklist" *ngIf="showChecklist">
+          <div class="pwd-checklist__item" [class.pwd-checklist__item--ok]="pwdChecks.minLength">
+            <span class="material-symbols-outlined pwd-checklist__icon">
+              {{ pwdChecks.minLength ? 'check_circle' : 'radio_button_unchecked' }}
+            </span>
+            <span>Mínimo 8 caracteres</span>
+          </div>
+          <div class="pwd-checklist__item" [class.pwd-checklist__item--ok]="pwdChecks.uppercase">
+            <span class="material-symbols-outlined pwd-checklist__icon">
+              {{ pwdChecks.uppercase ? 'check_circle' : 'radio_button_unchecked' }}
+            </span>
+            <span>Al menos una mayúscula</span>
+          </div>
+          <div class="pwd-checklist__item" [class.pwd-checklist__item--ok]="pwdChecks.lowercase">
+            <span class="material-symbols-outlined pwd-checklist__icon">
+              {{ pwdChecks.lowercase ? 'check_circle' : 'radio_button_unchecked' }}
+            </span>
+            <span>Al menos una minúscula</span>
+          </div>
+          <div class="pwd-checklist__item" [class.pwd-checklist__item--ok]="pwdChecks.number">
+            <span class="material-symbols-outlined pwd-checklist__icon">
+              {{ pwdChecks.number ? 'check_circle' : 'radio_button_unchecked' }}
+            </span>
+            <span>Al menos un número</span>
+          </div>
+          <div class="pwd-checklist__item" [class.pwd-checklist__item--ok]="pwdChecks.special">
+            <span class="material-symbols-outlined pwd-checklist__icon">
+              {{ pwdChecks.special ? 'check_circle' : 'radio_button_unchecked' }}
+            </span>
+            <span>Al menos un carácter especial (!@#$...)</span>
+          </div>
+        </div>
+ 
+        <div *ngIf="getFieldError('password')" class="error-message">
+          {{ getFieldError('password') }}
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="input-label">Confirmar contraseña</label>
+        <div class="input-wrapper">
+          <span class="material-symbols-outlined input-icon">lock</span>
+          <input
+            class="input-field input-field--password"
+            placeholder="••••••••"
+            [type]="showConfirmPassword ? 'text' : 'password'"
+            formControlName="confirmPassword"
+            name="confirmPassword"
+          >
+          <button class="toggle-password" type="button" (click)="toggleConfirmPassword()">
+            <span class="material-symbols-outlined">{{ showConfirmPassword ? 'visibility_off' : 'visibility' }}</span>
+          </button>
+        </div>
+        <div *ngIf="getFieldError('confirmPassword')" class="error-message">
+          {{ getFieldError('confirmPassword') }}
+        </div>
+      </div>
+
+      <button
+        class="login-btn"
+        type="submit"
+        [disabled]="isLoading"
+        [class.login-btn--loading]="isLoading"
+      >
+        <span class="login-btn__shimmer"></span>
+        <span class="login-btn__glow"></span>
+        <span class="login-btn__content">
+          <ng-container *ngIf="!isLoading">
+            <span class="login-btn__text">CREAR CUENTA</span>
+            <span class="material-symbols-outlined login-btn__icon">person_add</span>
+          </ng-container>
+          <ng-container *ngIf="isLoading">
+            <mat-spinner diameter="20" color="accent"></mat-spinner>
+            <span class="login-btn__text login-btn__text--loading">CREANDO CUENTA...</span>
+          </ng-container>
+        </span>
+      </button>
+
+    </form>
+
+    <div class="mt-6 text-center">
+      <p class="text-sm text-gray-600">
+        ¿Tienes una cuenta?
+        <a class="font-semibold text-primary register-link" routerLink="/auth/login">Inicia sesión</a>
+      </p>
+    </div>
+
+  </div>
+</div>

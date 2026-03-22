@@ -6,12 +6,13 @@ import { LoginRequest } from '../../models/requests/login/login-request.model';
 import { MessageService } from '../../../../core/services/message.service';
 import { AlertType } from '../../../../core/utils/enums/AlertType';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { fieldValidator} from '../../validators/login.validators';
+import { loginFieldValidator } from '../../validators/login.validators';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, MatProgressSpinnerModule ],
+  imports: [ReactiveFormsModule, CommonModule, MatProgressSpinnerModule, RouterModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
@@ -28,11 +29,11 @@ export class LoginPageComponent {
     this.loginForm = this.fb.group({
       identifier: ['', [
         Validators.required,
-        fieldValidator('identifier')
+        loginFieldValidator('identifier')
       ]],
       password: ['', [
         Validators.required,
-        fieldValidator('password')
+        loginFieldValidator('password')
       ]]
     });
   }
@@ -44,11 +45,11 @@ export class LoginPageComponent {
   public getFieldError(fieldName: string): string {
     const control = this.loginForm.get(fieldName);
     if (control?.touched && control?.errors) {
-      if (control.errors[fieldName]) {
-        return control.errors[fieldName];
-      }
       if (control.errors['required']) {
         return 'Este campo es obligatorio';
+      }
+      if (control.errors[fieldName]) {
+        return control.errors[fieldName];
       }
     }
     return '';

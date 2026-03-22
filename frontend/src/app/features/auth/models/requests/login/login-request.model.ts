@@ -1,5 +1,5 @@
 import { z } from 'zod';
-
+  
 export const LoginRequestSchema = z.object({
   identifier: z.string()
     .min(3, 'El identificador debe tener al menos 3 caracteres')

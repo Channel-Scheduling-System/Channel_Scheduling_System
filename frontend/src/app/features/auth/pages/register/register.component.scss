@@ -2,7 +2,7 @@
 
 .card {
   width: 100%;
-  max-width: 28rem;
+  max-width: 32rem;
   overflow: hidden;
   border-radius: 0.75rem;
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -20,12 +20,13 @@
   }
 }
 
-::ng-deep .logo-icon {
-  &:hover {
-    filter: brightness(1.4);
-    box-shadow: 0 0 0 6px rgba(74, 0, 16, 0.2), 0 0 0 12px rgba(74, 0, 16, 0.08);
-
-    .logo-icon__scissors { opacity: 0; }
-    .logo-icon__scissors-closed { opacity: 1; }
-  }
+.name-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
 }
+
+.input-field--no-icon {
+  padding-left: 1rem;
+}
+

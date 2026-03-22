@@ -33,6 +33,18 @@ $transition: 0.25s ease;
   }
 }
 
+@keyframes btnGradientFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 @keyframes scissorsIdle {
   0% {
     transform: rotate(0deg);
@@ -77,6 +89,32 @@ $transition: 0.25s ease;
   }
   80% {
     transform: translateX(4px);
+  }
+}
+
+.page-wrapper {
+  position: relative;
+  display: flex;
+  min-height: 100svh;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #2c2c2c, #4a0010);
+  background-size: 300% 300%;
+  animation: smoothGradientFlow 8s ease-in-out infinite;
+  padding: 1rem;
+}
+
+@keyframes smoothGradientFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }
 
@@ -228,6 +266,58 @@ $transition: 0.25s ease;
   }
 }
 
+.logo-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 9999px;
+  background-color: $primary;
+  color: white;
+  cursor: default;
+  position: relative;
+  animation: logoPulse 2.8s ease-in-out infinite, scissorsIdle 9s linear infinite;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.1s ease;
+
+  &__scissors {
+    font-size: 2rem !important;
+    line-height: 1 !important;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.05s ease;
+    opacity: 1;
+  }
+
+  &__scissors-closed {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 2rem;
+    height: 2rem;
+    object-fit: contain;
+    opacity: 0;
+    transition: opacity 0.05s ease;
+    pointer-events: none;
+  }
+
+  &:hover {
+    filter: brightness(1.4);
+    box-shadow: 0 0 0 6px rgba($primary, 0.2), 0 0 0 12px rgba($primary, 0.08);
+
+    .logo-icon__scissors {
+      opacity: 0;
+    }
+
+    .logo-icon__scissors-closed {
+      opacity: 1;
+    }
+  }
+}
+
 .login-btn {
   position: relative;
   width: 100%;
@@ -296,7 +386,16 @@ $transition: 0.25s ease;
 
   &:hover:not(:disabled),
   &:focus-visible:not(:disabled) {
-    background-position: right center;
+    background: linear-gradient(
+      135deg,
+      $primary 0%,
+      #7a1030 25%,
+      #9a1535 50%,
+      #7a1030 75%,
+      $primary 100%
+    );
+    background-size: 300% 300%;
+    animation: btnGradientFlow 3s ease infinite;
     border-color: rgba(255, 255, 255, 0.22);
     letter-spacing: 0.1em;
     box-shadow: 0 10px 35px rgba($primary, 0.65), 0 4px 12px rgba($primary, 0.4), 0 0 0 3px rgba(255, 255, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2);
@@ -340,5 +439,42 @@ $transition: 0.25s ease;
   &--loading {
     background: linear-gradient(135deg, $primary-dark 0%, #6a1028 100%);
     box-shadow: 0 4px 15px rgba($primary, 0.3);
+  }
+}
+
+.pwd-checklist {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background-color: #f9fafb;
+  border: 1.5px solid #e5e7eb;
+  animation: slideDown 0.25s ease-out;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: #9ca3af;
+    transition: color 0.2s ease;
+
+    &--ok {
+      color: #16a34a;
+
+      .pwd-checklist__icon {
+        color: #16a34a;
+      }
+    }
+  }
+
+  &__icon {
+    font-size: 1rem !important;
+    line-height: 1 !important;
+    color: #d1d5db;
+    transition: color 0.2s ease;
+    flex-shrink: 0;
   }
 }
