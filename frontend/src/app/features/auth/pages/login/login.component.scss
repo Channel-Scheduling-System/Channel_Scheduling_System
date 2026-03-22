@@ -1,17 +1,5 @@
 @use '../../auth-module.scss' as *;
 
-.page-wrapper {
-  position: relative;
-  display: flex;
-  min-height: 100svh;
-  width: 100%;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #2c2c2c 0%, #4a0010 100%);
-  padding: 1rem;
-}
-
 .card {
   width: 100%;
   max-width: 28rem;
@@ -32,33 +20,12 @@
   }
 }
 
-.logo-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 4.5rem;
-  height: 4.5rem;
-  border-radius: 9999px;
-  background-color: $primary;
-  color: white;
-  cursor: default;
-  animation: logoPulse 2.8s ease-in-out infinite;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-
-  &__scissors {
-    font-size: 2rem !important;
-    line-height: 1 !important;
-    animation: scissorsIdle 9s linear infinite;
-    transition: animation-duration 0.3s;
-  }
-
+::ng-deep .logo-icon {
   &:hover {
-    transform: scale(1.1);
-    box-shadow: 0 0 0 6px rgba($primary, 0.2), 0 0 0 12px rgba($primary, 0.08);
-    animation: none;
+    filter: brightness(1.4);
+    box-shadow: 0 0 0 6px rgba(74, 0, 16, 0.2), 0 0 0 12px rgba(74, 0, 16, 0.08);
 
-    .logo-icon__scissors {
-      animation: scissorsHover 0.5s linear infinite;
-    }
+    .logo-icon__scissors { opacity: 0; }
+    .logo-icon__scissors-closed { opacity: 1; }
   }
 }
