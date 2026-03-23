@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { BaseSuccessResponseSchema } from '../success-response.schema';
+import { BaseSuccessResponseSchema } from '../api/success-response.schema';
 
 export const LogoutResponseSchema = BaseSuccessResponseSchema;
 
