@@ -11,3 +11,5 @@ const adapter = new PrismaMariaDb({
     connectTimeout: 30000,
 });
 const prisma = new PrismaClient({ adapter });
+
+export default prisma;
