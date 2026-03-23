@@ -7,9 +7,10 @@ import { API_ENDPOINTS } from '../../shared/constants/api-endpoints.constants';
 import { ResponseHandler } from '../utils/handlers/response.handler';
 import { HttpErrorHandler } from '../utils/handlers/error.handler';
 import { AdminExistsResponse, AdminExistsResponseSchema } from '../../shared/models/admin/admin-exists-response.model';
+import { IAdminService } from '../interfaces/admin-service.interface';
 
 @Injectable({ providedIn: 'root' })
-export class AdminService {
+export class AdminService implements IAdminService{
   constructor(
     private http: HttpClient,
     private responseHandler: ResponseHandler,
