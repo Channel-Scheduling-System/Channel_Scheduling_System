@@ -5,7 +5,10 @@ import jwt from 'jsonwebtoken';
 
 import { AuthService } from '../../src/modules/auth/auth.service';
 import type { IAuthRepository } from '../../src/modules/auth/auth.repository';
-import { ConflictError, InvalidCredentialsError } from '../../src/shared/errors/domain.error';
+import {
+    ConflictError,
+    InvalidCredentialsError,
+} from '../../src/shared/errors/domain.error';
 
 jest.mock('bcrypt', () => ({
     __esModule: true,
@@ -110,7 +113,10 @@ describe('AuthService', () => {
         bcryptMock.compare.mockResolvedValue(false);
 
         await expect(
-            service.login({ identifier: 'johangil', password: 'wrong-password' }),
+            service.login({
+                identifier: 'johangil',
+                password: 'wrong-password',
+            }),
         ).rejects.toBeInstanceOf(InvalidCredentialsError);
     });
 

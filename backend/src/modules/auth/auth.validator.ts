@@ -1,18 +1,12 @@
 import { z } from 'zod';
-import { validateDTO } from '#/shared/middlewares/validateDTO.middleware.js';
+import {
+    validateBodyDTO,
+    validateCookieDTO,
+} from '#/shared/middlewares/validateDTO.middleware.js';
 
 // ENUMS
 //* -----------------------------
 export const SystemRole = z.enum(['ADMIN', 'CLIENT', 'WORKER']);
-
-// LOGIN
-//* -----------------------------
-export const LoginDTO = z
-    .object({
-        identifier: z.string().min(1, 'El identificador es requerido'), // Email o alias
-        password: z.string().min(1, 'La contraseña es requerida'),
-    })
-    .strict();
 
 // REGISTER
 //* -----------------------------
@@ -27,6 +21,23 @@ export const RegisterDTO = z
             .string()
             .min(8, 'La contraseña debe tener al menos 8 caracteres'),
         role: SystemRole,
+    })
+    .strict();
+
+// LOGIN
+//* -----------------------------
+export const LoginDTO = z
+    .object({
+        identifier: z.string().min(1, 'El identificador es requerido'), // Email o alias
+        password: z.string().min(1, 'La contraseña es requerida'),
+    })
+    .strict();
+
+// LOGOUT
+//* -----------------------------
+export const LogoutDTO = z
+    .object({
+        refreshToken: z.string().min(10, 'Refresh token inválido'),
     })
     .strict();
 
@@ -50,15 +61,12 @@ export const ResetPasswordDTO = z
 
 // REFRESH TOKEN
 //* -----------------------------
-export const RefreshTokenDTO = z
-    .object({
-        refreshToken: z.string().min(10),
-    })
-    .strict();
+export const RefreshTokenDTO = z.string().min(10, 'Refresh token inválido');
 
 // TYPES (DTOs)
 //* -----------------------------
 export type LoginRequestDTO = z.infer<typeof LoginDTO>;
+export type LogoutRequestDTO = z.infer<typeof LogoutDTO>;
 export type RegisterRequestDTO = z.infer<typeof RegisterDTO>;
 export type RecoveryRequest = z.infer<typeof RecoveryRequestDTO>;
 export type ResetPasswordRequest = z.infer<typeof ResetPasswordDTO>;
@@ -67,9 +75,10 @@ export type RefreshTokenRequest = z.infer<typeof RefreshTokenDTO>;
 // Export centralizado
 //* -----------------------------
 export const authValidator = {
-    login: validateDTO(LoginDTO),
-    register: validateDTO(RegisterDTO),
-    recoveryRequest: validateDTO(RecoveryRequestDTO),
-    resetPassword: validateDTO(ResetPasswordDTO),
-    refreshToken: validateDTO(RefreshTokenDTO),
+    register: validateBodyDTO(RegisterDTO),
+    login: validateBodyDTO(LoginDTO),
+    logout: validateBodyDTO(LogoutDTO),
+    recoveryRequest: validateBodyDTO(RecoveryRequestDTO),
+    resetPassword: validateBodyDTO(ResetPasswordDTO),
+    refreshToken: validateCookieDTO('refreshToken', RefreshTokenDTO),
 };

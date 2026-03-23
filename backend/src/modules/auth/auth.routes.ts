@@ -1,10 +1,32 @@
 import { Router } from 'express';
 import { authController } from './auth.module.js';
 import { authValidator } from './auth.validator.js';
+import { loginLimiter, registerLimiter } from '#/config/security.js';
+import { authMiddleware } from '#/shared/middlewares/auth.middleware.js';
 
 const authRouter = Router();
 
-authRouter.post('/login', authValidator.login, authController.login);
-authRouter.post('/register', authValidator.register, authController.register);
+authRouter.post(
+    '/register',
+    registerLimiter,
+    authValidator.register,
+    authController.register,
+);
+
+authRouter.post(
+    '/login',
+    loginLimiter,
+    authValidator.login,
+    authController.login,
+);
+
+authRouter.post('/refresh', authValidator.refreshToken, authController.refresh);
+
+authRouter.post(
+    '/logout',
+    authMiddleware,
+    authValidator.refreshToken,
+    authController.logout,
+);
 
 export default authRouter;
