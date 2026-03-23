@@ -7,6 +7,9 @@ export const API_ENDPOINTS = {
     REFRESH: `${environment.apiUrl}/auth/refresh`,
     LOGOUT: `${environment.apiUrl}/auth/logout`
   },
+  ADMIN: {
+    EXISTS: `${environment.apiUrl}/admin/exists`
+  },
   USERS: {
     PROFILE: `${environment.apiUrl}/users/profile`,
     UPDATE: (id: number) => `${environment.apiUrl}/users/${id}`
