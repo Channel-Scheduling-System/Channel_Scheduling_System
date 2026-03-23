@@ -24,7 +24,7 @@ export const UserSchema = z.object({
         .regex(/^\d+$/, 'El teléfono solo debe contener números')
         .min(10, 'El teléfono debe tener 10 dígitos')
         .max(10, 'El teléfono no puede exceder los 10 dígitos'),
-    role: z.enum(['ADMIN', 'WORKER', 'CUSTOMER'])
+    role: z.enum(['ADMIN', 'WORKER', 'CLIENT'])
 });
 
 export type UserData = z.infer<typeof UserSchema>;
