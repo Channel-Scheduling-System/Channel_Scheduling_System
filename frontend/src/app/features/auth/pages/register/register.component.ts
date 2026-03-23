@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../services/auth.service';
-import { CustomerRegisterRequest } from '../../models/requests/register/register-request.model';
+import { UserService } from '../../../users/services/user.service';
+import { ClientRegisterRequest } from '../../../users/models/requests/register/register-request.model';
 import { MessageService } from '../../../../core/services/message.service';
 import { AlertType } from '../../../../core/utils/enums/AlertType';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
-import { passwordMatchValidator, registerFieldValidator } from '../../validators/register.validators';
+import { UserFormFactory } from '../../../users/utils/user-form.factory';
 
 @Component({
   selector: 'app-register',
@@ -25,35 +25,18 @@ export class RegisterPageComponent {
 
   constructor(
     private fb: FormBuilder,
-    private authService: AuthService,
+    private userService: UserService,
+
     private messageService: MessageService
   ) {
-    this.registerForm = this.fb.group({
-      alias: ['', [Validators.required, registerFieldValidator('alias')]],
-      firstName: ['', [Validators.required, registerFieldValidator('firstName')]],
-      lastName:  ['', [Validators.required, registerFieldValidator('lastName')]],
-      phone:     ['', [Validators.required, registerFieldValidator('phone')]],
-      email:     ['', [Validators.required, registerFieldValidator('email')]],
-      password:  ['', [Validators.required, registerFieldValidator('password')]],
-      confirmPassword: ['', [Validators.required]]
-    }, {
-      validators: passwordMatchValidator('password', 'confirmPassword')
-    });
-
+    this.registerForm = UserFormFactory.createRegisterForm(this.fb, 'CLIENT');
     this.registerForm.get('password')!.valueChanges.subscribe((value: string) => {
       this.showChecklist = !!value;
     });
   }
 
   get pwdChecks() {
-    const value: string = this.registerForm.get('password')?.value ?? '';
-    return {
-      minLength: value.length >= 8,
-      uppercase: /[A-Z]/.test(value),
-      lowercase: /[a-z]/.test(value),
-      number:    /[0-9]/.test(value),
-      special:   /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(value)
-    };
+    return UserFormFactory.getPasswordChecks(this.registerForm.get('password')?.value ?? '');
   }
 
   public togglePassword(): void {
@@ -82,12 +65,12 @@ export class RegisterPageComponent {
 
     this.isLoading = true;
 
-    const credentials: CustomerRegisterRequest = {
+    const credentials: ClientRegisterRequest = {
       ...this.registerForm.value,
       role: 'CLIENT'
     };
 
-    this.authService.register(credentials).subscribe({
+    this.userService.register(credentials).subscribe({
       next:  (data)  => this.handleRegisterSuccess(data),
       error: (error) => this.handleRegisterError(error)
     });
