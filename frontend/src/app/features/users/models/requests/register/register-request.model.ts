@@ -12,7 +12,7 @@ export const RegisterRequestBaseSchema = UserRegistrationFields.extend({
         .regex(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/, 'La contraseña debe contener al menos un carácter especial')
 });
 
-export const CustomerRegisterRequestSchema = RegisterRequestBaseSchema.extend({
+export const ClientRegisterRequestSchema = RegisterRequestBaseSchema.extend({
     role: z.literal('CLIENT')
 });
 
@@ -25,6 +25,6 @@ export const AdminRegisterRequestSchema = RegisterRequestBaseSchema.extend({
 });
 
 export type RegisterRequest = z.infer<typeof RegisterRequestBaseSchema>;
-export type CustomerRegisterRequest = z.infer<typeof CustomerRegisterRequestSchema>;
+export type ClientRegisterRequest = z.infer<typeof ClientRegisterRequestSchema>;
 export type WorkerRegisterRequest = z.infer<typeof WorkerRegisterRequestSchema>;
 export type AdminRegisterRequest = z.infer<typeof AdminRegisterRequestSchema>;

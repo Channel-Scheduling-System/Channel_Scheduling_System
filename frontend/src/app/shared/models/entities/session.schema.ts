@@ -16,7 +16,7 @@ export const SessionSchema = z.object({
         .max(30, 'El alias no puede exceder 30 caracteres')
         .regex(/^[a-zA-Z0-9_-]+$/, 'El alias solo puede contener letras, números, guiones y guiones bajos')
         .optional(),
-    role: z.enum(['ADMIN', 'WORKER', 'CUSTOMER'])
+    role: z.enum(['ADMIN', 'WORKER', 'CLIENT'])
 });
 
 export type Session = z.infer<typeof SessionSchema>;

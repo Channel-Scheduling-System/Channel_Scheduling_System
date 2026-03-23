@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ErrorResponse, ErrorResponseSchema } from '../../../shared/models/error-response.schema';
+import { ErrorResponse, ErrorResponseSchema } from '../../../shared/models/api/error-response.schema';
 import { Injectable } from '@angular/core';
 import { IErrorHandler } from '../../interfaces/error-handler.interface';
 

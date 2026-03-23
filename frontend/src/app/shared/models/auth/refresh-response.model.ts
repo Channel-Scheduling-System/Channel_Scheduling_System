@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SuccessResponseWithDataSchema } from '../success-response.schema';
+import { SuccessResponseWithDataSchema } from '../api/success-response.schema';
 import { SessionSchema } from '../entities/session.schema';
 
 export const RefreshDataSchema = z.object({

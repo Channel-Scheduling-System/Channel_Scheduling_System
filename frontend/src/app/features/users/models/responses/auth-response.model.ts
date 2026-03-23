@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SuccessResponseWithDataSchema } from '../../../../shared/models/success-response.schema';
+import { SuccessResponseWithDataSchema } from '../../../../shared/models/api/success-response.schema';
 import { SessionSchema } from '../../../../shared/models/entities/session.schema';
 
 export const AuthDataSchema = z.object({

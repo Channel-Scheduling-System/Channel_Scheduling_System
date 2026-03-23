@@ -2,7 +2,8 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../../users/services/user.service';
-import { ClientRegisterRequest } from '../../../users/models/requests/register/register-request.model';
+import { AdminRegisterRequest } from '../../../users/models/requests/register/register-request.model';
+import { AdminRegisterResponse } from '../../../../shared/models/admin/admin-register-response.model';
 import { MessageService } from '../../../../core/services/message.service';
 import { AlertType } from '../../../../core/utils/enums/AlertType';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -10,14 +11,14 @@ import { RouterModule } from '@angular/router';
 import { UserFormFactory } from '../../../users/utils/user-form.factory';
 
 @Component({
-  selector: 'app-register',
+  selector: 'app-admin-register',
   standalone: true,
   imports: [ReactiveFormsModule, CommonModule, MatProgressSpinnerModule, RouterModule],
-  templateUrl: './register.component.html',
-  styleUrl: './register.component.scss'
+  templateUrl: './admin-register.component.html',
+  styleUrl: './admin-register.component.scss'
 })
-export class RegisterPageComponent {
-  registerForm: FormGroup;
+export class AdminRegisterPageComponent {
+  adminRegisterForm: FormGroup;
   showPassword = false;
   showConfirmPassword = false;
   isLoading = false;
@@ -26,17 +27,17 @@ export class RegisterPageComponent {
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
-
     private messageService: MessageService
   ) {
-    this.registerForm = UserFormFactory.createRegisterForm(this.fb, 'CLIENT');
-    this.registerForm.get('password')!.valueChanges.subscribe((value: string) => {
+    this.adminRegisterForm = UserFormFactory.createRegisterForm(this.fb, 'ADMIN');
+
+    this.adminRegisterForm.get('password')!.valueChanges.subscribe((value: string) => {
       this.showChecklist = !!value;
     });
   }
 
   get pwdChecks() {
-    return UserFormFactory.getPasswordChecks(this.registerForm.get('password')?.value ?? '');
+    return UserFormFactory.getPasswordChecks(this.adminRegisterForm.get('password')?.value ?? '');
   }
 
   public togglePassword(): void {
@@ -48,35 +49,37 @@ export class RegisterPageComponent {
   }
 
   public getFieldError(fieldName: string): string {
-    const control = this.registerForm.get(fieldName);
-    if (fieldName === 'confirmPassword' && this.registerForm.errors?.['passwordsMismatch']) {
-      return this.registerForm.errors['passwordsMismatch'];
+    const control = this.adminRegisterForm.get(fieldName);
+    if (fieldName === 'confirmPassword' && this.adminRegisterForm.errors?.['passwordsMismatch']) {
+      return this.adminRegisterForm.errors['passwordsMismatch'];
     }
     if (control?.touched && control?.errors) {
-      if (control.errors['required'])    return 'Este campo es obligatorio';
-      if (control.errors[fieldName])     return control.errors[fieldName];
+      if (control.errors['required'])  return 'Este campo es obligatorio';
+      if (control.errors[fieldName])   return control.errors[fieldName];
     }
     return '';
   }
 
   public onSubmit(): void {
-    this.registerForm.markAllAsTouched();
-    if (this.registerForm.invalid) return;
+    this.adminRegisterForm.markAllAsTouched();
+    console.log(this.adminRegisterForm.value);
+    console.log(this.adminRegisterForm.invalid);
+    if (this.adminRegisterForm.invalid) return;
 
     this.isLoading = true;
 
-    const credentials: ClientRegisterRequest = {
-      ...this.registerForm.value,
-      role: 'CLIENT'
+    const credentials: AdminRegisterRequest = {
+      ...this.adminRegisterForm.value,
+      role: 'ADMIN'
     };
 
     this.userService.register(credentials).subscribe({
-      next:  (data)  => this.handleRegisterSuccess(data),
+      next:  (data)  => this.handleRegisterSuccess(data as AdminRegisterResponse),
       error: (error) => this.handleRegisterError(error)
     });
   }
 
-  private handleRegisterSuccess(data: any): void {
+  private handleRegisterSuccess(data: AdminRegisterResponse): void {
     this.isLoading = false;
     this.messageService.showMessage(data.message, AlertType.SUCCESS);
   }
