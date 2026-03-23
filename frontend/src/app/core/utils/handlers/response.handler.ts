@@ -4,7 +4,7 @@ import {
     SuccessResponseWithData,
     SuccessResponseWithDataSchema,
     BaseSuccessResponseSchema
-} from '../../../shared/models/success-response.schema';
+} from '../../../shared/models/api/success-response.schema';
 import { IResponseHandler } from '../../interfaces/response-handler.interface';
 
 @Injectable({ providedIn: 'root' })
