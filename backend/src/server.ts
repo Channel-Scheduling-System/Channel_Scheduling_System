@@ -1,15 +1,14 @@
 import 'dotenv/config.js';
 
+import { env } from './config/env.js';
 import app from './app.js';
 import prisma from './config/prisma.js';
-
-const PORT = process.env.PORT || 3000;
 
 async function run() {
     try {
         await prisma.$connect();
-        app.listen(PORT, async () => {
-            console.info(`Backend escuchando en http://localhost:${PORT}`);
+        app.listen(env.port, async () => {
+            console.info(`Backend escuchando en http://localhost:${env.port}`);
         });
     } catch (error) {
         console.error('Error conectando a la base de datos:', error);
