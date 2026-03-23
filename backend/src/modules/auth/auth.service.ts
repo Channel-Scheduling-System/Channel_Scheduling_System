@@ -1,81 +1,221 @@
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-
+import crypto from 'crypto';
+import { SignJWT, jwtVerify } from 'jose';
 import { env } from '#/config/env.js';
 import {
     ConflictError,
-    InvalidCredentialsError,
+    UnauthorizedError,
+    TokenReuseError,
 } from '#/shared/errors/domain.error.js';
+import {
+    InvalidCredentialsError,
+    InvalidTokenError,
+} from '#/shared/errors/validation.error.js';
 import { IAuthRepository } from './auth.repository.js';
+import { mapToAuthUser } from './auth.mapper.js';
 
 import {
     AuthResult,
+    AuthTokens,
     JwtPayload,
     LoginInput,
+    LogoutInput,
+    RefreshTokenInput,
     RegisterInput,
+    SystemRole,
 } from './auth.types.js';
 
 export interface IAuthService {
-    login(input: LoginInput): Promise<AuthResult>;
     register(input: RegisterInput): Promise<AuthResult>;
+    login(input: LoginInput): Promise<AuthResult>;
+    refresh(input: RefreshTokenInput): Promise<AuthResult>;
+    logout(input: LogoutInput): Promise<void>;
 }
 
 const SALT_ROUNDS = 10;
+const TOKEN_HASH_ALGORITHM = 'sha256';
+
+const AUTH_ERRORS = {
+    EMAIL_REGISTERED: 'El email ya está registrado',
+    TOKEN_REUSE_DETECTED:
+        'Sesión comprometida. Por favor inicie sesión nuevamente.',
+    USER_NOT_FOUND: 'Usuario no encontrado',
+    TOKEN_DECODE_FAILED: 'Decodificación de token fallida',
+    LOGOUT_INVALID_TOKEN: 'Token de sesión inválido o expirado',
+    LOGOUT_UNAUTHORIZED: 'No autorizado para cerrar esta sesión',
+} as const;
 
 export class AuthService implements IAuthService {
     constructor(private readonly authRepo: IAuthRepository) {}
 
+    async register(input: RegisterInput): Promise<AuthResult> {
+        const existingUser = await this.authRepo.findUserByEmail(input.email);
+        if (existingUser) throw new ConflictError(AUTH_ERRORS.EMAIL_REGISTERED);
+
+        const passwordHash = await bcrypt.hash(input.password, SALT_ROUNDS);
+        const { password: _password, ...userData } = input;
+
+        const user = await this.authRepo.createUser({
+            ...userData,
+            passwordHash,
+        });
+        const tokens = await this.generateAndStoreTokens(user.id, user.role);
+
+        return {
+            user: mapToAuthUser(user),
+            tokens,
+        };
+    }
+
     async login(input: LoginInput): Promise<AuthResult> {
         const user = await this.authRepo.findUserByIdentifier(input.identifier);
         if (!user) throw new InvalidCredentialsError();
+
         const isValid = await bcrypt.compare(input.password, user.passwordHash);
         if (!isValid) throw new InvalidCredentialsError();
-        const token = this.generateToken({
-            sub: user.id,
-            role: user.role,
-        });
+
+        await this.authRepo.deleteRefreshTokensForUser(user.id);
+        const tokens = await this.generateAndStoreTokens(user.id, user.role);
+
         return {
-            user: {
-                id: user.id,
-                name: `${user.firstName} ${user.lastName}`,
-                alias: user.alias,
-                role: user.role,
-            },
-            token: token.accessToken,
+            user: mapToAuthUser(user),
+            tokens,
         };
     }
 
-    async register(input: RegisterInput): Promise<AuthResult> {
-        const existingUser = await this.authRepo.findUserByEmail(input.email);
-        if (existingUser)
-            throw new ConflictError('El email ya está registrado');
-        const passwordHash = await bcrypt.hash(input.password, SALT_ROUNDS);
-        const { password: _password, ...rest } = input;
-        const user = await this.authRepo.createUser({
-            ...rest,
-            passwordHash,
-        });
-        const token = this.generateToken({
-            sub: user.id,
-            role: user.role,
-        });
+    async refresh(input: RefreshTokenInput): Promise<AuthResult> {
+        await this.verifyRefreshToken(input.refreshToken);
+        const payload = this.decodeAndValidateRefreshToken(input.refreshToken);
+
+        const tokenHash = this.hashToken(input.refreshToken);
+        const storedToken = await this.authRepo.findRefreshToken(tokenHash);
+
+        if (!storedToken) {
+            await this.authRepo.deleteRefreshTokensForUser(payload.sub);
+            throw new TokenReuseError(AUTH_ERRORS.TOKEN_REUSE_DETECTED);
+        }
+
+        const user = await this.authRepo.findUserById(payload.sub);
+        if (!user) throw new UnauthorizedError(AUTH_ERRORS.USER_NOT_FOUND);
+
+        await this.authRepo.invalidateRefreshToken(tokenHash);
+        const tokens = await this.generateAndStoreTokens(user.id, user.role);
+
         return {
-            user: {
-                id: user.id,
-                name: `${user.firstName} ${user.lastName}`,
-                alias: user.alias,
-                role: user.role,
-            },
-            token: token.accessToken,
+            user: mapToAuthUser(user),
+            tokens,
         };
     }
 
-    private generateToken(payload: JwtPayload) {
-        const accessToken = jwt.sign(payload, env.jwt.secret, {
-            expiresIn: '15m',
-        });
+    async logout(input: LogoutInput): Promise<void> {
+        await this.verifyRefreshToken(input.refreshToken);
+        const payload = this.decodeAndValidateRefreshToken(input.refreshToken);
+
+        if (input.userId && input.userId !== payload.sub)
+            throw new UnauthorizedError(AUTH_ERRORS.LOGOUT_UNAUTHORIZED);
+
+        const tokenHash = this.hashToken(input.refreshToken);
+        const storedToken = await this.authRepo.findRefreshTokenByUserAndHash(
+            payload.sub,
+            tokenHash,
+        );
+
+        if (!storedToken)
+            throw new InvalidTokenError(AUTH_ERRORS.LOGOUT_INVALID_TOKEN);
+
+        await this.authRepo.invalidateRefreshToken(tokenHash);
+    }
+
+    private async generateAndStoreTokens(
+        userId: number,
+        role: SystemRole,
+    ): Promise<AuthTokens> {
+        const payload: JwtPayload = {
+            sub: userId,
+            role,
+        };
+
+        const accessToken = await this.generateAccessToken(payload);
+        const refreshToken = await this.generateRefreshToken(payload);
+
+        const expireAt = this.extractTokenExpiration(refreshToken);
+        const tokenHash = this.hashToken(refreshToken);
+
+        await this.authRepo.createRefreshToken(userId, tokenHash, expireAt);
+
         return {
             accessToken,
+            refreshToken,
         };
+    }
+
+    private async generateAccessToken(payload: JwtPayload): Promise<string> {
+        const secret = new TextEncoder().encode(env.jwt.secret);
+        const token = await new SignJWT({
+            sub: payload.sub.toString(),
+            role: payload.role,
+        })
+            .setProtectedHeader({ alg: 'HS256' })
+            .setExpirationTime(env.jwt.expiresIn)
+            .sign(secret);
+        return token;
+    }
+
+    private async generateRefreshToken(payload: JwtPayload): Promise<string> {
+        const secret = new TextEncoder().encode(env.jwt.refresh);
+        const token = await new SignJWT({
+            sub: payload.sub.toString(),
+            role: payload.role,
+        })
+            .setProtectedHeader({ alg: 'HS256' })
+            .setExpirationTime(env.jwt.expiresInRefresh)
+            .sign(secret);
+        return token;
+    }
+
+    private decodeAndValidateRefreshToken(
+        token: string,
+    ): JwtPayload & { exp?: number } {
+        // Decodificar sin verificar para obtener claims
+        const parts = token.split('.');
+        if (parts.length !== 3) {
+            throw new InvalidTokenError();
+        }
+        try {
+            const decoded = JSON.parse(
+                Buffer.from(parts[1], 'base64').toString('utf-8'),
+            ) as { sub: string; role: string; exp?: number };
+            return {
+                sub: parseInt(decoded.sub, 10),
+                role: decoded.role as SystemRole,
+                exp: decoded.exp,
+            };
+        } catch {
+            throw new InvalidTokenError(AUTH_ERRORS.TOKEN_DECODE_FAILED);
+        }
+    }
+
+    private async verifyRefreshToken(token: string): Promise<void> {
+        try {
+            const secret = new TextEncoder().encode(env.jwt.refresh);
+            await jwtVerify(token, secret);
+        } catch {
+            throw new InvalidTokenError();
+        }
+    }
+
+    private extractTokenExpiration(token: string): Date {
+        const payload = this.decodeAndValidateRefreshToken(token);
+        if (!payload.exp) {
+            throw new InvalidTokenError(AUTH_ERRORS.TOKEN_DECODE_FAILED);
+        }
+        return new Date(payload.exp * 1000);
+    }
+
+    private hashToken(token: string): string {
+        return crypto
+            .createHash(TOKEN_HASH_ALGORITHM)
+            .update(token)
+            .digest('hex');
     }
 }
