@@ -3,7 +3,6 @@ import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SessionService } from '../../services/session.service';
 import { MessageService } from '../../services/message.service';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-main-layout',
@@ -29,17 +28,11 @@ export class MainLayoutComponent implements OnInit {
 
   onLogout(): void {
     this.sessionService.logout().subscribe({
-      next: (data) => {
-        this.handleLogoutSuccess(data);
-      },
+      next: () => {},
       error: (error) => {
         this.handleLogoutError(error);
       }
     });
-  }
-
-  private handleLogoutSuccess(data: any): void {
-    this.messageService.showMessage(data.message, 'success');
   }
 
   private handleLogoutError(error: any): void {
