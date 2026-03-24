@@ -1,0 +1,78 @@
+@keyframes logoPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(74, 0, 16, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(74, 0, 16, 0);
+  }
+}
+
+.logo-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  transform: rotate(-45deg);
+  background-color: #4a0010;
+  color: white;
+  cursor: default;
+  position: relative;
+  animation: logoPulse 2.8s ease-in-out infinite;
+  transition: filter 0.1s ease, box-shadow 0.1s ease;
+
+  &__scissors {
+    font-size: 2rem !important;
+    line-height: 1 !important;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.05s ease;
+    opacity: 1;
+  }
+
+  &__scissors-closed {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 2rem;
+    height: 2rem;
+    object-fit: contain;
+    opacity: 0;
+    transition: opacity 0.05s ease;
+    pointer-events: none;
+  }
+
+  &:hover {
+    filter: brightness(1.4);
+    box-shadow: 0 0 0 6px rgba(74, 0, 16, 0.2), 0 0 0 12px rgba(74, 0, 16, 0.08);
+
+    .logo-icon__scissors {
+      opacity: 0;
+    }
+
+    .logo-icon__scissors-closed {
+      opacity: 1;
+    }
+  }
+}
+
+.logo-icon--small {
+  width: 2.75rem;
+  height: 2.75rem;
+
+  .logo-icon__scissors {
+    font-size: 1.25rem !important;
+  }
+
+  .logo-icon__scissors-closed {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}
+
+.logo-icon--normal {
+  width: 4.5rem;
+  height: 4.5rem;
+}

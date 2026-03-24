@@ -1,0 +1,74 @@
+<div class="layout-wrapper">
+
+  <aside class="sidebar" [class.sidebar--collapsed]="isCollapsed">
+
+    <div class="sidebar__brand">
+      <div class="sidebar__brand-logo">
+        <div class="logo-icon logo-icon--small">
+          <div class="logo-icon__inner">
+            <span class="material-symbols-outlined logo-icon__scissors">content_cut</span>
+            <img class="logo-icon__scissors-closed" src="/icons/scissor-closed.png" alt="Tijeras cerradas">
+          </div>
+        </div>
+      </div>
+      <div>
+        <h1 class="sidebar__brand-title">Channel</h1>
+        <p class="sidebar__brand-sub">sistema de agendamiento</p>
+      </div>
+    </div>
+
+    <nav class="sidebar__nav">
+      <a class="sidebar__nav-item sidebar__nav-item--active" routerLink="services"
+        routerLinkActive="sidebar__nav-item--active">
+        <span class="sidebar__nav-item-fill"></span>
+        <span class="material-symbols-outlined sidebar__nav-item-icon">content_cut</span>
+        <span class="sidebar__nav-item-label">Servicios</span>
+      </a>
+      <a class="sidebar__nav-item" routerLink="appointments" routerLinkActive="sidebar__nav-item--active">
+        <span class="sidebar__nav-item-fill"></span>
+        <span class="material-symbols-outlined sidebar__nav-item-icon">calendar_month</span>
+        <span class="sidebar__nav-item-label">Citas</span>
+      </a>
+      <a class="sidebar__nav-item" routerLink="clients" routerLinkActive="sidebar__nav-item--active">
+        <span class="sidebar__nav-item-fill"></span>
+        <span class="material-symbols-outlined sidebar__nav-item-icon">person</span>
+        <span class="sidebar__nav-item-label">Clientes</span>
+      </a>
+      <a class="sidebar__nav-item" routerLink="reports" routerLinkActive="sidebar__nav-item--active">
+        <span class="sidebar__nav-item-fill"></span>
+        <span class="material-symbols-outlined sidebar__nav-item-icon">assessment</span>
+        <span class="sidebar__nav-item-label">Reportes</span>
+      </a>
+    </nav>
+
+    <button class="sidebar__toggle" (click)="toggleSidebar()" title="Toggle menú">
+      <span class="material-symbols-outlined">
+        {{ isCollapsed ? 'chevron_right' : 'chevron_left' }}
+      </span>
+    </button>
+
+  </aside>
+
+  <div class="layout-content">
+
+    <header class="topbar">
+      <div class="topbar__left"></div>
+      <div class="topbar__right">
+        <button class="topbar__user">
+          <span class="material-symbols-outlined">account_circle</span>
+          <span class="topbar__user-label">{{ userAlias }}</span>
+        </button>
+        <div class="topbar__divider"></div>
+        <button class="topbar__logout" (click)="onLogout()" title="Cerrar sesión">
+          <span class="material-symbols-outlined">logout</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="layout-main">
+      <router-outlet></router-outlet>
+    </main>
+
+  </div>
+
+</div>
