@@ -1,14 +1,23 @@
 /// <reference types="jest" />
 
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 
 import { AuthService } from '../../src/modules/auth/auth.service';
 import type { IAuthRepository } from '../../src/modules/auth/auth.repository';
-import {
-    ConflictError,
-    InvalidCredentialsError,
-} from '../../src/shared/errors/domain.error';
+import { ConflictError } from '../../src/shared/errors/domain.error';
+import { InvalidCredentialsError } from '../../src/shared/errors/validation.error';
+
+jest.mock('#/config/env.js', () => ({
+    __esModule: true,
+    env: {
+        jwt: {
+            secret: 'test-jwt-secret',
+            expiresIn: '1h',
+            refresh: 'test-jwt-refresh',
+            expiresInRefresh: '7d',
+        },
+    },
+}));
 
 jest.mock('bcrypt', () => ({
     __esModule: true,
@@ -18,20 +27,29 @@ jest.mock('bcrypt', () => ({
     },
 }));
 
-jest.mock('jsonwebtoken', () => ({
+jest.mock('jose', () => ({
     __esModule: true,
-    default: {
-        sign: jest.fn(),
-    },
-}));
+    SignJWT: jest.fn().mockImplementation((payload: { sub: string; role: string }) => ({
+        setProtectedHeader: jest.fn().mockReturnThis(),
+        setExpirationTime: jest.fn().mockReturnThis(),
+        sign: jest.fn().mockImplementation(async () => {
+            const exp = Math.floor(Date.now() / 1000) + 3600;
+            const encodedPayload = Buffer.from(
+                JSON.stringify({
+                    sub: payload.sub,
+                    role: payload.role,
+                    exp,
+                }),
+            ).toString('base64');
+            return `header.${encodedPayload}.signature`;
+        }),
+    })),
+    jwtVerify: jest.fn().mockResolvedValue({ payload: {} }),
+}), { virtual: true });
 
 const bcryptMock = bcrypt as unknown as {
     compare: jest.Mock;
     hash: jest.Mock;
-};
-
-const jwtMock = jwt as unknown as {
-    sign: jest.Mock;
 };
 
 function createRepoMock(): jest.Mocked<IAuthRepository> {
@@ -41,6 +59,11 @@ function createRepoMock(): jest.Mocked<IAuthRepository> {
         findUserById: jest.fn(),
         createUser: jest.fn(),
         updatePassword: jest.fn(),
+        createRefreshToken: jest.fn(),
+        findRefreshToken: jest.fn(),
+        findRefreshTokenByUserAndHash: jest.fn(),
+        invalidateRefreshToken: jest.fn(),
+        deleteRefreshTokensForUser: jest.fn(),
         createRecoveryCode: jest.fn(),
         findValidRecoveryCode: jest.fn(),
         markRecoveryCodeAsUsed: jest.fn(),
@@ -66,7 +89,8 @@ describe('AuthService', () => {
             passwordHash: 'hash',
         } as any);
         bcryptMock.compare.mockResolvedValue(true);
-        jwtMock.sign.mockReturnValue('token-123');
+        repo.deleteRefreshTokensForUser.mockResolvedValue();
+        repo.createRefreshToken.mockResolvedValue();
 
         const result = await service.login({
             identifier: 'johangil',
@@ -80,11 +104,19 @@ describe('AuthService', () => {
                 alias: 'johangil',
                 role: 'ADMIN',
             },
-            token: 'token-123',
+            tokens: {
+                accessToken: expect.any(String),
+                refreshToken: expect.any(String),
+            },
         });
         expect(repo.findUserByIdentifier).toHaveBeenCalledWith('johangil');
         expect(bcryptMock.compare).toHaveBeenCalledWith('Password123', 'hash');
-        expect(jwtMock.sign).toHaveBeenCalled();
+        expect(repo.deleteRefreshTokensForUser).toHaveBeenCalledWith(1);
+        expect(repo.createRefreshToken).toHaveBeenCalledWith(
+            1,
+            expect.any(String),
+            expect.any(Date),
+        );
     });
 
     it('should throw InvalidCredentialsError when user is not found', async () => {
@@ -145,6 +177,7 @@ describe('AuthService', () => {
 
         repo.findUserByEmail.mockResolvedValue(null);
         bcryptMock.hash.mockResolvedValue('hashed-password');
+        repo.createRefreshToken.mockResolvedValue();
         repo.createUser.mockResolvedValue({
             id: 5,
             firstName: 'Johan',
@@ -152,7 +185,6 @@ describe('AuthService', () => {
             alias: 'johangil',
             role: 'ADMIN',
         } as any);
-        jwtMock.sign.mockReturnValue('token-xyz');
 
         const result = await service.register({
             firstName: 'Johan',
@@ -178,7 +210,15 @@ describe('AuthService', () => {
                 alias: 'johangil',
                 role: 'ADMIN',
             },
-            token: 'token-xyz',
+            tokens: {
+                accessToken: expect.any(String),
+                refreshToken: expect.any(String),
+            },
         });
+        expect(repo.createRefreshToken).toHaveBeenCalledWith(
+            5,
+            expect.any(String),
+            expect.any(Date),
+        );
     });
 });
