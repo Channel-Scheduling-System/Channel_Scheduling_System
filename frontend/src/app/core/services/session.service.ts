@@ -48,7 +48,9 @@ export class SessionService implements ISessionService {
     return this.http.post(API_ENDPOINTS.AUTH.LOGOUT, {}, {
       headers
     }).pipe(
-      map(response => this.responseHandler.handleSuccess(response, LogoutResponseSchema)),
+      map(response => {
+        return this.responseHandler.handleSuccess(response, LogoutResponseSchema);
+      }),
       tap(() => {
         this.clearSession();
         this.router.navigate(['/auth/login']);
