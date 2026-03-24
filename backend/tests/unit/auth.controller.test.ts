@@ -1,5 +1,11 @@
 /// <reference types="jest" />
 
+jest.mock('../../src/config/env', () => ({
+    env: {
+        nodeEnv: 'test',
+    },
+}));
+
 import { AuthController } from '../../src/modules/auth/auth.controller';
 
 describe('AuthController', () => {
@@ -12,7 +18,10 @@ describe('AuthController', () => {
                     alias: 'johangil',
                     role: 'ADMIN',
                 },
-                token: 'token-123',
+                tokens: {
+                    accessToken: 'token-123',
+                    refreshToken: 'refresh-token-123',
+                },
             }),
             register: jest.fn(),
         };
@@ -27,18 +36,29 @@ describe('AuthController', () => {
         const res = {
             status: jest.fn().mockReturnThis(),
             json: jest.fn(),
+            cookie: jest.fn(),
         } as any;
         const next = jest.fn();
 
         await controller.login(req, res, next);
 
+        expect(res.cookie).toHaveBeenCalledWith(
+            'refreshToken',
+            'refresh-token-123',
+            expect.objectContaining({ httpOnly: true, sameSite: 'strict' }),
+        );
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
-            success: true,
             message: 'Login exitoso',
-            data: expect.objectContaining({
+            data: {
+                user: {
+                    id: 1,
+                    name: 'Johan Gil',
+                    alias: 'johangil',
+                    role: 'ADMIN',
+                },
                 token: 'token-123',
-            }),
+            },
         });
         expect(next).not.toHaveBeenCalled();
     });
@@ -55,6 +75,7 @@ describe('AuthController', () => {
         const res = {
             status: jest.fn().mockReturnThis(),
             json: jest.fn(),
+            cookie: jest.fn(),
         } as any;
         const next = jest.fn();
 
@@ -63,7 +84,7 @@ describe('AuthController', () => {
         expect(next).toHaveBeenCalledWith(error);
     });
 
-    it('should return 200 and payload on register success', async () => {
+    it('should return 201 and payload on register success', async () => {
         const authService = {
             login: jest.fn(),
             register: jest.fn().mockResolvedValue({
@@ -73,7 +94,10 @@ describe('AuthController', () => {
                     alias: 'johangil',
                     role: 'ADMIN',
                 },
-                token: 'token-456',
+                tokens: {
+                    accessToken: 'token-456',
+                    refreshToken: 'refresh-token-456',
+                },
             }),
         };
         const controller = new AuthController(authService as any);
@@ -91,18 +115,29 @@ describe('AuthController', () => {
         const res = {
             status: jest.fn().mockReturnThis(),
             json: jest.fn(),
+            cookie: jest.fn(),
         } as any;
         const next = jest.fn();
 
         await controller.register(req, res, next);
 
-        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.cookie).toHaveBeenCalledWith(
+            'refreshToken',
+            'refresh-token-456',
+            expect.objectContaining({ httpOnly: true, sameSite: 'strict' }),
+        );
+        expect(res.status).toHaveBeenCalledWith(201);
         expect(res.json).toHaveBeenCalledWith({
-            success: true,
-            message: 'Registro exitoso',
-            data: expect.objectContaining({
+            message: 'Usuario registrado exitosamente',
+            data: {
+                user: {
+                    id: 1,
+                    name: 'Johan Gil',
+                    alias: 'johangil',
+                    role: 'ADMIN',
+                },
                 token: 'token-456',
-            }),
+            },
         });
         expect(next).not.toHaveBeenCalled();
     });

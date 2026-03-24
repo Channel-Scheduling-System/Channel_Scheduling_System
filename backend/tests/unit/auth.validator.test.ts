@@ -77,9 +77,7 @@ describe('Auth DTO validators', () => {
     });
 
     it('should validate RefreshTokenDTO with enough length', () => {
-        const result = RefreshTokenDTO.safeParse({
-            refreshToken: '1234567890abcd',
-        });
+        const result = RefreshTokenDTO.safeParse('1234567890abcd');
 
         expect(result.success).toBe(true);
     });

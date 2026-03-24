@@ -12,10 +12,9 @@
         "skipLibCheck": true,
         "sourceMap": true,
         "noImplicitAny": true,
-        "baseUrl": ".",
         "paths": {
             "#/*": ["./src/*"],
-            "@prisma/*": ["generated/client/*"]
+            "@prisma/*": ["./generated/client/*"]
         }
     },
     "include": ["src", "prisma.config.ts"],
