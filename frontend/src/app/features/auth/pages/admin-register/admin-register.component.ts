@@ -2,13 +2,14 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../../users/services/user.service';
-import { AdminRegisterRequest } from '../../../users/models/requests/register/register-request.model';
+import { AdminRegisterRequest, AdminRegisterRequestSchema } from '../../../users/models/requests/register/register-request.model';
 import { AdminRegisterResponse } from '../../../../shared/models/admin/admin-register-response.model';
 import { MessageService } from '../../../../core/services/message.service';
 import { AlertType } from '../../../../core/utils/enums/AlertType';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
 import { UserFormFactory } from '../../../users/utils/user-form.factory';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-admin-register',
@@ -27,7 +28,8 @@ export class AdminRegisterPageComponent {
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private router: Router
   ) {
     this.adminRegisterForm = UserFormFactory.createRegisterForm(this.fb, 'ADMIN');
 
@@ -62,8 +64,6 @@ export class AdminRegisterPageComponent {
 
   public onSubmit(): void {
     this.adminRegisterForm.markAllAsTouched();
-    console.log(this.adminRegisterForm.value);
-    console.log(this.adminRegisterForm.invalid);
     if (this.adminRegisterForm.invalid) return;
 
     this.isLoading = true;
@@ -72,9 +72,8 @@ export class AdminRegisterPageComponent {
       ...this.adminRegisterForm.value,
       role: 'ADMIN'
     };
-
-    this.userService.register(credentials).subscribe({
-      next:  (data)  => this.handleRegisterSuccess(data as AdminRegisterResponse),
+    this.userService.register(credentials, AdminRegisterRequestSchema).subscribe({
+      next:  (data)  => this.handleRegisterSuccess(data),
       error: (error) => this.handleRegisterError(error)
     });
   }
@@ -82,6 +81,7 @@ export class AdminRegisterPageComponent {
   private handleRegisterSuccess(data: AdminRegisterResponse): void {
     this.isLoading = false;
     this.messageService.showMessage(data.message, AlertType.SUCCESS);
+    this.router.navigate(['/auth/login']);
   }
 
   private handleRegisterError(error: any): void {

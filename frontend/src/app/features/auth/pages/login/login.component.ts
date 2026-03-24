@@ -7,7 +7,7 @@ import { MessageService } from '../../../../core/services/message.service';
 import { AlertType } from '../../../../core/utils/enums/AlertType';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { loginFieldValidator } from '../../validators/login.validators';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -24,7 +24,8 @@ export class LoginPageComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private router: Router
   ) {
     this.loginForm = this.fb.group({
       identifier: ['', [
@@ -71,6 +72,7 @@ export class LoginPageComponent {
   private handleLoginSuccess(data: any): void {
     this.isLoading = false;
     this.messageService.showMessage(data.message, AlertType.SUCCESS);
+    this.router.navigate(['/services']);
   }
 
   private handleLoginError(error: any): void {
