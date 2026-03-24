@@ -1,3 +1,4 @@
+import {z} from 'zod';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -21,8 +22,11 @@ export class UserService implements IUserService {
     private sessionService: SessionService
   ) {}
 
-  register(credentials: RegisterRequest): Observable<RegisterResponse> {
-    const validatedRequest = RegisterRequestBaseSchema.parse(credentials);
+  register<T extends RegisterRequest>(
+    credentials: T,
+    schema: z.ZodTypeAny
+  ): Observable<RegisterResponse> {
+    const validatedRequest = schema.parse(credentials);
     return this.http.post(API_ENDPOINTS.AUTH.REGISTER, validatedRequest).pipe(
       map(response => this.responseHandler.handleSuccess(response, RegisterResponseSchema)),
       tap((response: RegisterResponse) => {
