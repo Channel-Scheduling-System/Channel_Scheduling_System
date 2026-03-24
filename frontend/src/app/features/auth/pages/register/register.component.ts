@@ -2,12 +2,13 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../../users/services/user.service';
-import { ClientRegisterRequest } from '../../../users/models/requests/register/register-request.model';
+import { ClientRegisterRequest, ClientRegisterRequestSchema } from '../../../users/models/requests/register/register-request.model';
 import { MessageService } from '../../../../core/services/message.service';
 import { AlertType } from '../../../../core/utils/enums/AlertType';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
 import { UserFormFactory } from '../../../users/utils/user-form.factory';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -26,7 +27,7 @@ export class RegisterPageComponent {
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
-
+    private router: Router,
     private messageService: MessageService
   ) {
     this.registerForm = UserFormFactory.createRegisterForm(this.fb, 'CLIENT');
@@ -70,7 +71,7 @@ export class RegisterPageComponent {
       role: 'CLIENT'
     };
 
-    this.userService.register(credentials).subscribe({
+    this.userService.register(credentials, ClientRegisterRequestSchema).subscribe({
       next:  (data)  => this.handleRegisterSuccess(data),
       error: (error) => this.handleRegisterError(error)
     });
@@ -79,6 +80,7 @@ export class RegisterPageComponent {
   private handleRegisterSuccess(data: any): void {
     this.isLoading = false;
     this.messageService.showMessage(data.message, AlertType.SUCCESS);
+    this.router.navigate(['/services']);
   }
 
   private handleRegisterError(error: any): void {

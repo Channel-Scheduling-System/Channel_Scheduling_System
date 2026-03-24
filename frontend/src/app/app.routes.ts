@@ -19,7 +19,7 @@ export const routes: Routes = [
                 path: 'services', 
                 loadChildren: () => import('./features/services/services-module').then(m => m.ServicesModule),
                 canActivate: [RoleGuard],
-                data: { roles: ['WORKER', 'ADMIN'] }
+                data: { roles: ['WORKER'] }
             },
             { path: '', redirectTo: 'services', pathMatch: 'full' }
         ]
