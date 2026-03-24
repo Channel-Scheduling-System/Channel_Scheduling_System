@@ -19,7 +19,7 @@ export class RoleGuard implements CanActivate {
     }
     
     if (requiredRoles && requiredRoles.length > 0 && !requiredRoles.includes(session.role)) {
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/auth/login']);
       return false;
     }
     

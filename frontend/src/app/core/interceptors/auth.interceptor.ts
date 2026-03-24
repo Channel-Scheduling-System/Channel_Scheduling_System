@@ -31,9 +31,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((error) => {
       if (error.status === 401) {
         return sessionService.initAuth().pipe(
-          map(response => responseHandler.handleSuccess(response, RefreshResponseSchema)),
-          switchMap((refreshResponse) => {
-            tokenService.setToken(refreshResponse.data.token);
+          switchMap(() => {
             const newAuthReq = req.clone({
               headers: headerService.getHeaders()
             });
