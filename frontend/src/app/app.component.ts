@@ -25,6 +25,9 @@ export class App implements OnInit {
           this.router.navigate(['/auth/admin-register']);
         }else {
           this.sessionService.initAuth().subscribe({
+            next: () => {
+              this.router.navigate(['/services']);
+            },
             error: () => { 
               this.router.navigate(['/auth/login']);
             }
