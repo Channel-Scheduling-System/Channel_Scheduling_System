@@ -7,6 +7,11 @@ export const API_ENDPOINTS = {
     REFRESH: `${environment.apiUrl}/auth/refresh`,
     LOGOUT: `${environment.apiUrl}/auth/logout`
   },
+  SERVICES: {
+    LIST: `${environment.apiUrl}/services`,
+    GET: (id: number) => `${environment.apiUrl}/services/${id}`,
+    BY_WORKER: (workerId: number) => `${environment.apiUrl}/services?workerId=${workerId}`
+  },
   ADMIN: {
     EXISTS: `${environment.apiUrl}/admin/exists`
   },
