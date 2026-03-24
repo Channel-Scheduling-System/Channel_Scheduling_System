@@ -1,1 +1,132 @@
-<p>services works!</p>
+<div class="services-page">
+
+  <div class="services-page__header">
+    <div>
+      <span class="services-page__eyebrow">Catálogo de Belleza</span>
+      <h1 class="services-page__title">Mis Servicios</h1>
+    </div>
+    <div class="services-page__search">
+      <span class="material-symbols-outlined services-page__search-icon">search</span>
+      <input
+        class="services-page__search-input"
+        placeholder="Buscar servicio..."
+        type="text"
+        [value]="searchTerm"
+        (input)="onSearch($event)"
+      >
+    </div>
+  </div>
+
+  <div class="services-table">
+
+    <div class="services-table__header">
+      <div class="services-table__col services-table__col--accent"></div>
+      <div class="services-table__col services-table__col--name">Nombre</div>
+      <div class="services-table__col services-table__col--desc">Descripción</div>
+      <div class="services-table__col services-table__col--price">Precio</div>
+      <div class="services-table__col services-table__col--duration">Duración</div>
+      <div class="services-table__col services-table__col--actions">Acciones</div>
+    </div>
+
+    <div *ngIf="isLoading" class="services-table__loading">
+      <mat-spinner diameter="32"></mat-spinner>
+      <span>Cargando servicios...</span>
+    </div>
+
+    <div *ngIf="!isLoading && pagedServices.length === 0" class="services-table__empty">
+      <span class="material-symbols-outlined">sentiment_dissatisfied</span>
+      <p>{{ searchTerm ? 'Sin resultados para "' + searchTerm + '"' : 'Aún no tienes servicios registrados.' }}</p>
+    </div>
+
+    <ng-container *ngIf="!isLoading">
+      <div
+        *ngFor="let service of pagedServices; let i = index"
+        class="services-table__row"
+        [class.services-table__row--alt]="i % 2 !== 0"
+      >
+        <div class="services-table__col services-table__col--accent">
+          <div class="services-table__bar" [style.background-color]="service.color ?? '#4a0010'"></div>
+        </div>
+        <div class="services-table__col services-table__col--name">
+          <span class="services-table__name">{{ service.name }}</span>
+        </div>
+        <div class="services-table__col services-table__col--desc">
+          <p class="services-table__desc">{{ service.description }}</p>
+        </div>
+        <div class="services-table__col services-table__col--price">
+          <span class="services-table__price">{{ service.price | currency:'COP':'symbol-narrow':'1.0-0' }}</span>
+        </div>
+        <div class="services-table__col services-table__col--duration">
+          <div class="services-table__badge">
+            <span class="material-symbols-outlined">schedule</span>
+            <span>{{ service.duration }}m</span>
+          </div>
+        </div>
+        <div class="services-table__col services-table__col--actions">
+          <button
+            class="services-table__action services-table__action--edit"
+            title="Editar"
+            (click)="editService(service)"
+          >
+            <span class="material-symbols-outlined">edit</span>
+          </button>
+          <button
+            class="services-table__action services-table__action--delete"
+            title="Eliminar"
+            (click)="deleteService(service)"
+          >
+            <span class="material-symbols-outlined">delete</span>
+          </button>
+        </div>
+      </div>
+    </ng-container>
+
+    <div class="services-table__footer" *ngIf="!isLoading && getTotalCount() > 0">
+      <p class="services-table__footer-info">
+        Mostrando {{ getDisplayedCount() }} de {{ getTotalCount() }}
+        {{ getTotalCount() === 1 ? 'servicio' : 'servicios' }}
+        <ng-container *ngIf="searchTerm"> · filtrado{{ getTotalCount() === 1 ? '' : 's' }}</ng-container>
+      </p>
+      <div class="services-table__pagination">
+        <button
+          class="services-table__page-btn"
+          [disabled]="currentPage === 1"
+          (click)="goToPage(currentPage - 1)"
+        >
+          <span class="material-symbols-outlined">chevron_left</span>
+          Anterior
+        </button>
+
+        <button
+          *ngFor="let p of pageNumbers"
+          class="services-table__page-btn services-table__page-btn--number"
+          [class.services-table__page-btn--active]="p === currentPage"
+          (click)="goToPage(p)"
+        >
+          {{ p }}
+        </button>
+
+        <button
+          class="services-table__page-btn"
+          [disabled]="currentPage === totalPages"
+          (click)="goToPage(currentPage + 1)"
+        >
+          Siguiente
+          <span class="material-symbols-outlined">chevron_right</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="services-page__add">
+    <button class="services-page__add-btn" (click)="createService()">
+      <span class="services-page__add-btn-shimmer"></span>
+      <span class="services-page__add-btn-content">
+        <span class="material-symbols-outlined">add</span>
+        <span>Nuevo Servicio</span>
+      </span>
+    </button>
+  </div>
+
+</div>
