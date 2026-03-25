@@ -47,11 +47,12 @@ export class ServicesPageComponent implements OnInit {
       this.messageService.showMessage('No se pudo obtener la información del trabajador', AlertType.ERROR);
       return;
     }
-    this.isLoading = true;
+    //this.isLoading = true;
+    /*
     this.servicesService.getServicesByWorker(workerId).subscribe({
       next: (response) => this.handleServicesSuccess(response),
       error: (error)   => this.handleServicesError(error)
-    });
+    });*/
   }
 
   private handleServicesSuccess(response: ServicesListResponse): void {

@@ -14,7 +14,7 @@ export const API_ENDPOINTS = {
     CREATE: `${environment.apiUrl}/services`
   },
   ADMIN: {
-    EXISTS: `${environment.apiUrl}/admin/exists`
+    EXISTS: `${environment.apiUrl}/auth/admin/exists`
   },
   USERS: {
     PROFILE: `${environment.apiUrl}/users/profile`,

@@ -24,6 +24,8 @@ export class SessionService implements ISessionService {
     private router: Router
   ) { }
 
+  
+
   private session: Session | null = null;
 
   initAuth(): Observable<RefreshResponse> {
@@ -46,7 +48,7 @@ export class SessionService implements ISessionService {
       return of({ message: 'Sesión ya cerrada' } as LogoutResponse);
     }
     return this.http.post(API_ENDPOINTS.AUTH.LOGOUT, {}, {
-      headers
+      headers, withCredentials: true
     }).pipe(
       map(response => {
         return this.responseHandler.handleSuccess(response, LogoutResponseSchema);

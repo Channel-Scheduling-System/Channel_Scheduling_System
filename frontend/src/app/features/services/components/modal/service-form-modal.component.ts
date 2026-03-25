@@ -74,13 +74,13 @@ export class ServiceFormModalComponent implements OnInit {
   onSubmit(): void {
     this.serviceForm.markAllAsTouched();
     if (this.serviceForm.invalid) return;
-
+    /*
     this.isSubmitting = true;
     const request = {
       ...this.serviceForm.value,
       color: this.selectedColor,
     };
-    this.save.emit(request);
+    this.save.emit(request);*/
   }
 
   onCancel(): void {
