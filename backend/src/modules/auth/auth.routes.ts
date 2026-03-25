@@ -29,4 +29,6 @@ authRouter.post(
     authController.logout,
 );
 
+authRouter.get('/admin/exists', authController.checkAdminExists);
+
 export default authRouter;

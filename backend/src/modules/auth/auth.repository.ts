@@ -8,6 +8,7 @@ export interface IAuthRepository {
     findUserByEmail(email: string): Promise<User | null>;
     findUserById(id: number): Promise<User | null>;
     createUser(data: CreateUserData): Promise<User>;
+    countAdminUsers(): Promise<number>;
     updatePassword(userId: number, passwordHash: string): Promise<void>;
     // Token-related methods
     createRefreshToken(
@@ -66,6 +67,14 @@ export class AuthRepository implements IAuthRepository {
         });
     }
 
+    async countAdminUsers(): Promise<number> {
+        return await prisma.user.count({
+            where: {
+                role: 'ADMIN',
+            },
+        });
+    }
+
     async updatePassword(userId: number, passwordHash: string): Promise<void> {
         await prisma.user.update({
             where: { id: userId },
@@ -91,7 +100,7 @@ export class AuthRepository implements IAuthRepository {
     }
 
     async findRefreshToken(tokenHash: string): Promise<RefreshToken | null> {
-        return await prisma.refreshToken.findFirst({
+        return await prisma.refreshToken.findUnique({
             where: {
                 tokenHash,
                 revoked: false,
@@ -106,7 +115,7 @@ export class AuthRepository implements IAuthRepository {
         userId: number,
         tokenHash: string,
     ): Promise<RefreshToken | null> {
-        return await prisma.refreshToken.findFirst({
+        return await prisma.refreshToken.findUnique({
             where: {
                 userId,
                 tokenHash,
@@ -119,7 +128,7 @@ export class AuthRepository implements IAuthRepository {
     }
 
     async invalidateRefreshToken(tokenHash: string): Promise<void> {
-        await prisma.refreshToken.updateMany({
+        await prisma.refreshToken.update({
             where: {
                 tokenHash,
             },

@@ -30,6 +30,7 @@ export interface IAuthService {
     login(input: LoginInput): Promise<AuthResult>;
     refresh(input: RefreshTokenInput): Promise<AuthResult>;
     logout(input: LogoutInput): Promise<void>;
+    checkAdminExists(): Promise<boolean>;
 }
 
 const SALT_ROUNDS = 10;
@@ -85,7 +86,7 @@ export class AuthService implements IAuthService {
 
     async refresh(input: RefreshTokenInput): Promise<AuthResult> {
         await this.verifyRefreshToken(input.refreshToken);
-        const payload = this.decodeAndValidateRefreshToken(input.refreshToken);
+        const payload = this.decodeRefreshToken(input.refreshToken);
 
         const tokenHash = this.hashToken(input.refreshToken);
         const storedToken = await this.authRepo.findRefreshToken(tokenHash);
@@ -108,22 +109,27 @@ export class AuthService implements IAuthService {
     }
 
     async logout(input: LogoutInput): Promise<void> {
+        // Verifica validez del token
         await this.verifyRefreshToken(input.refreshToken);
-        const payload = this.decodeAndValidateRefreshToken(input.refreshToken);
-
+        const payload = this.decodeRefreshToken(input.refreshToken);
+        // Verifica que el token corresponde al id de usuario proporcionado
         if (input.userId && input.userId !== payload.sub)
             throw new UnauthorizedError(AUTH_ERRORS.LOGOUT_UNAUTHORIZED);
-
+        // Verifica que el token existe y no ha sido revocado
         const tokenHash = this.hashToken(input.refreshToken);
-        const storedToken = await this.authRepo.findRefreshTokenByUserAndHash(
-            payload.sub,
-            tokenHash,
-        );
-
+        const storedToken = await this.authRepo.findRefreshToken(tokenHash);
         if (!storedToken)
-            throw new InvalidTokenError(AUTH_ERRORS.LOGOUT_INVALID_TOKEN);
+            throw new UnauthorizedError(AUTH_ERRORS.LOGOUT_INVALID_TOKEN);
+        // Verifica que el token pertenece al usuario que intenta cerrar sesión
+        if (storedToken.userId !== payload.sub)
+            throw new UnauthorizedError(AUTH_ERRORS.LOGOUT_UNAUTHORIZED);
 
         await this.authRepo.invalidateRefreshToken(tokenHash);
+    }
+
+    async checkAdminExists(): Promise<boolean> {
+        const count = await this.authRepo.countAdminUsers();
+        return count > 0;
     }
 
     private async generateAndStoreTokens(
@@ -173,7 +179,7 @@ export class AuthService implements IAuthService {
         return token;
     }
 
-    private decodeAndValidateRefreshToken(
+    private decodeRefreshToken(
         token: string,
     ): JwtPayload & { exp?: number } {
         // Decodificar sin verificar para obtener claims
@@ -205,7 +211,7 @@ export class AuthService implements IAuthService {
     }
 
     private extractTokenExpiration(token: string): Date {
-        const payload = this.decodeAndValidateRefreshToken(token);
+        const payload = this.decodeRefreshToken(token);
         if (!payload.exp) {
             throw new InvalidTokenError(AUTH_ERRORS.TOKEN_DECODE_FAILED);
         }
