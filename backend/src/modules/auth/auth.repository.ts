@@ -1,4 +1,4 @@
-import prisma from '#/config/prisma.js';
+import prisma from '../../config/prisma.js';
 import type { User, RecoveryCode, RefreshToken } from '@prisma/client.js';
 import { CreateUserData } from './auth.types.js';
 

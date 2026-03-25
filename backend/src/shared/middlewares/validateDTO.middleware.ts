@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { Request, Response, NextFunction } from 'express';
-import { ValidationDTOError } from '#/shared/errors/validation.error.js';
+import { ValidationDTOError } from '../errors/validation.error.js';
 
 /**
  * Generic validator factory for Express middleware

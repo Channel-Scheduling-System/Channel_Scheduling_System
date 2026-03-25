@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { env } from '#/config/env.js';
+import { env } from '../../config/env.js';
 import { IAuthService } from './auth.service.js';
 import { mapToAuthResultResponse } from './auth.mapper.js';
 

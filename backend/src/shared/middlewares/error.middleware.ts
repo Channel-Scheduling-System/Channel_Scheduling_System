@@ -2,7 +2,7 @@
 
 import { z } from 'zod';
 import { Request, Response, NextFunction } from 'express';
-import { DomainError } from '#/shared/errors/domain.error.js';
+import { DomainError } from '../errors/domain.error.js';
 import { ValidationDTOError } from '../errors/validation.error.js';
 
 // Utilidad para respuestas rápidas y consistentes

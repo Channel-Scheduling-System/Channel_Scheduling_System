@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { authController } from './auth.module.js';
 import { authValidator } from './auth.validator.js';
-import { loginLimiter, registerLimiter } from '#/config/security.js';
-import { authMiddleware } from '#/shared/middlewares/auth.middleware.js';
+import { loginLimiter, registerLimiter } from '../../config/security.js';
+import { authMiddleware } from '../../shared/middlewares/auth.middleware.js';
 
 const authRouter = Router();
 

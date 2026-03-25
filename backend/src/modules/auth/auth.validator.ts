@@ -2,7 +2,7 @@ import { z } from 'zod';
 import {
     validateBodyDTO,
     validateCookieDTO,
-} from '#/shared/middlewares/validateDTO.middleware.js';
+} from '../../shared/middlewares/validateDTO.middleware.js';
 
 // ENUMS
 //* -----------------------------

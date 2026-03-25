@@ -1,16 +1,16 @@
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import { SignJWT, jwtVerify } from 'jose';
-import { env } from '#/config/env.js';
+import { env } from '../../config/env.js';
 import {
     ConflictError,
     UnauthorizedError,
     TokenReuseError,
-} from '#/shared/errors/domain.error.js';
+} from '../../shared/errors/domain.error.js';
 import {
     InvalidCredentialsError,
     InvalidTokenError,
-} from '#/shared/errors/validation.error.js';
+} from '../../shared/errors/validation.error.js';
 import { IAuthRepository } from './auth.repository.js';
 import { mapToAuthUser } from './auth.mapper.js';
 
