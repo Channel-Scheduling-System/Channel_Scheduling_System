@@ -7,11 +7,11 @@ export const UserSchema = z.object({
     firstName: z.string()
         .min(2, 'El nombre debe tener al menos 2 caracteres')
         .max(50, 'El nombre no puede exceder 50 caracteres')
-        .regex(/^[a-zA-ZáéíóúñÁÉÍÓÚÑ]+$/, 'El nombre solo puede contener letras'),
+        .regex(/^[a-zA-ZáéíóúñÁÉÍÓÚÑ\s]+$/, 'El nombre solo puede contener letras y espacios'),
     lastName: z.string()
         .min(2, 'El apellido debe tener al menos 2 caracteres')
         .max(50, 'El apellido no puede exceder 50 caracteres')
-        .regex(/^[a-zA-ZáéíóúñÁÉÍÓÚÑ]+$/, 'El apellido solo puede contener letras'),
+        .regex(/^[a-zA-ZáéíóúñÁÉÍÓÚÑ\s]+$/, 'El apellido solo puede contener letras y espacios'),
     alias: z.string()
         .min(3, 'El alias debe tener al menos 3 caracteres')
         .max(30, 'El alias no puede exceder 30 caracteres')
