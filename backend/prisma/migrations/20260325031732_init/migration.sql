@@ -5,16 +5,16 @@ CREATE TABLE `users` (
     `firstName` VARCHAR(80) NOT NULL,
     `lastName` VARCHAR(80) NOT NULL,
     `phone` VARCHAR(15) NULL,
-    `email` VARCHAR(250) NULL,
-    `passwordHash` VARCHAR(50) NOT NULL,
+    `email` VARCHAR(250) NOT NULL,
+    `passwordHash` VARCHAR(60) NOT NULL,
     `role` ENUM('admin', 'client', 'worker') NOT NULL DEFAULT 'client',
     `mustChangePwd` BOOLEAN NOT NULL DEFAULT false,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
     UNIQUE INDEX `users_alias_key`(`alias`),
-    INDEX `users_alias_idx`(`alias`),
-    INDEX `users_firstName_lastName_idx`(`firstName`, `lastName`),
+    UNIQUE INDEX `users_phone_key`(`phone`),
+    UNIQUE INDEX `users_email_key`(`email`),
     INDEX `users_role_idx`(`role`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -33,7 +33,6 @@ CREATE TABLE `services` (
     `workerId` INTEGER NOT NULL,
 
     UNIQUE INDEX `services_name_key`(`name`),
-    INDEX `services_workerId_idx`(`workerId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -50,8 +49,6 @@ CREATE TABLE `appointments` (
     `workerId` INTEGER NOT NULL,
     `clientId` INTEGER NOT NULL,
 
-    INDEX `appointments_workerId_idx`(`workerId`),
-    INDEX `appointments_clientId_idx`(`clientId`),
     INDEX `appointments_startAt_endAt_idx`(`startAt`, `endAt`),
     INDEX `appointments_status_idx`(`status`),
     PRIMARY KEY (`id`)
@@ -82,8 +79,6 @@ CREATE TABLE `notifications` (
     `userId` INTEGER NOT NULL,
     `appointmentId` INTEGER NOT NULL,
 
-    INDEX `notifications_userId_idx`(`userId`),
-    INDEX `notifications_appointmentId_idx`(`appointmentId`),
     INDEX `notifications_type_idx`(`type`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -99,7 +94,6 @@ CREATE TABLE `blocked_times` (
     `reason` VARCHAR(200) NULL,
     `workerId` INTEGER NOT NULL,
 
-    INDEX `blocked_times_workerId_idx`(`workerId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -111,7 +105,6 @@ CREATE TABLE `working_hours` (
     `endTime` TIME NOT NULL,
     `workerId` INTEGER NOT NULL,
 
-    INDEX `working_hours_workerId_idx`(`workerId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -124,7 +117,21 @@ CREATE TABLE `recovery_codes` (
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `userId` INTEGER NOT NULL,
 
-    INDEX `recovery_codes_userId_idx`(`userId`),
+    INDEX `recovery_codes_userId_used_idx`(`userId`, `used`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `refresh_tokens` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `tokenHash` CHAR(64) NOT NULL,
+    `revoked` BOOLEAN NOT NULL DEFAULT false,
+    `expireAt` DATETIME NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `userId` INTEGER NOT NULL,
+
+    UNIQUE INDEX `refresh_tokens_tokenHash_key`(`tokenHash`),
+    INDEX `refresh_tokens_userId_revoked_idx`(`userId`, `revoked`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -157,3 +164,6 @@ ALTER TABLE `working_hours` ADD CONSTRAINT `working_hours_workerId_fkey` FOREIGN
 
 -- AddForeignKey
 ALTER TABLE `recovery_codes` ADD CONSTRAINT `recovery_codes_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `refresh_tokens` ADD CONSTRAINT `refresh_tokens_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

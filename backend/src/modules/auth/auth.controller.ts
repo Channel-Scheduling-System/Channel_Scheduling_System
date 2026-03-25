@@ -69,6 +69,24 @@ export class AuthController {
         }
     };
 
+    checkAdminExists = async (
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ) => {
+        try {
+            const exists = await this.authService.checkAdminExists();
+            res.status(200).json({
+                message: exists
+                    ? 'Hay un administrador registrado'
+                    : 'No hay un administrador registrado',
+                data: { exists },
+            });
+        } catch (err) {
+            next(err);
+        }
+    };
+
     private setRefreshTokenCookie = (res: Response, refreshToken: string) => {
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,

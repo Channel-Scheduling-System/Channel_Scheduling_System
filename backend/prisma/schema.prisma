@@ -14,7 +14,7 @@ model User {
   alias         String     @unique @db.VarChar(50)
   firstName     String     @db.VarChar(80)
   lastName      String     @db.VarChar(80)
-  phone         String?    @db.VarChar(15)
+  phone         String?    @unique @db.VarChar(15)
   email         String     @unique @db.VarChar(250)
   passwordHash  String     @db.VarChar(60)
   role          SystemRole @default(CLIENT)
@@ -31,8 +31,6 @@ model User {
   recoveryCodes      RecoveryCode[]
   refreshTokens      RefreshToken[]
 
-  @@index([alias])
-  @@index([firstName, lastName])
   @@index([role])
   @@map("users")
 }
@@ -61,7 +59,6 @@ model Service {
   workerId           Int
   appointments       AppointmentServices[]
 
-  @@index([workerId])
   @@map("services")
 }
 
@@ -83,8 +80,6 @@ model Appointment {
   services      AppointmentServices[]
   notifications Notification[]
 
-  @@index([workerId])
-  @@index([clientId])
   @@index([startAt, endAt])
   @@index([status])
   @@map("appointments")
@@ -140,8 +135,6 @@ model Notification {
   appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
   appointmentId Int
 
-  @@index([userId])
-  @@index([appointmentId])
   @@index([type])
   @@map("notifications")
 }
@@ -159,7 +152,6 @@ model BlockedTime {
   worker    User         @relation(fields: [workerId], references: [id], onDelete: Cascade)
   workerId  Int
 
-  @@index([workerId])
   @@map("blocked_times")
 }
 
@@ -181,7 +173,6 @@ model WorkingHour {
   worker    User     @relation(fields: [workerId], references: [id], onDelete: Cascade)
   workerId  Int
 
-  @@index([workerId])
   @@map("working_hours")
 }
 
@@ -196,7 +187,6 @@ model RecoveryCode {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int
 
-  @@index([userId])
   @@index([userId, used])
   @@map("recovery_codes")
 }
@@ -211,7 +201,6 @@ model RefreshToken {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int
 
-  @@index([userId])
-  @@index([expireAt])
+  @@index([userId, revoked])
   @@map("refresh_tokens")
 }
