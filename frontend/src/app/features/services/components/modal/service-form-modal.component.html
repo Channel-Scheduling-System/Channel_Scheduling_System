@@ -1,0 +1,154 @@
+<div class="svc-modal" [class.svc-modal--visible]="isOpen" (click)="$event.stopPropagation()">
+  <div class="svc-modal__scroll">
+  <button class="svc-modal__close" type="button" (click)="onCancel()" title="Cerrar">
+    <span class="material-symbols-outlined">close</span>
+  </button>
+  
+  <div class="svc-modal__header">
+    <h2 class="svc-modal__title">Nuevo Servicio</h2>
+    <p class="svc-modal__subtitle">Define los detalles de tu nueva oferta de belleza</p>
+  </div>
+
+  <form [formGroup]="serviceForm" class="svc-modal__form" (ngSubmit)="onSubmit()">
+    
+    <div class="svc-field">
+      <label class="svc-field__label">Nombre del Servicio</label>
+      <div class="svc-field__wrapper" [class.svc-field__wrapper--error]="getFieldError('name')">
+        <span class="material-symbols-outlined svc-field__icon">content_cut</span>
+        <input
+          class="svc-field__input"
+          type="text"
+          placeholder="Ej. Corte Editorial"
+          formControlName="name"
+        >
+      </div>
+      <div *ngIf="getFieldError('name')" class="svc-field__error">
+        <span class="material-symbols-outlined">error</span>
+        {{ getFieldError('name') }}
+      </div>
+    </div>
+
+    <div class="svc-field">
+      <label class="svc-field__label">Descripción</label>
+      <div class="svc-field__wrapper svc-field__wrapper--textarea" [class.svc-field__wrapper--error]="getFieldError('description')">
+        <textarea
+          class="svc-field__input svc-field__input--textarea"
+          placeholder="Describe brevemente el servicio..."
+          rows="3"
+          formControlName="description"
+        ></textarea>
+      </div>
+      <div *ngIf="getFieldError('description')" class="svc-field__error">
+        <span class="material-symbols-outlined">error</span>
+        {{ getFieldError('description') }}
+      </div>
+    </div>
+
+    <div class="svc-modal__grid">
+      <div class="svc-field">
+        <label class="svc-field__label">Precio (COP)</label>
+        <div class="svc-field__wrapper" [class.svc-field__wrapper--error]="getFieldError('price')">
+          <span class="material-symbols-outlined svc-field__icon">payments</span>
+          <input
+            class="svc-field__input"
+            type="number"
+            placeholder="0"
+            min="0"
+            formControlName="price"
+          >
+        </div>
+        <div *ngIf="getFieldError('price')" class="svc-field__error">
+          <span class="material-symbols-outlined">error</span>
+          {{ getFieldError('price') }}
+        </div>
+      </div>
+
+      <div class="svc-field">
+        <label class="svc-field__label">Duración (min)</label>
+        <div class="svc-field__wrapper" [class.svc-field__wrapper--error]="getFieldError('duration')">
+          <span class="material-symbols-outlined svc-field__icon">schedule</span>
+          <input
+            class="svc-field__input"
+            type="number"
+            placeholder="45"
+            min="1"
+            formControlName="duration"
+          >
+        </div>
+        <div *ngIf="getFieldError('duration')" class="svc-field__error">
+          <span class="material-symbols-outlined">error</span>
+          {{ getFieldError('duration') }}
+        </div>
+      </div>
+    </div>
+
+    <div class="svc-field">
+      <label class="svc-field__label">Color representativo</label>
+      
+      <div class="svc-color-container">
+        <div class="svc-color-trigger" (click)="toggleColorPicker()">
+          <div class="svc-color-preview-box" [style.background-color]="selectedColor"></div>
+          <span class="svc-color-value">{{ selectedColor }}</span>
+          <span class="material-symbols-outlined svc-color-arrow">expand_more</span>
+        </div>
+
+        <div class="svc-color-panel" *ngIf="showColorPicker">
+         
+          <div class="svc-color-palette">
+            <div
+              *ngFor="let color of colorPalette"
+              class="svc-color-swatch"
+              [style.background-color]="color"
+              [class.svc-color-swatch--active]="selectedColor === color"
+              (click)="selectColor(color)"
+              [title]="color"
+            >
+              <span *ngIf="selectedColor === color" class="material-symbols-outlined svc-color-check">check</span>
+            </div>
+          </div>
+          
+          <div class="svc-color-divider"></div>
+          
+          <div class="svc-color-native">
+            <label class="svc-color-native-label">
+              <span class="material-symbols-outlined">colorize</span>
+              <span>Selector personalizado</span>
+            </label>
+            <input
+              type="color"
+              class="svc-color-native-input"
+              [value]="selectedColor"
+              (input)="onColorInputChange($event)"
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview adicional -->
+      <div class="svc-color-preview-info">
+        <div class="svc-color-preview__dot" [style.background-color]="selectedColor"></div>
+        <span class="svc-color-preview__hex">{{ selectedColor }}</span>
+        <span class="svc-color-preview__hint">— se mostrará como acento en la tabla</span>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="svc-modal__actions">
+      <button class="svc-modal__cancel" type="button" (click)="onCancel()">Cancelar</button>
+      <button class="svc-modal__submit" type="submit" [disabled]="isSubmitting" [class.svc-modal__submit--loading]="isSubmitting">
+        <span class="svc-modal__submit-shimmer"></span>
+        <span class="svc-modal__submit-content">
+          <ng-container *ngIf="!isSubmitting">
+            <span>Crear Servicio</span>
+            <span class="material-symbols-outlined">arrow_forward</span>
+          </ng-container>
+          <ng-container *ngIf="isSubmitting">
+            <mat-spinner diameter="18" color="accent"></mat-spinner>
+            <span>Guardando...</span>
+          </ng-container>
+        </span>
+      </button>
+    </div>
+  </form>
+  </div>
+</div>

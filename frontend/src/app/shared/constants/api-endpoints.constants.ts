@@ -10,7 +10,8 @@ export const API_ENDPOINTS = {
   SERVICES: {
     LIST: `${environment.apiUrl}/services`,
     GET: (id: number) => `${environment.apiUrl}/services/${id}`,
-    BY_WORKER: (workerId: number) => `${environment.apiUrl}/services?workerId=${workerId}`
+    BY_WORKER: (workerId: number) => `${environment.apiUrl}/services?workerId=${workerId}`,
+    CREATE: `${environment.apiUrl}/services`
   },
   ADMIN: {
     EXISTS: `${environment.apiUrl}/admin/exists`

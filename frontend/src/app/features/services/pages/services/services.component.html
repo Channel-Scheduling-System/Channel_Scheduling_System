@@ -7,13 +7,8 @@
     </div>
     <div class="services-page__search">
       <span class="material-symbols-outlined services-page__search-icon">search</span>
-      <input
-        class="services-page__search-input"
-        placeholder="Buscar servicio..."
-        type="text"
-        [value]="searchTerm"
-        (input)="onSearch($event)"
-      >
+      <input class="services-page__search-input" placeholder="Buscar servicio..." type="text" [value]="searchTerm"
+        (input)="onSearch($event)">
     </div>
   </div>
 
@@ -39,13 +34,10 @@
     </div>
 
     <ng-container *ngIf="!isLoading">
-      <div
-        *ngFor="let service of pagedServices; let i = index"
-        class="services-table__row"
-        [class.services-table__row--alt]="i % 2 !== 0"
-      >
+      <div *ngFor="let service of pagedServices; let i = index" class="services-table__row"
+        [class.services-table__row--alt]="i % 2 !== 0">
         <div class="services-table__col services-table__col--accent">
-          <div class="services-table__bar" [style.background-color]="service.color ?? '#4a0010'"></div>
+          <div class="services-table__bar" [style.background-color]="service.color"></div>
         </div>
         <div class="services-table__col services-table__col--name">
           <span class="services-table__name">{{ service.name }}</span>
@@ -63,18 +55,12 @@
           </div>
         </div>
         <div class="services-table__col services-table__col--actions">
-          <button
-            class="services-table__action services-table__action--edit"
-            title="Editar"
-            (click)="editService(service)"
-          >
+          <button class="services-table__action services-table__action--edit" title="Editar"
+            (click)="editService(service)">
             <span class="material-symbols-outlined">edit</span>
           </button>
-          <button
-            class="services-table__action services-table__action--delete"
-            title="Eliminar"
-            (click)="deleteService(service)"
-          >
+          <button class="services-table__action services-table__action--delete" title="Eliminar"
+            (click)="deleteService(service)">
             <span class="material-symbols-outlined">delete</span>
           </button>
         </div>
@@ -88,29 +74,14 @@
         <ng-container *ngIf="searchTerm"> · filtrado{{ getTotalCount() === 1 ? '' : 's' }}</ng-container>
       </p>
       <div class="services-table__pagination">
-        <button
-          class="services-table__page-btn"
-          [disabled]="currentPage === 1"
-          (click)="goToPage(currentPage - 1)"
-        >
+        <button class="services-table__page-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
           <span class="material-symbols-outlined">chevron_left</span>
           Anterior
         </button>
-
-        <button
-          *ngFor="let p of pageNumbers"
-          class="services-table__page-btn services-table__page-btn--number"
-          [class.services-table__page-btn--active]="p === currentPage"
-          (click)="goToPage(p)"
-        >
-          {{ p }}
-        </button>
-
-        <button
-          class="services-table__page-btn"
-          [disabled]="currentPage === totalPages"
-          (click)="goToPage(currentPage + 1)"
-        >
+        <button *ngFor="let p of pageNumbers" class="services-table__page-btn services-table__page-btn--number"
+          [class.services-table__page-btn--active]="p === currentPage" (click)="goToPage(p)">{{ p }}</button>
+        <button class="services-table__page-btn" [disabled]="currentPage === totalPages"
+          (click)="goToPage(currentPage + 1)">
           Siguiente
           <span class="material-symbols-outlined">chevron_right</span>
         </button>
@@ -120,7 +91,7 @@
   </div>
 
   <div class="services-page__add">
-    <button class="services-page__add-btn" (click)="createService()">
+    <button class="services-page__add-btn" (click)="openCreateModal()">
       <span class="services-page__add-btn-shimmer"></span>
       <span class="services-page__add-btn-content">
         <span class="material-symbols-outlined">add</span>
@@ -129,4 +100,9 @@
     </button>
   </div>
 
+</div>
+
+<div class="svc-overlay" *ngIf="isModalOpen" (click)="onModalClose()">
+  <app-service-form-modal [isOpen]="isModalOpen" (close)="onModalClose()"
+    (save)="onModalSave($event)"></app-service-form-modal>
 </div>
