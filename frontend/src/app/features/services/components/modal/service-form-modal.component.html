@@ -1,12 +1,12 @@
-<div class="svc-modal" [class.svc-modal--visible]="isOpen" (click)="$event.stopPropagation()">
+<div class="svc-modal" (click)="$event.stopPropagation()">
   <div class="svc-modal__scroll">
   <button class="svc-modal__close" type="button" (click)="onCancel()" title="Cerrar">
     <span class="material-symbols-outlined">close</span>
   </button>
   
   <div class="svc-modal__header">
-    <h2 class="svc-modal__title">Nuevo Servicio</h2>
-    <p class="svc-modal__subtitle">Define los detalles de tu nueva oferta de belleza</p>
+    <h2 class="svc-modal__title">{{ modalTitle }}</h2>
+    <p class="svc-modal__subtitle">{{ modalSubtitle }}</p>
   </div>
 
   <form [formGroup]="serviceForm" class="svc-modal__form" (ngSubmit)="onSubmit()">
@@ -124,27 +124,29 @@
         </div>
       </div>
 
-      <!-- Preview adicional -->
       <div class="svc-color-preview-info">
         <div class="svc-color-preview__dot" [style.background-color]="selectedColor"></div>
         <span class="svc-color-preview__hex">{{ selectedColor }}</span>
-        <span class="svc-color-preview__hint">— se mostrará como acento en la tabla</span>
+        <span class="svc-color-preview__hint">— se mostrará como indicador en la agenda</span>
       </div>
     </div>
 
-    <!-- Actions -->
     <div class="svc-modal__actions">
       <button class="svc-modal__cancel" type="button" (click)="onCancel()">Cancelar</button>
       <button class="svc-modal__submit" type="submit" [disabled]="isSubmitting" [class.svc-modal__submit--loading]="isSubmitting">
         <span class="svc-modal__submit-shimmer"></span>
         <span class="svc-modal__submit-content">
           <ng-container *ngIf="!isSubmitting">
-            <span>Crear Servicio</span>
-            <span class="material-symbols-outlined">arrow_forward</span>
+            <span>{{ submitButtonText }}</span>
+            <span class="material-symbols-outlined">
+              {{ isEditMode ? 'check' : 'arrow_forward' }}
+            </span>
           </ng-container>
           <ng-container *ngIf="isSubmitting">
             <mat-spinner diameter="18" color="accent"></mat-spinner>
-            <span>Guardando...</span>
+            <span>
+              {{ loadingText }}
+            </span>
           </ng-container>
         </span>
       </button>

@@ -5,19 +5,19 @@ export const ServiceSchema = z.object({
     .int('El ID debe ser un número entero')
     .positive('El ID debe ser un número positivo'),
   name: z.string()
-    .min(3, 'El nombre debe tener al menos 3 caracteres')
-    .max(100, 'El nombre no puede exceder 100 caracteres')
     .regex(
       /^[a-zA-Z0-9áéíóúñÁÉÍÓÚÑ\s]+$/,
       'El nombre solo puede contener letras, números y espacios'
-    ),
+    )
+    .min(3, 'El nombre debe tener al menos 3 caracteres')
+    .max(100, 'El nombre no puede exceder 100 caracteres'),
   description: z.string()
-    .min(10, 'La descripción debe tener al menos 10 caracteres')
-    .max(500, 'La descripción no puede exceder 500 caracteres')
     .regex(
       /^[a-zA-Z0-9áéíóúñÁÉÍÓÚÑ\s.,!?()\-]+$/,
       'La descripción contiene caracteres no permitidos'
-    ),
+    )
+    .min(10, 'La descripción debe tener al menos 10 caracteres')
+    .max(500, 'La descripción no puede exceder 500 caracteres'),
   color: z.string()
     .regex(
       /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/,

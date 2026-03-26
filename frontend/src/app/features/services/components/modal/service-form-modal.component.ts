@@ -1,9 +1,11 @@
-import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { createServiceFieldValidator } from '../../validators/create-service.validators';
-import { MatDialogRef } from '@angular/material/dialog';
+import { serviceFieldValidator } from '../../validators/create-service.validators';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { ServiceFormModalData } from '../../../auth/interfaces/modal-data.interface';
+import { DEFAULT_SERVICE_COLOR, SERVICE_COLOR_PALETTE } from '../../../../shared/constants/color-palete-constants';
 
 @Component({
   selector: 'app-service-form-modal',
@@ -17,34 +19,44 @@ import { MatDialogRef } from '@angular/material/dialog';
   styleUrls: ['./service-form-modal.component.scss']
 })
 export class ServiceFormModalComponent implements OnInit {
-  @Input() isOpen = false;
-  @Output() close = new EventEmitter<void>();
-  @Output() save = new EventEmitter<any>();
 
+  readonly colorPalette = SERVICE_COLOR_PALETTE;
+
+  isEditMode = false;
+  serviceId?: number;
   serviceForm!: FormGroup;
   isSubmitting = false;
-  selectedColor = '#4A0E0E';
+  selectedColor = DEFAULT_SERVICE_COLOR;
   showColorPicker = false;
-
-  readonly colorPalette: string[] = [
-    '#4A0E0E', '#8B0000', '#C0392B', '#D4AF37', '#FFD700', '#F39C12',
-    '#1A5276', '#117A65', '#1E8449', '#6C3483', '#2C3E50', '#566573'
-  ];
 
   constructor(
     private fb: FormBuilder,
-    private dialogRef: MatDialogRef<ServiceFormModalComponent>) {}
+    private dialogRef: MatDialogRef<ServiceFormModalComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: ServiceFormModalData
+  ) {
+    this.isEditMode = data?.isEdit || false;
+    this.serviceId = data?.service?.id;
+  }
 
   ngOnInit(): void {
     this.buildForm();
+    if (this.isEditMode && this.data?.service) {
+      this.serviceForm.patchValue({
+        name: this.data.service.name,
+        description: this.data.service.description,
+        price: this.data.service.price,
+        duration: this.data.service.duration
+      });
+      this.selectedColor = this.data.service.color;
+    }
   }
 
   private buildForm(): void {
     this.serviceForm = this.fb.group({
-      name:        ['', [Validators.required, createServiceFieldValidator('name')]],
-      description: ['', [Validators.required, createServiceFieldValidator('description')]],
-      price:       [null, [Validators.required, createServiceFieldValidator('price')]],
-      duration:    [null, [Validators.required, createServiceFieldValidator('duration')]],
+      name:        ['', [Validators.required, serviceFieldValidator('name')]],
+      description: ['', [Validators.required, serviceFieldValidator('description')]],
+      price:       [null, [Validators.required, serviceFieldValidator('price')]],
+      duration:    [null, [Validators.required, serviceFieldValidator('duration')]],
     });
   }
 
@@ -55,6 +67,28 @@ export class ServiceFormModalComponent implements OnInit {
       if (control.errors[fieldName]) return control.errors[fieldName];
     }
     return '';
+  }
+
+  onSubmit(): void {
+    this.serviceForm.markAllAsTouched();
+    if (this.serviceForm.invalid) return;
+    
+    this.isSubmitting = true;
+    const formValue = this.serviceForm.value;
+
+    const request = {
+      ...(this.isEditMode && { id: this.serviceId }),
+      name: formValue.name?.trim(),
+      description: formValue.description?.trim(),
+      price: formValue.price,
+      duration: formValue.duration,
+      color: this.selectedColor,
+    };
+    this.dialogRef.close(request);
+  }
+
+  onCancel(): void {
+    this.dialogRef.close();
   }
 
   selectColor(color: string): void {
@@ -71,19 +105,26 @@ export class ServiceFormModalComponent implements OnInit {
     this.selectedColor = input.value;
   }
 
-  onSubmit(): void {
-    this.serviceForm.markAllAsTouched();
-    if (this.serviceForm.invalid) return;
-    /*
-    this.isSubmitting = true;
-    const request = {
-      ...this.serviceForm.value,
-      color: this.selectedColor,
-    };
-    this.save.emit(request);*/
+  get modalTitle(): string {
+    return this.isEditMode ? 'Editar Servicio' : 'Nuevo Servicio';
   }
 
-  onCancel(): void {
-    this.close.emit();
+  get modalSubtitle(): string {
+    return this.isEditMode 
+      ? 'Actualiza los detalles de tu servicio' 
+      : 'Define los detalles de tu nueva oferta de belleza';
   }
+
+  get submitButtonText(): string {
+    return this.isEditMode ? 'Actualizar Servicio' : 'Crear Servicio';
+  }
+
+  get submitIcon(): string {
+    return this.isEditMode ? 'check' : 'arrow_forward';
+  }
+
+  get loadingText(): string {
+    return this.isEditMode ? 'Actualizando...' : 'Guardando...';
+  }
+
 }

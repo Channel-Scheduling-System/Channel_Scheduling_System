@@ -132,9 +132,14 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 }
 
 .service-dialog-backdrop {
-  background: rgba(20, 0, 2, 0.6);
-  //backdrop-filter: blur(6px);
-  //will-change: transform;
+  background: rgba(30, 30, 35, 0.75);
+  backdrop-filter: blur(8px);
+  transform: translateZ(0);
+  will-change: transform;
+  transition: backdrop-filter 0.2s ease;
+  &--visible {
+    backdrop-filter: blur(4px);
+  }
 }
 body.modal-open {
   overflow: hidden !important;

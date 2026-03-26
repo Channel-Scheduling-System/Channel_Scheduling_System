@@ -56,7 +56,7 @@
         </div>
         <div class="services-table__col services-table__col--actions">
           <button class="services-table__action services-table__action--edit" title="Editar"
-            (click)="editService(service)">
+            (click)="updateService(service)">
             <span class="material-symbols-outlined">edit</span>
           </button>
           <button class="services-table__action services-table__action--delete" title="Eliminar"
@@ -91,7 +91,7 @@
   </div>
 
   <div class="services-page__add">
-    <button class="services-page__add-btn" (click)="openCreateModal()">
+    <button class="services-page__add-btn" (click)="createService()">
       <span class="services-page__add-btn-shimmer"></span>
       <span class="services-page__add-btn-content">
         <span class="material-symbols-outlined">add</span>
@@ -100,9 +100,4 @@
     </button>
   </div>
 
-</div>
-
-<div class="svc-overlay" *ngIf="isModalOpen" (click)="onModalClose()">
-  <app-service-form-modal [isOpen]="isModalOpen" (close)="onModalClose()"
-    (save)="onModalSave($event)"></app-service-form-modal>
 </div>

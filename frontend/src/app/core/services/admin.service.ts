@@ -17,7 +17,7 @@ export class AdminService implements IAdminService{
   ) {}
 
   checkAdminExists(): Observable<AdminExistsResponse> {
-    return this.http.get(API_ENDPOINTS.ADMIN.EXISTS).pipe(
+    return this.http.get(API_ENDPOINTS.AUTH.ADMIN_EXISTS).pipe(
       map(response => this.responseHandler.handleSuccess(response, AdminExistsResponseSchema)),
       catchError(error => this.errorHandler.handleError(error))
     );

@@ -11,11 +11,15 @@ import { CreateServiceRequest } from '../../models/requests/create-service-reque
 import { ServiceFormModalComponent } from '../../components/modal/service-form-modal.component';
 import { MatDialog } from '@angular/material/dialog';
 import { Overlay } from '@angular/cdk/overlay';
+import { ServiceFormModalData } from '../../../auth/interfaces/modal-data.interface';
+import { UpdateServiceRequest } from '../../models/requests/update-service-request';
+import { UpdateServiceResponse } from '../../models/responses/update-service-response';
+import { CreateServiceResponse } from '../../models/responses/create-service-response';
 
 @Component({
   selector: 'app-services',
   standalone: true,
-  imports: [CommonModule, CurrencyPipe, MatProgressSpinnerModule, ServiceFormModalComponent],
+  imports: [CommonModule, CurrencyPipe, MatProgressSpinnerModule],
   templateUrl: './services.component.html',
   styleUrl: './services.component.scss',
 })
@@ -47,12 +51,12 @@ export class ServicesPageComponent implements OnInit {
       this.messageService.showMessage('No se pudo obtener la información del trabajador', AlertType.ERROR);
       return;
     }
-    //this.isLoading = true;
-    /*
+    this.isLoading = true;
+    
     this.servicesService.getServicesByWorker(workerId).subscribe({
       next: (response) => this.handleServicesSuccess(response),
       error: (error)   => this.handleServicesError(error)
-    });*/
+    });
   }
 
   private handleServicesSuccess(response: ServicesListResponse): void {
@@ -77,6 +81,103 @@ export class ServicesPageComponent implements OnInit {
     this.currentPage = 1;
   }
 
+  createService(): void {
+    const dialogData: ServiceFormModalData = {
+      isEdit: false
+    };
+    const dialogRef = this.dialog.open(ServiceFormModalComponent, {
+      width: 'auto',
+      maxWidth: '90vw',
+      panelClass: 'service-dialog-panel',
+      backdropClass: 'service-dialog-backdrop',
+      disableClose: false,
+      autoFocus: true,
+      scrollStrategy: this.overlay.scrollStrategies.block(),
+      data: dialogData
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      document.body.classList.remove('modal-open');
+      if (result) {
+        this.onModalSave(result);
+      }
+    });
+  }
+
+  updateService(service: Service): void {
+    const dialogData: ServiceFormModalData = {
+      service: service,
+      isEdit: true
+    };
+
+    const dialogRef = this.dialog.open(ServiceFormModalComponent, {
+      width: 'auto',
+      maxWidth: '90vw',
+      panelClass: 'service-dialog-panel',
+      backdropClass: 'service-dialog-backdrop',
+      disableClose: false,
+      autoFocus: true,
+      scrollStrategy: this.overlay.scrollStrategies.block(),
+      data: dialogData
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      document.body.classList.remove('modal-open');
+      if (result) {
+        this.onModalUpdate(result);
+      }
+    });
+
+  }
+
+  onModalSave(data: CreateServiceRequest): void {
+    const workerId = this.sessionService.getSession()?.id;
+    if (!workerId) return;
+
+    const request: CreateServiceRequest = { ...data, workerId };
+
+    this.servicesService.createService(request).subscribe({
+      next: (response) => this.handleActionServiceSuccess(response),
+      error: (error) => this.handleActionServiceError(error)
+    });
+  }
+
+  onModalUpdate(data: UpdateServiceRequest): void {
+    this.servicesService.updateService(data).subscribe({
+      next: (response) => this.handleActionServiceSuccess(response),
+      error: (error) => this.handleActionServiceError(error)
+    });
+  }
+
+  private handleActionServiceSuccess(
+    response: CreateServiceResponse | UpdateServiceResponse,
+    isUpdate: boolean = false
+  ): void {
+    const action = isUpdate ? 'actualizado' : 'creado';
+    this.messageService.showMessage(response.message, AlertType.SUCCESS);
+    this.loadServices();
+  }
+
+  private handleActionServiceError(error: any): void {
+    this.messageService.showMessage(error.message, AlertType.ERROR);
+  }
+
+  deleteService(service: Service): void {
+    console.log('Eliminar servicio:', service);
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+  }
+  
+  onModalClose(): void {
+    this.isModalOpen = false;
+  }
+
+  getTotalCount(): number { return this.filteredServices.length; }
+  getDisplayedCount(): number { return this.pagedServices.length; }
+
   get totalPages(): number {
     return Math.max(1, Math.ceil(this.filteredServices.length / this.pageSize));
   }
@@ -90,65 +191,4 @@ export class ServicesPageComponent implements OnInit {
     return this.filteredServices.slice(start, start + this.pageSize);
   }
 
-  goToPage(page: number): void {
-    if (page < 1 || page > this.totalPages) return;
-    this.currentPage = page;
-  }
-
-  getTotalCount(): number { return this.filteredServices.length; }
-  getDisplayedCount(): number { return this.pagedServices.length; }
-
-  openCreateModal(): void {
-    const dialogRef = this.dialog.open(ServiceFormModalComponent, {
-      width: 'auto',
-      maxWidth: '90vw',
-      panelClass: 'service-dialog-panel',
-      backdropClass: 'service-dialog-backdrop',
-      disableClose: false,
-      autoFocus: true,
-      scrollStrategy: this.overlay.scrollStrategies.block(),
-    });
-
-    dialogRef.componentInstance.save.subscribe((data: CreateServiceRequest) => {
-      this.onModalSave(data);
-      dialogRef.close();
-    });
-
-    dialogRef.componentInstance.close.subscribe(() => {
-      dialogRef.close();
-    });
-
-    dialogRef.afterClosed().subscribe(() => {
-      document.body.classList.remove('modal-open');
-    });
-  }
-
-  onModalClose(): void {
-    this.isModalOpen = false;
-  }
-
-  onModalSave(data: CreateServiceRequest): void {
-    const workerId = this.sessionService.getSession()?.id;
-    if (!workerId) return;
-
-    const request: CreateServiceRequest = { ...data, workerId };
-
-    this.servicesService.createService(request).subscribe({
-      next: (response) => {
-        this.messageService.showMessage(response.message, AlertType.SUCCESS);
-        this.loadServices();
-      },
-      error: (error) => {
-        this.messageService.showMessage(error.message, AlertType.ERROR);
-      }
-    });
-  }
-
-  editService(service: Service): void {
-    console.log('Editar servicio:', service);
-  }
-
-  deleteService(service: Service): void {
-    console.log('Eliminar servicio:', service);
-  }
 }
