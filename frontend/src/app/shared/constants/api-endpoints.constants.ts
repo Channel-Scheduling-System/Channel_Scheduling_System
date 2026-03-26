@@ -5,16 +5,15 @@ export const API_ENDPOINTS = {
     LOGIN: `${environment.apiUrl}/auth/login`,
     REGISTER: `${environment.apiUrl}/auth/register`,
     REFRESH: `${environment.apiUrl}/auth/refresh`,
-    LOGOUT: `${environment.apiUrl}/auth/logout`
+    LOGOUT: `${environment.apiUrl}/auth/logout`,
+    ADMIN_EXISTS: `${environment.apiUrl}/auth/admin/exists`
   },
   SERVICES: {
     LIST: `${environment.apiUrl}/services`,
     GET: (id: number) => `${environment.apiUrl}/services/${id}`,
     BY_WORKER: (workerId: number) => `${environment.apiUrl}/services?workerId=${workerId}`,
-    CREATE: `${environment.apiUrl}/services`
-  },
-  ADMIN: {
-    EXISTS: `${environment.apiUrl}/auth/admin/exists`
+    CREATE: `${environment.apiUrl}/services`,
+    UPDATE: `${environment.apiUrl}/services`
   },
   USERS: {
     PROFILE: `${environment.apiUrl}/users/profile`,
