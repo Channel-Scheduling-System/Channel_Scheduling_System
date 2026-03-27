@@ -141,7 +141,7 @@ $transition: 0.3s ease;
     text-decoration: none;
     color: #a8a29e;
     font-family: 'Manrope', sans-serif;
-    font-size: 0.875rem;
+    font-size: 1rem;
     font-weight: 500;
     overflow: hidden;
     transition: color $transition, padding $transition, gap $transition;
@@ -164,9 +164,16 @@ $transition: 0.3s ease;
       transition: color $transition;
     }
 
+    &-label {
+      transition: color $transition, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); // 👈 mismo timing que el ícono
+    }
+
     &-icon {
-      font-size: 1.25rem !important;
+      font-size: 1.4rem !important;
       line-height: 1 !important;
+      position: relative;
+      z-index: 1;
+      transition: color $transition, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     &:not(&--active):hover {
@@ -174,14 +181,21 @@ $transition: 0.3s ease;
       border-right-color: $vinotinto;
 
       .sidebar__nav-item-fill {
-        transform: translateX(0);
+        transform: translateY(-4px);
+      }
+      .sidebar__nav-item-icon {
+        transform: translateY(-4px) scale(1.2); // 👈 solo esto se agrega
+
+      }
+      .sidebar__nav-item-label {
+        transform: translateY(-2px) scale(1.03); // 👈 sube menos y crece menos que el ícono
       }
     }
 
     &--active {
       color: #fafafa;
       background-color: #292929;
-      border-right: 4px solid $vinotinto;
+      border-right: 4px solid #ce004f;
 
       .sidebar__nav-item-fill {
         display: none;
@@ -190,7 +204,6 @@ $transition: 0.3s ease;
       &:hover {
         color: #fafafa;
         background-color: #333333;
-        border-right-color: $vinotinto;
 
         .sidebar__nav-item-fill {
           display: none;
@@ -239,7 +252,7 @@ $transition: 0.3s ease;
     cursor: pointer;
     color: rgba(255, 255, 255, 0.85);
     font-family: 'Manrope', sans-serif;
-    font-size: 0.875rem;
+    font-size: 1rem;
     font-weight: 600;
     padding: 0.4rem 0.75rem;
     border-radius: 0.5rem;
@@ -247,16 +260,26 @@ $transition: 0.3s ease;
 
     .material-symbols-outlined {
       font-size: 1.3rem !important;
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     &:hover {
       color: #ffffff;
       background-color: rgba(255, 255, 255, 0.1);
+
+      .material-symbols-outlined {
+        transform: translateY(-3px);
+      }
+
+      .topbar__user-label {
+        transform: translateY(-2px);
+      }
     }
   }
 
   &__user-label {
     line-height: 1;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   &__divider {
@@ -277,7 +300,8 @@ $transition: 0.3s ease;
     transition: color 0.2s ease, background-color 0.2s ease, transform 0.15s ease;
 
     .material-symbols-outlined {
-      font-size: 1.25rem !important;
+      font-size: 1.5rem !important;
+      line-height: 1 !important;
     }
 
     &:hover {

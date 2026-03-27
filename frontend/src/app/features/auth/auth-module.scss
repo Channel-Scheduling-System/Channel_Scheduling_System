@@ -104,7 +104,7 @@ $transition: 0.25s ease;
 }
 
 .input-label {
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 600;
   padding-left: 0.25rem;
   color: #1f2937;
@@ -132,6 +132,7 @@ $transition: 0.25s ease;
   color: #9ca3af;
   transition: color $transition;
   pointer-events: none;
+  font-size: 1.35rem;
 }
 
 .input-field {
@@ -144,7 +145,7 @@ $transition: 0.25s ease;
   outline: none;
   background-color: #f9fafb;
   color: #111827;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-family: inherit;
   transition: all 0.2s ease-in-out;
 
@@ -388,7 +389,7 @@ $transition: 0.25s ease;
     display: flex;
     align-items: center;
     gap: 0.35rem;
-    font-size: 0.78rem;
+    font-size: 0.9rem;
     font-weight: 500;
     color: #9ca3af;
     transition: color 0.2s ease;
@@ -403,7 +404,7 @@ $transition: 0.25s ease;
   }
 
   &__icon {
-    font-size: 1rem !important;
+    font-size: 1.15rem !important;
     line-height: 1 !important;
     color: #d1d5db;
     transition: color 0.2s ease;

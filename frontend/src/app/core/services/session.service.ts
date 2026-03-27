@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable} from 'rxjs';
 import { Router } from '@angular/router';
 import { map, catchError, tap } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../../shared/constants/api-endpoints.constants';
@@ -42,25 +42,19 @@ export class SessionService implements ISessionService {
   }
 
   logout(): Observable<LogoutResponse> {
-    const headers = this.headerService.getHeadersWithAuth();
-    if (!headers) {
-      this.router.navigate(['/auth/login']);
-      return of({ message: 'Sesión ya cerrada' } as LogoutResponse);
-    }
-    return this.http.post(API_ENDPOINTS.AUTH.LOGOUT, {}, {
-      headers, withCredentials: true
-    }).pipe(
-      map(response => {
-        return this.responseHandler.handleSuccess(response, LogoutResponseSchema);
-      }),
-      tap(() => {
-        this.clearSession();
-        this.router.navigate(['/auth/login']);
-      }),
-      catchError(error => {
-        this.clearSession();
-        return this.errorHandler.handleError(error);
-      })
+    return this.headerService.withAuth(
+      (headers) => this.http.post(API_ENDPOINTS.AUTH.LOGOUT, {}, { headers, withCredentials: true }).pipe(
+        map(response => this.responseHandler.handleSuccess(response, LogoutResponseSchema)),
+        tap(() => {
+          this.clearSession();
+          this.router.navigate(['/auth/login']);
+        }),
+        catchError(error => {
+          this.clearSession();
+          return this.errorHandler.handleError(error);
+        })
+      ),
+      { message: 'Sesión ya cerrada' } as LogoutResponse
     );
   }
 

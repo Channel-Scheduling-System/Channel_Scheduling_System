@@ -77,7 +77,7 @@ $transition: 0.25s ease;
 
   &__eyebrow {
     display: block;
-    font-size: 0.65rem;
+    font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.3em;
@@ -101,7 +101,7 @@ $transition: 0.25s ease;
     background-color: #f6f3f2;
     border: 1.5px solid #e5e2e1;
     border-radius: 9999px;
-    padding: 0.6rem 1.25rem;
+    padding: 0.6rem 1.4rem;
     transition: border-color $transition, box-shadow $transition;
 
     &:focus-within {
@@ -115,7 +115,7 @@ $transition: 0.25s ease;
   }
 
   &__search-icon {
-    font-size: 1.1rem !important;
+    font-size: 1.35rem !important;
     line-height: 1 !important;
     color: #877270;
     transition: transform 0.2s ease, color 0.2s ease;
@@ -125,7 +125,7 @@ $transition: 0.25s ease;
     background: transparent;
     border: none;
     outline: none;
-    font-size: 0.875rem;
+    font-size: 1.05rem;
     font-weight: 500;
     color: #1c1b1b;
     width: 12rem;
@@ -242,11 +242,11 @@ $transition: 0.25s ease;
     padding: 1rem 2rem;
     background-color: #f0edec;
     border-bottom: 1px solid #e5e2e1;
-    font-size: 0.65rem;
+    font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.15em;
-    color: #877270;
+    color: #544341;
   }
 
   &__col {
@@ -279,7 +279,7 @@ $transition: 0.25s ease;
   }
 
   &__desc {
-    font-size: 0.8rem;
+    font-size: 1rem;
     color: #636262;
     line-height: 1.55;
     display: -webkit-box;
@@ -304,15 +304,15 @@ $transition: 0.25s ease;
     padding: 0.3rem 0.75rem;
     background-color: #ebe7e7;
     border-radius: 9999px;
-    font-size: 0.75rem;
+    font-size: 1rem;
     font-weight: 600;
     color: #544341;
     .material-symbols-outlined { font-size: 0.85rem !important; line-height: 1 !important; }
   }
 
   &__action {
-    width: 2.25rem;
-    height: 2.25rem;
+    width: 3rem;
+    height: 3rem;
     border-radius: 9999px;
     border: 1.5px solid #dac1bf;
     background: none;
@@ -343,7 +343,7 @@ $transition: 0.25s ease;
     }
 
     .material-symbols-outlined { 
-      font-size: 1rem !important; 
+      font-size: 1.35rem !important; 
       line-height: 1 !important;
       transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
@@ -372,7 +372,7 @@ $transition: 0.25s ease;
     align-items: center;
   }
 
-  &__footer-info { font-size: 0.75rem; font-weight: 500; color: #877270; margin: 0; }
+  &__footer-info { font-size: 0.875rem; font-weight: 500; color: #877270; margin: 0; }
 
   &__pagination { display: flex; gap: 0.5rem; }
 
@@ -384,7 +384,7 @@ $transition: 0.25s ease;
     background-color: #ffffff;
     border: 1.5px solid #e5e2e1;
     border-radius: 0.5rem;
-    font-size: 0.75rem;
+    font-size: 0.85rem;
     font-weight: 700;
     color: $primary;
     cursor: pointer;

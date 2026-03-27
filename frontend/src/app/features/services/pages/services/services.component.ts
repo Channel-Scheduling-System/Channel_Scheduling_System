@@ -7,14 +7,15 @@ import { MessageService } from '../../../../core/services/message.service';
 import { AlertType } from '../../../../core/utils/enums/AlertType';
 import { Service } from '../../../../shared/models/entities/service.schema';
 import { ServicesListResponse } from '../../models/responses/services-list-response.model';
-import { CreateServiceRequest } from '../../models/requests/create-service-request';
+import { CreateServiceRequest } from '../../models/requests/create-service-request.model';
 import { ServiceFormModalComponent } from '../../components/modal/service-form-modal.component';
 import { MatDialog } from '@angular/material/dialog';
 import { Overlay } from '@angular/cdk/overlay';
 import { ServiceFormModalData } from '../../../auth/interfaces/modal-data.interface';
-import { UpdateServiceRequest } from '../../models/requests/update-service-request';
-import { UpdateServiceResponse } from '../../models/responses/update-service-response';
-import { CreateServiceResponse } from '../../models/responses/create-service-response';
+import { UpdateServiceRequest } from '../../models/requests/update-service-request.model';
+import { UpdateServiceResponse } from '../../models/responses/update-service-response.model';
+import { CreateServiceResponse } from '../../models/responses/create-service-response.model';
+import { DeleteServiceResponse } from '../../models/responses/delete-service-response.model';
 
 @Component({
   selector: 'app-services',
@@ -149,21 +150,22 @@ export class ServicesPageComponent implements OnInit {
     });
   }
 
+  deleteService(service: Service): void {
+    this.servicesService.deleteService(service.id).subscribe({
+      next: (response) => this.handleActionServiceSuccess(response),
+      error: (error) => this.handleActionServiceError(error)
+    });
+  }
+
   private handleActionServiceSuccess(
-    response: CreateServiceResponse | UpdateServiceResponse,
-    isUpdate: boolean = false
+    response: CreateServiceResponse | UpdateServiceResponse | DeleteServiceResponse
   ): void {
-    const action = isUpdate ? 'actualizado' : 'creado';
     this.messageService.showMessage(response.message, AlertType.SUCCESS);
     this.loadServices();
   }
 
   private handleActionServiceError(error: any): void {
     this.messageService.showMessage(error.message, AlertType.ERROR);
-  }
-
-  deleteService(service: Service): void {
-    console.log('Eliminar servicio:', service);
   }
 
   goToPage(page: number): void {
