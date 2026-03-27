@@ -147,7 +147,7 @@ $transition: 0.25s ease;
     line-height: 1;
   }
 
-  &__subtitle { font-size: 0.8rem; font-weight: 500; color: #877270; margin-top: 0.4rem; }
+  &__subtitle { font-size: 0.9rem; font-weight: 500; color: #877270; margin-top: 0.4rem; }
 
   &__form { display: flex; flex-direction: column; gap: 1.5rem; }
 
@@ -197,8 +197,8 @@ $transition: 0.25s ease;
     color: white;
     font-family: 'Manrope', sans-serif;
     font-weight: 800;
-    font-size: 0.8rem;
-    letter-spacing: 0.1em;
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
     text-transform: uppercase;
     padding: 0.85rem 2rem;
     border-radius: 0.875rem;
@@ -315,11 +315,11 @@ $transition: 0.25s ease;
   min-width: 0; 
 
   &__label {
-    font-size: 0.62rem;
+    font-size: 0.72rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.28em;
-    color: #877270;
+    color: #544341;
     padding-left: 0.25rem;
     transition: color 0.2s ease;
   }
@@ -368,7 +368,7 @@ $transition: 0.25s ease;
   }
 
   &__icon {
-    font-size: 1rem !important;
+    font-size: 1.3rem !important;
     line-height: 1 !important;
     color: #b0a8a7;
     flex-shrink: 0;
@@ -384,7 +384,7 @@ $transition: 0.25s ease;
     background: transparent;
     border: none;
     outline: none;
-    font-size: 0.875rem;
+    font-size: 1rem;
     font-weight: 500;
     color: #1c1b1b;
     padding: 1rem 0;
@@ -570,7 +570,7 @@ $transition: 0.25s ease;
 }
 
 .svc-color-preview__hex {
-  font-size: 0.7rem;
+  font-size: 0.85rem;
   font-weight: 700;
   font-family: 'Manrope', monospace;
   color: $primary;
@@ -578,7 +578,7 @@ $transition: 0.25s ease;
 }
 
 .svc-color-preview__hint {
-  font-size: 0.65rem;
+  font-size: 0.85rem;
   color: #b0a8a7;
   font-weight: 500;
 }
