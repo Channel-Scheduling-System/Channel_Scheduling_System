@@ -1,5 +1,5 @@
 import { createFieldValidator } from '../../../core/validators/field.validators';
-import { CreateServiceRequestSchema } from '../models/requests/create-service-request';
+import { CreateServiceRequestSchema } from '../models/requests/create-service-request.model';
 
 export type ServiceFieldName = 'name' | 'description' | 'price' | 'duration';
 

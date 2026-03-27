@@ -1,9 +1,9 @@
 import { Observable } from 'rxjs';
 import { ServicesListResponse } from '../models/responses/services-list-response.model';
-import { CreateServiceResponse } from '../models/responses/create-service-response';
-import { CreateServiceRequest } from '../models/requests/create-service-request';
-import { UpdateServiceResponse } from '../models/responses/update-service-response';
-import { UpdateServiceRequest } from '../models/requests/update-service-request';
+import { CreateServiceResponse } from '../models/responses/create-service-response.model';
+import { CreateServiceRequest } from '../models/requests/create-service-request.model';
+import { UpdateServiceResponse } from '../models/responses/update-service-response.model';
+import { UpdateServiceRequest } from '../models/requests/update-service-request.model';
 
 export interface IServicesService {
   

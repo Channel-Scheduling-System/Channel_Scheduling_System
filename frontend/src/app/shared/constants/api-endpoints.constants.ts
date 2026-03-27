@@ -13,7 +13,8 @@ export const API_ENDPOINTS = {
     GET: (id: number) => `${environment.apiUrl}/services/${id}`,
     BY_WORKER: (workerId: number) => `${environment.apiUrl}/services?workerId=${workerId}`,
     CREATE: `${environment.apiUrl}/services`,
-    UPDATE: `${environment.apiUrl}/services`
+    UPDATE: `${environment.apiUrl}/services`,
+    DELETE: (id: number) => `${environment.apiUrl}/services/${id}`,
   },
   USERS: {
     PROFILE: `${environment.apiUrl}/users/profile`,
