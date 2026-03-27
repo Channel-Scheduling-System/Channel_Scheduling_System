@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const apiUrl = process.env.API_URL || 'https://api.tudominio.com/api';
+const apiUrl = process.env.API_URL || 'https://channel-scheduling-backend.onrender.com/api';
 const apiTimeout = process.env.API_TIMEOUT || '30000';
 
 const envProdPath = path.join(__dirname, 'src/environments/environment.prod.ts');
