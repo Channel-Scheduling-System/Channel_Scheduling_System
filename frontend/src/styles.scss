@@ -11,6 +11,9 @@
 @tailwind utilities;
 
 
+:root {
+  font-size: 17px;
+}
 
 html {
   @include mat.theme((
