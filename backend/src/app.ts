@@ -8,6 +8,8 @@ import authRouter from './modules/auth/auth.routes.js';
 
 const app = express();
 
+app.set('trust proxy', 1);
+
 // SECURITY MIDDLEWARES
 //* -----------------------------
 // Helmet - Headers de seguridad HTTP
