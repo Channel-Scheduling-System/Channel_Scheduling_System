@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { Observable, of } from 'rxjs';
 import { TokenService } from './token.service';
 import { IHeaderService } from '../interfaces/header-service.interface';
 
@@ -40,4 +41,21 @@ export class HeaderService implements IHeaderService {
       'Authorization': `Bearer ${token}`
     });
   }
+
+  withAuth<T>(requestFn: (headers: HttpHeaders) => Observable<T>, errorResponse: T): Observable<T> {
+    const headers = this.getHeadersWithAuth();
+    
+    if (!headers) {
+      return this.handleAuthError(errorResponse);
+    }
+    
+    return requestFn(headers);
+  }
+
+  
+  private handleAuthError<T>(errorResponse: T): Observable<T> {
+    this.router.navigate(['/auth/login']);
+    return of(errorResponse);
+  }
+
 }
