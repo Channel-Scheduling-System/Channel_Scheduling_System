@@ -27,25 +27,31 @@ jest.mock('bcrypt', () => ({
     },
 }));
 
-jest.mock('jose', () => ({
-    __esModule: true,
-    SignJWT: jest.fn().mockImplementation((payload: { sub: string; role: string }) => ({
-        setProtectedHeader: jest.fn().mockReturnThis(),
-        setExpirationTime: jest.fn().mockReturnThis(),
-        sign: jest.fn().mockImplementation(async () => {
-            const exp = Math.floor(Date.now() / 1000) + 3600;
-            const encodedPayload = Buffer.from(
-                JSON.stringify({
-                    sub: payload.sub,
-                    role: payload.role,
-                    exp,
+jest.mock(
+    'jose',
+    () => ({
+        __esModule: true,
+        SignJWT: jest
+            .fn()
+            .mockImplementation((payload: { sub: string; role: string }) => ({
+                setProtectedHeader: jest.fn().mockReturnThis(),
+                setExpirationTime: jest.fn().mockReturnThis(),
+                sign: jest.fn().mockImplementation(async () => {
+                    const exp = Math.floor(Date.now() / 1000) + 3600;
+                    const encodedPayload = Buffer.from(
+                        JSON.stringify({
+                            sub: payload.sub,
+                            role: payload.role,
+                            exp,
+                        }),
+                    ).toString('base64');
+                    return `header.${encodedPayload}.signature`;
                 }),
-            ).toString('base64');
-            return `header.${encodedPayload}.signature`;
-        }),
-    })),
-    jwtVerify: jest.fn().mockResolvedValue({ payload: {} }),
-}), { virtual: true });
+            })),
+        jwtVerify: jest.fn().mockResolvedValue({ payload: {} }),
+    }),
+    { virtual: true },
+);
 
 const bcryptMock = bcrypt as unknown as {
     compare: jest.Mock;

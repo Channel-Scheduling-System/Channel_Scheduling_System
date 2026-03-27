@@ -179,9 +179,7 @@ export class AuthService implements IAuthService {
         return token;
     }
 
-    private decodeRefreshToken(
-        token: string,
-    ): JwtPayload & { exp?: number } {
+    private decodeRefreshToken(token: string): JwtPayload & { exp?: number } {
         // Decodificar sin verificar para obtener claims
         const parts = token.split('.');
         if (parts.length !== 3) {
