@@ -1,12 +1,33 @@
 import cors from 'cors';
 import { env } from './env.js';
 
+const allowedOrigins = env.frontendUrl
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
 /**
  * CORS configuration
  * Whitelist de orígenes permitidos
  */
 export const corsOptions: cors.CorsOptions = {
-    origin: [env.frontendUrl],
+    origin: (origin, callback) => {
+        console.info(
+            `[CORS] Origin recibido: ${origin ?? 'sin-origin'} | Permitidos: ${allowedOrigins.join(', ')}`,
+        );
+
+        if (!origin) {
+            callback(null, true);
+            return;
+        }
+
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+            return;
+        }
+
+        callback(new Error(`CORS: Origin not allowed -> ${origin}`));
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
     optionsSuccessStatus: 200,
