@@ -1,6 +1,6 @@
 const requiredEnvVars = [
-    'DATABASE_URL',
     'DATABASE_HOST',
+    'DATABASE_PORT',
     'DATABASE_USER',
     'DATABASE_PASSWORD',
     'DATABASE_NAME',
@@ -19,8 +19,11 @@ export const env = {
     frontendUrl: process.env.FRONTEND_URL || 'http://localhost:4200',
     port: process.env.PORT ? parseInt(process.env.PORT) : 3000,
     database: {
-        url: process.env.DATABASE_URL as string,
+        url: process.env.DATABASE_URL as string || null,
         host: process.env.DATABASE_HOST as string,
+        port: process.env.DATABASE_PORT
+            ? parseInt(process.env.DATABASE_PORT, 10)
+            : 3306,
         user: process.env.DATABASE_USER as string,
         password: process.env.DATABASE_PASSWORD as string,
         name: process.env.DATABASE_NAME as string,

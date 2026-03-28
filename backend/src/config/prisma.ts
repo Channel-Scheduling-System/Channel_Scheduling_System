@@ -2,20 +2,35 @@ import { env } from './env.js';
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 import { PrismaClient } from '../../generated/client/client.js';
 
-const databaseUrl = new URL(env.database.url);
-const databasePortFromUrl = databaseUrl.port
-    ? Number.parseInt(databaseUrl.port, 10)
-    : 3306;
+let adapter;
 
-const adapter = new PrismaMariaDb({
-    host: databaseUrl.hostname || env.database.host,
-    user: decodeURIComponent(databaseUrl.username) || env.database.user,
-    password: decodeURIComponent(databaseUrl.password) || env.database.password,
-    database: databaseUrl.pathname.replace(/^\//, '') || env.database.name,
-    port: databasePortFromUrl,
-    connectionLimit: 10,
-    connectTimeout: 30000,
-});
+if (env.database.url) {
+    console.log('Utilizando variables del entorno de producción');
+    const databaseUrl = new URL(env.database.url);
+    
+    adapter = new PrismaMariaDb({
+        host: databaseUrl.hostname,
+        user: decodeURIComponent(databaseUrl.username),
+        password: decodeURIComponent(databaseUrl.password),
+        database: databaseUrl.pathname.replace(/^\//, ''),
+        port: databaseUrl.port ? Number(databaseUrl.port) : 3306,
+        connectionLimit: 10,
+        connectTimeout: 30000,
+    });
+    
+} else {
+    console.log('Utilizando variables del entorno local');
+    adapter = new PrismaMariaDb({
+        host: env.database.host,
+        port: env.database.port,
+        user: env.database.user,
+        password: env.database.password,
+        database: env.database.name,
+        connectionLimit: 10,
+        connectTimeout: 30000,
+    });
+}
+
 const prisma = new PrismaClient({ adapter });
 
 export default prisma;
