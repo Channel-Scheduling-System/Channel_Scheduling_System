@@ -9,7 +9,7 @@ async function run() {
         await prisma.$connect();
         app.listen(env.port, async () => {
             console.info(`Backend escuchando en http://localhost:${env.port}`);
-            console.info(`CORS FRONTEND_URL configurado: ${env.frontendUrl}`);
+            console.info(`FRONTEND_URL configurado en: ${env.frontendUrl}`);
         });
     } catch (error) {
         console.error('Error conectando a la base de datos:', error);

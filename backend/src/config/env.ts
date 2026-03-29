@@ -1,9 +1,6 @@
 const requiredEnvVars = [
-    'DATABASE_HOST',
-    'DATABASE_PORT',
-    'DATABASE_USER',
-    'DATABASE_PASSWORD',
-    'DATABASE_NAME',
+    'NODE_ENV',
+    'DATABASE_URL',
     'JWT_SECRET',
     'JWT_EXPIRES_IN',
     'JWT_SECRET_REFRESH',
@@ -15,19 +12,10 @@ for (const key of requiredEnvVars) {
 }
 
 export const env = {
-    nodeEnv: process.env.NODE_ENV || 'development',
+    nodeEnv: process.env.NODE_ENV,
     frontendUrl: process.env.FRONTEND_URL || 'http://localhost:4200',
     port: process.env.PORT ? parseInt(process.env.PORT) : 3000,
-    database: {
-        url: process.env.DATABASE_URL as string || null,
-        host: process.env.DATABASE_HOST as string,
-        port: process.env.DATABASE_PORT
-            ? parseInt(process.env.DATABASE_PORT, 10)
-            : 3306,
-        user: process.env.DATABASE_USER as string,
-        password: process.env.DATABASE_PASSWORD as string,
-        name: process.env.DATABASE_NAME as string,
-    },
+    databaseUrl: process.env.DATABASE_URL as string,
     jwt: {
         secret: process.env.JWT_SECRET as string,
         expiresIn: process.env.JWT_EXPIRES_IN as string,
