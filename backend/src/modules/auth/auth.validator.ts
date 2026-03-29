@@ -3,49 +3,46 @@ import {
     validateBodyDTO,
     validateCookieDTO,
 } from '../../shared/middlewares/validateDTO.middleware.js';
-
-// ENUMS
-//* -----------------------------
-export const SystemRole = z.enum(['ADMIN', 'CLIENT', 'WORKER']);
+import {
+    UserPassword,
+    UserSchema,
+    UserAlias,
+    UserEmail,
+    UserPhone,
+} from '../users/user.validator.js';
 
 // REGISTER
 //* -----------------------------
-export const RegisterDTO = z
-    .object({
-        firstName: z.string().min(1, 'El nombre es requerido'),
-        lastName: z.string().min(1, 'El apellido es requerido'),
-        alias: z.string().min(1, 'El alias es requerido'),
-        email: z.string().email('Email inválido'),
-        phone: z.string().optional(),
-        password: z
-            .string()
-            .min(8, 'La contraseña debe tener al menos 8 caracteres'),
-        role: SystemRole,
-    })
+export const RegisterDTO = UserSchema.extend({
+    password: UserPassword,
+})
+    .omit({ id: true })
     .strict();
 
 // LOGIN
 //* -----------------------------
 export const LoginDTO = z
     .object({
-        identifier: z.string().min(1, 'El identificador es requerido'), // Email o alias
-        password: z.string().min(1, 'La contraseña es requerida'),
+        identifier: z.union([UserAlias, UserEmail, UserPhone]),
+        password: UserPassword,
     })
     .strict();
 
-// LOGOUT
+// REFRESH TOKEN
 //* -----------------------------
-export const LogoutDTO = z
-    .object({
-        refreshToken: z.string().min(10, 'Refresh token inválido'),
-    })
-    .strict();
+export const RefreshTokenDTO = z
+    .string()
+    .min(1, 'El token es requerido')
+    .regex(
+        /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/,
+        'Token JWT inválido',
+    );
 
 // RECOVERY REQUEST
 //* -----------------------------
 export const RecoveryRequestDTO = z
     .object({
-        email: z.string().email('Email inválido'),
+        email: UserEmail,
     })
     .strict();
 
@@ -53,20 +50,15 @@ export const RecoveryRequestDTO = z
 //* -----------------------------
 export const ResetPasswordDTO = z
     .object({
-        email: z.string().email('Email inválido'),
+        email: UserEmail,
         code: z.string().length(6, 'Código inválido'),
-        newPassword: z.string().min(8, 'Mínimo 8 caracteres'),
+        newPassword: UserPassword,
     })
     .strict();
-
-// REFRESH TOKEN
-//* -----------------------------
-export const RefreshTokenDTO = z.string().min(10, 'Refresh token inválido');
 
 // TYPES (DTOs)
 //* -----------------------------
 export type LoginRequestDTO = z.infer<typeof LoginDTO>;
-export type LogoutRequestDTO = z.infer<typeof LogoutDTO>;
 export type RegisterRequestDTO = z.infer<typeof RegisterDTO>;
 export type RecoveryRequest = z.infer<typeof RecoveryRequestDTO>;
 export type ResetPasswordRequest = z.infer<typeof ResetPasswordDTO>;
@@ -77,7 +69,6 @@ export type RefreshTokenRequest = z.infer<typeof RefreshTokenDTO>;
 export const authValidator = {
     register: validateBodyDTO(RegisterDTO),
     login: validateBodyDTO(LoginDTO),
-    logout: validateBodyDTO(LogoutDTO),
     recoveryRequest: validateBodyDTO(RecoveryRequestDTO),
     resetPassword: validateBodyDTO(ResetPasswordDTO),
     refreshToken: validateCookieDTO('refreshToken', RefreshTokenDTO),

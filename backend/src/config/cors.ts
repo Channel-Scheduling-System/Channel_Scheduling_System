@@ -12,20 +12,14 @@ const allowedOrigins = env.frontendUrl
  */
 export const corsOptions: cors.CorsOptions = {
     origin: (origin, callback) => {
-        console.info(
-            `[CORS] Origin recibido: ${origin ?? 'sin-origin'} | Permitidos: ${allowedOrigins.join(', ')}`,
-        );
-
         if (!origin) {
             callback(null, true);
             return;
         }
-
         if (allowedOrigins.includes(origin)) {
             callback(null, true);
             return;
         }
-
         callback(new Error(`CORS: Origin not allowed -> ${origin}`));
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
