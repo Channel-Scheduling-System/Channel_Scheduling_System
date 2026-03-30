@@ -51,4 +51,16 @@ export class ServiceController {
             next(error);
         }
     };
+
+    delete = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const id = req.params.id as unknown as number;
+            await this.serviceService.delete(id);
+            return res
+                .status(200)
+                .json({ message: 'Servicio eliminado exitosamente' });
+        } catch (error) {
+            next(error);
+        }
+    };
 }
