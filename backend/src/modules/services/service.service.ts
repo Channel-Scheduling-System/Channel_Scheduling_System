@@ -3,16 +3,22 @@ import { IServiceRepository } from './service.repository.js';
 import {
     CreateServiceInput,
     ServiceResponse,
+    ServiceFilters,
+    Service,
 } from './service.types.js';
 import {
     mapToCreateServiceData,
     mapToServiceResponse,
+    mapToServicesResponse,
 } from './service.mapper.js';
 
-import { ConflictError } from '#/shared/errors/domain.error.js';
+import { ConflictError, NotFoundError } from '#/shared/errors/domain.error.js';
 
 export interface IServiceService {
     add(input: CreateServiceInput): Promise<ServiceResponse>;
+    existsById(id: number): Promise<boolean>;
+    getById(id: number): Promise<ServiceResponse>;
+    getAll(filters: ServiceFilters): Promise<ServiceResponse[]>;
 }
 
 export class ServiceService implements IServiceService {
@@ -27,6 +33,28 @@ export class ServiceService implements IServiceService {
             mapToCreateServiceData(input),
         );
         return mapToServiceResponse(newService);
+    }
+
+    async existsById(id: number): Promise<boolean> {
+        return this.serviceRepo.existsById(id);
+    }
+
+    async getById(id: number): Promise<ServiceResponse> {
+        const service = await this.getServiceOrFail(id);
+        return mapToServiceResponse(service);
+    }
+
+    async getAll(filters: ServiceFilters): Promise<ServiceResponse[]> {
+        return mapToServicesResponse(await this.serviceRepo.findAll(filters));
+    }
+
+    private async getServiceOrFail(id: number): Promise<Service> {
+        const service = await this.serviceRepo.findById(id);
+        if (!service)
+            throw new NotFoundError(
+                'El servicio con el id solicitado no existe',
+            );
+        return service;
     }
 
     private async ensureWorkerExists(workerId: number): Promise<void> {

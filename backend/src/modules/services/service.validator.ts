@@ -1,6 +1,9 @@
 import { z } from 'zod';
 import {
+    ParamIdDTO,
     validateBodyDTO,
+    validateParamsDTO,
+    validateQueryDTO,
 } from '#/shared/middlewares/validateDTO.middleware.js';
 import { Id } from '#/shared/zod/shemas.js';
 
@@ -54,8 +57,15 @@ export type ServiceData = z.infer<typeof ServiceSchema>;
 
 export const CreateServiceDTO = ServiceSchema.omit({ id: true }).strict();
 
+// FILTERS
+export const ServiceFiltersSchema = z.object({
+    workerId: z.coerce.number().int().positive().optional(),
+});
+
 // Export centralizado
 //* -----------------------------
 export const serviceValidator = {
     create: validateBodyDTO(CreateServiceDTO),
+    id: validateParamsDTO(ParamIdDTO),
+    filters: validateQueryDTO(ServiceFiltersSchema),
 };
