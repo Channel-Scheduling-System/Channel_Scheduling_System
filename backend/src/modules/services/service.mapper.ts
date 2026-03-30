@@ -2,6 +2,7 @@ import {
     CreateServiceData,
     CreateServiceInput,
     ServiceResponse,
+    ServiceFilters,
 } from './service.types.js';
 import type { Service } from '@prisma/client.js';
 
@@ -36,5 +37,30 @@ export function mapToServiceResponse(service: Service): ServiceResponse {
         color: service.colorHex,
         price: service.defaultPrice,
         duration: service.defaultDurationMin,
+    };
+}
+
+/**
+ * Maps an array of service entities to an array of ServiceResponse objects
+ * @param services - Array of Service entities from the database
+ * @returns Array of ServiceResponse objects formatted for API responses
+ */
+export function mapToServicesResponse(services: Service[]): ServiceResponse[] {
+    return services.map(mapToServiceResponse);
+}
+
+/**
+ * Maps and normalizes query filters for service queries
+ * @param filters - Query filters that may contain string values
+ * @returns Normalized ServiceFilters object with correct types
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function mapToServiceFilters(filters: Record<string, any>): ServiceFilters {
+    return {
+        ...(filters.workerId && {
+            workerId: typeof filters.workerId === 'string'
+                ? parseInt(filters.workerId, 10)
+                : filters.workerId,
+        }),
     };
 }

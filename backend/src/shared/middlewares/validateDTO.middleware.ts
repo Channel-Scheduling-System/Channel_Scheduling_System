@@ -67,7 +67,7 @@ export const validateQueryDTO = <T = unknown>(schema: z.ZodSchema<T>) => {
         (req) => req.query,
         (req, data) => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            req.query = data as Record<string, any>;
+            Object.assign(req.query, data as Record<string, any>);
         },
     );
 };
@@ -112,3 +112,10 @@ export const validateCookieDTO = <T = unknown>(
         },
     );
 };
+
+export const ParamIdDTO = z.object({
+    id: z.coerce
+        .number('El id debe ser un número')
+        .int('El id debe ser un número entero')
+        .positive('El id debe ser un número positivo'),
+});

@@ -46,3 +46,7 @@ export interface ServiceResponse {
     price: number;
     duration: number;
 }
+
+export interface ServiceFilters {
+    workerId?: number;
+}

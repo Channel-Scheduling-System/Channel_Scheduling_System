@@ -14,4 +14,18 @@ serviceRouter.post(
     serviceController.add,
 );
 
+serviceRouter.get(
+    '/',
+    authMiddleware,
+    serviceValidator.filters,
+    serviceController.getAll,
+);
+
+serviceRouter.get(
+    '/:id',
+    authMiddleware,
+    serviceValidator.id,
+    serviceController.getById,
+);
+
 export default serviceRouter;
