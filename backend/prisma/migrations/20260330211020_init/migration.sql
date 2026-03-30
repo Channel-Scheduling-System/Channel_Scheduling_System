@@ -32,7 +32,7 @@ CREATE TABLE `services` (
     `updatedAt` DATETIME(3) NOT NULL,
     `workerId` INTEGER NOT NULL,
 
-    UNIQUE INDEX `services_name_key`(`name`),
+    UNIQUE INDEX `services_workerId_name_key`(`workerId`, `name`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 

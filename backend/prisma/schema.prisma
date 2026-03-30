@@ -47,7 +47,7 @@ enum SystemRole {
 // ============================================
 model Service {
   id                 Int                   @id @default(autoincrement())
-  name               String                @unique @db.VarChar(100)
+  name               String                @db.VarChar(100)
   description        String?               @db.VarChar(300)
   colorHex           String                @db.Char(7)
   defaultDurationMin Int                   @db.UnsignedSmallInt
@@ -59,6 +59,7 @@ model Service {
   workerId           Int
   appointments       AppointmentServices[]
 
+  @@unique([workerId, name])
   @@map("services")
 }
 

@@ -4,7 +4,8 @@ import cookieParser from 'cookie-parser';
 import { corsMiddleware } from './config/cors.js';
 import { apiLimiter } from './config/security.js';
 import { handleErrorMiddleware } from './shared/middlewares/error.middleware.js';
-import authRouter from './modules/auth/auth.routes.js';
+import authRouter from './modules/auth/index.js';
+import serviceRouter from './modules/services/index.js';
 
 const app = express();
 
@@ -40,6 +41,7 @@ app.get('/health', (req: Request, res: Response) => {
 // API ROUTES
 //* -----------------------------
 app.use('/api/auth', authRouter);
+app.use('/api/services', serviceRouter);
 
 // =================================================================
 

@@ -1,3 +1,4 @@
+import { Id } from '#/shared/zod/shemas.js';
 import { z } from 'zod';
 
 export const Role = z.enum(['ADMIN', 'CLIENT', 'WORKER']);
@@ -39,10 +40,7 @@ export const UserPassword = z
     );
 
 export const UserSchema = z.object({
-    id: z
-        .number()
-        .positive('El ID debe ser un número positivo')
-        .int('El ID debe ser un número entero'),
+    id: Id,
     alias: UserAlias,
     firstName: z
         .string()
