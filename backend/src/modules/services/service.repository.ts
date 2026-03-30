@@ -13,6 +13,7 @@ export interface IServiceRepository {
     findById(id: number): Promise<Service | null>;
     findAll(filters: ServiceFilters): Promise<Service[]>;
     update(id: number, data: UpdateServiceData): Promise<Service>;
+    delete(id: number): Promise<Service>;
 }
 
 export class ServiceRepository implements IServiceRepository {
@@ -53,6 +54,12 @@ export class ServiceRepository implements IServiceRepository {
         return await prisma.service.update({
             where: { id },
             data,
+        });
+    }
+
+    async delete(id: number): Promise<Service> {
+        return await prisma.service.delete({
+            where: { id },
         });
     }
 }

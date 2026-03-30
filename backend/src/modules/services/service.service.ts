@@ -22,6 +22,7 @@ export interface IServiceService {
     getById(id: number): Promise<ServiceResponse>;
     getAll(filters: ServiceFilters): Promise<ServiceResponse[]>;
     update(input: UpdateServiceInput): Promise<ServiceResponse>;
+    delete(id: number): Promise<void>;
 }
 
 export class ServiceService implements IServiceService {
@@ -64,6 +65,14 @@ export class ServiceService implements IServiceService {
             mapToUpdateServiceData(input),
         );
         return mapToServiceResponse(updated);
+    }
+
+    async delete(id: number): Promise<void> {
+        // 1. Verificar existencia de servicio
+        await this.getServiceOrFail(id);
+        // TODO: 2. Verificar que el servicio no tenga citas asociadas
+        // 3. Eliminar servicio
+        await this.serviceRepo.delete(id);
     }
 
     private async getServiceOrFail(id: number): Promise<Service> {

@@ -36,4 +36,12 @@ serviceRouter.put(
     serviceController.update,
 );
 
+serviceRouter.delete(
+    '/:id',
+    authMiddleware,
+    requireRole('WORKER'),
+    serviceValidator.id,
+    serviceController.delete,
+);
+
 export default serviceRouter;
