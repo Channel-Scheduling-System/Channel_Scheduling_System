@@ -28,4 +28,12 @@ serviceRouter.get(
     serviceController.getById,
 );
 
+serviceRouter.put(
+    '/',
+    authMiddleware,
+    requireRole('WORKER'),
+    serviceValidator.update,
+    serviceController.update,
+);
+
 export default serviceRouter;
