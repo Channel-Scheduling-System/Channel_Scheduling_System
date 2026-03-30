@@ -25,6 +25,14 @@ export interface CreateServiceData {
     defaultPrice: number; // en COP
 }
 
+export interface UpdateServiceData {
+    name?: string;
+    description?: string;
+    colorHex?: string;
+    defaultDurationMin?: number; // en minutos
+    defaultPrice?: number; // en COP
+}
+
 // SERVICE INPUTS
 //* -----------------------------
 export interface CreateServiceInput {
@@ -34,6 +42,15 @@ export interface CreateServiceInput {
     color: string;
     price: number; // en COP
     duration: number; // en minutos
+}
+
+export interface UpdateServiceInput {
+    id: number;
+    name?: string;
+    description?: string;
+    color?: string;
+    price?: number; // en COP
+    duration?: number; // en minutos
 }
 
 // SERVICE RESPONSE

@@ -40,4 +40,15 @@ export class ServiceController {
         }
     };
 
+    update = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const data = await this.serviceService.update(req.body);
+            return res.status(200).json({
+                message: 'Servicio actualizado exitosamente',
+                data,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
 }

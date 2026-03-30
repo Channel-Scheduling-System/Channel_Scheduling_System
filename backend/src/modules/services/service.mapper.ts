@@ -3,6 +3,8 @@ import {
     CreateServiceInput,
     ServiceResponse,
     ServiceFilters,
+    UpdateServiceInput,
+    UpdateServiceData,
 } from './service.types.js';
 import type { Service } from '@prisma/client.js';
 
@@ -16,6 +18,23 @@ export function mapToCreateServiceData(
 ): CreateServiceData {
     return {
         workerId: service.workerId,
+        name: service.name,
+        description: service.description,
+        colorHex: service.color,
+        defaultDurationMin: service.duration,
+        defaultPrice: service.price,
+    };
+}
+
+/**
+ * Maps a service input to an Service entity for database
+ * @param service - UpdateServiceInput from the API
+ * @returns UpdateServiceData object formatted for database persistence
+ */
+export function mapToUpdateServiceData(
+    service: UpdateServiceInput,
+): UpdateServiceData {
+    return {
         name: service.name,
         description: service.description,
         colorHex: service.color,
@@ -54,13 +73,16 @@ export function mapToServicesResponse(services: Service[]): ServiceResponse[] {
  * @param filters - Query filters that may contain string values
  * @returns Normalized ServiceFilters object with correct types
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function mapToServiceFilters(filters: Record<string, any>): ServiceFilters {
+export function mapToServiceFilters(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    filters: Record<string, any>,
+): ServiceFilters {
     return {
         ...(filters.workerId && {
-            workerId: typeof filters.workerId === 'string'
-                ? parseInt(filters.workerId, 10)
-                : filters.workerId,
+            workerId:
+                typeof filters.workerId === 'string'
+                    ? parseInt(filters.workerId, 10)
+                    : filters.workerId,
         }),
     };
 }

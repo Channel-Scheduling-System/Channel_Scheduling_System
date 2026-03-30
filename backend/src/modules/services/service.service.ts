@@ -1,15 +1,17 @@
 import { IServiceRepository } from './service.repository.js';
 
 import {
+    Service,
     CreateServiceInput,
     ServiceResponse,
     ServiceFilters,
-    Service,
+    UpdateServiceInput,
 } from './service.types.js';
 import {
     mapToCreateServiceData,
     mapToServiceResponse,
     mapToServicesResponse,
+    mapToUpdateServiceData,
 } from './service.mapper.js';
 
 import { ConflictError, NotFoundError } from '#/shared/errors/domain.error.js';
@@ -19,6 +21,7 @@ export interface IServiceService {
     existsById(id: number): Promise<boolean>;
     getById(id: number): Promise<ServiceResponse>;
     getAll(filters: ServiceFilters): Promise<ServiceResponse[]>;
+    update(input: UpdateServiceInput): Promise<ServiceResponse>;
 }
 
 export class ServiceService implements IServiceService {
@@ -46,6 +49,21 @@ export class ServiceService implements IServiceService {
 
     async getAll(filters: ServiceFilters): Promise<ServiceResponse[]> {
         return mapToServicesResponse(await this.serviceRepo.findAll(filters));
+    }
+
+    async update(input: UpdateServiceInput): Promise<ServiceResponse> {
+        // 1. Verificar existencia de servicio
+        const existing = await this.getServiceOrFail(input.id);
+        // 2. Si se actualiza el nombre, verificar que sea único para el worker
+        if (input.name && input.name !== existing.name) {
+            await this.ensureNameIsUnique(existing.workerId, input.name);
+        }
+        // 3. Actualizar servicio
+        const updated = await this.serviceRepo.update(
+            input.id,
+            mapToUpdateServiceData(input),
+        );
+        return mapToServiceResponse(updated);
     }
 
     private async getServiceOrFail(id: number): Promise<Service> {

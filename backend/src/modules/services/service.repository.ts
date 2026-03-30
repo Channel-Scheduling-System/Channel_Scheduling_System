@@ -1,6 +1,10 @@
 import prisma from '#/config/prisma.js';
 import type { Service } from '@prisma/client.js';
-import { CreateServiceData, ServiceFilters } from './service.types.js';
+import {
+    CreateServiceData,
+    ServiceFilters,
+    UpdateServiceData,
+} from './service.types.js';
 
 export interface IServiceRepository {
     create(data: CreateServiceData): Promise<Service>;
@@ -8,6 +12,7 @@ export interface IServiceRepository {
     existsByName(workerId: number, name: string): Promise<boolean>;
     findById(id: number): Promise<Service | null>;
     findAll(filters: ServiceFilters): Promise<Service[]>;
+    update(id: number, data: UpdateServiceData): Promise<Service>;
 }
 
 export class ServiceRepository implements IServiceRepository {
@@ -41,6 +46,13 @@ export class ServiceRepository implements IServiceRepository {
         return await prisma.service.findMany({
             where: { ...filters },
             orderBy: { createdAt: 'desc' },
+        });
+    }
+
+    async update(id: number, data: UpdateServiceData): Promise<Service> {
+        return await prisma.service.update({
+            where: { id },
+            data,
         });
     }
 }

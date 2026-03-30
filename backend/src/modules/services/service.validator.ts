@@ -57,6 +57,10 @@ export type ServiceData = z.infer<typeof ServiceSchema>;
 
 export const CreateServiceDTO = ServiceSchema.omit({ id: true }).strict();
 
+export const UpdateServiceDTO = ServiceSchema.partial()
+    .omit({ workerId: true })
+    .strict();
+
 // FILTERS
 export const ServiceFiltersSchema = z.object({
     workerId: z.coerce.number().int().positive().optional(),
@@ -66,6 +70,7 @@ export const ServiceFiltersSchema = z.object({
 //* -----------------------------
 export const serviceValidator = {
     create: validateBodyDTO(CreateServiceDTO),
+    update: validateBodyDTO(UpdateServiceDTO),
     id: validateParamsDTO(ParamIdDTO),
     filters: validateQueryDTO(ServiceFiltersSchema),
 };
