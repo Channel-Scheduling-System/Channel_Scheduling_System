@@ -12,7 +12,13 @@
 
 
 :root {
-  font-size: 17px;
+  font-size: 95%;
+}
+
+@media (max-width: 768px) {
+  :root {
+    font-size: 85.5%;
+  }
 }
 
 html {
@@ -24,6 +30,8 @@ html {
     typography: Roboto,
     density: 0,
   ));
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 .error-snackbar {
