@@ -35,7 +35,7 @@ export class ServiceController {
             const filters = mapToServiceFilters(req.query);
             const data = await this.serviceService.getAll(filters);
             return res.status(200).json({
-                message: 'Servicio actualizado exitosamente',
+                message: 'Servicios recuperados exitosamente',
                 data,
             });
         } catch (error) {
