@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.tudominio.com/api',
+  apiUrl: 'https://channel-scheduling-backend.onrender.com/api',
   apiTimeout: 30000
 };

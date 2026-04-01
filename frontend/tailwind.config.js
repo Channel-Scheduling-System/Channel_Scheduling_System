@@ -7,6 +7,9 @@ module.exports = {
         "primary": "#4a0010",
         "accent": "#ec5b13",
       },
+      fontFamily: {
+        manrope: ['Manrope', 'sans-serif'],
+      },
     },
   },
   plugins: [],
