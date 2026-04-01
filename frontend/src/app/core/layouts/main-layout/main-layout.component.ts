@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SessionService } from '../../services/session.service';
 import { MessageService } from '../../services/message.service';
+
 
 @Component({
   selector: 'app-main-layout',
@@ -14,7 +15,12 @@ import { MessageService } from '../../services/message.service';
 export class MainLayoutComponent implements OnInit {
   userAlias = '';
   isCollapsed = false;
+  windowWidth = window.innerWidth;
 
+  @HostListener('window:resize')
+  onResize() {
+    this.windowWidth = window.innerWidth;
+  }
 
   constructor(
     private sessionService: SessionService,
