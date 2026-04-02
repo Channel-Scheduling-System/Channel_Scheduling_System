@@ -1,8 +1,6 @@
 /// <reference types="jest" />
 
 import { ServiceController } from '../../../src/modules/services/service.controller';
-import type { IServiceService } from '../../../src/modules/services/service.service';
-
 describe('ServiceController', () => {
     it('should return 201 and data on add success', async () => {
         const serviceService = {
