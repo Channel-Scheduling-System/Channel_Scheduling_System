@@ -33,8 +33,11 @@ export class ServiceController {
     getAll = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const filters = mapToServiceFilters(req.query);
-            const services = await this.serviceService.getAll(filters);
-            return res.status(200).json(services);
+            const data = await this.serviceService.getAll(filters);
+            return res.status(200).json({
+                message: 'Servicios recuperados exitosamente',
+                data,
+            });
         } catch (error) {
             next(error);
         }
