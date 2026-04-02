@@ -118,7 +118,7 @@ export class ServicesPageComponent implements OnInit {
       backdropClass: 'service-dialog-backdrop',
       disableClose: false,
       autoFocus: true,
-      scrollStrategy: this.overlay.scrollStrategies.block(),
+      scrollStrategy: this.overlay.scrollStrategies.reposition(),
       data: dialogData
     });
 
