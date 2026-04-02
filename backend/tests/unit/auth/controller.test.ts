@@ -1,12 +1,12 @@
 /// <reference types="jest" />
 
-jest.mock('../../src/config/env', () => ({
+jest.mock('../../../src/config/env', () => ({
     env: {
         nodeEnv: 'test',
     },
 }));
 
-import { AuthController } from '../../src/modules/auth/auth.controller';
+import { AuthController } from '../../../src/modules/auth/auth.controller';
 
 describe('AuthController', () => {
     it('should return 200 and payload on login success', async () => {
