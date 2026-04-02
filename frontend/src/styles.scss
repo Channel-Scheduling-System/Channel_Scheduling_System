@@ -37,17 +37,17 @@ html {
 .error-snackbar {
   &.mat-mdc-snack-bar-container {
     .mdc-snackbar__surface {
-      background-color: #e53935 !important;
+      background-color: #e53935;
       border-radius: 1em;
     }
     .mat-mdc-snack-bar-label {
-      color: white !important;
+      color: white;
       font-weight: bold;
     }
     .mat-mdc-button {
-      color: white !important;
+      color: white;
       &:hover {
-        background-color: #9b2725 !important;
+        background-color: #9b2725;
       }
     }
   }
@@ -56,16 +56,16 @@ html {
 .success-snackbar {
   &.mat-mdc-snack-bar-container {
     .mdc-snackbar__surface {
-      background-color: #13dd01 !important;
+      background-color: #13dd01;
       border-radius: 1em;
     }
     .mat-mdc-snack-bar-label {
-      color: white !important;
+      color: white;
       font-weight: bold;
     }
     .mat-mdc-button {
-      color: white !important;
-      &:hover { background-color: #009900 !important; }
+      color: white;
+      &:hover { background-color: #009900; }
     }
   }
 }
@@ -73,16 +73,16 @@ html {
 .warning-snackbar {
   &.mat-mdc-snack-bar-container {
     .mdc-snackbar__surface {
-      background-color: #e58a35 !important;
+      background-color: #e58a35;
       border-radius: 1em;
     }
     .mat-mdc-snack-bar-label {
-      color: white !important;
+      color: white;
       font-weight: bold;
     }
     .mat-mdc-button {
-      color: white !important;
-      &:hover { background-color: #9b5a25 !important; }
+      color: white;
+      &:hover { background-color: #9b5a25; }
     }
   }
 }
@@ -109,36 +109,19 @@ html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 
-
-
-.svc-modal__scroll {
-  scrollbar-width: thin;
-  scrollbar-color: #4a0010 #f0edec;
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  &::-webkit-scrollbar-track {
-    background: #f0edec;
-    border-radius: 10px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: #4a0010;
-    border-radius: 10px;
-  }
-}
 .service-dialog-panel {
   .mat-mdc-dialog-container {
     max-height: 85vh;
     overflow: hidden;
-    padding: 0 !important;
-    background: transparent !important;
-    box-shadow: none !important;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
   }
   
   .mat-mdc-dialog-surface {
-    background: transparent !important;
-    box-shadow: none !important;
+    background: transparent;
+    box-shadow: none;
+    overflow: hidden;
   }
 }
 
@@ -151,13 +134,4 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   &--visible {
     backdrop-filter: blur(4px);
   }
-}
-body.modal-open {
-  overflow: hidden !important;
-  position: fixed; 
-  width: 100%;
-}
-
-body.modal-open .layout-main {
-  overflow: hidden !important;
 }
