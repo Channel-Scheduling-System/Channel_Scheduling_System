@@ -2,10 +2,10 @@
 
 import bcrypt from 'bcrypt';
 
-import { AuthService } from '../../src/modules/auth/auth.service';
-import type { IAuthRepository } from '../../src/modules/auth/auth.repository';
-import { ConflictError } from '../../src/shared/errors/domain.error';
-import { InvalidCredentialsError } from '../../src/shared/errors/validation.error';
+import { AuthService } from '../../../src/modules/auth/auth.service';
+import type { IAuthRepository } from '../../../src/modules/auth/auth.repository';
+import { ConflictError } from '../../../src/shared/errors/domain.error';
+import { InvalidCredentialsError } from '../../../src/shared/errors/validation.error';
 
 jest.mock('#/config/env.js', () => ({
     __esModule: true,
@@ -74,6 +74,7 @@ function createRepoMock(): jest.Mocked<IAuthRepository> {
         findValidRecoveryCode: jest.fn(),
         markRecoveryCodeAsUsed: jest.fn(),
         invalidateRecoveryCodes: jest.fn(),
+        countAdminUsers: jest.fn(),
     };
 }
 

@@ -1,9 +1,9 @@
-name: CI Pipeline
+name: CI/CD Pipeline
 on:
   push:
-    branches: [main, develop]
+    branches: [master, develop]
   pull_request:
-    branches: [main]
+    branches: [master]
 env:
   NODE_VERSION: '20'
 jobs:
@@ -49,3 +49,19 @@ jobs:
         run: npx prisma migrate deploy
       - name: Ejecutar tests
         run: npm test
+
+  cd:
+    name: Deploy to Render
+    runs-on: ubuntu-latest
+    needs: ci
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    steps:
+      - name: Deploy backend
+        run: |
+          curl -f -X POST "${{ secrets.RENDER_BACKEND_DEPLOY_HOOK }}" || \
+          (echo "Backend deploy failed" && exit 1)
+
+      - name: Deploy frontend
+        run: |
+          curl -f -X POST "${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK }}" || \
+          (echo "Frontend deploy failed" && exit 1)

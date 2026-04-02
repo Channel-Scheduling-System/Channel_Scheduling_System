@@ -6,7 +6,7 @@ import {
     RefreshTokenDTO,
     RegisterDTO,
     ResetPasswordDTO,
-} from '../../src/modules/auth/auth.validator';
+} from '../../../src/modules/auth/auth.validator';
 
 describe('Auth DTO validators', () => {
     it('should validate a correct RegisterDTO payload', () => {
@@ -16,7 +16,7 @@ describe('Auth DTO validators', () => {
             alias: 'johangil',
             email: 'johan@test.com',
             phone: '3001234567',
-            password: 'Password123',
+            password: 'Password123!',
             role: 'ADMIN',
         });
 
@@ -77,7 +77,9 @@ describe('Auth DTO validators', () => {
     });
 
     it('should validate RefreshTokenDTO with enough length', () => {
-        const result = RefreshTokenDTO.safeParse('1234567890abcd');
+        const result = RefreshTokenDTO.safeParse(
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+        );
 
         expect(result.success).toBe(true);
     });
