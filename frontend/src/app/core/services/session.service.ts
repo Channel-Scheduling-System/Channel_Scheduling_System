@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable} from 'rxjs';
+import { BehaviorSubject, Observable} from 'rxjs';
 import { Router } from '@angular/router';
-import { map, catchError, tap } from 'rxjs/operators';
+import { map, catchError, tap, take, filter } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../../shared/constants/api-endpoints.constants';
 import { HttpErrorHandler } from '../utils/handlers/error.handler';
 import { TokenService } from './token.service';
@@ -12,6 +12,7 @@ import { HeaderService } from './header.service';
 import { ResponseHandler } from '../utils/handlers/response.handler';
 import { ISessionService } from '../interfaces/session-service.interface';
 import { Session } from '../../shared/models/entities/session.schema';
+import { MessageService } from './message.service';
 
 @Injectable({ providedIn: 'root' })
 export class SessionService implements ISessionService {
@@ -21,12 +22,26 @@ export class SessionService implements ISessionService {
     private errorHandler: HttpErrorHandler,
     private tokenService: TokenService,
     private headerService: HeaderService,
-    private router: Router
+    private router: Router,
+    private messageService: MessageService
   ) { }
 
   
 
   private session: Session | null = null;
+  private authReady$ = new BehaviorSubject<boolean>(false);
+
+  isAuthReady(): Observable<boolean> {
+    return this.authReady$.pipe(
+      filter(ready => ready),
+      take(1)
+    );
+  }
+
+  setAuthReady(): void {
+    this.authReady$.next(true);
+  }
+
 
   initAuth(): Observable<RefreshResponse> {
     return this.http.post(API_ENDPOINTS.AUTH.REFRESH, {}, {
