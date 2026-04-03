@@ -84,7 +84,7 @@ export class ServiceService implements IServiceService {
         return service;
     }
 
-    private async ensureWorkerExists(workerId: number): Promise<void> {
+    private async ensureWorkerExists(_workerId: number): Promise<void> {
         // TODO: Implementar método para verificar existencia de worker
     }
 
