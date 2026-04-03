@@ -305,9 +305,7 @@ describe('ServiceService', () => {
             };
 
             repo.findById.mockResolvedValue(mockService);
-            (repo.delete as jest.Mock).mockImplementation((_id: number) =>
-                Promise.resolve(),
-            );
+            (repo.delete as jest.Mock).mockImplementation(() => Promise.resolve());
 
             await service.delete(1);
 
