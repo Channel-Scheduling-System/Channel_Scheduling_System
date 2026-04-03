@@ -80,7 +80,7 @@ export class RegisterPageComponent {
   private handleRegisterSuccess(data: any): void {
     this.isLoading = false;
     this.messageService.showMessage(data.message, AlertType.SUCCESS);
-    this.router.navigate(['/services']);
+    this.router.navigate(['/home']);
   }
 
   private handleRegisterError(error: any): void {
