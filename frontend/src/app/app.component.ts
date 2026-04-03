@@ -22,13 +22,15 @@ export class App implements OnInit {
     this.adminService.checkAdminExists().subscribe({
       next: (response) => {
         if (!response.data.exists) {
+          this.sessionService.setAuthReady();
           this.router.navigate(['/auth/admin-register']);
         }else {
           this.sessionService.initAuth().subscribe({
             next: () => {
-              this.router.navigate(['/services']);
+              this.sessionService.setAuthReady();
             },
             error: () => { 
+              this.sessionService.setAuthReady();
               this.router.navigate(['/auth/login']);
             }
           });
@@ -36,7 +38,11 @@ export class App implements OnInit {
       },
       error: () => {
         this.sessionService.initAuth().subscribe({
+          next: () => {
+            this.sessionService.setAuthReady();
+          },
           error: () => {
+            this.sessionService.setAuthReady();
             this.router.navigate(['/auth/login']);
            }
         });
