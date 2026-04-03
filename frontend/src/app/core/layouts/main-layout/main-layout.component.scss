@@ -116,7 +116,7 @@ $bottom-nav-height: 3.75rem;
     cursor: pointer;
     transition: color $transition, background-color $transition;
 
-    &:hover {
+    &:hover, &:focus {
       color: #fafafa;
       background-color: #2a2a2a;
     }
@@ -224,7 +224,7 @@ $bottom-nav-height: 3.75rem;
       transition: color $transition, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    &:not(&--active):hover {
+    &:not(&--active):hover, &:not(&--active):focus {
       color: #fafafa;
       border-right-color: $vinotinto;
 
@@ -251,7 +251,7 @@ $bottom-nav-height: 3.75rem;
         display: none;
       }
 
-      &:hover {
+      &:hover, &:focus {
         color: #fafafa;
         background-color: #333333;
 
@@ -361,7 +361,7 @@ $bottom-nav-height: 3.75rem;
       transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    &:hover {
+    &:hover, &:focus {
       color: #ffffff;
       background-color: rgba(255, 255, 255, 0.1);
 
@@ -402,7 +402,7 @@ $bottom-nav-height: 3.75rem;
       line-height: 1 !important;
     }
 
-    &:hover {
+    &:hover, &:focus {
       color: #ffffff;
       background-color: rgba(255, 255, 255, 0.1);
     }
@@ -420,6 +420,17 @@ $bottom-nav-height: 3.75rem;
     @media (max-width: 1000px) and (pointer: coarse) {
       display: flex;
     }
+  }
+  @media (max-width: 450px) and (pointer: coarse) {
+    
+    &__user {
+      display: none;
+    }
+    
+    &__divider {
+      display: none;
+    }
+    
   }
 }
 
@@ -481,7 +492,7 @@ $bottom-nav-height: 3.75rem;
       z-index: 0;
     }
 
-    &:hover:not(&--active) {
+    &:hover:not(&--active), &:focus:not(&--active) {
       color: #fafafa;
       background-color: transparent;
 
@@ -507,7 +518,7 @@ $bottom-nav-height: 3.75rem;
         display: none;
       }
 
-      &:hover {
+      &:hover, &:focus {
         color: #fafafa;
         background-color: #333333;
       }
