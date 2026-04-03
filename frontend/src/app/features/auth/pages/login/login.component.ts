@@ -72,7 +72,7 @@ export class LoginPageComponent {
   private handleLoginSuccess(data: any): void {
     this.isLoading = false;
     this.messageService.showMessage(data.message, AlertType.SUCCESS);
-    this.router.navigate(['/services']);
+    this.router.navigate(['/home']);
   }
 
   private handleLoginError(error: any): void {

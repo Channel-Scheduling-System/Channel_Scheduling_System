@@ -1,7 +1,8 @@
 <div class="layout-wrapper flex h-svh w-full overflow-hidden">
 
   <aside class="sidebar hidden md:flex shrink-0 h-full bg-[#1c1c1c] flex flex-col px-4 py-6 gap-2 z-[40]"
-    [class.sidebar--collapsed]="isCollapsed">
+    [class.sidebar--collapsed]="isCollapsed"
+    [class.sidebar--no-transition]="!isReady">
     <div class="sidebar__brand flex items-center justify-center gap-3 px-4 mb-10">
       <div class="sidebar__brand-logo">
         <div class="logo-icon logo-icon--small">
@@ -22,41 +23,16 @@
     </div>
 
     <nav class="sidebar__nav flex flex-col gap-1 flex-1">
-      <a class="sidebar__nav-item relative flex items-center rounded-xl no-underline text-[#a8a29e] font-['Manrope'] text-sm font-medium overflow-hidden min-h-12"
-        routerLink="#" routerLinkActive="sidebar__nav-item--active" title="Inicio">
+      <a
+        *ngFor="let item of navItems"
+        class="sidebar__nav-item relative flex items-center rounded-xl no-underline text-[#a8a29e] font-['Manrope'] text-sm font-medium overflow-hidden min-h-12"
+        [routerLink]="item.route"
+        routerLinkActive="sidebar__nav-item--active"
+        [routerLinkActiveOptions]="{ exact: false }"
+        [title]="item.label">
         <span class="sidebar__nav-item-fill"></span>
-        <span class="material-symbols-outlined sidebar__nav-item-icon" translate="no">home</span>
-        <span class="sidebar__nav-item-label">Inicio</span>
-      </a>
-      <a class="sidebar__nav-item relative flex items-center rounded-xl no-underline text-[#a8a29e] font-['Manrope'] text-sm font-medium overflow-hidden min-h-12"
-        routerLink="#" routerLinkActive="sidebar__nav-item--active" title="Mi Perfil">
-        <span class="sidebar__nav-item-fill"></span>
-        <span class="material-symbols-outlined sidebar__nav-item-icon" translate="no">manage_accounts</span>
-        <span class="sidebar__nav-item-label">Mi Perfil</span>
-      </a>
-      <a class="sidebar__nav-item relative flex items-center rounded-xl no-underline text-[#a8a29e] font-['Manrope'] text-sm font-medium overflow-hidden min-h-12"
-        routerLink="#" routerLinkActive="sidebar__nav-item--active" title="Citas">
-        <span class="sidebar__nav-item-fill"></span>
-        <span class="material-symbols-outlined sidebar__nav-item-icon" translate="no">calendar_month</span>
-        <span class="sidebar__nav-item-label">Citas</span>
-      </a>
-      <a class="sidebar__nav-item relative flex items-center rounded-xl no-underline text-[#a8a29e] font-['Manrope'] text-sm font-medium overflow-hidden min-h-12"
-        routerLink="services" routerLinkActive="sidebar__nav-item--active" title="Servicios">
-        <span class="sidebar__nav-item-fill"></span>
-        <span class="material-symbols-outlined sidebar__nav-item-icon" translate="no">content_cut</span>
-        <span class="sidebar__nav-item-label">Servicios</span>
-      </a>
-      <a class="sidebar__nav-item relative flex items-center rounded-xl no-underline text-[#a8a29e] font-['Manrope'] text-sm font-medium overflow-hidden min-h-12"
-        routerLink="#" routerLinkActive="sidebar__nav-item--active" title="Clientes">
-        <span class="sidebar__nav-item-fill"></span>
-        <span class="material-symbols-outlined sidebar__nav-item-icon" translate="no">person</span>
-        <span class="sidebar__nav-item-label">Clientes</span>
-      </a>
-      <a class="sidebar__nav-item relative flex items-center rounded-xl no-underline text-[#a8a29e] font-['Manrope'] text-sm font-medium overflow-hidden min-h-12"
-        routerLink="#" routerLinkActive="sidebar__nav-item--active" title="Reportes">
-        <span class="sidebar__nav-item-fill"></span>
-        <span class="material-symbols-outlined sidebar__nav-item-icon" translate="no">assessment</span>
-        <span class="sidebar__nav-item-label">Reportes</span>
+        <span class="material-symbols-outlined sidebar__nav-item-icon" translate="no">{{ item.icon }}</span>
+        <span class="sidebar__nav-item-label">{{ item.label }}</span>
       </a>
     </nav>
 
@@ -113,29 +89,15 @@
 
   </div>
   <nav class="bottom-nav">
-    <a class="bottom-nav__item" routerLink="#" routerLinkActive="bottom-nav__item--active">
+    <a
+      *ngFor="let item of navItems"
+      class="bottom-nav__item"
+      [routerLink]="item.route"
+      routerLinkActive="bottom-nav__item--active"
+      [routerLinkActiveOptions]="{ exact: false }"
+      [title]="item.label">
       <span class="bottom-nav__item-fill"></span>
-      <span class="material-symbols-outlined" translate="no">home</span>
-    </a>
-    <a class="bottom-nav__item" routerLink="#" routerLinkActive="bottom-nav__item--active">
-      <span class="bottom-nav__item-fill"></span>
-      <span class="material-symbols-outlined" translate="no">manage_accounts</span>
-    </a>
-    <a class="bottom-nav__item" routerLink="#" routerLinkActive="bottom-nav__item--active">
-      <span class="bottom-nav__item-fill"></span>
-      <span class="material-symbols-outlined" translate="no">calendar_month</span>
-    </a>
-    <a class="bottom-nav__item" routerLink="services" routerLinkActive="bottom-nav__item--active">
-      <span class="bottom-nav__item-fill"></span>
-      <span class="material-symbols-outlined" translate="no">content_cut</span>
-    </a>
-    <a class="bottom-nav__item" routerLink="#" routerLinkActive="bottom-nav__item--active">
-      <span class="bottom-nav__item-fill"></span>
-      <span class="material-symbols-outlined" translate="no">person</span>
-    </a>
-    <a class="bottom-nav__item" routerLink="#" routerLinkActive="bottom-nav__item--active">
-      <span class="bottom-nav__item-fill"></span>
-      <span class="material-symbols-outlined" translate="no">assessment</span>
+      <span class="material-symbols-outlined" translate="no">{{ item.icon }}</span>
     </a>
   </nav>
 

@@ -48,6 +48,14 @@ $bottom-nav-height: 3.75rem;
   gap: 0.5rem;
   z-index: 40;
 
+  &--no-transition {
+    transition: none !important;
+    
+    * {
+      transition: none !important;
+    }
+  }
+
   &--collapsed {
     width: 4.5rem;
 

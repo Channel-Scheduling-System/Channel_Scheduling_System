@@ -3,6 +3,8 @@ import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SessionService } from '../../services/session.service';
 import { MessageService } from '../../services/message.service';
+import { NavigationService } from '../../services/navigation.service';
+import { any } from 'zod';
 
 
 @Component({
@@ -14,8 +16,12 @@ import { MessageService } from '../../services/message.service';
 })
 export class MainLayoutComponent implements OnInit {
   userAlias = '';
-  isCollapsed = false;
+  isCollapsed = localStorage.getItem('sidebar_collapsed') === 'true' || false;
   windowWidth = window.innerWidth;
+  isReady = false;
+
+  private readonly SIDEBAR_STATE_KEY = 'sidebar_collapsed';
+  
 
   @HostListener('window:resize')
   onResize() {
@@ -24,14 +30,24 @@ export class MainLayoutComponent implements OnInit {
 
   constructor(
     private sessionService: SessionService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private navigationService: NavigationService
   ) {}
 
   ngOnInit(): void {
     const session = this.sessionService.getSession();
     this.userAlias = session?.alias || 'Usuario';
+    this.enableTransitions();
   }
 
+  private enableTransitions(): void {
+    requestAnimationFrame(() => this.isReady = true);
+  }
+
+  get navItems() {
+    const userRole = this.sessionService.getRole();
+    return this.navigationService.getNavItemsForRole(userRole);
+  }
   onLogout(): void {
     this.sessionService.logout().subscribe({
       next: () => {},
@@ -45,8 +61,13 @@ export class MainLayoutComponent implements OnInit {
     this.messageService.showMessage(error.message, 'error');
   }
 
+  private saveSidebarState(): void {
+    localStorage.setItem(this.SIDEBAR_STATE_KEY, String(this.isCollapsed));
+  }
+
   toggleSidebar(): void {
     this.isCollapsed = !this.isCollapsed;
+    this.saveSidebarState();
   }
 
 }
