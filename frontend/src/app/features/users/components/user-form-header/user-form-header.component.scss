@@ -1,0 +1,24 @@
+:host {
+    display: block;
+}
+
+.form-header__back-btn {
+    color: #877270;
+    transition: color 0.25s ease;
+
+    &-icon {
+        transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    &:hover {
+        color: #4A0E0E;
+
+        .form-header__back-btn-icon {
+            transform: translateX(-4px);
+        }
+    }
+
+    &:active {
+        transform: scale(0.97);
+    }
+}

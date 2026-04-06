@@ -16,6 +16,7 @@ import { UpdateServiceRequest } from '../../models/requests/update-service-reque
 import { UpdateServiceResponse } from '../../models/responses/update-service-response.model';
 import { CreateServiceResponse } from '../../models/responses/create-service-response.model';
 import { DeleteServiceResponse } from '../../models/responses/delete-service-response.model';
+import { ScrollService } from '../../../../core/services/scroll.service';
 
 @Component({
   selector: 'app-services',
@@ -39,7 +40,9 @@ export class ServicesPageComponent implements OnInit {
     private servicesService: ServicesService,
     private sessionService: SessionService,
     private messageService: MessageService,
-    private overlay: Overlay
+    private overlay: Overlay,
+    private scrollService: ScrollService
+
   ) {}
 
   ngOnInit(): void {
@@ -171,6 +174,7 @@ export class ServicesPageComponent implements OnInit {
   goToPage(page: number): void {
     if (page < 1 || page > this.totalPages) return;
     this.currentPage = page;
+    this.scrollService.requestScrollToTop();
   }
   
   onModalClose(): void {

@@ -70,7 +70,8 @@
 
 
         <button
-          class="topbar__user flex items-center gap-2 bg-transparent border-none cursor-pointer text-white/85 font-['Manrope'] text-sm font-semibold px-3 py-[0.4rem] rounded-lg" title="Mi perfil">
+          class="topbar__user flex items-center gap-2 bg-transparent border-none cursor-pointer text-white/85 font-['Manrope'] text-sm font-semibold px-3 py-[0.4rem] rounded-lg" title="Mi perfil"
+          routerLink="/profile">
           <span class="material-symbols-outlined" translate="no">account_circle</span>
           <span class="topbar__user-label leading-none">{{ userAlias }}</span>
         </button>
@@ -83,7 +84,7 @@
       </div>
     </header>
 
-    <main class="layout-main flex-1 overflow-y-auto py-8 px-10 bg-[#fcf9f8]">
+    <main #mainContent class="layout-main flex-1 overflow-y-auto py-8 px-10 bg-[#fcf9f8]">
       <router-outlet></router-outlet>
     </main>
 

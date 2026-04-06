@@ -1,0 +1,119 @@
+<ng-container [formGroup]="formGroup">
+
+    <!-- Alias: ocupa col completo sin rol, media columna con rol -->
+    <div [ngClass]="showRole ? '' : 'md:col-span-2'">
+        <div class="profile-field w-full">
+            <div class="profile-field__label-row">
+                <span class="material-symbols-outlined profile-field__icon" translate="no">alternate_email</span>
+                <label class="profile-field__label-text">Alias</label>
+            </div>
+            <div class="profile-field__input-wrap">
+                <input class="profile-field__input" type="text" formControlName="alias" placeholder=" ">
+                <span class="profile-field__placeholder">Lucas_Sanchez84</span>
+            </div>
+            <span *ngIf="formGroup.get('alias')?.invalid && formGroup.get('alias')?.touched"
+                class="block text-[0.7rem] font-semibold text-[#ba1a1a] pl-1 mt-0.5">
+                El alias es requerido.
+            </span>
+        </div>
+    </div>
+
+    <!-- Rol: dropdown custom, solo cuando showRole=true -->
+    <div *ngIf="showRole" class="profile-field">
+        <div class="profile-field__label-row">
+            <span class="material-symbols-outlined profile-field__icon profile-field__icon--floating"
+                translate="no">manage_accounts</span>
+            <label class="profile-field__label-text profile-field__label-text--shifted">Rol</label>
+        </div>
+        <div class="profile-field__dropdown-wrap"
+            [class.profile-field__dropdown-wrap--open]="roleDropdownOpen"
+            [class.profile-field__dropdown-wrap--has-value]="hasRoleValue">
+            <button
+                class="profile-field__dropdown-trigger"
+                type="button"
+                (click)="toggleRoleDropdown($event)">
+                <span [class.profile-field__dropdown-trigger-placeholder]="!hasRoleValue">
+                    {{ selectedRoleLabel }}
+                </span>
+                <span class="material-symbols-outlined profile-field__dropdown-arrow text-[1.1rem] leading-none"
+                    translate="no">expand_more</span>
+            </button>
+            <div class="profile-field__options" *ngIf="roleDropdownOpen">
+                <button
+                    *ngFor="let opt of roleOptions"
+                    class="profile-field__option"
+                    [class.profile-field__option--selected]="formGroup.get('role')?.value === opt.value"
+                    type="button"
+                    (click)="selectRole(opt.value, $event)">
+                    <span class="profile-field__option-dot"></span>
+                    {{ opt.label }}
+                </button>
+            </div>
+        </div>
+        <span *ngIf="formGroup.get('role')?.invalid && formGroup.get('role')?.touched"
+            class="block text-[0.7rem] font-semibold text-[#ba1a1a] pl-1 mt-0.5">
+            El rol es requerido.
+        </span>
+    </div>
+
+    <div class="profile-field">
+        <div class="profile-field__label-row">
+            <span class="material-symbols-outlined profile-field__icon" translate="no">person</span>
+            <label class="profile-field__label-text">Nombres</label>
+        </div>
+        <div class="profile-field__input-wrap">
+            <input class="profile-field__input" type="text" formControlName="firstName" placeholder=" ">
+            <span class="profile-field__placeholder">Ej. Lucas</span>
+        </div>
+        <span *ngIf="formGroup.get('firstName')?.invalid && formGroup.get('firstName')?.touched"
+            class="block text-[0.7rem] font-semibold text-[#ba1a1a] pl-1 mt-0.5">
+            El nombre es requerido.
+        </span>
+    </div>
+
+    <div class="profile-field">
+        <div class="profile-field__label-row">
+            <span class="material-symbols-outlined profile-field__icon" translate="no">person</span>
+            <label class="profile-field__label-text">Apellidos</label>
+        </div>
+        <div class="profile-field__input-wrap">
+            <input class="profile-field__input" type="text" formControlName="lastName" placeholder=" ">
+            <span class="profile-field__placeholder">Ej. Sánchez</span>
+        </div>
+        <span *ngIf="formGroup.get('lastName')?.invalid && formGroup.get('lastName')?.touched"
+            class="block text-[0.7rem] font-semibold text-[#ba1a1a] pl-1 mt-0.5">
+            El apellido es requerido.
+        </span>
+    </div>
+
+    <div class="profile-field">
+        <div class="profile-field__label-row">
+            <span class="material-symbols-outlined profile-field__icon" translate="no">call</span>
+            <label class="profile-field__label-text">Teléfono</label>
+        </div>
+        <div class="profile-field__input-wrap">
+            <input class="profile-field__input" type="tel" formControlName="phone" placeholder=" ">
+            <span class="profile-field__placeholder">+57 300 123 4567</span>
+        </div>
+        <span *ngIf="formGroup.get('phone')?.invalid && formGroup.get('phone')?.touched"
+            class="block text-[0.7rem] font-semibold text-[#ba1a1a] pl-1 mt-0.5">
+            El teléfono es requerido.
+        </span>
+    </div>
+
+    <div class="profile-field">
+        <div class="profile-field__label-row">
+            <span class="material-symbols-outlined profile-field__icon" translate="no">mail</span>
+            <label class="profile-field__label-text">Correo electrónico</label>
+        </div>
+        <div class="profile-field__input-wrap">
+            <input class="profile-field__input" type="email" formControlName="email" placeholder=" ">
+            <span class="profile-field__placeholder">correo@ejemplo.com</span>
+        </div>
+        <span *ngIf="formGroup.get('email')?.invalid && formGroup.get('email')?.touched"
+            class="block text-[0.7rem] font-semibold text-[#ba1a1a] pl-1 mt-0.5">
+            Ingresa un correo válido.
+        </span>
+    </div>
+
+</ng-container>

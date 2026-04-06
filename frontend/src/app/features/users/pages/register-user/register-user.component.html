@@ -1,0 +1,61 @@
+<div class="register-user-page flex flex-col gap-8">
+
+    <app-user-form-header
+        eyebrow="Gestión"
+        title="Crear cuenta de usuario"
+        description="Completa los datos para registrar un nuevo usuario en el sistema"
+        (back)="goBack()">
+    </app-user-form-header>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <app-user-form-fields [formGroup]="form" [showRole]="isAdmin"></app-user-form-fields>
+
+        <div class="profile-field">
+            <div class="profile-field__label-row">
+                <span class="material-symbols-outlined profile-field__icon" translate="no">lock</span>
+                <label class="profile-field__label-text">Contraseña</label>
+            </div>
+            <div class="profile-field__input-wrap">
+                <input class="profile-field__input" type="password" [formControl]="passwordControl" placeholder=" ">
+                <span class="profile-field__placeholder">••••••••</span>
+            </div>
+            <span *ngIf="form.get('password')?.invalid && form.get('password')?.touched"
+                class="block text-[0.7rem] font-semibold text-[#ba1a1a] pl-1 mt-0.5">
+                La contraseña es requerida.
+            </span>
+        </div>
+
+        <div class="profile-field">
+            <div class="profile-field__label-row">
+                <span class="material-symbols-outlined profile-field__icon" translate="no">lock_reset</span>
+                <label class="profile-field__label-text">Confirmar contraseña</label>
+            </div>
+            <div class="profile-field__input-wrap">
+                <input class="profile-field__input" type="password" [formControl]="confirmPasswordControl"
+                    placeholder=" ">
+                <span class="profile-field__placeholder">••••••••</span>
+            </div>
+            <span *ngIf="form.get('confirmPassword')?.invalid && form.get('confirmPassword')?.touched"
+                class="block text-[0.7rem] font-semibold text-[#ba1a1a] pl-1 mt-0.5">
+                Confirma tu contraseña.
+            </span>
+            <span *ngIf="form.errors?.['passwordMismatch'] && form.get('confirmPassword')?.touched"
+                class="block text-[0.7rem] font-semibold text-[#ba1a1a] pl-1 mt-0.5">
+                Las contraseñas no coinciden.
+            </span>
+        </div>
+
+    </div>
+
+    <div class="flex flex-col items-center gap-4 pb-4">
+        <button class="save-btn" type="button" (click)="registerUser()">
+            <span class="save-btn__shimmer"></span>
+            <span class="save-btn__content">
+                <span class="material-symbols-outlined text-[1.2rem]" translate="no">person_add</span>
+                <span>Crear Cuenta</span>
+            </span>
+        </button>
+    </div>
+
+</div>
