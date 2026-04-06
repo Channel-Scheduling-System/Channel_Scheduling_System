@@ -17,7 +17,8 @@ export const API_ENDPOINTS = {
     DELETE: (id: number) => `${environment.apiUrl}/services/${id}`,
   },
   USERS: {
-    PROFILE: `${environment.apiUrl}/users/profile`,
+    PROFILE: (id: number) => `${environment.apiUrl}/users/${id}`,
+    LIST: (page: number, identifier: string) => `${environment.apiUrl}/users?page=${page}&identifier=${identifier}`,
     UPDATE: (id: number) => `${environment.apiUrl}/users/${id}`
   }
 } as const;

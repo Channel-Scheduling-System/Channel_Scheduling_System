@@ -4,6 +4,7 @@ import { CreateServiceResponse } from '../models/responses/create-service-respon
 import { CreateServiceRequest } from '../models/requests/create-service-request.model';
 import { UpdateServiceResponse } from '../models/responses/update-service-response.model';
 import { UpdateServiceRequest } from '../models/requests/update-service-request.model';
+import { DeleteServiceResponse } from '../models/responses/delete-service-response.model';
 
 export interface IServicesService {
   
@@ -12,5 +13,7 @@ export interface IServicesService {
   createService(request: CreateServiceRequest): Observable<CreateServiceResponse>;
 
   updateService(request: UpdateServiceRequest): Observable<UpdateServiceResponse>
+
+  deleteService(id: number): Observable<DeleteServiceResponse>;
 
 }
