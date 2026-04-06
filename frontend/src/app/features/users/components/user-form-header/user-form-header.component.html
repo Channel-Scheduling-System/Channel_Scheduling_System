@@ -1,0 +1,16 @@
+<div class="mb-4">
+    <button
+        class="form-header__back-btn flex items-center gap-1 font-bold text-xs uppercase tracking-widest mb-6 border-none bg-transparent cursor-pointer p-0"
+        type="button" (click)="back.emit()">
+        <span class="material-symbols-outlined text-lg form-header__back-btn-icon" translate="no">chevron_left</span>
+        Volver
+    </button>
+    <span *ngIf="eyebrow"
+        class="block text-[0.7rem] font-bold uppercase tracking-[0.3em] text-[#877270] mb-[0.4rem]">
+        {{ eyebrow }}
+    </span>
+    <h1 class="font-manrope text-[2.4rem] font-extrabold text-[#2a0002] tracking-[-0.03em] leading-none">
+        {{ title }}
+    </h1>
+    <p *ngIf="description" class="text-[#877270] font-medium text-sm mt-2">{{ description }}</p>
+</div>
