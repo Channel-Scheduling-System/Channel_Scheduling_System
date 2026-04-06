@@ -1,10 +1,12 @@
-import { Component, OnInit, HostListener } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Component, OnInit, HostListener, ElementRef, ViewChild } from '@angular/core';
+import { Router, NavigationEnd, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { filter } from 'rxjs/operators';
 import { SessionService } from '../../services/session.service';
 import { MessageService } from '../../services/message.service';
 import { NavigationService } from '../../services/navigation.service';
 import { any } from 'zod';
+import { ScrollService } from '../../services/scroll.service';
 
 
 @Component({
@@ -15,13 +17,15 @@ import { any } from 'zod';
   styleUrl: './main-layout.component.scss'
 })
 export class MainLayoutComponent implements OnInit {
+  @ViewChild('mainContent') mainContent!: ElementRef<HTMLElement>;
+
   userAlias = '';
   isCollapsed = localStorage.getItem('sidebar_collapsed') === 'true' || false;
   windowWidth = window.innerWidth;
   isReady = false;
 
   private readonly SIDEBAR_STATE_KEY = 'sidebar_collapsed';
-  
+
 
   @HostListener('window:resize')
   onResize() {
@@ -31,13 +35,39 @@ export class MainLayoutComponent implements OnInit {
   constructor(
     private sessionService: SessionService,
     private messageService: MessageService,
-    private navigationService: NavigationService
-  ) {}
+    private navigationService: NavigationService,
+    private router: Router,
+    private scrollService: ScrollService
+  ) { }
 
   ngOnInit(): void {
+    this.initializeUserAlias();
+    this.enableTransitions();
+    this.setupNavigationScroll();
+    this.setupScrollServiceSubscription();
+  }
+
+  private initializeUserAlias(): void {
     const session = this.sessionService.getSession();
     this.userAlias = session?.alias || 'Usuario';
-    this.enableTransitions();
+  }
+
+  private setupNavigationScroll(): void {
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.scrollToTop();
+    });
+  }
+
+  private setupScrollServiceSubscription(): void {
+    this.scrollService.scrollToTop$.subscribe(() => {
+      this.scrollToTop();
+    });
+  }
+
+  private scrollToTop(): void {
+    this.mainContent?.nativeElement?.scrollTo({ top: 0, behavior: 'instant' });
   }
 
   private enableTransitions(): void {
@@ -50,7 +80,7 @@ export class MainLayoutComponent implements OnInit {
   }
   onLogout(): void {
     this.sessionService.logout().subscribe({
-      next: () => {},
+      next: () => { },
       error: (error) => {
         this.handleLogoutError(error);
       }
