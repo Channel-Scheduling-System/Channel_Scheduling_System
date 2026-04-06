@@ -8,9 +8,11 @@ import { ResponseHandler } from '../../../core/utils/handlers/response.handler';
 import { HttpErrorHandler } from '../../../core/utils/handlers/error.handler';
 import { TokenService } from '../../../core/services/token.service';
 import { SessionService } from '../../../core/services/session.service';
-import { RegisterRequest, RegisterRequestBaseSchema } from '../models/requests/register/register-request.model';
+import { RegisterRequest } from '../models/requests/register/register-request.model';
 import { RegisterResponse, RegisterResponseSchema } from '../models/responses/register/register-response.model';
 import { IUserService } from '../interfaces/user-service.interface';
+import { ListUsersResponse, ListUsersResponseSchema } from '../models/responses/list/list-users-response.model';
+import { GetProfileResponse, GetProfileResponseSchema } from '../../profile/models/responses/get-profile/get-profile-response.model';
 
 @Injectable({ providedIn: 'root' })
 export class UserService implements IUserService {
@@ -36,4 +38,20 @@ export class UserService implements IUserService {
       catchError(error => this.errorHandler.handleError(error))
     );
   }
+
+  getUsers(page: number = 1, identifier: string = ''): Observable<ListUsersResponse> {
+    return this.http.get(API_ENDPOINTS.USERS.LIST(page, identifier)).pipe(
+      map(response => this.responseHandler.handleSuccess(response, ListUsersResponseSchema)),
+      catchError(error => this.errorHandler.handleError(error))
+    );
+  }
+
+  getUserById(userId: number): Observable<GetProfileResponse> {
+    const url = API_ENDPOINTS.USERS.PROFILE(userId);
+    return this.http.get(url).pipe(
+      map(response => this.responseHandler.handleSuccess(response, GetProfileResponseSchema)),
+      catchError(error => this.errorHandler.handleError(error))
+    );
+  }
+
 }
