@@ -1,0 +1,38 @@
+<div class="edit-user-page flex flex-col gap-8">
+
+    <app-user-form-header
+        eyebrow="Gestión"
+        title="Información del Perfil"
+        description="Gestiona la información personal del usuario"
+        (back)="goBack()">
+    </app-user-form-header>
+
+    <div *ngIf="isLoading" class="flex items-center justify-center gap-3 py-16 text-[#877270] text-sm font-medium">
+        <mat-spinner diameter="32"></mat-spinner>
+        <span>Cargando usuario...</span>
+    </div>
+
+    <ng-container *ngIf="!isLoading && form">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <app-user-form-fields [formGroup]="form"></app-user-form-fields>
+        </div>
+
+        <div class="flex flex-col items-center gap-4 pb-4">
+            <button class="save-btn" type="button" (click)="saveChanges()">
+                <span class="save-btn__shimmer"></span>
+                <span class="save-btn__content">
+                    <span class="material-symbols-outlined text-[1.2rem]" translate="no">save</span>
+                    <span>Guardar Cambios</span>
+                </span>
+            </button>
+
+            <button class="deactivate-btn" type="button" (click)="deactivateUser()">
+                <span class="material-symbols-outlined text-[1rem] leading-none" translate="no">warning</span>
+                <span class="font-manrope font-bold text-sm uppercase tracking-[0.12em]">Desactivar cuenta</span>
+            </button>
+        </div>
+
+    </ng-container>
+
+</div>

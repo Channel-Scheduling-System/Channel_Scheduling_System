@@ -1,0 +1,122 @@
+<div class="users-page flex flex-col gap-8">
+
+    <div class="flex justify-between items-end flex-wrap gap-4">
+        <div>
+            <span
+                class="block text-[0.7rem] font-bold uppercase tracking-[0.3em] text-[#877270] mb-[0.4rem]">Gestión</span>
+            <h1 class="font-manrope text-[2.4rem] font-extrabold text-[#2a0002] tracking-[-0.03em] leading-none">
+                Usuarios</h1>
+        </div>
+        <div
+            class="users-page__search flex items-center gap-2 bg-[#f6f3f2] border-[1.5px] border-[#e5e2e1] rounded-full px-5 py-[0.6rem]">
+            <span class="material-symbols-outlined users-page__search-icon text-[1.1rem] leading-none text-[#877270]"
+                translate="no">search</span>
+            <input
+                class="users-page__search-input bg-transparent border-none outline-none text-sm font-medium text-[#1c1b1b] w-56 placeholder:text-[#c8c6c5]"
+                placeholder="Buscar por alias, correo o teléfono..." type="text" [value]="searchTerm"
+                (keyup)="onSearch($event)">
+        </div>
+    </div>
+
+    <div *ngIf="isLoading" class="flex items-center justify-center gap-3 py-16 text-[#877270] text-sm font-medium">
+        <mat-spinner diameter="32"></mat-spinner>
+        <span>Cargando usuarios...</span>
+    </div>
+
+    <div *ngIf="!isLoading && users.length === 0"
+        class="flex flex-col items-center justify-center gap-3 py-20 text-[#b0a8a7] bg-white rounded-3xl shadow-[0_4px_40px_rgba(42,0,2,0.06)]">
+        <span class="material-symbols-outlined text-[2.5rem] leading-none opacity-40" translate="no">group_off</span>
+        <p class="text-sm font-medium m-0">
+            {{ searchTerm ? 'Sin resultados para "' + searchTerm + '"' : 'No hay usuarios registrados.' }}
+        </p>
+    </div>
+
+    <div *ngIf="!isLoading && users.length > 0" class="flex flex-col gap-3">
+        <div *ngFor="let user of users; let i = index"
+            class="user-card bg-white rounded-2xl border border-[#f0edec] shadow-[0_2px_16px_rgba(42,0,2,0.04)] px-6 py-5 flex items-center justify-between gap-4">
+
+            <div class="flex flex-col gap-[0.2rem] min-w-0">
+                <span class="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-[#b0a8a7]">@{{ user.alias
+                    }}</span>
+                <h3 class="font-manrope font-black text-[1.1rem] text-[#1c1b1b] leading-tight">
+                    {{ user.firstName }} {{ user.lastName }}
+                </h3>
+                <div class="flex flex-wrap gap-x-5 gap-y-1 mt-1">
+                    <div class="flex items-center gap-1.5 text-[#636262] text-[0.8rem]">
+                        <span class="material-symbols-outlined text-[0.9rem] leading-none" translate="no">mail</span>
+                        <span>{{ user.email }}</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-[#636262] text-[0.8rem]">
+                        <span class="material-symbols-outlined text-[0.9rem] leading-none" translate="no">call</span>
+                        <span>{{ user.phone }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-5 shrink-0">
+                <span
+                    class="user-card__role-badge px-3 py-[0.3rem] text-[0.65rem] font-black uppercase tracking-[0.18em] rounded-full whitespace-nowrap"
+                    [class.user-card__role-badge--admin]="user.role === 'ADMIN'"
+                    [class.user-card__role-badge--worker]="user.role === 'WORKER'"
+                    [class.user-card__role-badge--client]="user.role === 'CLIENT'">
+                    {{ getRoleLabel(user.role) }}
+                </span>
+
+                <button
+                    class="user-card__edit-btn relative overflow-hidden w-[2.75rem] h-[2.75rem] shrink-0 rounded-full bg-transparent cursor-pointer flex items-center justify-center"
+                    title="Editar usuario" (click)="editUser(user)">
+                    <span class="user-card__edit-btn-fill"></span>
+                    <span
+                        class="material-symbols-outlined leading-none text-[1.35rem] relative z-[1] user-card__edit-btn-icon"
+                        translate="no">edit</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="!isLoading && meta.total > 0" class="flex flex-wrap justify-between items-center gap-3 pt-2">
+        <p class="text-[0.75rem] font-medium text-[#877270] m-0">
+            Mostrando {{ displayedCount }} de {{ meta.total }}
+            {{ meta.total === 1 ? 'usuario' : 'usuarios' }}
+            <ng-container *ngIf="searchTerm"> filtrados</ng-container>
+        </p>
+        <div class="flex gap-2 flex-wrap">
+            <button
+                class="users-page__page-btn flex items-center gap-1 px-4 py-[0.45rem] bg-white border-[1.5px] border-[#e5e2e1] rounded-lg text-[0.75rem] font-bold text-[#2a0002] cursor-pointer"
+                [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
+                <span class="material-symbols-outlined text-base leading-none" translate="no">chevron_left</span>
+                Anterior
+            </button>
+            <ng-container *ngFor="let p of paginationItems">
+                <span *ngIf="p === '...'"
+                    class="users-page__page-ellipsis flex items-center justify-center min-w-9 px-[0.6rem] py-[0.45rem] text-[0.75rem] font-bold text-[#877270] select-none">
+                    …
+                </span>
+                <button *ngIf="p !== '...'"
+                    class="users-page__page-btn users-page__page-btn--number flex items-center justify-center min-w-9 px-[0.6rem] py-[0.45rem] bg-white border-[1.5px] border-[#e5e2e1] rounded-lg text-[0.75rem] font-bold text-[#2a0002] cursor-pointer"
+                    [class.users-page__page-btn--active]="p === currentPage" (click)="goToPage(+p)">
+                    {{ p }}
+                </button>
+            </ng-container>
+            <button
+                class="users-page__page-btn flex items-center gap-1 px-4 py-[0.45rem] bg-white border-[1.5px] border-[#e5e2e1] rounded-lg text-[0.75rem] font-bold text-[#2a0002] cursor-pointer"
+                [disabled]="currentPage === meta.totalPages" (click)="goToPage(currentPage + 1)">
+                Siguiente
+                <span class="material-symbols-outlined text-base leading-none" translate="no">chevron_right</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="flex justify-center pb-4">
+        <button
+            class="users-page__add-btn relative overflow-hidden inline-flex items-center text-white font-manrope font-extrabold text-sm tracking-[0.12em] uppercase px-12 py-4 rounded-2xl border-none cursor-pointer outline-none"
+            (click)="createUser()">
+            <span class="users-page__add-btn-shimmer"></span>
+            <span class="users-page__add-btn-content relative z-[2] flex items-center gap-2">
+                <span class="material-symbols-outlined text-[1.2rem]" translate="no">person_add</span>
+                <span>Nuevo Usuario</span>
+            </span>
+        </button>
+    </div>
+
+</div>
