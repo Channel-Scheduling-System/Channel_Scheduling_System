@@ -1,6 +1,6 @@
 import prisma from '../../config/prisma.js';
 import { SystemRole, User } from '@prisma/client.js';
-import { CreateUserData } from './user.types.js';
+import { CreateUserData, UserFilters } from './user.types.js';
 
 export interface IUserRepository {
     create(data: CreateUserData): Promise<User>;
@@ -11,6 +11,7 @@ export interface IUserRepository {
     existsByIdAndRole(id: number, role: SystemRole): Promise<boolean>;
     findById(id: number): Promise<User | null>;
     findByIdentifier(identifier: string): Promise<User | null>;
+    findAll(filters: UserFilters): Promise<User[]>;
     countAdmins(): Promise<number>;
 }
 
@@ -78,6 +79,13 @@ export class UserRepository implements IUserRepository {
                     { phone: identifier },
                 ],
             },
+        });
+    }
+
+    async findAll(filters: UserFilters): Promise<User[]> {
+        return await prisma.user.findMany({
+            where: { ...filters },
+            orderBy: { createdAt: 'desc' },
         });
     }
 

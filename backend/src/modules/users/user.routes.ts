@@ -20,4 +20,18 @@ userRouter.post(
     userController.add,
 );
 
+userRouter.get(
+    '/',
+    authMiddleware,
+    userValidator.filters,
+    userController.getAll,
+);
+
+userRouter.get(
+    '/:id',
+    authMiddleware,
+    userValidator.id,
+    userController.getById,
+);
+
 export default userRouter;
