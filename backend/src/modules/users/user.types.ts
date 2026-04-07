@@ -29,6 +29,11 @@ export interface CreateUserData {
 
 // INPUTS
 //* -----------------------------
+export interface AuthUserInput {
+    id: number;
+    role: SystemRole;
+}
+
 export interface CreateUserInput {
     alias: string;
     firstName: string;
@@ -59,4 +64,8 @@ export interface UserResponse {
     phone: string | null;
     email: string;
     role: SystemRole;
+}
+
+export interface UserFilters {
+    role?: SystemRole;
 }

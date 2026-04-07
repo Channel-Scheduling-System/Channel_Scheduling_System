@@ -15,18 +15,21 @@ import {
     User,
     UniqueFields,
     CreateUserInput,
+    UserFilters,
     UserResponse,
     CreateFirstAdminInput,
+    AuthUserInput as AuthInput,
 } from './user.types.js';
-import { mapToUserResponse } from './user.mapper.js';
-import { canCreateRole } from './user-role.validator.js';
+import { mapToUserResponse, mapToUsersResponse } from './user.mapper.js';
+import { canCreateRole, canViewRole } from './user-role.validator.js';
 
 export interface IUserService {
     add(input: CreateUserInput, authRole?: SystemRole): Promise<UserResponse>;
     addFirstAdmin(input: CreateFirstAdminInput): Promise<UserResponse>;
     existsByIdAndRole(id: number, role: SystemRole): Promise<boolean>;
-    getById(id: number): Promise<UserResponse>;
+    getById(id: number, auth?: AuthInput): Promise<UserResponse>;
     getByIdentifier(identifier: string): Promise<User | null>;
+    getAll(filters: UserFilters, auth?: AuthInput): Promise<UserResponse[]>;
     countAdmins(): Promise<number>;
 }
 
@@ -84,13 +87,29 @@ export class UserService implements IUserService {
         return this.userRepo.existsByIdAndRole(id, role);
     }
 
-    async getById(id: number): Promise<UserResponse> {
+    async getById(id: number, auth?: AuthInput): Promise<UserResponse> {
         const user = await this.getUserOrFail(id);
+        if (auth?.role) this.validateCanView(auth.role, user.role, auth.id, id);
         return mapToUserResponse(user);
     }
 
     async getByIdentifier(identifier: string): Promise<User | null> {
         return this.userRepo.findByIdentifier(identifier);
+    }
+
+    async getAll(
+        filters: UserFilters,
+        auth?: AuthInput,
+    ): Promise<UserResponse[]> {
+        const allUsers = await this.userRepo.findAll(filters);
+
+        if (!auth?.role) return mapToUsersResponse(allUsers);
+
+        const visibleUsers = allUsers.filter((user) =>
+            canViewRole(auth.role, user.role, auth.id, user.id),
+        );
+
+        return mapToUsersResponse(visibleUsers);
     }
 
     async countAdmins(): Promise<number> {
@@ -128,4 +147,16 @@ export class UserService implements IUserService {
         if (!canCreateRole(authRole, roleToCreate))
             throw new ForbiddenError(USER_ERRORS.ROLE_CANNOT_CREATE);
     }
+
+    private validateCanView(
+        authRole: SystemRole,
+        roleToView: SystemRole,
+        authUserId?: number,
+        userIdToView?: number,
+    ) {
+        if (!canViewRole(authRole, roleToView, authUserId, userIdToView))
+            throw new ForbiddenError(USER_ERRORS.ROLE_CANNOT_VIEW);
+    }
+
+    // TODO: Faltan restricciones de role para update y delete
 }
