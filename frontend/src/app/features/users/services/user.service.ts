@@ -8,8 +8,8 @@ import { ResponseHandler } from '../../../core/utils/handlers/response.handler';
 import { HttpErrorHandler } from '../../../core/utils/handlers/error.handler';
 import { TokenService } from '../../../core/services/token.service';
 import { SessionService } from '../../../core/services/session.service';
-import { RegisterRequest } from '../models/requests/register/register-request.model';
-import { RegisterResponse, RegisterResponseSchema } from '../models/responses/register/register-response.model';
+import { RegisterRequest, RegisterUserRequestSchema } from '../models/requests/register/register-request.model';
+import { RegisterResponse, RegisterResponseSchema, RegisterUserResponse, RegisterUserResponseSchema } from '../models/responses/register/register-response.model';
 import { IUserService } from '../interfaces/user-service.interface';
 import { ListUsersResponse, ListUsersResponseSchema } from '../models/responses/list/list-users-response.model';
 import { GetProfileResponse, GetProfileResponseSchema } from '../../profile/models/responses/get-profile/get-profile-response.model';
@@ -35,6 +35,13 @@ export class UserService implements IUserService {
         this.tokenService.setToken(response.data.token);
         this.sessionService.setSession(response.data.user);
       }),
+      catchError(error => this.errorHandler.handleError(error))
+    );
+  }
+
+  registerUser(data: RegisterUserRequestSchema): Observable<RegisterUserResponse> {
+    return this.http.post(API_ENDPOINTS.USERS.REGISTER, data).pipe(
+      map(response => this.responseHandler.handleSuccess(response, RegisterUserResponseSchema)),
       catchError(error => this.errorHandler.handleError(error))
     );
   }
