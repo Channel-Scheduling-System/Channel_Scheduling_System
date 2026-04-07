@@ -77,7 +77,7 @@ export class UsersPageComponent implements OnInit {
     const labels: Record<string, string> = {
       ADMIN: 'Administrador',
       WORKER: 'Trabajador',
-      CLIENT: 'Cliente'
+      CUSTOMER: 'Cliente'
     };
     return labels[role] ?? role;
   }
