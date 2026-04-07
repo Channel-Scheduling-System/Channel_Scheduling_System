@@ -1,6 +1,5 @@
 <ng-container [formGroup]="formGroup">
 
-    <!-- Alias: ocupa col completo sin rol, media columna con rol -->
     <div [ngClass]="showRole ? '' : 'md:col-span-2'">
         <div class="profile-field w-full">
             <div class="profile-field__label-row">
@@ -8,17 +7,15 @@
                 <label class="profile-field__label-text">Alias</label>
             </div>
             <div class="profile-field__input-wrap">
-                <input class="profile-field__input" type="text" formControlName="alias" placeholder=" ">
+                <input class="profile-field__input" type="text" name="alias" formControlName="alias" placeholder=" ">
                 <span class="profile-field__placeholder">Lucas_Sanchez84</span>
             </div>
-            <span *ngIf="formGroup.get('alias')?.invalid && formGroup.get('alias')?.touched"
-                class="block text-[0.7rem] font-semibold text-[#ba1a1a] pl-1 mt-0.5">
-                El alias es requerido.
-            </span>
+            <div class="field-error" *ngIf="getFieldError('alias')">
+                {{ getFieldError('alias') }}
+            </div>
         </div>
     </div>
 
-    <!-- Rol: dropdown custom, solo cuando showRole=true -->
     <div *ngIf="showRole" class="profile-field">
         <div class="profile-field__label-row">
             <span class="material-symbols-outlined profile-field__icon profile-field__icon--floating"
@@ -50,10 +47,9 @@
                 </button>
             </div>
         </div>
-        <span *ngIf="formGroup.get('role')?.invalid && formGroup.get('role')?.touched"
-            class="block text-[0.7rem] font-semibold text-[#ba1a1a] pl-1 mt-0.5">
-            El rol es requerido.
-        </span>
+        <div class="field-error" *ngIf="getFieldError('role')">
+            {{ getFieldError('role') }}
+        </div>
     </div>
 
     <div class="profile-field">
@@ -62,13 +58,12 @@
             <label class="profile-field__label-text">Nombres</label>
         </div>
         <div class="profile-field__input-wrap">
-            <input class="profile-field__input" type="text" formControlName="firstName" placeholder=" ">
+            <input class="profile-field__input" type="text" name="firstName" formControlName="firstName" placeholder=" ">
             <span class="profile-field__placeholder">Ej. Lucas</span>
         </div>
-        <span *ngIf="formGroup.get('firstName')?.invalid && formGroup.get('firstName')?.touched"
-            class="block text-[0.7rem] font-semibold text-[#ba1a1a] pl-1 mt-0.5">
-            El nombre es requerido.
-        </span>
+        <div class="field-error" *ngIf="getFieldError('firstName')">
+            {{ getFieldError('firstName') }}
+        </div>
     </div>
 
     <div class="profile-field">
@@ -77,13 +72,12 @@
             <label class="profile-field__label-text">Apellidos</label>
         </div>
         <div class="profile-field__input-wrap">
-            <input class="profile-field__input" type="text" formControlName="lastName" placeholder=" ">
+            <input class="profile-field__input" type="text" name="lastName" formControlName="lastName" placeholder=" ">
             <span class="profile-field__placeholder">Ej. Sánchez</span>
         </div>
-        <span *ngIf="formGroup.get('lastName')?.invalid && formGroup.get('lastName')?.touched"
-            class="block text-[0.7rem] font-semibold text-[#ba1a1a] pl-1 mt-0.5">
-            El apellido es requerido.
-        </span>
+        <div class="field-error" *ngIf="getFieldError('lastName')">
+            {{ getFieldError('lastName') }}
+        </div>
     </div>
 
     <div class="profile-field">
@@ -92,13 +86,12 @@
             <label class="profile-field__label-text">Teléfono</label>
         </div>
         <div class="profile-field__input-wrap">
-            <input class="profile-field__input" type="tel" formControlName="phone" placeholder=" ">
-            <span class="profile-field__placeholder">+57 300 123 4567</span>
+            <input class="profile-field__input" type="tel" name="phone" formControlName="phone" placeholder=" ">
+            <span class="profile-field__placeholder">300 123 4567</span>
         </div>
-        <span *ngIf="formGroup.get('phone')?.invalid && formGroup.get('phone')?.touched"
-            class="block text-[0.7rem] font-semibold text-[#ba1a1a] pl-1 mt-0.5">
-            El teléfono es requerido.
-        </span>
+        <div class="field-error" *ngIf="getFieldError('phone')">
+            {{ getFieldError('phone') }}
+        </div>
     </div>
 
     <div class="profile-field">
@@ -107,13 +100,12 @@
             <label class="profile-field__label-text">Correo electrónico</label>
         </div>
         <div class="profile-field__input-wrap">
-            <input class="profile-field__input" type="email" formControlName="email" placeholder=" ">
+            <input class="profile-field__input" type="email" name="email" formControlName="email" placeholder=" ">
             <span class="profile-field__placeholder">correo@ejemplo.com</span>
         </div>
-        <span *ngIf="formGroup.get('email')?.invalid && formGroup.get('email')?.touched"
-            class="block text-[0.7rem] font-semibold text-[#ba1a1a] pl-1 mt-0.5">
-            Ingresa un correo válido.
-        </span>
+        <div class="field-error" *ngIf="getFieldError('email')">
+            {{ getFieldError('email') }}
+        </div>
     </div>
 
 </ng-container>

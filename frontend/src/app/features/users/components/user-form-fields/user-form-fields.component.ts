@@ -16,15 +16,15 @@ export class UserFormFieldsComponent {
   roleDropdownOpen = false;
 
   readonly roleOptions = [
-    { value: 'ADMIN',   label: 'Administrador' },
-    { value: 'CLIENT',  label: 'Cliente'        },
-    { value: 'WORKER',  label: 'Trabajador'     },
+    { value: 'CUSTOMER', label: 'Cliente'        },
+    { value: 'WORKER',   label: 'Trabajador'     },
+    { value: 'ADMIN',    label: 'Administrador' },
   ];
 
   private readonly roleLabels: Record<string, string> = {
-    ADMIN:   'Administrador',
-    CLIENT:  'Cliente',
-    WORKER:  'Trabajador',
+    ADMIN:    'Administrador',
+    CUSTOMER: 'Cliente',
+    WORKER:   'Trabajador',
   };
 
   constructor(private el: ElementRef) {}
@@ -55,5 +55,14 @@ export class UserFormFieldsComponent {
     if (!this.el.nativeElement.contains(event.target)) {
       this.roleDropdownOpen = false;
     }
+  }
+
+  getFieldError(fieldName: string): string {
+    const control = this.formGroup.get(fieldName);
+    if (!control?.touched || !control?.errors) return '';
+    if (control.errors['required']) return 'Este campo es obligatorio';
+    if (control.errors[fieldName])  return control.errors[fieldName];
+    if (control.errors['email'])    return 'Ingresa un correo válido';
+    return '';
   }
 }
