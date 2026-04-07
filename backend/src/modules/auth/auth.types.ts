@@ -1,28 +1,18 @@
-export type SystemRole = 'ADMIN' | 'CLIENT' | 'WORKER';
+import {
+    SystemRole,
+    CreateUserInput,
+    CreateUserData,
+} from '../users/user.types.js';
+
+export type { SystemRole };
 
 // PERSISTENCE
 //* -----------------------------
-export interface CreateUserData {
-    firstName: string;
-    lastName: string;
-    alias: string;
-    phone?: string;
-    email: string;
-    passwordHash: string;
-    role: SystemRole;
-}
+export type { CreateUserData };
 
 // INPUTS
 //* -----------------------------
-export interface RegisterInput {
-    firstName: string;
-    lastName: string;
-    alias: string;
-    email: string;
-    phone?: string;
-    password: string;
-    role: SystemRole;
-}
+export type { CreateUserInput as RegisterInput };
 
 export interface LoginInput {
     identifier: string; // alias, email or phone
@@ -36,16 +26,6 @@ export interface LogoutInput {
 
 export interface RefreshTokenInput {
     refreshToken: string;
-}
-
-export interface RecoveryRequestInput {
-    email: string;
-}
-
-export interface ResetPasswordInput {
-    email: string;
-    code: string;
-    newPassword: string;
 }
 
 // TOKENS

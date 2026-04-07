@@ -2,7 +2,10 @@
 
 import { ServiceService } from '../../../src/modules/services/service.service';
 import type { IServiceRepository } from '../../../src/modules/services/service.repository';
-import { ConflictError, NotFoundError } from '../../../src/shared/errors/domain.error';
+import {
+    ConflictError,
+    NotFoundError,
+} from '../../../src/shared/errors/domain.error';
 
 function createRepoMock(): jest.Mocked<IServiceRepository> {
     return {
@@ -61,7 +64,10 @@ describe('ServiceService', () => {
                 price: 50000,
                 duration: 30,
             });
-            expect(repo.existsByName).toHaveBeenCalledWith(1, 'Corte de cabello');
+            expect(repo.existsByName).toHaveBeenCalledWith(
+                1,
+                'Corte de cabello',
+            );
             expect(repo.create).toHaveBeenCalled();
         });
 
@@ -80,7 +86,9 @@ describe('ServiceService', () => {
 
             repo.existsByName.mockResolvedValue(true);
 
-            await expect(service.add(input)).rejects.toBeInstanceOf(ConflictError);
+            await expect(service.add(input)).rejects.toBeInstanceOf(
+                ConflictError,
+            );
             expect(repo.create).not.toHaveBeenCalled();
         });
     });
@@ -305,7 +313,9 @@ describe('ServiceService', () => {
             };
 
             repo.findById.mockResolvedValue(mockService);
-            (repo.delete as jest.Mock).mockImplementation(() => Promise.resolve());
+            (repo.delete as jest.Mock).mockImplementation(() =>
+                Promise.resolve(),
+            );
 
             await service.delete(1);
 

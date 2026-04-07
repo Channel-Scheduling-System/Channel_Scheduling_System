@@ -1,12 +1,12 @@
+import { UserResponse } from '../users/user.types.js';
 import { AuthResult, AuthUser } from './auth.types.js';
-import type { User } from '@prisma/client.js';
 
 /**
  * Maps a user entity to an AuthUser response object
- * @param user - User entity from the database
+ * @param user - UserResponse from user service
  * @returns AuthUser object formatted for API responses
  */
-export function mapToAuthUser(user: User): AuthUser {
+export function mapToAuthUser(user: UserResponse): AuthUser {
     return {
         id: user.id,
         name: `${user.firstName} ${user.lastName}`,

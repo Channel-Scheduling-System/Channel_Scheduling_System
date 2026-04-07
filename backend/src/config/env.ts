@@ -5,6 +5,7 @@ const requiredEnvVars = [
     'JWT_EXPIRES_IN',
     'JWT_SECRET_REFRESH',
     'JWT_EXPIRES_IN_REFRESH',
+    'FIRST_ADMIN_SECRET_CODE',
 ] as const;
 
 for (const key of requiredEnvVars) {
@@ -22,4 +23,5 @@ export const env = {
         refresh: process.env.JWT_SECRET_REFRESH as string,
         expiresInRefresh: process.env.JWT_EXPIRES_IN_REFRESH as string,
     },
+    firstAdminSecretCode: process.env.FIRST_ADMIN_SECRET_CODE as string,
 };

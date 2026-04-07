@@ -3,7 +3,6 @@ import crypto from 'crypto';
 import { SignJWT, jwtVerify } from 'jose';
 import { env } from '../../config/env.js';
 import {
-    ConflictError,
     UnauthorizedError,
     TokenReuseError,
 } from '../../shared/errors/domain.error.js';
@@ -24,6 +23,7 @@ import {
     RegisterInput,
     SystemRole,
 } from './auth.types.js';
+import { IUserService } from '../users/user.service.js';
 
 export interface IAuthService {
     register(input: RegisterInput): Promise<AuthResult>;
@@ -33,7 +33,6 @@ export interface IAuthService {
     checkAdminExists(): Promise<boolean>;
 }
 
-const SALT_ROUNDS = 10;
 const TOKEN_HASH_ALGORITHM = 'sha256';
 
 const AUTH_ERRORS = {
@@ -47,19 +46,13 @@ const AUTH_ERRORS = {
 } as const;
 
 export class AuthService implements IAuthService {
-    constructor(private readonly authRepo: IAuthRepository) {}
+    constructor(
+        private readonly authRepo: IAuthRepository,
+        private readonly userService: IUserService,
+    ) {}
 
     async register(input: RegisterInput): Promise<AuthResult> {
-        const existingUser = await this.authRepo.findUserByEmail(input.email);
-        if (existingUser) throw new ConflictError(AUTH_ERRORS.EMAIL_REGISTERED);
-
-        const passwordHash = await bcrypt.hash(input.password, SALT_ROUNDS);
-        const { password: _password, ...userData } = input;
-
-        const user = await this.authRepo.createUser({
-            ...userData,
-            passwordHash,
-        });
+        const user = await this.userService.add(input);
         const tokens = await this.generateAndStoreTokens(user.id, user.role);
 
         return {
@@ -69,7 +62,7 @@ export class AuthService implements IAuthService {
     }
 
     async login(input: LoginInput): Promise<AuthResult> {
-        const user = await this.authRepo.findUserByIdentifier(input.identifier);
+        const user = await this.userService.getByIdentifier(input.identifier);
         if (!user) throw new InvalidCredentialsError();
 
         const isValid = await bcrypt.compare(input.password, user.passwordHash);
@@ -96,7 +89,7 @@ export class AuthService implements IAuthService {
             throw new TokenReuseError(AUTH_ERRORS.TOKEN_REUSE_DETECTED);
         }
 
-        const user = await this.authRepo.findUserById(payload.sub);
+        const user = await this.userService.getById(payload.sub);
         if (!user) throw new UnauthorizedError(AUTH_ERRORS.USER_NOT_FOUND);
 
         await this.authRepo.invalidateRefreshToken(tokenHash);
@@ -128,7 +121,7 @@ export class AuthService implements IAuthService {
     }
 
     async checkAdminExists(): Promise<boolean> {
-        const count = await this.authRepo.countAdminUsers();
+        const count = await this.userService.countAdmins();
         return count > 0;
     }
 
