@@ -1,4 +1,3 @@
-// core/services/role.service.ts
 import { Injectable } from '@angular/core';
 import { Role, ROLES } from '../constants/roles.constants';
 
@@ -30,6 +29,6 @@ export class RoleService {
 
   getAdminRole(): Role { return 'ADMIN'; }
   getWorkerRole(): Role { return 'WORKER'; }
-  getClientRole(): Role { return 'CLIENT'; }
+  getClientRole(): Role { return 'CUSTOMER'; }
 
 }
