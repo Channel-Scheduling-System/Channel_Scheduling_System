@@ -15,6 +15,7 @@ import {
 } from './service.mapper.js';
 
 import { ConflictError, NotFoundError } from '#/shared/errors/domain.error.js';
+import { IUserService } from '../users/user.service.js';
 
 export interface IServiceService {
     add(input: CreateServiceInput): Promise<ServiceResponse>;
@@ -25,14 +26,21 @@ export interface IServiceService {
     delete(id: number): Promise<void>;
 }
 
+const SERVICE_ERRORS = {
+    WORKER_NOT_FOUND: 'El trabajador asociado al servicio no existe',
+    NAME_CONFLICT: 'El usuario ya tiene un servicio con ese nombre',
+    ID_NOTFOUND: 'El servicio con el id solicitado no existe',
+};
+
 export class ServiceService implements IServiceService {
-    constructor(private readonly serviceRepo: IServiceRepository) {}
+    constructor(
+        private readonly serviceRepo: IServiceRepository,
+        private readonly userService: IUserService,
+    ) {}
+
     async add(input: CreateServiceInput): Promise<ServiceResponse> {
-        // TODO: 1. Validar existencia de worker
         await this.ensureWorkerExists(input.workerId);
-        // 2. Verificar nombre único para el worker
         await this.ensureNameIsUnique(input.workerId, input.name);
-        // 3. Crear nuevo servicio
         const newService = await this.serviceRepo.create(
             mapToCreateServiceData(input),
         );
@@ -53,13 +61,10 @@ export class ServiceService implements IServiceService {
     }
 
     async update(input: UpdateServiceInput): Promise<ServiceResponse> {
-        // 1. Verificar existencia de servicio
         const existing = await this.getServiceOrFail(input.id);
-        // 2. Si se actualiza el nombre, verificar que sea único para el worker
         if (input.name && input.name !== existing.name) {
             await this.ensureNameIsUnique(existing.workerId, input.name);
         }
-        // 3. Actualizar servicio
         const updated = await this.serviceRepo.update(
             input.id,
             mapToUpdateServiceData(input),
@@ -68,24 +73,21 @@ export class ServiceService implements IServiceService {
     }
 
     async delete(id: number): Promise<void> {
-        // 1. Verificar existencia de servicio
         await this.getServiceOrFail(id);
-        // TODO: 2. Verificar que el servicio no tenga citas asociadas
-        // 3. Eliminar servicio
+        // TODO: Verificar que el servicio no tenga citas asociadas
         await this.serviceRepo.delete(id);
     }
 
     private async getServiceOrFail(id: number): Promise<Service> {
         const service = await this.serviceRepo.findById(id);
-        if (!service)
-            throw new NotFoundError(
-                'El servicio con el id solicitado no existe',
-            );
+        if (!service) throw new NotFoundError(SERVICE_ERRORS.ID_NOTFOUND);
         return service;
     }
 
-    private async ensureWorkerExists(_workerId: number): Promise<void> {
-        // TODO: Implementar método para verificar existencia de worker
+    private async ensureWorkerExists(workerId: number): Promise<void> {
+        if (!(await this.userService.existsByIdAndRole(workerId, 'WORKER'))) {
+            throw new NotFoundError(SERVICE_ERRORS.WORKER_NOT_FOUND);
+        }
     }
 
     private async ensureNameIsUnique(
@@ -96,9 +98,6 @@ export class ServiceService implements IServiceService {
             workerId,
             name,
         );
-        if (existingUser)
-            throw new ConflictError(
-                'El usuario ya tiene un servicio con ese nombre',
-            );
+        if (existingUser) throw new ConflictError(SERVICE_ERRORS.NAME_CONFLICT);
     }
 }

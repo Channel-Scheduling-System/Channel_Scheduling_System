@@ -1,3 +1,4 @@
+import { validateBodyDTO } from '#/shared/middlewares/validateDTO.middleware.js';
 import { Id } from '#/shared/zod/shemas.js';
 import { z } from 'zod';
 
@@ -63,4 +64,23 @@ export const UserSchema = z.object({
     role: Role,
 });
 
+// TYPES (DTOs)
+//* -----------------------------
 export type UserData = z.infer<typeof UserSchema>;
+
+export const CreateUserInput = UserSchema.extend({
+    password: UserPassword,
+}).omit({ id: true });
+
+export const CreateFirstAdminInput = CreateUserInput.extend({
+    secretCode: z
+        .string()
+        .length(10, 'El código secreto debe tener exactamente 10 caracteres'),
+});
+
+// Export centralizado
+//* -----------------------------
+export const userValidator = {
+    create: validateBodyDTO(CreateUserInput),
+    createFirstAdmin: validateBodyDTO(CreateFirstAdminInput),
+};

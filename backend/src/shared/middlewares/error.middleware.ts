@@ -3,7 +3,7 @@
 import { z } from 'zod';
 import { Request, Response, NextFunction } from 'express';
 import { DomainError } from '../errors/domain.error.js';
-import { ValidationDTOError } from '../errors/validation.error.js';
+import { ValidationError } from '../errors/validation.error.js';
 
 // Utilidad para respuestas rápidas y consistentes
 const send = (
@@ -33,11 +33,9 @@ export function handleErrorMiddleware(
     }
     // 2. Validaciones Zod (con ValidationDTOError)
     //* -----------------------------
-    if (error instanceof ValidationDTOError) {
-        return res.status(error.status).json({
+    if (error instanceof ValidationError) {
+        return send(res, error.status, error.message, {
             code: error.code,
-            message: error.message,
-            errors: error.errors,
         });
     }
 
