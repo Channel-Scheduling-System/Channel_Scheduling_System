@@ -13,6 +13,8 @@ import { RegisterResponse, RegisterResponseSchema, RegisterUserResponse, Registe
 import { IUserService } from '../interfaces/user-service.interface';
 import { ListUsersResponse, ListUsersResponseSchema } from '../models/responses/list/list-users-response.model';
 import { GetProfileResponse, GetProfileResponseSchema } from '../../profile/models/responses/get-profile/get-profile-response.model';
+import { UpdateUserRequest } from '../models/requests/update/update-request.model';
+import { UpdateUserResponse, UpdateUserResponseSchema } from '../models/responses/register/update-response.model';
 
 @Injectable({ providedIn: 'root' })
 export class UserService implements IUserService {
@@ -54,11 +56,18 @@ export class UserService implements IUserService {
   }
 
   getUserById(userId: number): Observable<GetProfileResponse> {
-    const url = API_ENDPOINTS.USERS.PROFILE(userId);
-    return this.http.get(url).pipe(
+    return this.http.get(API_ENDPOINTS.USERS.PROFILE(userId)).pipe(
       map(response => this.responseHandler.handleSuccess(response, GetProfileResponseSchema)),
       catchError(error => this.errorHandler.handleError(error))
     );
   }
+
+  updateUser(userId: number, data: UpdateUserRequest): Observable<UpdateUserResponse> {
+    return this.http.put(API_ENDPOINTS.USERS.UPDATE(userId), data).pipe(
+      map(response => this.responseHandler.handleSuccess(response, UpdateUserResponseSchema)),
+      catchError(error => this.errorHandler.handleError(error))
+    );
+  }
+
 
 }
