@@ -8,18 +8,27 @@ import { MessageService } from '../../../../core/services/message.service';
 import { AlertType } from '../../../../core/utils/enums/AlertType';
 import { UserFormFieldsComponent } from '../../components/user-form-fields/user-form-fields.component';
 import { UserFormHeaderComponent } from '../../components/user-form-header/user-form-header.component';
-import { Location } from '@angular/common';
+import { updateUserFieldValidator } from '../../validators/update-user.validators';
+import { UpdateUserRequest } from '../../models/requests/update/update-request.model';
+import { GetUserResponse } from '../../models/responses/get-user/get-profile-response.model';
 
 @Component({
   selector: 'app-update-user',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatProgressSpinnerModule, UserFormFieldsComponent, UserFormHeaderComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatProgressSpinnerModule,
+    UserFormFieldsComponent,
+    UserFormHeaderComponent,
+  ],
   templateUrl: './update-user.component.html',
   styleUrl: './update-user.component.scss',
 })
 export class UpdateUserPageComponent implements OnInit {
   form!: FormGroup;
   isLoading = false;
+  isSaving  = false;
   private userId!: number;
 
   constructor(
@@ -27,11 +36,11 @@ export class UpdateUserPageComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private userService: UserService,
-    private messageService: MessageService,
-    private location: Location
+    private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
+    window.scrollTo(0, 0);
     this.userId = +this.route.snapshot.paramMap.get('id')!;
     this.buildForm();
     this.loadUser();
@@ -39,24 +48,24 @@ export class UpdateUserPageComponent implements OnInit {
 
   private buildForm(): void {
     this.form = this.fb.group({
-      alias:     ['', Validators.required],
-      firstName: ['', Validators.required],
-      lastName:  ['', Validators.required],
-      phone:     ['', Validators.required],
-      email:     ['', [Validators.required, Validators.email]],
+      alias:     ['', [Validators.required, updateUserFieldValidator('alias')]],
+      firstName: ['', [Validators.required, updateUserFieldValidator('firstName')]],
+      lastName:  ['', [Validators.required, updateUserFieldValidator('lastName')]],
+      phone:     ['', [Validators.required, updateUserFieldValidator('phone')]],
+      email:     ['', [Validators.required, Validators.email, updateUserFieldValidator('email')]],
     });
   }
 
   private loadUser(): void {
     this.isLoading = true;
     this.userService.getUserById(this.userId).subscribe({
-      next: (response) => this.handleLoadSuccess(response),
-      error: (error)   => this.handleError(error),
+      next:  (response) => this.handleLoadSuccess(response),
+      error: (error)    => this.handleLoadError(error),
     });
   }
 
-  private handleLoadSuccess(response: any): void {
-    const user = response.data.user;
+  private handleLoadSuccess(response: GetUserResponse): void {
+    const user = response.data;
     this.form.patchValue({
       alias:     user.alias,
       firstName: user.firstName,
@@ -67,13 +76,43 @@ export class UpdateUserPageComponent implements OnInit {
     this.isLoading = false;
   }
 
-  private handleError(error: any): void {
+  private handleLoadError(error: any): void {
     this.isLoading = false;
     this.messageService.showMessage(error.message, AlertType.ERROR);
   }
 
+  getFieldError(fieldName: string): string {
+    const control = this.form.get(fieldName);
+    if (!control?.touched || !control?.errors) return '';
+    if (control.errors['required'])  return 'Este campo es obligatorio';
+    if (control.errors[fieldName])   return control.errors[fieldName];
+    if (control.errors['email'])     return 'Ingresa un correo válido';
+    return '';
+  }
+
   saveChanges(): void {
-    //TODO: implementar
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.messageService.showMessage('Por favor completa todos los campos correctamente', AlertType.WARNING);
+      return;
+    }
+    this.isSaving = true;
+    const payload: UpdateUserRequest = this.form.value;
+    this.userService.updateUser(this.userId, payload).subscribe({
+      next:  (data)  => this.handleSaveSuccess(data),
+      error: (error) => this.handleSaveError(error),
+    });
+  }
+
+  private handleSaveSuccess(data: any): void {
+    this.isSaving = false;
+    this.messageService.showMessage(data.message, AlertType.SUCCESS);
+    this.router.navigate(['/users']);
+  }
+
+  private handleSaveError(error: any): void {
+    this.isSaving = false;
+    this.messageService.showMessage(error.message, AlertType.ERROR);
   }
 
   goBack(): void {

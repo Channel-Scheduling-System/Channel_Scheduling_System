@@ -14,16 +14,23 @@
 
     <ng-container *ngIf="!isLoading && form">
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <app-user-form-fields [formGroup]="form"></app-user-form-fields>
-        </div>
+        
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <app-user-form-fields [formGroup]="form"></app-user-form-fields>
+            </div>
 
         <div class="flex flex-col items-center gap-4 pb-4">
-            <button class="save-btn" type="button" (click)="saveChanges()">
+            <button class="save-btn" type="button" (click)="saveChanges()" [disabled]="isSaving">
                 <span class="save-btn__shimmer"></span>
                 <span class="save-btn__content">
-                    <span class="material-symbols-outlined text-[1.2rem]" translate="no">save</span>
-                    <span>Guardar Cambios</span>
+                    <ng-container *ngIf="!isSaving">
+                        <span class="material-symbols-outlined text-[1.2rem]" translate="no">save</span>
+                        <span>Guardar Cambios</span>
+                    </ng-container>
+                    <ng-container *ngIf="isSaving">
+                        <mat-spinner diameter="20" color="accent"></mat-spinner>
+                        <span>Guardando...</span>
+                    </ng-container>
                 </span>
             </button>
 
