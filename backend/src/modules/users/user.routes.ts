@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { userController } from './user.module.js';
 import { userValidator } from './user.validator.js';
-import { authMiddleware } from '#/shared/middlewares/auth.middleware.js';
-import { requireRole } from '#/shared/middlewares/role.middleware.js';
+import { authMiddleware } from '../../shared/middlewares/auth.middleware.js';
+import { requireRole } from '../../shared/middlewares/role.middleware.js';
 
 const userRouter = Router();
 

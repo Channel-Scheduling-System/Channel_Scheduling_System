@@ -4,8 +4,8 @@ import {
     validateBodyDTO,
     validateParamsDTO,
     validateQueryDTO,
-} from '#/shared/middlewares/validateDTO.middleware.js';
-import { Id } from '#/shared/zod/shemas.js';
+} from '../../shared/middlewares/validateDTO.middleware.js';
+import { Id } from '../../shared/zod/shemas.js';
 
 // SERVICES
 //* -----------------------------

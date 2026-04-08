@@ -5,8 +5,8 @@ import {
     ConflictError,
     NotFoundError,
     ForbiddenError,
-} from '#/shared/errors/domain.error.js';
-import { InvalidCredentialsError } from '#/shared/errors/validation.error.js';
+} from '../../shared/errors/domain.error.js';
+import { InvalidCredentialsError } from '../../shared/errors/validation.error.js';
 
 import { IUserRepository } from './user.repository.js';
 
