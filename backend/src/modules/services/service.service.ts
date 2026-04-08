@@ -14,7 +14,7 @@ import {
     mapToUpdateServiceData,
 } from './service.mapper.js';
 
-import { ConflictError, NotFoundError } from '#/shared/errors/domain.error.js';
+import { ConflictError, NotFoundError } from '../../shared/errors/domain.error.js';
 import { IUserService } from '../users/user.service.js';
 
 export interface IServiceService {
