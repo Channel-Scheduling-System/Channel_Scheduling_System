@@ -2,10 +2,8 @@
 
 import {
     LoginDTO,
-    RecoveryRequestDTO,
     RefreshTokenDTO,
     RegisterDTO,
-    ResetPasswordDTO,
 } from '../../../src/modules/auth/auth.validator';
 
 describe('Auth DTO validators', () => {
@@ -58,23 +56,34 @@ describe('Auth DTO validators', () => {
         expect(result.success).toBe(false);
     });
 
-    it('should reject RecoveryRequestDTO with invalid email', () => {
-        const result = RecoveryRequestDTO.safeParse({
-            email: 'invalid-email',
+    it('should reject LoginDTO with invalid identifier', () => {
+        const result = LoginDTO.safeParse({
+            identifier: 'inv@lid',
+            password: 'Password123!',
         });
 
         expect(result.success).toBe(false);
     });
 
-    it('should reject ResetPasswordDTO with invalid code length', () => {
-        const result = ResetPasswordDTO.safeParse({
-            email: 'johan@test.com',
-            code: '123',
-            newPassword: 'Password123',
-        });
+    it('should reject RefreshTokenDTO with invalid format', () => {
+        const result = RefreshTokenDTO.safeParse('invalid-token');
 
         expect(result.success).toBe(false);
     });
+
+    it('should reject RefreshTokenDTO when token is missing', () => {
+        const result = RefreshTokenDTO.safeParse('');
+
+        expect(result.success).toBe(false);
+    });
+
+    it('should reject RefreshTokenDTO with invalid code length', () => {
+        const result = RefreshTokenDTO.safeParse(
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMifQ',
+        );
+
+        expect(result.success).toBe(false);
+        });
 
     it('should validate RefreshTokenDTO with enough length', () => {
         const result = RefreshTokenDTO.safeParse(

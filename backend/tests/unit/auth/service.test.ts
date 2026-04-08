@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 
 import { AuthService } from '../../../src/modules/auth/auth.service';
 import type { IAuthRepository } from '../../../src/modules/auth/auth.repository';
+import type { IUserService } from '../../../src/modules/users/user.service';
 import { ConflictError } from '../../../src/shared/errors/domain.error';
 import { InvalidCredentialsError } from '../../../src/shared/errors/validation.error';
 
@@ -60,21 +61,23 @@ const bcryptMock = bcrypt as unknown as {
 
 function createRepoMock(): jest.Mocked<IAuthRepository> {
     return {
-        findUserByIdentifier: jest.fn(),
-        findUserByEmail: jest.fn(),
-        findUserById: jest.fn(),
-        createUser: jest.fn(),
-        updatePassword: jest.fn(),
         createRefreshToken: jest.fn(),
         findRefreshToken: jest.fn(),
         findRefreshTokenByUserAndHash: jest.fn(),
         invalidateRefreshToken: jest.fn(),
         deleteRefreshTokensForUser: jest.fn(),
-        createRecoveryCode: jest.fn(),
-        findValidRecoveryCode: jest.fn(),
-        markRecoveryCodeAsUsed: jest.fn(),
-        invalidateRecoveryCodes: jest.fn(),
-        countAdminUsers: jest.fn(),
+    };
+}
+
+function createUserServiceMock(): jest.Mocked<IUserService> {
+    return {
+        add: jest.fn(),
+        addFirstAdmin: jest.fn(),
+        existsByIdAndRole: jest.fn(),
+        getById: jest.fn(),
+        getByIdentifier: jest.fn(),
+        getAll: jest.fn(),
+        countAdmins: jest.fn(),
     };
 }
 
@@ -85,9 +88,10 @@ describe('AuthService', () => {
 
     it('should login user with valid credentials', async () => {
         const repo = createRepoMock();
-        const service = new AuthService(repo);
+        const userService = createUserServiceMock();
+        const service = new AuthService(repo, userService);
 
-        repo.findUserByIdentifier.mockResolvedValue({
+        userService.getByIdentifier.mockResolvedValue({
             id: 1,
             firstName: 'Johan',
             lastName: 'Gil',
@@ -116,7 +120,7 @@ describe('AuthService', () => {
                 refreshToken: expect.any(String),
             },
         });
-        expect(repo.findUserByIdentifier).toHaveBeenCalledWith('johangil');
+            expect(userService.getByIdentifier).toHaveBeenCalledWith('johangil');
         expect(bcryptMock.compare).toHaveBeenCalledWith('Password123', 'hash');
         expect(repo.deleteRefreshTokensForUser).toHaveBeenCalledWith(1);
         expect(repo.createRefreshToken).toHaveBeenCalledWith(
@@ -128,9 +132,10 @@ describe('AuthService', () => {
 
     it('should throw InvalidCredentialsError when user is not found', async () => {
         const repo = createRepoMock();
-        const service = new AuthService(repo);
+        const userService = createUserServiceMock();
+        const service = new AuthService(repo, userService);
 
-        repo.findUserByIdentifier.mockResolvedValue(null);
+        userService.getByIdentifier.mockResolvedValue(null);
 
         await expect(
             service.login({ identifier: 'missing', password: 'Password123' }),
@@ -139,9 +144,10 @@ describe('AuthService', () => {
 
     it('should throw InvalidCredentialsError when password does not match', async () => {
         const repo = createRepoMock();
-        const service = new AuthService(repo);
+        const userService = createUserServiceMock();
+        const service = new AuthService(repo, userService);
 
-        repo.findUserByIdentifier.mockResolvedValue({
+        userService.getByIdentifier.mockResolvedValue({
             id: 1,
             firstName: 'Johan',
             lastName: 'Gil',
@@ -161,9 +167,10 @@ describe('AuthService', () => {
 
     it('should throw ConflictError when email already exists', async () => {
         const repo = createRepoMock();
-        const service = new AuthService(repo);
+        const userService = createUserServiceMock();
+        const service = new AuthService(repo, userService);
 
-        repo.findUserByEmail.mockResolvedValue({ id: 99 } as any);
+        userService.add.mockRejectedValue(new ConflictError('conflict'));
 
         await expect(
             service.register({
@@ -175,23 +182,29 @@ describe('AuthService', () => {
                 role: 'ADMIN',
             }),
         ).rejects.toBeInstanceOf(ConflictError);
-        expect(repo.createUser).not.toHaveBeenCalled();
+        expect(userService.add).toHaveBeenCalledWith({
+            firstName: 'Johan',
+            lastName: 'Gil',
+            alias: 'johangil',
+            email: 'johan@test.com',
+            password: 'Password123',
+            role: 'ADMIN',
+        });
     });
 
-    it('should register user and hash password', async () => {
+    it('should register user and generate tokens', async () => {
         const repo = createRepoMock();
-        const service = new AuthService(repo);
+        const userService = createUserServiceMock();
+        const service = new AuthService(repo, userService);
 
-        repo.findUserByEmail.mockResolvedValue(null);
-        bcryptMock.hash.mockResolvedValue('hashed-password');
-        repo.createRefreshToken.mockResolvedValue();
-        repo.createUser.mockResolvedValue({
+        userService.add.mockResolvedValue({
             id: 5,
             firstName: 'Johan',
             lastName: 'Gil',
             alias: 'johangil',
             role: 'ADMIN',
         } as any);
+        repo.createRefreshToken.mockResolvedValue();
 
         const result = await service.register({
             firstName: 'Johan',
@@ -203,13 +216,15 @@ describe('AuthService', () => {
             role: 'ADMIN',
         });
 
-        expect(bcryptMock.hash).toHaveBeenCalledWith('Password123', 10);
-        expect(repo.createUser).toHaveBeenCalledWith(
-            expect.objectContaining({
-                email: 'johan@test.com',
-                passwordHash: 'hashed-password',
-            }),
-        );
+        expect(userService.add).toHaveBeenCalledWith({
+            firstName: 'Johan',
+            lastName: 'Gil',
+            alias: 'johangil',
+            email: 'johan@test.com',
+            phone: '3001234567',
+            password: 'Password123',
+            role: 'ADMIN',
+        });
         expect(result).toEqual({
             user: {
                 id: 5,
