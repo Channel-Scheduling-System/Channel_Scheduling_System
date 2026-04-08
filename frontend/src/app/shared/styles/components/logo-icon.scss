@@ -13,7 +13,7 @@
   justify-content: center;
   border-radius: 9999px;
   animation: logoPulse 2.8s ease-in-out infinite,
-             logoSpin  8s   linear        infinite;  // 👈 reemplaza el transform estático
+             logoSpin  8s   linear        infinite; 
   transition: filter 0.1s ease, box-shadow 0.1s ease;
   background-color: #4a0010;
   color: white;
