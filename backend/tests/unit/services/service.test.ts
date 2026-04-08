@@ -2,6 +2,7 @@
 
 import { ServiceService } from '../../../src/modules/services/service.service';
 import type { IServiceRepository } from '../../../src/modules/services/service.repository';
+import type { IUserService } from '../../../src/modules/users/user.service';
 import {
     ConflictError,
     NotFoundError,
@@ -19,6 +20,14 @@ function createRepoMock(): jest.Mocked<IServiceRepository> {
     };
 }
 
+function createUserServiceMock(): jest.Mocked<
+    Pick<IUserService, 'existsByIdAndRole'>
+> {
+    return {
+        existsByIdAndRole: jest.fn(),
+    };
+}
+
 describe('ServiceService', () => {
     beforeEach(() => {
         jest.clearAllMocks();
@@ -27,7 +36,8 @@ describe('ServiceService', () => {
     describe('add', () => {
         it('should create a new service', async () => {
             const repo = createRepoMock();
-            const service = new ServiceService(repo);
+            const userService = createUserServiceMock();
+            const service = new ServiceService(repo, userService);
 
             const input = {
                 workerId: 1,
@@ -51,6 +61,7 @@ describe('ServiceService', () => {
                 updatedAt: new Date(),
             };
 
+            userService.existsByIdAndRole.mockResolvedValue(true);
             repo.existsByName.mockResolvedValue(false);
             repo.create.mockResolvedValue(mockService);
 
@@ -64,6 +75,10 @@ describe('ServiceService', () => {
                 price: 50000,
                 duration: 30,
             });
+            expect(userService.existsByIdAndRole).toHaveBeenCalledWith(
+                1,
+                'WORKER',
+            );
             expect(repo.existsByName).toHaveBeenCalledWith(
                 1,
                 'Corte de cabello',
@@ -71,9 +86,10 @@ describe('ServiceService', () => {
             expect(repo.create).toHaveBeenCalled();
         });
 
-        it('should throw ConflictError when service name already exists for worker', async () => {
+        it('should throw NotFoundError when worker does not exist', async () => {
             const repo = createRepoMock();
-            const service = new ServiceService(repo);
+            const userService = createUserServiceMock();
+            const service = new ServiceService(repo, userService);
 
             const input = {
                 workerId: 1,
@@ -84,6 +100,30 @@ describe('ServiceService', () => {
                 duration: 30,
             };
 
+            userService.existsByIdAndRole.mockResolvedValue(false);
+
+            await expect(service.add(input)).rejects.toBeInstanceOf(
+                NotFoundError,
+            );
+            expect(repo.existsByName).not.toHaveBeenCalled();
+            expect(repo.create).not.toHaveBeenCalled();
+        });
+
+        it('should throw ConflictError when service name already exists for worker', async () => {
+            const repo = createRepoMock();
+            const userService = createUserServiceMock();
+            const service = new ServiceService(repo, userService);
+
+            const input = {
+                workerId: 1,
+                name: 'Corte de cabello',
+                description: 'Servicio de corte de cabello profesional',
+                color: '#FF5733',
+                price: 50000,
+                duration: 30,
+            };
+
+            userService.existsByIdAndRole.mockResolvedValue(true);
             repo.existsByName.mockResolvedValue(true);
 
             await expect(service.add(input)).rejects.toBeInstanceOf(
@@ -96,7 +136,8 @@ describe('ServiceService', () => {
     describe('getById', () => {
         it('should return a service by id', async () => {
             const repo = createRepoMock();
-            const service = new ServiceService(repo);
+            const userService = createUserServiceMock();
+            const service = new ServiceService(repo, userService);
 
             const mockService = {
                 id: 1,
@@ -128,7 +169,8 @@ describe('ServiceService', () => {
 
         it('should throw NotFoundError when service does not exist', async () => {
             const repo = createRepoMock();
-            const service = new ServiceService(repo);
+            const userService = createUserServiceMock();
+            const service = new ServiceService(repo, userService);
 
             repo.findById.mockResolvedValue(null);
 
@@ -141,7 +183,8 @@ describe('ServiceService', () => {
     describe('getAll', () => {
         it('should return all services', async () => {
             const repo = createRepoMock();
-            const service = new ServiceService(repo);
+            const userService = createUserServiceMock();
+            const service = new ServiceService(repo, userService);
 
             const mockServices = [
                 {
@@ -187,7 +230,8 @@ describe('ServiceService', () => {
 
         it('should return services filtered by workerId', async () => {
             const repo = createRepoMock();
-            const service = new ServiceService(repo);
+            const userService = createUserServiceMock();
+            const service = new ServiceService(repo, userService);
 
             const mockServices = [
                 {
@@ -216,7 +260,8 @@ describe('ServiceService', () => {
     describe('update', () => {
         it('should update a service', async () => {
             const repo = createRepoMock();
-            const service = new ServiceService(repo);
+            const userService = createUserServiceMock();
+            const service = new ServiceService(repo, userService);
 
             const existingService = {
                 id: 1,
@@ -254,7 +299,8 @@ describe('ServiceService', () => {
 
         it('should throw NotFoundError when service does not exist', async () => {
             const repo = createRepoMock();
-            const service = new ServiceService(repo);
+            const userService = createUserServiceMock();
+            const service = new ServiceService(repo, userService);
 
             repo.findById.mockResolvedValue(null);
 
@@ -266,7 +312,8 @@ describe('ServiceService', () => {
 
         it('should verify name uniqueness when updating service name', async () => {
             const repo = createRepoMock();
-            const service = new ServiceService(repo);
+            const userService = createUserServiceMock();
+            const service = new ServiceService(repo, userService);
 
             const existingService = {
                 id: 1,
@@ -297,7 +344,8 @@ describe('ServiceService', () => {
     describe('delete', () => {
         it('should delete a service', async () => {
             const repo = createRepoMock();
-            const service = new ServiceService(repo);
+            const userService = createUserServiceMock();
+            const service = new ServiceService(repo, userService);
 
             const mockService = {
                 id: 1,
@@ -324,7 +372,8 @@ describe('ServiceService', () => {
 
         it('should throw NotFoundError when service does not exist', async () => {
             const repo = createRepoMock();
-            const service = new ServiceService(repo);
+            const userService = createUserServiceMock();
+            const service = new ServiceService(repo, userService);
 
             repo.findById.mockResolvedValue(null);
 
@@ -338,7 +387,8 @@ describe('ServiceService', () => {
     describe('existsById', () => {
         it('should return true when service exists', async () => {
             const repo = createRepoMock();
-            const service = new ServiceService(repo);
+            const userService = createUserServiceMock();
+            const service = new ServiceService(repo, userService);
 
             repo.existsById.mockResolvedValue(true);
 
@@ -350,7 +400,8 @@ describe('ServiceService', () => {
 
         it('should return false when service does not exist', async () => {
             const repo = createRepoMock();
-            const service = new ServiceService(repo);
+            const userService = createUserServiceMock();
+            const service = new ServiceService(repo, userService);
 
             repo.existsById.mockResolvedValue(false);
 
