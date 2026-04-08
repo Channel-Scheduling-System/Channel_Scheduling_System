@@ -20,6 +20,7 @@ export const API_ENDPOINTS = {
     PROFILE: (id: number) => `${environment.apiUrl}/users/${id}`,
     LIST: (page: number, identifier: string) => `${environment.apiUrl}/users?page=${page}&identifier=${identifier}`,
     REGISTER:  `${environment.apiUrl}/users`,
-    UPDATE: (id: number) => `${environment.apiUrl}/users/${id}`
+    UPDATE: (id: number) => `${environment.apiUrl}/users/${id}`,
+    SET_STATE: (id: number) => `${environment.apiUrl}/users/${id}/status`
   }
 } as const;

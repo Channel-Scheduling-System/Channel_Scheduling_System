@@ -14,7 +14,9 @@ import { IUserService } from '../interfaces/user-service.interface';
 import { ListUsersResponse, ListUsersResponseSchema } from '../models/responses/list/list-users-response.model';
 import { GetProfileResponse, GetProfileResponseSchema } from '../../profile/models/responses/get-profile/get-profile-response.model';
 import { UpdateUserRequest } from '../models/requests/update/update-request.model';
-import { UpdateUserResponse, UpdateUserResponseSchema } from '../models/responses/register/update-response.model';
+import { UpdateUserResponse, UpdateUserResponseSchema } from '../models/responses/update-user/update-response.model';
+import { SetStateUserResponse, SetStateUserResponseSchema } from '../models/responses/set-state-user/set-state-user-response.model';
+import { SetStateUserRequest } from '../models/requests/set-state-user/set-state-user-request.model';
 
 @Injectable({ providedIn: 'root' })
 export class UserService implements IUserService {
@@ -64,10 +66,18 @@ export class UserService implements IUserService {
 
   updateUser(userId: number, data: UpdateUserRequest): Observable<UpdateUserResponse> {
     return this.http.put(API_ENDPOINTS.USERS.UPDATE(userId), data).pipe(
-      map(response => this.responseHandler.handleSuccess(response, UpdateUserResponseSchema)),
+      map(response => { 
+        console.log('Raw response from update user API:', response);
+        return this.responseHandler.handleSuccess(response, UpdateUserResponseSchema); }),
       catchError(error => this.errorHandler.handleError(error))
     );
   }
 
+  setUserState(userId: number, data: SetStateUserRequest): Observable<SetStateUserResponse> {
+    return this.http.patch(API_ENDPOINTS.USERS.SET_STATE(userId), data).pipe(
+      map(response => this.responseHandler.handleSuccess(response, SetStateUserResponseSchema)),
+      catchError(error => this.errorHandler.handleError(error))
+    );
+  }
 
 }

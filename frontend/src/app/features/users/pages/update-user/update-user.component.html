@@ -1,10 +1,7 @@
 <div class="edit-user-page flex flex-col gap-8">
 
-    <app-user-form-header
-        eyebrow="Gestión"
-        title="Información del Perfil"
-        description="Gestiona la información personal del usuario"
-        (back)="goBack()">
+    <app-user-form-header eyebrow="Gestión" title="Perfil del Usuario"
+        description="Gestiona la información personal del usuario" (back)="goBack()">
     </app-user-form-header>
 
     <div *ngIf="isLoading" class="flex items-center justify-center gap-3 py-16 text-[#877270] text-sm font-medium">
@@ -14,10 +11,57 @@
 
     <ng-container *ngIf="!isLoading && form">
 
-        
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <app-user-form-fields [formGroup]="form"></app-user-form-fields>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+
+
+            <app-user-form-fields [formGroup]="form"></app-user-form-fields>
+
+            <div class="profile-field state-field md:col-span-2">
+                <div class="profile-field__label-row">
+                    <span class="material-symbols-outlined profile-field__icon profile-field__icon--floating"
+                        translate="no">
+                        manage_accounts
+                    </span>
+                    <label class="profile-field__label-text profile-field__label-text--shifted">Estado de cuenta</label>
+                </div>
+
+                <div class="profile-field__dropdown-wrap" [class.profile-field__dropdown-wrap--open]="stateDropdownOpen"
+                    [class.profile-field__dropdown-wrap--has-value]="true">
+
+                    <button class="profile-field__dropdown-trigger" type="button" (click)="toggleStateDropdown($event)">
+                        <div class="flex items-center gap-2">
+                            <span class="state-field__dot" [class.state-field__dot--active]="userIsActive"
+                                [class.state-field__dot--inactive]="!userIsActive">
+                            </span>
+                            <span class="state-field__trigger-label"
+                                [class.state-field__trigger-label--active]="userIsActive"
+                                [class.state-field__trigger-label--inactive]="!userIsActive">
+                                {{ currentStateOption.label }}
+                            </span>
+                        </div>
+                        <span class="material-symbols-outlined profile-field__dropdown-arrow text-[1.1rem] leading-none"
+                            translate="no">expand_more</span>
+                    </button>
+
+                    <div class="profile-field__options" *ngIf="stateDropdownOpen">
+                        <button *ngFor="let opt of stateOptions" class="profile-field__option state-field__option"
+                            [class.state-field__option--active-item]="opt.value === true"
+                            [class.state-field__option--inactive-item]="opt.value === false"
+                            [class.state-field__option--selected]="opt.value === userIsActive" type="button"
+                            (click)="requestStateChange(opt.value, $event)">
+                            <span class="material-symbols-outlined state-field__option-icon text-[1.1rem] leading-none"
+                                translate="no">{{ opt.icon }}</span>
+                            <span>{{ opt.label }}</span>
+                            <span *ngIf="opt.value === userIsActive"
+                                class="material-symbols-outlined state-field__option-check text-[0.9rem] leading-none ml-auto"
+                                translate="no">check</span>
+                        </button>
+                    </div>
+                </div>
             </div>
+
+        </div>
 
         <div class="flex flex-col items-center gap-4 pb-4">
             <button class="save-btn" type="button" (click)="saveChanges()" [disabled]="isSaving">
@@ -32,11 +76,6 @@
                         <span>Guardando...</span>
                     </ng-container>
                 </span>
-            </button>
-
-            <button class="deactivate-btn" type="button" (click)="deactivateUser()">
-                <span class="material-symbols-outlined text-[1rem] leading-none" translate="no">warning</span>
-                <span class="font-manrope font-bold text-sm uppercase tracking-[0.12em]">Desactivar cuenta</span>
             </button>
         </div>
 
