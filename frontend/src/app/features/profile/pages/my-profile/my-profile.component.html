@@ -2,8 +2,7 @@
 
     <div>
         <span class="block text-[0.7rem] font-bold uppercase tracking-[0.3em] text-[#877270] mb-[0.4rem]">Cuenta</span>
-        <h1 class="font-manrope text-[2.4rem] font-extrabold text-[#2a0002] tracking-[-0.03em] leading-none">Mi Perfil
-        </h1>
+        <h1 class="font-manrope text-[2.4rem] font-extrabold text-[#2a0002] tracking-[-0.03em] leading-none">Mi Perfil</h1>
     </div>
 
     <div *ngIf="isLoading" class="flex items-center justify-center gap-3 py-12 text-[#877270] text-sm font-medium">
@@ -11,25 +10,27 @@
         <span>Cargando información...</span>
     </div>
 
-    <ng-container *ngIf="!isLoading && profile">
+    <ng-container *ngIf="!isLoading && form">
 
         <div class="bg-white rounded-3xl shadow-[0_4px_40px_rgba(42,0,2,0.06)] overflow-hidden">
             <div class="px-8 py-5 bg-[#f0edec] border-b border-[#e5e2e1]">
                 <h2 class="font-manrope font-black text-[#4A0E0E] tracking-tight text-lg">Información básica</h2>
             </div>
 
-            <div class="px-8 py-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="px-8 py-8 grid grid-cols-1 md:grid-cols-2 gap-6" [formGroup]="form">
 
                 <div class="md:col-span-2">
                     <div class="profile-field w-full">
                         <div class="profile-field__label-row">
-                            <span class="material-symbols-outlined profile-field__icon"
-                                translate="no">alternate_email</span>
+                            <span class="material-symbols-outlined profile-field__icon" translate="no">alternate_email</span>
                             <label class="profile-field__label-text">Alias</label>
                         </div>
                         <div class="profile-field__input-wrap">
-                            <input class="profile-field__input" type="text" [value]="profile.alias" placeholder=" ">
+                            <input class="profile-field__input" type="text" formControlName="alias" placeholder=" ">
                             <span class="profile-field__placeholder">Lucas_Sanchez84</span>
+                        </div>
+                        <div class="field-error" *ngIf="getFieldError('alias')">
+                            {{ getFieldError('alias') }}
                         </div>
                     </div>
                 </div>
@@ -40,8 +41,11 @@
                         <label class="profile-field__label-text">Nombres</label>
                     </div>
                     <div class="profile-field__input-wrap">
-                        <input class="profile-field__input" type="text" [value]="profile.firstName" placeholder=" ">
+                        <input class="profile-field__input" type="text" formControlName="firstName" placeholder=" ">
                         <span class="profile-field__placeholder">Ej. Lucas</span>
+                    </div>
+                    <div class="field-error" *ngIf="getFieldError('firstName')">
+                        {{ getFieldError('firstName') }}
                     </div>
                 </div>
 
@@ -51,8 +55,11 @@
                         <label class="profile-field__label-text">Apellidos</label>
                     </div>
                     <div class="profile-field__input-wrap">
-                        <input class="profile-field__input" type="text" [value]="profile.lastName" placeholder=" ">
+                        <input class="profile-field__input" type="text" formControlName="lastName" placeholder=" ">
                         <span class="profile-field__placeholder">Ej. Sánchez</span>
+                    </div>
+                    <div class="field-error" *ngIf="getFieldError('lastName')">
+                        {{ getFieldError('lastName') }}
                     </div>
                 </div>
 
@@ -62,8 +69,11 @@
                         <label class="profile-field__label-text">Teléfono</label>
                     </div>
                     <div class="profile-field__input-wrap">
-                        <input class="profile-field__input" type="tel" [value]="profile.phone" placeholder=" ">
-                        <span class="profile-field__placeholder">+57 300 123 4567</span>
+                        <input class="profile-field__input" type="tel" formControlName="phone" placeholder=" ">
+                        <span class="profile-field__placeholder">3001234567</span>
+                    </div>
+                    <div class="field-error" *ngIf="getFieldError('phone')">
+                        {{ getFieldError('phone') }}
                     </div>
                 </div>
 
@@ -73,8 +83,11 @@
                         <label class="profile-field__label-text">Correo electrónico</label>
                     </div>
                     <div class="profile-field__input-wrap">
-                        <input class="profile-field__input" type="email" [value]="profile.email" placeholder=" ">
+                        <input class="profile-field__input" type="email" formControlName="email" placeholder=" ">
                         <span class="profile-field__placeholder">correo@ejemplo.com</span>
+                    </div>
+                    <div class="field-error" *ngIf="getFieldError('email')">
+                        {{ getFieldError('email') }}
                     </div>
                 </div>
 
@@ -91,19 +104,25 @@
                     <span class="reset-password-btn__fill"></span>
                     <span class="material-symbols-outlined reset-password-btn__text text-[1.1rem] leading-none"
                         translate="no">lock_reset</span>
-                    <span
-                        class="reset-password-btn__text font-manrope font-bold text-sm uppercase tracking-[0.12em]">Restablecer
-                        contraseña</span>
+                    <span class="reset-password-btn__text font-manrope font-bold text-sm uppercase tracking-[0.12em]">
+                        Restablecer contraseña
+                    </span>
                 </button>
             </div>
         </div>
 
         <div class="flex flex-col items-center gap-4 pb-4">
-            <button class="save-btn" type="button" (click)="saveChanges()">
+            <button class="save-btn" type="button" (click)="saveChanges()" [disabled]="isSaving">
                 <span class="save-btn__shimmer"></span>
                 <span class="save-btn__content">
-                    <span class="material-symbols-outlined text-[1.2rem]" translate="no">save</span>
-                    <span>Guardar Cambios</span>
+                    <ng-container *ngIf="!isSaving">
+                        <span class="material-symbols-outlined text-[1.2rem]" translate="no">save</span>
+                        <span>Guardar Cambios</span>
+                    </ng-container>
+                    <ng-container *ngIf="isSaving">
+                        <mat-spinner diameter="20" color="accent"></mat-spinner>
+                        <span>Guardando...</span>
+                    </ng-container>
                 </span>
             </button>
 
