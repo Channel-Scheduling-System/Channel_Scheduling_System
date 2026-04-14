@@ -1,137 +1,138 @@
-    @import '../../auth-module.scss';
+@use '../../auth-module.scss';
+$primary: #4a0010;
 
-    @keyframes barPulse {
+@keyframes barPulse {
 
-        0%,
-        100% {
-            width: 3rem;
-        }
-
-        50% {
-            width: 6rem;
-        }
+    0%,
+    100% {
+        width: 3rem;
     }
 
-    .admin-wrapper {
+    50% {
+        width: 6rem;
+    }
+}
+
+.admin-wrapper {
+    display: flex;
+    height: 100svh;
+    overflow: hidden;
+    width: 100%;
+}
+
+.admin-aside {
+    display: none;
+    flex: 1.4;
+    height: 100svh;
+    background: linear-gradient(135deg, #2c2c2c 0%, #4a0010 100%);
+    background-size: 300% 300%;
+    animation: smoothGradientFlow 8s ease-in-out infinite;
+    position: relative;
+    overflow: hidden;
+
+    @media (min-width: 1024px) {
         display: flex;
-        height: 100svh;
-        overflow: hidden;
-        width: 100%;
+        align-items: center;
     }
 
-    .admin-aside {
-        display: none;
-        flex: 1.4;
-        height: 100svh;
-        background: linear-gradient(135deg, #2c2c2c 0%, #4a0010 100%);
-        background-size: 300% 300%;
-        animation: smoothGradientFlow 8s ease-in-out infinite;
-        position: relative;
-        overflow: hidden;
-
-        @media (min-width: 1024px) {
-            display: flex;
-            align-items: center;
-        }
-
-        &__content {
-            padding: 3rem;
-            color: white;
-            max-width: 32rem;
-        }
-
-        &__brand {
-            margin-bottom: 2.5rem;
-        }
-
-        &__brand-label {
-            font-size: 0.75rem;
-            font-weight: 600;
-            letter-spacing: 0.3em;
-            text-transform: uppercase;
-            opacity: 0.8;
-        }
-
-        &__brand-bar {
-            width: 3rem;
-            height: 3px;
-            background-color: white;
-            margin-top: 0.5rem;
-            border-radius: 9999px;
-            animation: barPulse 2.5s ease-in-out infinite;
-        }
-
-        &__title {
-            font-size: 3.5rem;
-            font-weight: 900;
-            line-height: 1.15;
-            margin-bottom: 1.5rem;
-            letter-spacing: -0.02em;
-        }
-
-        &__subtitle {
-            font-size: 1.25rem;
-            font-weight: 300;
-            opacity: 0.8;
-            line-height: 1.7;
-            max-width: 26rem;
-        }
+    &__content {
+        padding: 3rem;
+        color: white;
+        max-width: 32rem;
     }
 
-    .admin-main {
-        width: 100%;
-        height: 100%;
-        background-color: #ffffff;
+    &__brand {
+        margin-bottom: 2.5rem;
+    }
+
+    &__brand-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        opacity: 0.8;
+    }
+
+    &__brand-bar {
+        width: 3rem;
+        height: 3px;
+        background-color: white;
+        margin-top: 0.5rem;
+        border-radius: 9999px;
+        animation: barPulse 2.5s ease-in-out infinite;
+    }
+
+    &__title {
+        font-size: 3.5rem;
+        font-weight: 900;
+        line-height: 1.15;
+        margin-bottom: 1.5rem;
+        letter-spacing: -0.02em;
+    }
+
+    &__subtitle {
+        font-size: 1.25rem;
+        font-weight: 300;
+        opacity: 0.8;
+        line-height: 1.7;
+        max-width: 26rem;
+    }
+}
+
+.admin-main {
+    width: 100%;
+    height: 100%;
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 2rem;
+    overflow-y: auto;
+
+    @media (min-width: 1024px) {
+        width: 40%;
+        padding: 3rem 4rem;
+    }
+}
+
+.admin-form-container {
+    width: 100%;
+    max-width: 28rem;
+    margin: auto;
+    animation: fadeInDown 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+    &__header {
         display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        padding: 2rem;
-        overflow-y: auto;
-
-        @media (min-width: 1024px) {
-            width: 40%;
-            padding: 3rem 4rem;
-        }
-    }
-
-    .admin-form-container {
-        width: 100%;
-        max-width: 28rem;
-        margin: auto;
-        animation: fadeInDown 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
-
-        &__header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        &__badge {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 3.5rem;
-            height: 3.5rem;
-            border-radius: 0.75rem;
-            background: linear-gradient(135deg, $primary 0%, #7a1030 100%);
-            color: white;
-            flex-shrink: 0;
-            box-shadow: 0 4px 15px rgba($primary, 0.35);
-
-            .material-symbols-outlined {
-                font-size: 1.6rem !important;
-                line-height: 1 !important;
-            }
-        }
-    }
-
-    .name-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
+        align-items: center;
         gap: 1rem;
+        margin-bottom: 2rem;
     }
 
-    .input-field--no-icon {
-        padding-left: 1rem;
+    &__badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 3.5rem;
+        height: 3.5rem;
+        border-radius: 0.75rem;
+        background: linear-gradient(135deg, $primary 0%, #7a1030 100%);
+        color: white;
+        flex-shrink: 0;
+        box-shadow: 0 4px 15px rgba($primary, 0.35);
+
+        .material-symbols-outlined {
+            font-size: 1.6rem !important;
+            line-height: 1 !important;
+        }
     }
+}
+
+.name-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.input-field--no-icon {
+    padding-left: 1rem;
+}
