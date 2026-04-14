@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const BaseSuccessResponseSchema = z.object({
   message: z.string()
     .min(1, 'El mensaje es requerido')
-    .max(300, 'El mensaje no puede exceder 300 caracteres')
+    .max(300, 'El mensaje no puede exceder 500 caracteres')
 });
 
 export type BaseSuccessResponse = z.infer<typeof BaseSuccessResponseSchema>;

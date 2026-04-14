@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { UserSchema } from '../../../../../shared/models/entities/user.schema';
+import { UserSchema } from '../../../../shared/models/entities/user.schema';
 
 const ClientRegistrationFields = UserSchema.omit({ id: true, role: true });
 export const RegisterRequestBaseSchema = ClientRegistrationFields.extend({

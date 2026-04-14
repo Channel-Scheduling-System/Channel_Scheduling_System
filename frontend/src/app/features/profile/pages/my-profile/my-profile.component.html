@@ -26,7 +26,7 @@
                             <label class="profile-field__label-text">Alias</label>
                         </div>
                         <div class="profile-field__input-wrap">
-                            <input class="profile-field__input" type="text" formControlName="alias" placeholder=" ">
+                            <input class="profile-field__input" type="text" formControlName="alias" name="alias" placeholder=" ">
                             <span class="profile-field__placeholder">Lucas_Sanchez84</span>
                         </div>
                         <div class="field-error" *ngIf="getFieldError('alias')">
@@ -41,7 +41,7 @@
                         <label class="profile-field__label-text">Nombres</label>
                     </div>
                     <div class="profile-field__input-wrap">
-                        <input class="profile-field__input" type="text" formControlName="firstName" placeholder=" ">
+                        <input class="profile-field__input" type="text" formControlName="firstName" name="firstName" placeholder=" ">
                         <span class="profile-field__placeholder">Ej. Lucas</span>
                     </div>
                     <div class="field-error" *ngIf="getFieldError('firstName')">
@@ -55,7 +55,7 @@
                         <label class="profile-field__label-text">Apellidos</label>
                     </div>
                     <div class="profile-field__input-wrap">
-                        <input class="profile-field__input" type="text" formControlName="lastName" placeholder=" ">
+                        <input class="profile-field__input" type="text" formControlName="lastName" name="lastName" placeholder=" ">
                         <span class="profile-field__placeholder">Ej. Sánchez</span>
                     </div>
                     <div class="field-error" *ngIf="getFieldError('lastName')">
@@ -69,7 +69,7 @@
                         <label class="profile-field__label-text">Teléfono</label>
                     </div>
                     <div class="profile-field__input-wrap">
-                        <input class="profile-field__input" type="tel" formControlName="phone" placeholder=" ">
+                        <input class="profile-field__input" type="tel" formControlName="phone" name="phone" placeholder=" ">
                         <span class="profile-field__placeholder">3001234567</span>
                     </div>
                     <div class="field-error" *ngIf="getFieldError('phone')">
@@ -83,7 +83,7 @@
                         <label class="profile-field__label-text">Correo electrónico</label>
                     </div>
                     <div class="profile-field__input-wrap">
-                        <input class="profile-field__input" type="email" formControlName="email" placeholder=" ">
+                        <input class="profile-field__input" type="email" formControlName="email" name="email" placeholder=" ">
                         <span class="profile-field__placeholder">correo@ejemplo.com</span>
                     </div>
                     <div class="field-error" *ngIf="getFieldError('email')">

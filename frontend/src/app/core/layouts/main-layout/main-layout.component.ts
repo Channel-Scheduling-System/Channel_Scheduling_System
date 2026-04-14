@@ -6,12 +6,13 @@ import { SessionService } from '../../services/session.service';
 import { MessageService } from '../../services/message.service';
 import { NavigationService } from '../../services/navigation.service';
 import { ScrollService } from '../../services/scroll.service';
-
+import { FabService } from '../../services/fab.services';
+import { PortalModule } from '@angular/cdk/portal';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [RouterModule, CommonModule],
+  imports: [RouterModule, CommonModule, PortalModule],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss'
 })
@@ -36,7 +37,8 @@ export class MainLayoutComponent implements OnInit {
     private messageService: MessageService,
     private navigationService: NavigationService,
     private router: Router,
-    private scrollService: ScrollService
+    private scrollService: ScrollService,
+    protected fabService: FabService
   ) { }
 
   ngOnInit(): void {

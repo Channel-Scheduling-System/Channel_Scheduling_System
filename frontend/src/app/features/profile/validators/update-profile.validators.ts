@@ -1,5 +1,5 @@
 import { ValidatorFn } from '@angular/forms';
-import { UpdateProfileRequestSchema } from '../models/requests/update-profile/update-profile-request.model';
+import { UpdateProfileRequestSchema } from '../models/requests/update-profile-request.model';
 import { createFieldValidator } from '../../../core/validators/field.validators';
 
 export type UpdateProfileFieldName =

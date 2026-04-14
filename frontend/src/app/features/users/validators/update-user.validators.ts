@@ -1,5 +1,5 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
-import { UpdateUserRequestSchema } from '../models/requests/update/update-request.model';
+import { UpdateUserRequestSchema } from '../models/requests/update-request.model';
 import { createFieldValidator } from '../../../core/validators/field.validators';
 
 export type UpdateUserFieldName =

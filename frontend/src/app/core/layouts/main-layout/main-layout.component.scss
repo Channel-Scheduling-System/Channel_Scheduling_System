@@ -24,13 +24,19 @@ $bottom-nav-height: 3.75rem;
 }
 
 .layout-wrapper {
+  --sidebar-w: 17rem;
   display: flex;
   height: 100svh;
   width: 100%;
   overflow: hidden;
+
+  &:has(.sidebar--collapsed) {
+    --sidebar-w: 4.5rem;
+  }
   
   @media (max-width: 1000px) and (pointer: coarse) {
     padding-bottom: $bottom-nav-height;
+    --sidebar-w: 0px;
   }
 }
 
@@ -440,6 +446,7 @@ $bottom-nav-height: 3.75rem;
   padding: 2rem 2.5rem;
   background-color: #fcf9f8;
   animation: fadeInLeft 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+  scrollbar-gutter: stable;
 
   @media (max-width: 1000px) and (pointer: coarse) {
     padding-bottom: calc(2rem + 3.75rem);
@@ -527,5 +534,18 @@ $bottom-nav-height: 3.75rem;
 
   @media (max-width: 1000px) and (pointer: coarse) {
     display: flex;
+  }
+}
+
+.global-fab-host {
+  position: fixed;
+  bottom: 1.5rem;
+  left: calc(var(--sidebar-w) + (100vw - var(--sidebar-w)) / 2);
+  transform: translateX(-50%);
+  z-index: 200;
+
+  @media (max-width: 1000px) and (pointer: coarse) {
+    bottom: 5rem;
+    left: calc(100vw / 2);
   }
 }

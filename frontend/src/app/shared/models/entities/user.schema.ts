@@ -27,7 +27,8 @@ export const UserSchema = z.object({
         .max(10, 'El teléfono no puede exceder los 10 dígitos'),
     role: z.enum(ROLES).refine(val => ROLES.includes(val), {
         message: `El rol debe ser uno de: ${ROLES.join(', ')}`
-        })
+        }),
+    isActive: z.boolean().optional().default(true)
 });
 
 export type UserData = z.infer<typeof UserSchema>;

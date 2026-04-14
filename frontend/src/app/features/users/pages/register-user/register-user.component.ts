@@ -7,7 +7,7 @@ import {
   FormControl,
   Validators,
 } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { UserService } from '../../services/user.service';
 import { MessageService } from '../../../../core/services/message.service';
@@ -19,7 +19,7 @@ import {
   registerUserFieldValidator,
   passwordMatchValidator,
 } from './../../validators/register-user.validators';
-import { RegisterUserRequestSchema } from '../../models/requests/register/register-request.model';
+import { RegisterUserRequestSchema } from '../../models/requests/register-request.model';
 
 @Component({
   selector: 'app-register-user',
@@ -35,29 +35,94 @@ import { RegisterUserRequestSchema } from '../../models/requests/register/regist
   styleUrl: './register-user.component.scss',
 })
 export class RegisterUserPageComponent implements OnInit {
-  form!: FormGroup;
-  isAdmin    = false;
-  isLoading  = false;
-
-  showPassword        = false;
-  showConfirmPassword = false;
-  showChecklist       = false;
-
   constructor(
-    private fb: FormBuilder,
-    private router: Router,
-    private userService: UserService,
-    private messageService: MessageService,
-    private sessionService: SessionService
+    private readonly fb: FormBuilder,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute,
+    private readonly userService: UserService,
+    private readonly messageService: MessageService,
+    private readonly sessionService: SessionService
   ) {}
 
-  ngOnInit(): void {
+  protected form!: FormGroup;
+  protected isAdmin = false;
+  protected isLoading = false;
+  protected showPassword = false;
+  protected showConfirmPassword = false;
+  protected showChecklist = false;
+
+  public ngOnInit(): void {
     window.scrollTo(0, 0);
     this.isAdmin = this.sessionService.getRole() === 'ADMIN';
     this.buildForm();
 
     this.form.get('password')!.valueChanges.subscribe((value: string) => {
       this.showChecklist = !!value;
+    });
+  }
+
+  protected get passwordControl(): FormControl {
+    return this.form.get('password') as FormControl;
+  }
+
+  protected get confirmPasswordControl(): FormControl {
+    return this.form.get('confirmPassword') as FormControl;
+  }
+
+  protected get pwdChecks() {
+    const v: string = this.form.get('password')?.value ?? '';
+    return {
+      minLength: v.length >= 8,
+      uppercase: /[A-Z]/.test(v),
+      lowercase: /[a-z]/.test(v),
+      number:    /[0-9]/.test(v),
+      special:   /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(v),
+    };
+  }
+
+  protected togglePassword(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  protected toggleConfirmPassword(): void {
+    this.showConfirmPassword = !this.showConfirmPassword;
+  }
+
+  protected getFieldError(fieldName: string): string {
+    if (
+      fieldName === 'confirmPassword' &&
+      this.form.errors?.['passwordsMismatch'] &&
+      this.form.get('confirmPassword')?.touched
+    ) {
+      return this.form.errors['passwordsMismatch'];
+    }
+    const control = this.form.get(fieldName);
+    if (!control?.touched || !control?.errors) return '';
+    if (control.errors['required'])  return 'Este campo es obligatorio';
+    if (control.errors[fieldName])   return control.errors[fieldName];
+    if (control.errors['email'])     return 'Ingresa un correo válido';
+    return '';
+  }
+
+  protected registerUser(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.messageService.showMessage('Porfavor completa todos los campos correctamente', AlertType.WARNING);     
+      return;
+    }
+    this.isLoading = true;
+    const { confirmPassword, ...rest } = this.form.value;
+    const payload: RegisterUserRequestSchema = rest;
+    this.userService.registerUser(payload).subscribe({
+      next:  (data)  => this.handleSuccess(data),
+      error: (error) => this.handleError(error),
+    });
+  }
+
+  protected goBack(): void {
+    this.router.navigate(['../'], { 
+      relativeTo: this.route,
+      queryParams: this.route.snapshot.queryParams
     });
   }
 
@@ -77,76 +142,13 @@ export class RegisterUserPageComponent implements OnInit {
     );
   }
 
-  get passwordControl(): FormControl {
-    return this.form.get('password') as FormControl;
-  }
-
-  get confirmPasswordControl(): FormControl {
-    return this.form.get('confirmPassword') as FormControl;
-  }
-
-  get pwdChecks() {
-    const v: string = this.form.get('password')?.value ?? '';
-    return {
-      minLength: v.length >= 8,
-      uppercase: /[A-Z]/.test(v),
-      lowercase: /[a-z]/.test(v),
-      number:    /[0-9]/.test(v),
-      special:   /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(v),
-    };
-  }
-
-  togglePassword(): void {
-    this.showPassword = !this.showPassword;
-  }
-
-  toggleConfirmPassword(): void {
-    this.showConfirmPassword = !this.showConfirmPassword;
-  }
-
-  getFieldError(fieldName: string): string {
-    if (
-      fieldName === 'confirmPassword' &&
-      this.form.errors?.['passwordsMismatch'] &&
-      this.form.get('confirmPassword')?.touched
-    ) {
-      return this.form.errors['passwordsMismatch'];
-    }
-    const control = this.form.get(fieldName);
-    if (!control?.touched || !control?.errors) return '';
-    if (control.errors['required'])  return 'Este campo es obligatorio';
-    if (control.errors[fieldName])   return control.errors[fieldName];
-    if (control.errors['email'])     return 'Ingresa un correo válido';
-    return '';
-  }
-
-  registerUser(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      this.messageService.showMessage('Porfavor completa todos los campos correctamente', AlertType.WARNING);     
-      return;
-    }
-    this.isLoading = true;
-    const { confirmPassword, ...rest } = this.form.value;
-    const payload: RegisterUserRequestSchema = rest;
-    this.userService.registerUser(payload).subscribe({
-      next:  (data)  => this.handleSuccess(data),
-      error: (error) => this.handleError(error),
-    });
-  }
-
   private handleSuccess(data: any): void {
     this.isLoading = false;
     this.messageService.showMessage(data.message, AlertType.SUCCESS);
-    this.router.navigate(['/users']);
   }
 
   private handleError(error: any): void {
     this.isLoading = false;
     this.messageService.showMessage(error.message, AlertType.ERROR);
-  }
-
-  goBack(): void {
-    this.router.navigate(['/users']);
   }
 }

@@ -17,7 +17,9 @@ export const ServiceSchema = z.object({
       'La descripción contiene caracteres no permitidos'
     )
     .min(10, 'La descripción debe tener al menos 10 caracteres')
-    .max(500, 'La descripción no puede exceder 500 caracteres'),
+    .max(500, 'La descripción no puede exceder 500 caracteres')
+    .or(z.literal(''))
+    .optional(),
   color: z.string()
     .regex(
       /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/,

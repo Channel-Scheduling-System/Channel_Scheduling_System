@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../../users/services/user.service';
-import { AdminRegisterRequest, AdminRegisterRequestSchema } from '../../../users/models/requests/register/register-request.model';
+import { AdminRegisterRequest, AdminRegisterRequestSchema } from '../../../users/models/requests/register-request.model';
 import { AdminRegisterResponse } from '../../../../shared/models/admin/admin-register-response.model';
 import { MessageService } from '../../../../core/services/message.service';
 import { AlertType } from '../../../../core/utils/enums/AlertType';

@@ -31,7 +31,7 @@
               translate="no">content_cut</span>
             <input
               class="svc-field__input flex-1 min-w-0 bg-transparent border-none outline-none text-base font-medium text-[#1c1b1b] py-4 px-0 font-[inherit] transition-colors"
-              type="text" placeholder="Ej. Corte Editorial" formControlName="name">
+              type="text" placeholder="Ej. Corte Editorial" formControlName="name" name="serviceName">
           </div>
           <div *ngIf="getFieldError('name')"
             class="svc-field__error flex items-center gap-[0.3rem] text-[0.85rem] font-semibold text-[#ba1a1a] pl-1 break-words whitespace-normal max-w-full">
@@ -71,7 +71,7 @@
                 translate="no">payments</span>
               <input
                 class="svc-field__input flex-1 min-w-0 bg-transparent border-none outline-none text-base font-medium text-[#1c1b1b] py-4 px-0 font-[inherit] transition-colors"
-                type="number" placeholder="0" min="0" formControlName="price">
+                type="number" placeholder="0" min="0" formControlName="price" name="price">
             </div>
             <div *ngIf="getFieldError('price')"
               class="svc-field__error flex items-center gap-[0.3rem] text-[0.85rem] font-semibold text-[#ba1a1a] pl-1 break-words whitespace-normal max-w-full">
@@ -91,7 +91,7 @@
                 translate="no">schedule</span>
               <input
                 class="svc-field__input flex-1 min-w-0 bg-transparent border-none outline-none text-base font-medium text-[#1c1b1b] py-4 px-0 font-[inherit] transition-colors"
-                type="number" placeholder="45" min="1" formControlName="duration">
+                type="number" placeholder="45" min="1" formControlName="duration" name="duration">
             </div>
             <div *ngIf="getFieldError('duration')"
               class="svc-field__error flex items-center gap-[0.3rem] text-[0.875rem] text-[#ba1a1a] pl-1 break-words whitespace-normal max-w-full">
@@ -144,7 +144,7 @@
                 </label>
                 <input type="color"
                   class="svc-color-native-input w-9 h-9 rounded-full border-[1.5px] border-[#e5e2e1] cursor-pointer p-[0.1rem] overflow-hidden"
-                  [value]="selectedColor" (input)="onColorInputChange($event)">
+                  [value]="selectedColor" (input)="onColorInputChange($event)" name="colorSelector">
               </div>
             </div>
           </div>

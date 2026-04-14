@@ -1,4 +1,4 @@
-import { LoginRequestSchema } from '../models/requests/login/login-request.model';
+import { LoginRequestSchema } from '../models/requests/login-request.model';
 import { createFieldValidator } from '../../../core/validators/field.validators';
 
 export type LoginFieldName = 'identifier' | 'password';
