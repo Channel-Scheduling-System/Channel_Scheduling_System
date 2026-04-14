@@ -10,12 +10,12 @@ import { AlertType } from '../../../../core/utils/enums/AlertType';
 import { UserFormFieldsComponent } from '../../components/user-form-fields/user-form-fields.component';
 import { UserFormHeaderComponent } from '../../components/user-form-header/user-form-header.component';
 import { updateUserFieldValidator } from '../../validators/update-user.validators';
-import { UpdateUserRequest } from '../../models/requests/update/update-request.model';
-import { GetUserResponse } from '../../models/responses/get-user/get-user-response.model';
+import { UpdateUserRequest } from '../../models/requests/update-request.model';
+import { GetUserResponse } from '../../models/responses/get-user-response.model';
 import { ConfirmUserStateModalComponent } from '../../components/confirm-user-state-modal/confirm-user-state-modal.component';
-import { SetStateUserResponse } from '../../models/responses/set-state-user/set-state-user-response.model';
-import { SetStateUserRequest } from '../../models/requests/set-state-user/set-state-user-request.model';
-import { UpdateUserResponse } from '../../models/responses/update-user/update-response.model';
+import { SetStateUserResponse } from '../../models/responses/set-state-user-response.model';
+import { SetStateUserRequest } from '../../models/requests/set-state-user-request.model';
+import { UpdateUserResponse } from '../../models/responses/update-response.model';
 
 @Component({
   selector: 'app-update-user',
@@ -31,28 +31,28 @@ import { UpdateUserResponse } from '../../models/responses/update-user/update-re
   styleUrl: './update-user.component.scss',
 })
 export class UpdateUserPageComponent implements OnInit {
-  form!: FormGroup;
-  isLoading      = false;
-  isSaving       = false;
-  userIsActive   = true;
-  stateDropdownOpen = false;
-  private userId!: number;
+  constructor(
+    private readonly fb: FormBuilder,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly userService: UserService,
+    private readonly messageService: MessageService,
+    private readonly dialog: MatDialog
+  ) {}
 
-  readonly stateOptions = [
+  protected form!: FormGroup;
+  protected isLoading = false;
+  protected isSaving = false;
+  protected userIsActive = true;
+  protected stateDropdownOpen = false;
+  protected readonly stateOptions = [
     { value: true,  label: 'Activo',   icon: 'check_circle'  },
     { value: false, label: 'Inactivo', icon: 'cancel'        },
   ];
 
-  constructor(
-    private fb: FormBuilder,
-    private route: ActivatedRoute,
-    private router: Router,
-    private userService: UserService,
-    private messageService: MessageService,
-    private dialog: MatDialog
-  ) {}
+  private userId!: number;
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     window.scrollTo(0, 0);
     this.userId = +this.route.snapshot.paramMap.get('id')!;
     this.buildForm();
@@ -71,7 +71,7 @@ export class UpdateUserPageComponent implements OnInit {
 
   private loadUser(): void {
     this.isLoading = true;
-    this.userService.getUserById(this.userId).subscribe({
+    this.userService.getUser(this.userId).subscribe({
       next:  (response) => this.handleLoadSuccess(response),
       error: (error)    => this.handleLoadError(error),
     });
@@ -95,25 +95,16 @@ export class UpdateUserPageComponent implements OnInit {
     this.messageService.showMessage(error.message, AlertType.ERROR);
   }
 
-  getFieldError(fieldName: string): string {
-    const control = this.form.get(fieldName);
-    if (!control?.touched || !control?.errors) return '';
-    if (control.errors['required'])  return 'Este campo es obligatorio';
-    if (control.errors[fieldName])   return control.errors[fieldName];
-    if (control.errors['email'])     return 'Ingresa un correo válido';
-    return '';
-  }
-
-  get currentStateOption() {
+  protected get currentStateOption() {
     return this.stateOptions.find(o => o.value === this.userIsActive)!;
   }
 
-  toggleStateDropdown(event: MouseEvent): void {
+  protected toggleStateDropdown(event: MouseEvent): void {
     event.stopPropagation();
     this.stateDropdownOpen = !this.stateDropdownOpen;
   }
 
-  requestStateChange(newState: boolean, event: MouseEvent): void {
+  protected requestStateChange(newState: boolean, event: MouseEvent): void {
     event.stopPropagation();
     this.stateDropdownOpen = false;
     if (newState === this.userIsActive) return;
@@ -148,7 +139,7 @@ export class UpdateUserPageComponent implements OnInit {
     this.messageService.showMessage(error.message, AlertType.ERROR);
   }
 
-  saveChanges(): void {
+  protected saveChanges(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.messageService.showMessage('Por favor completa todos los campos correctamente', AlertType.WARNING);
@@ -165,7 +156,6 @@ export class UpdateUserPageComponent implements OnInit {
   private handleSaveSuccess(data: UpdateUserResponse): void {
     this.isSaving = false;
     this.messageService.showMessage(data.message, AlertType.SUCCESS);
-    this.router.navigate(['/users']);
   }
 
   private handleSaveError(error: any): void {
@@ -173,12 +163,15 @@ export class UpdateUserPageComponent implements OnInit {
     this.messageService.showMessage(error.message, AlertType.ERROR);
   }
 
-  goBack(): void {
-    this.router.navigate(['/users']);
+  protected goBack(): void {
+    this.router.navigate(['../../'], { 
+      relativeTo: this.route,
+      queryParams: this.route.snapshot.queryParams
+    });
   }
 
   @HostListener('document:click')
-  onDocumentClick(): void {
+  public onDocumentClick(): void {
     this.stateDropdownOpen = false;
   }
 }
