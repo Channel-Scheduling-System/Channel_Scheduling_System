@@ -67,4 +67,5 @@ export interface ServiceResponse {
 
 export interface ServiceFilters {
     workerId?: number;
+    isActive?: boolean;
 }

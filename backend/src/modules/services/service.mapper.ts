@@ -7,6 +7,7 @@ import {
     UpdateServiceData,
 } from './service.types.js';
 import type { Service } from '@prisma/client.js';
+import { ServiceFiltersSchema } from './service.validator.js';
 
 /**
  * Maps a service input to an Service entity for database
@@ -78,12 +79,5 @@ export function mapToServiceFilters(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     filters: Record<string, any>,
 ): ServiceFilters {
-    return {
-        ...(filters.workerId && {
-            workerId:
-                typeof filters.workerId === 'string'
-                    ? parseInt(filters.workerId, 10)
-                    : filters.workerId,
-        }),
-    };
+    return ServiceFiltersSchema.parse(filters);
 }

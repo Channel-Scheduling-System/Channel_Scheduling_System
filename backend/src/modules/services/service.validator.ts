@@ -62,9 +62,12 @@ export const UpdateServiceDTO = ServiceSchema.partial()
     .strict();
 
 // FILTERS
-export const ServiceFiltersSchema = z.object({
-    workerId: z.coerce.number().int().positive().optional(),
-});
+export const ServiceFiltersSchema = z
+    .object({
+        workerId: z.coerce.number().int().positive().optional(),
+        isActive: z.union([z.boolean(), z.stringbool()]).optional(),
+    })
+    .strict();
 
 // Export centralizado
 //* -----------------------------

@@ -4,7 +4,6 @@ import { env } from '../../config/env.js';
 import {
     ConflictError,
     NotFoundError,
-    ForbiddenError,
 } from '../../shared/errors/domain.error.js';
 import { InvalidCredentialsError } from '../../shared/errors/validation.error.js';
 
@@ -16,12 +15,22 @@ import {
     UniqueFields,
     CreateUserInput,
     UserFilters,
+    UserPagination,
     UserResponse,
     CreateFirstAdminInput,
+    PaginatedUserResponse,
     AuthUserInput as AuthInput,
 } from './user.types.js';
 import { mapToUserResponse, mapToUsersResponse } from './user.mapper.js';
-import { canCreateRole, canViewRole } from './user-role.validator.js';
+import {
+    canCreate,
+    canView,
+    getViewableRoles,
+    validateRolePermission,
+    type AuthContext,
+    type TargetUser,
+} from './user-role.validator.js';
+import { USER_ERRORS } from '../../shared/constants/messages.js';
 
 export interface IUserService {
     add(input: CreateUserInput, authRole?: SystemRole): Promise<UserResponse>;
@@ -29,24 +38,15 @@ export interface IUserService {
     existsByIdAndRole(id: number, role: SystemRole): Promise<boolean>;
     getById(id: number, auth?: AuthInput): Promise<UserResponse>;
     getByIdentifier(identifier: string): Promise<User | null>;
-    getAll(filters: UserFilters, auth?: AuthInput): Promise<UserResponse[]>;
+    getAll(
+        pagination: UserPagination,
+        filters: UserFilters,
+        authRole?: SystemRole,
+    ): Promise<PaginatedUserResponse>;
     countAdmins(): Promise<number>;
 }
 
 const SALT_ROUNDS = 10;
-
-const USER_ERRORS = {
-    ROLE_CANNOT_CREATE: 'No tienes permisos para crear este tipo de usuario',
-    ROLE_CANNOT_VIEW: 'No tienes permisos para ver este tipo de usuario',
-    FIRST_ADMIN_CODE_INVALID: 'Código secreto para primer admin inválido',
-    ADMIN_EXISTS: 'Ya existe un administrador en el sistema',
-    EMAIL_REGISTERED: 'El email ya está registrado',
-    ALIAS_REGISTERED: 'El alias ya está registrado',
-    PHONE_REGISTERED: 'El teléfono ya está registrado',
-    ID_NOTFOUND: 'El usuario con el id solicitado no existe',
-    IDENTIFIER_NOTFOUND:
-        'No se encontró un usuario con el identificador proporcionado',
-} as const;
 
 export class UserService implements IUserService {
     constructor(private readonly userRepo: IUserRepository) {}
@@ -89,7 +89,7 @@ export class UserService implements IUserService {
 
     async getById(id: number, auth?: AuthInput): Promise<UserResponse> {
         const user = await this.getUserOrFail(id);
-        if (auth?.role) this.validateCanView(auth.role, user.role, auth.id, id);
+        if (auth) this.validateCanView(auth, { id: user.id, role: user.role });
         return mapToUserResponse(user);
     }
 
@@ -98,23 +98,58 @@ export class UserService implements IUserService {
     }
 
     async getAll(
+        pagination: UserPagination,
         filters: UserFilters,
-        auth?: AuthInput,
-    ): Promise<UserResponse[]> {
-        const allUsers = await this.userRepo.findAll(filters);
-
-        if (!auth?.role) return mapToUsersResponse(allUsers);
-
-        const visibleUsers = allUsers.filter((user) =>
-            canViewRole(auth.role, user.role, auth.id, user.id),
+        authRole?: SystemRole,
+    ): Promise<PaginatedUserResponse> {
+        const filtersByRole = this.buildFiltersByRole(filters, authRole);
+        const { data, total } = await this.userRepo.findAll(
+            pagination,
+            filtersByRole,
         );
 
-        return mapToUsersResponse(visibleUsers);
+        const limit = pagination.limit || 10;
+        const page = Math.max(1, pagination.page || 1);
+        const totalPages = Math.ceil(total / limit);
+
+        return {
+            data: mapToUsersResponse(data),
+            meta: { total, page, limit, totalPages },
+        };
+    }
+
+    private buildFiltersByRole(
+        filters: UserFilters,
+        authRole?: SystemRole,
+    ): UserFilters {
+        if (!authRole) return filters;
+        const viewableRoles = getViewableRoles(authRole);
+        // Si no se especifican roles, limitar a los roles permitidos
+        if (!filters.role || filters.role.length === 0) {
+            return { ...filters, role: viewableRoles };
+        }
+        // Si se especifican roles, los intersecta con los roles permitidos
+        const allowedRoles = filters.role.filter((role) =>
+            viewableRoles.includes(role),
+        );
+        return {
+            ...filters,
+            role: allowedRoles.length > 0 ? allowedRoles : viewableRoles,
+        };
     }
 
     async countAdmins(): Promise<number> {
         return this.userRepo.countAdmins();
     }
+
+    private async getUserOrFail(id: number): Promise<User> {
+        const user = await this.userRepo.findById(id);
+        if (!user) throw new NotFoundError(USER_ERRORS.ID_NOTFOUND);
+        return user;
+    }
+
+    // VALIDACIONES DE NEGOCIO Y PERMISOS
+    //* -----------------------------
 
     private async validateUniqueFields(
         input: UniqueFields,
@@ -137,26 +172,20 @@ export class UserService implements IUserService {
         if (phoneExists) throw new ConflictError(USER_ERRORS.PHONE_REGISTERED);
     }
 
-    private async getUserOrFail(id: number): Promise<User> {
-        const user = await this.userRepo.findById(id);
-        if (!user) throw new NotFoundError(USER_ERRORS.ID_NOTFOUND);
-        return user;
-    }
-
-    private validateCanCreate(authRole: SystemRole, roleToCreate: SystemRole) {
-        if (!canCreateRole(authRole, roleToCreate))
-            throw new ForbiddenError(USER_ERRORS.ROLE_CANNOT_CREATE);
-    }
-
-    private validateCanView(
+    private validateCanCreate(
         authRole: SystemRole,
-        roleToView: SystemRole,
-        authUserId?: number,
-        userIdToView?: number,
-    ) {
-        if (!canViewRole(authRole, roleToView, authUserId, userIdToView))
-            throw new ForbiddenError(USER_ERRORS.ROLE_CANNOT_VIEW);
+        targetRole: SystemRole,
+    ): void {
+        validateRolePermission(
+            canCreate(authRole, targetRole),
+            USER_ERRORS.ROLE_CANNOT_CREATE,
+        );
     }
 
-    // TODO: Faltan restricciones de role para update y delete
+    private validateCanView(auth: AuthContext, target: TargetUser): void {
+        validateRolePermission(
+            canView(auth, target),
+            USER_ERRORS.ROLE_CANNOT_VIEW,
+        );
+    }
 }

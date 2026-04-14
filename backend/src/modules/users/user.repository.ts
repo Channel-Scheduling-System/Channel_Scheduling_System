@@ -1,6 +1,6 @@
 import prisma from '../../config/prisma.js';
-import { SystemRole, User } from '@prisma/client.js';
-import { CreateUserData, UserFilters } from './user.types.js';
+import { Prisma, SystemRole, User } from '@prisma/client.js';
+import { CreateUserData, UserFilters, UserPagination } from './user.types.js';
 
 export interface IUserRepository {
     create(data: CreateUserData): Promise<User>;
@@ -11,7 +11,10 @@ export interface IUserRepository {
     existsByIdAndRole(id: number, role: SystemRole): Promise<boolean>;
     findById(id: number): Promise<User | null>;
     findByIdentifier(identifier: string): Promise<User | null>;
-    findAll(filters: UserFilters): Promise<User[]>;
+    findAll(
+        pagination: UserPagination,
+        filters: UserFilters,
+    ): Promise<{ data: User[]; total: number }>;
     countAdmins(): Promise<number>;
 }
 
@@ -82,11 +85,42 @@ export class UserRepository implements IUserRepository {
         });
     }
 
-    async findAll(filters: UserFilters): Promise<User[]> {
-        return await prisma.user.findMany({
-            where: { ...filters },
-            orderBy: { createdAt: 'desc' },
-        });
+    async findAll(
+        pagination: UserPagination,
+        filters: UserFilters,
+    ): Promise<{ data: User[]; total: number }> {
+        const limit = pagination.limit || 10;
+        const page = Math.max(1, pagination.page || 1);
+        const skip = (page - 1) * limit;
+
+        const where = this.buildWhere(filters);
+        const [data, total] = await Promise.all([
+            prisma.user.findMany({
+                skip,
+                take: limit,
+                where,
+                orderBy: { createdAt: 'desc' },
+            }),
+            prisma.user.count({ where }),
+        ]);
+
+        return { data, total };
+    }
+
+    private buildWhere(filters: UserFilters): Prisma.UserWhereInput {
+        const where: Prisma.UserWhereInput = {};
+
+        if (filters.role) where.role = { in: filters.role };
+        if (filters.isActive !== undefined) where.isActive = filters.isActive;
+        if (filters.identifier) {
+            where.OR = [
+                { email: { contains: filters.identifier } },
+                { alias: { contains: filters.identifier } },
+                { phone: { contains: filters.identifier } },
+            ];
+        }
+
+        return where;
     }
 
     async countAdmins(): Promise<number> {

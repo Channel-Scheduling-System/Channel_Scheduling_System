@@ -1,5 +1,13 @@
 import { User } from '@prisma/client.js';
-import { SystemRole, UserFilters, UserResponse } from './user.types.js';
+import {
+    UserFilters,
+    UserPagination,
+    UserResponse,
+} from './user.types.js';
+import {
+    UserFiltersSchema,
+    UserPaginationSchema,
+} from './user.validator.js';
 
 /**
  * Maps a User entity to an UserResponse object
@@ -15,6 +23,7 @@ export function mapToUserResponse(user: User): UserResponse {
         phone: user.phone,
         email: user.email,
         role: user.role,
+        isActive: user.isActive,
     };
 }
 
@@ -36,7 +45,17 @@ export function mapToUserFilters(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     filters: Record<string, any>,
 ): UserFilters {
-    return {
-        role: filters.role as SystemRole | undefined,
-    };
+    return UserFiltersSchema.parse(filters);
+}
+
+/**
+ * Maps and normalizes pagination query params for user queries
+ * @param pagination - Query params that may contain string values
+ * @returns Normalized UserPagination object with correct types
+ */
+export function mapToUserPagination(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    pagination: Record<string, any>,
+): UserPagination {
+    return UserPaginationSchema.parse(pagination);
 }
