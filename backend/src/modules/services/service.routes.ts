@@ -32,6 +32,7 @@ serviceRouter.put(
     '/',
     authMiddleware,
     requireRole('WORKER'),
+    serviceValidator.id,
     serviceValidator.update,
     serviceController.update,
 );

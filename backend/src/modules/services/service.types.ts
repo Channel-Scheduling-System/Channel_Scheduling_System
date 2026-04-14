@@ -62,6 +62,7 @@ export interface ServiceResponse {
     color: string;
     price: number;
     duration: number;
+    isActive: boolean;
 }
 
 export interface ServiceFilters {

@@ -7,10 +7,9 @@ export class ServiceController {
 
     add = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const data = await this.serviceService.add(req.body);
+            await this.serviceService.add(req.body);
             return res.status(201).json({
                 message: 'Servicio creado exitosamente',
-                data,
             });
         } catch (error) {
             next(error);
@@ -45,10 +44,10 @@ export class ServiceController {
 
     update = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const data = await this.serviceService.update(req.body);
+            const id = req.params.id as unknown as number;
+            await this.serviceService.update({ id, ...req.body });
             return res.status(200).json({
                 message: 'Servicio actualizado exitosamente',
-                data,
             });
         } catch (error) {
             next(error);

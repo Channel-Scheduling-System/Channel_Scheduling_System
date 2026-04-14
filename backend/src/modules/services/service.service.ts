@@ -14,8 +14,13 @@ import {
     mapToUpdateServiceData,
 } from './service.mapper.js';
 
-import { ConflictError, NotFoundError } from '../../shared/errors/domain.error.js';
+import {
+    ConflictError,
+    NotFoundError,
+} from '../../shared/errors/domain.error.js';
 import { IUserService } from '../users/user.service.js';
+
+import { SERVICE_ERRORS } from '../../shared/constants/messages.js';
 
 export interface IServiceService {
     add(input: CreateServiceInput): Promise<ServiceResponse>;
@@ -26,12 +31,6 @@ export interface IServiceService {
     delete(id: number): Promise<void>;
 }
 
-const SERVICE_ERRORS = {
-    WORKER_NOT_FOUND: 'El trabajador asociado al servicio no existe',
-    NAME_CONFLICT: 'El usuario ya tiene un servicio con ese nombre',
-    ID_NOTFOUND: 'El servicio con el id solicitado no existe',
-};
-
 export class ServiceService implements IServiceService {
     constructor(
         private readonly serviceRepo: IServiceRepository,
@@ -41,10 +40,10 @@ export class ServiceService implements IServiceService {
     async add(input: CreateServiceInput): Promise<ServiceResponse> {
         await this.ensureWorkerExists(input.workerId);
         await this.ensureNameIsUnique(input.workerId, input.name);
-        const newService = await this.serviceRepo.create(
+        const service = await this.serviceRepo.create(
             mapToCreateServiceData(input),
         );
-        return mapToServiceResponse(newService);
+        return mapToServiceResponse(service);
     }
 
     async existsById(id: number): Promise<boolean> {
@@ -65,11 +64,9 @@ export class ServiceService implements IServiceService {
         if (input.name && input.name !== existing.name) {
             await this.ensureNameIsUnique(existing.workerId, input.name);
         }
-        const updated = await this.serviceRepo.update(
-            input.id,
-            mapToUpdateServiceData(input),
-        );
-        return mapToServiceResponse(updated);
+        await this.serviceRepo.update(input.id, mapToUpdateServiceData(input));
+        const updatedService = await this.getServiceOrFail(input.id);
+        return mapToServiceResponse(updatedService);
     }
 
     async delete(id: number): Promise<void> {
@@ -78,11 +75,17 @@ export class ServiceService implements IServiceService {
         await this.serviceRepo.delete(id);
     }
 
+    // TODO: Add changeStatus (activate/deactivate)
+    // - Solo el worker asignado pueden modificar el servicio
+
     private async getServiceOrFail(id: number): Promise<Service> {
         const service = await this.serviceRepo.findById(id);
         if (!service) throw new NotFoundError(SERVICE_ERRORS.ID_NOTFOUND);
         return service;
     }
+
+    // VALIDACIONES DE NEGOCIO Y PERMISOS
+    //* -----------------------------
 
     private async ensureWorkerExists(workerId: number): Promise<void> {
         if (!(await this.userService.existsByIdAndRole(workerId, 'WORKER'))) {
