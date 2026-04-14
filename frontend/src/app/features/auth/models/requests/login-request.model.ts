@@ -13,7 +13,7 @@ export const LoginRequestSchema = z.object({
       /^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+$/,
       'La contraseña contiene caracteres no permitidos'
     )
-    .min(6, 'La contraseña debe tener al menos 6 caracteres')
+    .min(8, 'La contraseña debe tener al menos 8 caracteres')
     .max(50, 'La contraseña no puede exceder 50 caracteres')
 });
 

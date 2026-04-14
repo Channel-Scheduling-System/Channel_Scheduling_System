@@ -12,7 +12,7 @@ export interface IServicesService {
 
   createService(request: CreateServiceRequest): Observable<CreateServiceResponse>;
 
-  updateService(request: UpdateServiceRequest): Observable<UpdateServiceResponse>
+  updateService(request: UpdateServiceRequest, id: number): Observable<UpdateServiceResponse>;
 
   deleteService(id: number): Observable<DeleteServiceResponse>;
 

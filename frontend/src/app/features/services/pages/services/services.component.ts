@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, TemplateRef, ViewChild, ViewContainerRef } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ServicesService } from '../../services/services.service';
@@ -9,7 +9,7 @@ import { Service } from '../../../../shared/models/entities/service.schema';
 import { ServicesListResponse } from '../../models/responses/services-list-response.model';
 import { CreateServiceRequest } from '../../models/requests/create-service-request.model';
 import { ServiceFormModalComponent } from '../../components/modal/service-form-modal.component';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Overlay } from '@angular/cdk/overlay';
 import { ServiceFormModalData } from '../../../auth/interfaces/modal-data.interface';
 import { UpdateServiceRequest } from '../../models/requests/update-service-request.model';
@@ -17,6 +17,9 @@ import { UpdateServiceResponse } from '../../models/responses/update-service-res
 import { CreateServiceResponse } from '../../models/responses/create-service-response.model';
 import { DeleteServiceResponse } from '../../models/responses/delete-service-response.model';
 import { ScrollService } from '../../../../core/services/scroll.service';
+import { FabService } from '../../../../core/services/fab.services';
+import { TemplatePortal } from '@angular/cdk/portal';
+import { ErrorResponse } from '../../../../shared/models/api/error-response.schema';
 
 @Component({
   selector: 'app-services',
@@ -25,7 +28,8 @@ import { ScrollService } from '../../../../core/services/scroll.service';
   templateUrl: './services.component.html',
   styleUrl: './services.component.scss',
 })
-export class ServicesPageComponent implements OnInit {
+export class ServicesPageComponent implements OnInit, OnDestroy {
+  @ViewChild('fabTemplate') fabTemplate!: TemplateRef<any>;
   services: Service[] = [];
   filteredServices: Service[] = [];
   isLoading = false;
@@ -36,14 +40,23 @@ export class ServicesPageComponent implements OnInit {
   currentPage = 1;
 
   constructor(
+    private fabService: FabService,
+    private viewContainerRef: ViewContainerRef,
     private dialog: MatDialog,
     private servicesService: ServicesService,
     private sessionService: SessionService,
     private messageService: MessageService,
     private overlay: Overlay,
     private scrollService: ScrollService
-
+    
   ) {}
+  ngOnDestroy(): void {
+    this.fabService.clear();
+  }
+
+  ngAfterViewInit(): void {
+    this.fabService.set(new TemplatePortal(this.fabTemplate, this.viewContainerRef));
+  }
 
   ngOnInit(): void {
     this.loadServices();
@@ -80,15 +93,14 @@ export class ServicesPageComponent implements OnInit {
     this.searchTerm = input.value.toLowerCase();
     this.filteredServices = this.services.filter(
       (s) => s.name.toLowerCase().includes(this.searchTerm) ||
-             s.description.toLowerCase().includes(this.searchTerm)
+             s.description?.toLowerCase().includes(this.searchTerm)
     );
     this.currentPage = 1;
   }
 
   createService(): void {
-    const dialogData: ServiceFormModalData = {
-      isEdit: false
-    };
+    const dialogData: ServiceFormModalData = { isEdit: false };
+    
     const dialogRef = this.dialog.open(ServiceFormModalComponent, {
       width: 'auto',
       maxWidth: '90vw',
@@ -100,19 +112,11 @@ export class ServicesPageComponent implements OnInit {
       data: dialogData
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      document.body.classList.remove('modal-open');
-      if (result) {
-        this.onModalSave(result);
-      }
-    });
+    dialogData.onSubmit = (result: CreateServiceRequest) => this.onModalSave(result, dialogRef);
   }
 
   updateService(service: Service): void {
-    const dialogData: ServiceFormModalData = {
-      service: service,
-      isEdit: true
-    };
+    const dialogData: ServiceFormModalData = { isEdit: true, service };
 
     const dialogRef = this.dialog.open(ServiceFormModalComponent, {
       width: 'auto',
@@ -125,31 +129,27 @@ export class ServicesPageComponent implements OnInit {
       data: dialogData
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      document.body.classList.remove('modal-open');
-      if (result) {
-        this.onModalUpdate(result);
-      }
-    });
-
+    dialogData.onSubmit = (result: UpdateServiceRequest) => this.onModalUpdate(result, service.id, dialogRef);
   }
 
-  onModalSave(data: CreateServiceRequest): void {
+  onModalSave(data: CreateServiceRequest, dialogRef: MatDialogRef<ServiceFormModalComponent>): void {
     const workerId = this.sessionService.getSession()?.id;
     if (!workerId) return;
 
     const request: CreateServiceRequest = { ...data, workerId };
 
+    console.log(request);
     this.servicesService.createService(request).subscribe({
       next: (response) => this.handleActionServiceSuccess(response),
-      error: (error) => this.handleActionServiceError(error)
+      error: (error) => this.handleActionServiceError(error, dialogRef)
     });
   }
 
-  onModalUpdate(data: UpdateServiceRequest): void {
-    this.servicesService.updateService(data).subscribe({
+  onModalUpdate(data: UpdateServiceRequest, id: number, dialogRef: MatDialogRef<ServiceFormModalComponent>): void {
+    console.log(data);
+    this.servicesService.updateService(data, id).subscribe({
       next: (response) => this.handleActionServiceSuccess(response),
-      error: (error) => this.handleActionServiceError(error)
+      error: (error) => this.handleActionServiceError(error, dialogRef)
     });
   }
 
@@ -163,11 +163,13 @@ export class ServicesPageComponent implements OnInit {
   private handleActionServiceSuccess(
     response: CreateServiceResponse | UpdateServiceResponse | DeleteServiceResponse
   ): void {
+    this.dialog.closeAll();
     this.messageService.showMessage(response.message, AlertType.SUCCESS);
     this.loadServices();
   }
 
-  private handleActionServiceError(error: any): void {
+  private handleActionServiceError(error: ErrorResponse, dialog?: MatDialogRef<ServiceFormModalComponent>): void {
+    if (dialog) dialog.componentInstance.isSubmitting = false;
     this.messageService.showMessage(error.message, AlertType.ERROR);
   }
 

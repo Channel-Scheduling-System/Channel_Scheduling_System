@@ -54,7 +54,7 @@ export class ServiceFormModalComponent implements OnInit {
   private buildForm(): void {
     this.serviceForm = this.fb.group({
       name:        ['', [Validators.required, serviceFieldValidator('name')]],
-      description: ['', [Validators.required, serviceFieldValidator('description')]],
+      description: ['', [serviceFieldValidator('description')]],
       price:       [null, [Validators.required, serviceFieldValidator('price')]],
       duration:    [null, [Validators.required, serviceFieldValidator('duration')]],
     });
@@ -77,14 +77,17 @@ export class ServiceFormModalComponent implements OnInit {
     const formValue = this.serviceForm.value;
 
     const request = {
-      ...(this.isEditMode && { id: this.serviceId }),
       name: formValue.name?.trim(),
       description: formValue.description?.trim(),
       price: formValue.price,
       duration: formValue.duration,
       color: this.selectedColor,
     };
-    this.dialogRef.close(request);
+    this.data.onSubmit?.(request);
+  }
+
+  setSubmitting(isSubmitting: boolean): void {
+    this.isSubmitting = isSubmitting;
   }
 
   onCancel(): void {

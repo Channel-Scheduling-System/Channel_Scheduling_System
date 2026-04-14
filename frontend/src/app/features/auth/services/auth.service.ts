@@ -3,8 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../../../shared/constants/api-endpoints.constants';
-import { LoginRequest, LoginRequestSchema } from '../models/requests/login/login-request.model';
-import { LoginResponse, LoginResponseSchema } from '../models/responses/login/login-response.model';
+import { LoginRequest, LoginRequestSchema } from '../models/requests/login-request.model';
+import { LoginResponse, LoginResponseSchema } from '../models/responses/login-response.model';
 import { ResponseHandler } from '../../../core/utils/handlers/response.handler';
 import { HttpErrorHandler } from '../../../core/utils/handlers/error.handler';
 import { TokenService } from '../../../core/services/token.service';
@@ -31,7 +31,9 @@ export class AuthService implements IAuthService {
         this.tokenService.setToken(response.data.token);
         this.sessionService.setSession(response.data.user);
       }),
-      catchError(error => this.errorHandler.handleError(error))
+      catchError(error => { 
+        console.log('Login error:', error);
+        return this.errorHandler.handleError(error); })
     );
   }
 }

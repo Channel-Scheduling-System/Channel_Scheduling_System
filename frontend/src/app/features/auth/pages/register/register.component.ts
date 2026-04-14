@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../../users/services/user.service';
-import { ClientRegisterRequest, ClientRegisterRequestSchema } from '../../../users/models/requests/register/register-request.model';
+import { ClientRegisterRequest, ClientRegisterRequestSchema } from '../../../users/models/requests/register-request.model';
 import { MessageService } from '../../../../core/services/message.service';
 import { AlertType } from '../../../../core/utils/enums/AlertType';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';

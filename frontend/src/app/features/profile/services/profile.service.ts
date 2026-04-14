@@ -5,10 +5,12 @@ import { map, catchError } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../../../shared/constants/api-endpoints.constants';
 import { ResponseHandler } from '../../../core/utils/handlers/response.handler';
 import { HttpErrorHandler } from '../../../core/utils/handlers/error.handler';
-import { GetProfileResponse, GetProfileResponseSchema} from '../models/responses/get-profile/get-profile-response.model';
+import { GetProfileResponse, GetProfileResponseSchema} from '../models/responses/get-profile-response.model';
 import { IProfileService } from '../interfaces/profile-services.interface';
-import { UpdateProfileResponse, UpdateProfileResponseSchema } from '../models/responses/update-profile/update-profile-response.model';
-import { UpdateProfileRequest } from '../models/requests/update-profile/update-profile-request.model';
+import { UpdateProfileResponse, UpdateProfileResponseSchema } from '../models/responses/update-profile-response.model';
+import { UpdateProfileRequest } from '../models/requests/update-profile-request.model';
+import { DeactivateProfileResponse, DeactivateProfileResponseSchema } from '../models/responses/deativate-profile-response.model';
+import { DeactivateProfileRequest } from '../models/requests/deactivate-profile-request.model';
 
 @Injectable({ providedIn: 'root' })
 export class ProfileService implements IProfileService {
@@ -28,8 +30,13 @@ export class ProfileService implements IProfileService {
 
   updateProfile(userId: number, data: UpdateProfileRequest): Observable<UpdateProfileResponse> {
     return this.http.put(API_ENDPOINTS.USERS.UPDATE(userId), data).pipe(
-      map(response => this.responseHandler.handleSuccess(response, UpdateProfileResponseSchema)),
-      catchError(error => this.errorHandler.handleError(error))
+      map(response => this.responseHandler.handleSuccess(response, UpdateProfileResponseSchema))
+    );
+  }
+
+  deactivateAccount(data: DeactivateProfileRequest): Observable<DeactivateProfileResponse> {
+    return this.http.patch(API_ENDPOINTS.USERS.DEACTIVATE, data, { withCredentials: true }).pipe(
+      map(response => this.responseHandler.handleSuccess(response, DeactivateProfileResponseSchema))
     );
   }
 }

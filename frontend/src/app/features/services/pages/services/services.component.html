@@ -1,4 +1,4 @@
-<div class="services-page flex flex-col gap-8">
+<div class="services-page flex flex-col gap-8 pb-24">
 
   <div class="flex justify-between items-end flex-wrap gap-4">
     <div>
@@ -12,7 +12,8 @@
         placeholder="Buscar servicio..."
         type="text"
         [value]="searchTerm"
-        (input)="onSearch($event)">
+        (input)="onSearch($event)"
+        name="serviceIdentifier">
     </div>
   </div>
 
@@ -109,16 +110,16 @@
 
   </div>
 
-  <div class="flex justify-center pb-4">
-    <button
-      class="services-page__add-btn relative overflow-hidden inline-flex items-center text-white font-manrope font-extrabold text-sm tracking-[0.12em] uppercase px-12 py-4 rounded-2xl border-none cursor-pointer outline-none"
-      (click)="createService()">
-      <span class="services-page__add-btn-shimmer"></span>
-      <span class="services-page__add-btn-content relative z-[2] flex items-center gap-2">
-        <span class="material-symbols-outlined text-[1.2rem]" translate="no">add</span>
-        <span>Nuevo Servicio</span>
-      </span>
-    </button>
-  </div>
-
 </div>
+
+<ng-template #fabTemplate>
+  <button
+    class="add-btn add-btn--border-gold relative overflow-hidden inline-flex items-center text-white font-manrope font-extrabold text-sm tracking-[0.12em] uppercase px-12 py-4 rounded-2xl border-none cursor-pointer outline-none"
+    (click)="createService()">
+    <span class="add-btn-shimmer"></span>
+    <span class="add-btn-content relative z-[2] flex items-center gap-2">
+      <span class="material-symbols-outlined text-[1.2rem]" translate="no">add</span>
+      <span>Nuevo Servicio</span>
+    </span>
+  </button>
+</ng-template>

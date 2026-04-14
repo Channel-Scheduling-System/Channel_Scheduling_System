@@ -1,5 +1,5 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
-import { RegisterRequestBaseSchema } from '../../users/models/requests/register/register-request.model';
+import { RegisterRequestBaseSchema } from '../../users/models/requests/register-request.model';
 import { createFieldValidator } from '../../../core/validators/field.validators';
 
 export type RegisterFieldName = 'firstName' | 'lastName' | 'alias' | 'email' | 'phone' | 'password';

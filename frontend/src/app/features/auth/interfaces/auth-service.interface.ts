@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
-import { LoginRequest } from '../models/requests/login/login-request.model';
-import { LoginResponse } from '../models/responses/login/login-response.model';
+import { LoginRequest } from '../models/requests/login-request.model';
+import { LoginResponse } from '../models/responses/login-response.model';
 
 export interface IAuthService {
   

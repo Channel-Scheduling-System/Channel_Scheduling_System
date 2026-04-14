@@ -1,186 +1,93 @@
-@keyframes modalCardIn {
-    from { opacity: 0; transform: translateY(20px) scale(0.97); }
-    to   { opacity: 1; transform: translateY(0)    scale(1);    }
-}
-
-@keyframes iconPop {
-    0%   { transform: scale(0.6); opacity: 0; }
-    65%  { transform: scale(1.15); opacity: 1; }
-    100% { transform: scale(1); }
-}
-
-@keyframes shimmerSweep {
-    from { transform: translateX(-100%) skewX(-8deg); }
-    to   { transform: translateX(200%)  skewX(-8deg); }
-}
-
-@keyframes btnLift {
-    0%   { transform: translateY(0)    scale(1);     }
-    60%  { transform: translateY(-3px) scale(1.02);  }
-    100% { transform: translateY(-2px) scale(1.015); }
-}
+@use '../../../../shared/styles/components/modal-card.scss';
 
 @keyframes glowGreen {
-    0%, 100% { box-shadow: 0 6px 20px rgba(22, 163, 74, 0.35); }
-    50%       { box-shadow: 0 12px 32px rgba(22, 163, 74, 0.55); }
+  0%,
+  100% {
+    box-shadow: 0 6px 20px rgba(22, 163, 74, 0.35);
+  }
+  50% {
+    box-shadow: 0 12px 32px rgba(22, 163, 74, 0.55);
+  }
 }
 
 @keyframes glowRed {
-    0%, 100% { box-shadow: 0 6px 20px rgba(185, 28, 28, 0.35); }
-    50%       { box-shadow: 0 12px 32px rgba(185, 28, 28, 0.55); }
+  0%,
+  100% {
+    box-shadow: 0 6px 20px rgba(185, 28, 28, 0.35);
+  }
+  50% {
+    box-shadow: 0 12px 32px rgba(185, 28, 28, 0.55);
+  }
 }
 
-
-// ── Backdrop blur (aplicado via ::ng-deep en el host para MatDialog) ──
-:host {
-    display: block;
-}
-
-// Estos selectores sobrescriben el backdrop de MatDialog desde el componente.
-// El panelClass 'confirm-state-panel' y backdropClass 'confirm-state-backdrop'
-// se configuran al abrir el dialog en update-user.component.ts
-::ng-deep {
-    .confirm-state-backdrop {
-        backdrop-filter: blur(8px) saturate(1.2);
-        -webkit-backdrop-filter: blur(8px) saturate(1.2);
-        background: rgba(42, 0, 2, 0.3) !important;
-    }
-
-    .confirm-state-panel .mat-mdc-dialog-container {
-        background: transparent;
-        box-shadow: none;
-        padding: 0;
-
-        .mdc-dialog__surface {
-            background: transparent;
-            box-shadow: none;
-            overflow: visible;
-        }
-    }
-}
-
-
-// ── Tarjeta del modal ────────────────────────────────────────────
 .modal-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
-    background: rgba(255, 255, 255, 0.94);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    border-radius: 2rem;
-    padding: 2.5rem 2rem;
-    box-shadow:
-        0 32px 80px rgba(42, 0, 2, 0.2),
-        0 0 0 1px rgba(42, 0, 2, 0.04) inset;
-    animation: modalCardIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+  &__icon-wrap {
+    &--activate {
+      background: rgba(22, 163, 74, 0.1);
+      border: 2px solid rgba(22, 163, 74, 0.25);
 
-    &__icon-wrap {
-        width: 4rem;
-        height: 4rem;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        animation: iconPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
-
-        &--activate {
-            background: rgba(22, 163, 74, 0.1);
-            border: 2px solid rgba(22, 163, 74, 0.25);
-
-            .modal-card__icon { color: #16a34a; }
-        }
-
-        &--deactivate {
-            background: rgba(185, 28, 28, 0.08);
-            border: 2px solid rgba(185, 28, 28, 0.2);
-
-            .modal-card__icon { color: #b91c1c; }
-        }
+      .modal-card__icon {
+        color: #16a34a;
+      }
     }
 
-    &__icon {
-        font-size: 1.8rem !important;
-        line-height: 1 !important;
+    &--deactivate {
+      background: rgba(185, 28, 28, 0.08);
+      border: 2px solid rgba(185, 28, 28, 0.2);
+
+      .modal-card__icon {
+        color: #b91c1c;
+      }
+    }
+  }
+
+  &__confirm-btn {
+    &--activate {
+      background: linear-gradient(135deg, #15803d 0%, #16a34a 50%, #166534 100%);
+      box-shadow: 0 4px 16px rgba(22, 163, 74, 0.35);
+
+      &::before {
+        box-shadow: 0 0 12px 3px rgba(22, 163, 74, 0.5), 0 0 30px 8px rgba(22, 163, 74, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      }
+
+      &:hover,
+      &:focus-visible {
+        animation: btnLift 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+          glowGreen 2s ease-in-out 0.3s infinite;
+
+        .modal-card__confirm-btn-shimmer {
+          animation: shimmerSweep 0.6s ease forwards;
+        }
+      }
+
+      &:active {
+        box-shadow: 0 2px 8px rgba(22, 163, 74, 0.3);
+      }
     }
 
+    &--deactivate {
+      background: linear-gradient(135deg, #991b1b 0%, #dc2626 50%, #7f1d1d 100%);
+      box-shadow: 0 4px 16px rgba(185, 28, 28, 0.35);
 
-    // ── Botón confirmar ──────────────────────────────────────────
-    &__confirm-btn {
-        position: relative;
-        overflow: hidden;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0.75rem 1.75rem;
-        border-radius: 0.875rem;
-        border: none;
-        cursor: pointer;
-        outline: none;
-        font-family: 'Manrope', sans-serif;
-        font-weight: 800;
-        font-size: 0.85rem;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        color: #ffffff;
-        transition:
-            transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
-            box-shadow 0.3s ease;
+      &::before {
+        box-shadow: 0 0 12px 3px rgba(185, 28, 28, 0.5), 0 0 30px 8px rgba(185, 28, 28, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      }
 
-        &-shimmer {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(115deg, transparent 20%, rgba(255,255,255,0.25) 50%, transparent 80%);
-            transform: translateX(-100%) skewX(-8deg);
-            pointer-events: none;
-            width: 60%;
-            z-index: 1;
+      &:hover,
+      &:focus-visible {
+        animation: btnLift 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+          glowRed 2s ease-in-out 0.3s infinite;
+
+        .modal-card__confirm-btn-shimmer {
+          animation: shimmerSweep 0.6s ease forwards;
         }
+      }
 
-        // Variante activar — verde
-        &--activate {
-            background: linear-gradient(135deg, #15803d 0%, #16a34a 50%, #166534 100%);
-            box-shadow: 0 4px 16px rgba(22, 163, 74, 0.35);
-
-            &:hover {
-                animation:
-                    btnLift 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
-                    glowGreen 2s ease-in-out 0.3s infinite;
-
-                .modal-card__confirm-btn-shimmer {
-                    animation: shimmerSweep 0.6s ease forwards;
-                }
-            }
-
-            &:active {
-                animation: none;
-                transform: scale(0.97);
-                box-shadow: 0 2px 8px rgba(22, 163, 74, 0.3);
-            }
-        }
-
-        // Variante desactivar — rojo
-        &--deactivate {
-            background: linear-gradient(135deg, #991b1b 0%, #dc2626 50%, #7f1d1d 100%);
-            box-shadow: 0 4px 16px rgba(185, 28, 28, 0.35);
-
-            &:hover {
-                animation:
-                    btnLift 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
-                    glowRed 2s ease-in-out 0.3s infinite;
-
-                .modal-card__confirm-btn-shimmer {
-                    animation: shimmerSweep 0.6s ease forwards;
-                }
-            }
-
-            &:active {
-                animation: none;
-                transform: scale(0.97);
-                box-shadow: 0 2px 8px rgba(185, 28, 28, 0.3);
-            }
-        }
+      &:active {
+        box-shadow: 0 2px 8px rgba(185, 28, 28, 0.3);
+      }
     }
+  }
 }

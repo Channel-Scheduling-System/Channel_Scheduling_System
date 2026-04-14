@@ -6,9 +6,14 @@ import { ProfileService } from '../../services/profile.service';
 import { SessionService } from '../../../../core/services/session.service';
 import { MessageService } from '../../../../core/services/message.service';
 import { AlertType } from '../../../../core/utils/enums/AlertType';
-import { GetProfileResponse } from '../../models/responses/get-profile/get-profile-response.model';
-import { UpdateProfileRequest } from '../../models/requests/update-profile/update-profile-request.model';
+import { GetProfileResponse } from '../../models/responses/get-profile-response.model';
+import { UpdateProfileRequest } from '../../models/requests/update-profile-request.model';
 import { updateProfileFieldValidator } from '../../validators/update-profile.validators';
+import { ConfirmUserStateModalComponent } from '../../../users/components/confirm-user-state-modal/confirm-user-state-modal.component';
+import { MatDialog } from '@angular/material/dialog';
+import { DeactivateProfileResponse } from '../../models/responses/deativate-profile-response.model';
+import { ConfirmDeactivateAccountModalComponent } from '../../components/confirm-deactivate-account-modal/confirm-deactivate-account-modal.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-my-profile',
@@ -20,31 +25,33 @@ import { updateProfileFieldValidator } from '../../validators/update-profile.val
 export class MyProfilePageComponent implements OnInit {
   form!: FormGroup;
   isLoading = false;
-  isSaving  = false;
+  isSaving = false;
 
   constructor(
     private fb: FormBuilder,
     private profileService: ProfileService,
     private sessionService: SessionService,
-    private messageService: MessageService
-  ) {}
+    private messageService: MessageService,
+    private router: Router,
+    private readonly dialog: MatDialog
+  ) { }
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.buildForm();
     this.loadProfile();
   }
 
   private buildForm(): void {
     this.form = this.fb.group({
-      alias:     ['', [Validators.required, updateProfileFieldValidator('alias')]],
+      alias: ['', [Validators.required, updateProfileFieldValidator('alias')]],
       firstName: ['', [Validators.required, updateProfileFieldValidator('firstName')]],
-      lastName:  ['', [Validators.required, updateProfileFieldValidator('lastName')]],
-      phone:     ['', [Validators.required, updateProfileFieldValidator('phone')]],
-      email:     ['', [Validators.required, Validators.email, updateProfileFieldValidator('email')]],
+      lastName: ['', [Validators.required, updateProfileFieldValidator('lastName')]],
+      phone: ['', [Validators.required, updateProfileFieldValidator('phone')]],
+      email: ['', [Validators.required, Validators.email, updateProfileFieldValidator('email')]],
     });
   }
 
-  loadProfile(): void {
+  private loadProfile(): void {
     const userId = this.sessionService.getUserId();
     if (!userId) {
       this.messageService.showMessage('No se pudo obtener la información del usuario', AlertType.ERROR);
@@ -52,19 +59,19 @@ export class MyProfilePageComponent implements OnInit {
     }
     this.isLoading = true;
     this.profileService.getProfile(userId).subscribe({
-      next:  (response) => this.handleLoadSuccess(response),
-      error: (error)    => this.handleLoadError(error),
+      next: (response) => this.handleLoadSuccess(response),
+      error: (error) => this.handleLoadError(error),
     });
   }
 
   private handleLoadSuccess(response: GetProfileResponse): void {
     const user = response.data;
     this.form.patchValue({
-      alias:     user.alias,
+      alias: user.alias,
       firstName: user.firstName,
-      lastName:  user.lastName,
-      phone:     user.phone,
-      email:     user.email,
+      lastName: user.lastName,
+      phone: user.phone,
+      email: user.email,
     });
     this.isLoading = false;
   }
@@ -74,16 +81,16 @@ export class MyProfilePageComponent implements OnInit {
     this.messageService.showMessage(error.message, AlertType.ERROR);
   }
 
-  getFieldError(fieldName: string): string {
+  protected getFieldError(fieldName: string): string {
     const control = this.form.get(fieldName);
     if (!control?.touched || !control?.errors) return '';
-    if (control.errors['required'])  return 'Este campo es obligatorio';
-    if (control.errors[fieldName])   return control.errors[fieldName];
-    if (control.errors['email'])     return 'Ingresa un correo válido';
+    if (control.errors['required']) return 'Este campo es obligatorio';
+    if (control.errors[fieldName]) return control.errors[fieldName];
+    if (control.errors['email']) return 'Ingresa un correo válido';
     return '';
   }
 
-  saveChanges(): void {
+  protected saveChanges(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.messageService.showMessage('Por favor completa todos los campos correctamente', AlertType.WARNING);
@@ -97,7 +104,7 @@ export class MyProfilePageComponent implements OnInit {
     this.isSaving = true;
     const payload: UpdateProfileRequest = this.form.value;
     this.profileService.updateProfile(userId, payload).subscribe({
-      next:  (data)  => this.handleSaveSuccess(data),
+      next: (data) => this.handleSaveSuccess(data),
       error: (error) => this.handleSaveError(error),
     });
   }
@@ -115,11 +122,21 @@ export class MyProfilePageComponent implements OnInit {
     this.messageService.showMessage(error.message, AlertType.ERROR);
   }
 
-  resetPassword(): void {
+  protected resetPassword(): void {
     // TODO: implementar
   }
 
-  deactivateAccount(): void {
-    // TODO: implementar
+  protected deactivateAccount(): void {
+    const ref = this.dialog.open(ConfirmDeactivateAccountModalComponent, {
+      panelClass:    'deactivate-account-panel',
+      backdropClass: 'deactivate-account-backdrop',
+      data:          {},
+    });
+
+    ref.afterClosed().subscribe((confirmed: boolean) => {
+      if (!confirmed) return;
+      this.sessionService.clearSession();
+      this.router.navigate(['']);
+    });
   }
 }
