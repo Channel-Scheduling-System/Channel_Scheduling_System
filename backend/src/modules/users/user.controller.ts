@@ -1,15 +1,21 @@
 import { NextFunction, Request, Response } from 'express';
-import type { SystemRole } from './user.types.js';
 import { IUserService } from './user.service.js';
-import { mapToUserFilters } from './user.mapper.js';
+import {
+    mapToUserFilters,
+    mapToUserPagination,
+} from './user.mapper.js';
+import {
+    extractAuthContext,
+    extractRequestContextWithId,
+} from '../../shared/utils/request-parser.util.js';
 
 export class UserController {
     constructor(private readonly userService: IUserService) {}
 
     add = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const authUserRole = req.user?.role as SystemRole;
-            await this.userService.add(req.body, authUserRole);
+            const { authRole } = extractAuthContext(req);
+            await this.userService.add(req.body, authRole);
             return res.status(201).json({
                 message: 'Usuario registrado exitosamente',
             });
@@ -20,21 +26,18 @@ export class UserController {
 
     addFirstAdmin = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const data = await this.userService.addFirstAdmin(req.body);
+            await this.userService.addFirstAdmin(req.body);
             res.status(201).json({
                 message: 'Administrador registrado exitosamente',
-                data,
             });
-        } catch (err) {
-            next(err);
+        } catch (error) {
+            next(error);
         }
     };
 
     getById = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const id = req.params.id as unknown as number;
-            const authRole = req.user?.role as SystemRole;
-            const authId = req.user?.sub as unknown as number;
+            const { id, authRole, authId } = extractRequestContextWithId(req);
             const data = await this.userService.getById(id, {
                 role: authRole,
                 id: authId,
@@ -50,17 +53,18 @@ export class UserController {
 
     getAll = async (req: Request, res: Response, next: NextFunction) => {
         try {
+            const pagination = mapToUserPagination(req.query);
             const filters = mapToUserFilters(req.query);
-            const authRole = req.user?.role as SystemRole;
-            const authId = req.user?.sub as unknown as number;
-            const data = await this.userService.getAll(filters, {
-                role: authRole,
-                id: authId,
-            });
+            const { authRole } = extractAuthContext(req);
+            const result = await this.userService.getAll(
+                pagination,
+                filters,
+                authRole,
+            );
             return res.status(200).json({
                 message: 'Usuarios recuperados exitosamente',
-                data,
-                // TODO: meta: total, limit, page, totalPages
+                data: result.data,
+                meta: result.meta,
             });
         } catch (error) {
             next(error);

@@ -11,6 +11,7 @@ export interface User {
     passwordHash: string;
     role: SystemRole;
     mustChangePwd: boolean;
+    isActive: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -61,11 +62,37 @@ export interface UserResponse {
     alias: string;
     firstName: string;
     lastName: string;
-    phone: string | null;
     email: string;
+    phone: string | null;
     role: SystemRole;
+    isActive: boolean;
 }
 
+// FILTERS
+
 export interface UserFilters {
-    role?: SystemRole;
+    role?: SystemRole[];
+    isActive?: boolean;
+    identifier?: string;
+}
+
+export interface UserPagination {
+    page?: number;
+    limit?: number;
+}
+
+export interface UserQuery extends UserFilters, UserPagination {}
+
+// PAGINATION
+//* -----------------------------
+export interface PaginationMeta {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+}
+
+export interface PaginatedUserResponse {
+    data: UserResponse[];
+    meta: PaginationMeta;
 }

@@ -4,7 +4,7 @@ import {
     validateParamsDTO,
     validateQueryDTO,
 } from '../../shared/middlewares/validateDTO.middleware.js';
-import { Id } from '../../shared/zod/shemas.js';
+import { Id, oneOrMany } from '../../shared/zod/shemas.js';
 import { z } from 'zod';
 
 export const Role = z.enum(['ADMIN', 'CLIENT', 'WORKER']);
@@ -75,18 +75,35 @@ export type UserData = z.infer<typeof UserSchema>;
 
 export const CreateUserInput = UserSchema.extend({
     password: UserPassword,
-}).omit({ id: true });
+})
+    .omit({ id: true })
+    .strict();
 
 export const CreateFirstAdminInput = CreateUserInput.extend({
-    secretCode: z
-        .string()
-        .length(10, 'El código secreto debe tener exactamente 10 caracteres'),
-});
+    secretCode: z.string().length(10, 'Código secreto con longitud incorrecta'),
+})
+    .omit({ role: true })
+    .strict();
 
 // FILTERS
-export const UserFiltersSchema = z.object({
-    role: Role.optional(),
-});
+export const UserPaginationSchema = z
+    .object({
+        page: z.coerce.number().positive('Página debe ser positiva').optional(),
+        limit: z.coerce
+            .number()
+            .positive('Límite debe ser positivo')
+            .max(100, 'Límite máximo es 100 registros')
+            .optional(),
+    });
+
+export const UserFiltersSchema = z
+    .object({
+        role: oneOrMany(Role),
+        isActive: z.union([z.boolean(), z.stringbool()]).optional(),
+        identifier: z.string().optional(),
+    });
+
+export const UserQuerySchema = UserFiltersSchema.and(UserPaginationSchema);
 
 // Export centralizado
 //* -----------------------------
@@ -94,5 +111,5 @@ export const userValidator = {
     create: validateBodyDTO(CreateUserInput),
     createFirstAdmin: validateBodyDTO(CreateFirstAdminInput),
     id: validateParamsDTO(ParamIdDTO),
-    filters: validateQueryDTO(UserFiltersSchema),
+    filters: validateQueryDTO(UserQuerySchema),
 };

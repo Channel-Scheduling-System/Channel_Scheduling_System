@@ -1,67 +1,93 @@
 import type { SystemRole } from './user.types.js';
+import { ForbiddenError } from '../../shared/errors/domain.error.js';
 
 /**
- * Valida si un usuario puede crear usuarios del rol especificado.
- *
- * Reglas:
- * - ADMIN: puede crear usuarios de cualquier rol (ADMIN, WORKER, CLIENT)
- * - WORKER: solo puede crear usuarios con rol CLIENT
- * - CLIENT: no puede crear usuarios
- *
- * @param authUserRole - Rol del usuario autenticado que intenta crear
- * @param roleToCreate - Rol del usuario que se intenta crear
- * @returns true si es permitido, false si no
+ * Contexto de autenticación del usuario
  */
-export function canCreateRole(
-    authUserRole: SystemRole | undefined,
-    roleToCreate: SystemRole,
-): boolean {
-    if (authUserRole === 'ADMIN') {
-        return true; // ADMIN puede crear cualquier rol
-    }
-    if (authUserRole === 'WORKER') {
-        return roleToCreate === 'CLIENT'; // WORKER solo puede crear CLIENTS
-    }
-    return false; // CLIENT no puede crear usuarios
+export interface AuthContext {
+    id: number;
+    role: SystemRole;
 }
 
 /**
- * Valida si un usuario puede ver información de otro usuario.
- *
- * Reglas:
- * - Cualquier usuario puede ver su propia información
- * - ADMIN: puede ver usuarios con rol WORKER y CLIENT
- * - WORKER: puede ver usuarios con rol CLIENT
- * - CLIENT: puede ver usuarios con rol WORKER
- *
- * @param authUserRole - Rol del usuario autenticado que intenta ver
- * @param userRoleToView - Rol del usuario que se intenta ver
- * @param authUserId - ID del usuario autenticado (para validar acceso a su propio perfil)
- * @param userIdToView - ID del usuario que se intenta ver
- * @returns true si es permitido, false si no
+ * Información del usuario objetivo (target)
  */
-export function canViewRole(
-    authUserRole: SystemRole | undefined,
-    userRoleToView: SystemRole,
-    authUserId?: number,
-    userIdToView?: number,
+export interface TargetUser {
+    id: number;
+    role: SystemRole;
+}
+
+/**
+ * Matriz única de permisos de roles
+ * Define qué acciones puede realizar cada rol y sobre qué roles
+ */
+const ROLE_PERMISSIONS: Record<SystemRole, Record<string, SystemRole[]>> = {
+    ADMIN: {
+        create: ['ADMIN', 'WORKER', 'CLIENT'],
+        view: ['WORKER', 'CLIENT'],
+    },
+    WORKER: {
+        create: ['CLIENT'],
+        view: ['CLIENT'],
+    },
+    CLIENT: {
+        create: [],
+        view: ['WORKER'],
+    },
+};
+
+/**
+ * Obtiene los roles que un usuario puede crear.
+ */
+export function getCreatableRoles(authRole: SystemRole): SystemRole[] {
+    if (!authRole) return [];
+    return ROLE_PERMISSIONS[authRole]?.create ?? [];
+}
+
+/**
+ * Obtiene los roles que un usuario puede ver.
+ */
+export function getViewableRoles(authRole: SystemRole): SystemRole[] {
+    return ROLE_PERMISSIONS[authRole]?.view ?? [];
+}
+
+/**
+ * Valida si un usuario puede crear otro usuario.
+ */
+export function canCreate(
+    authRole: SystemRole,
+    targetRole: SystemRole,
 ): boolean {
+    const creatableRoles = getCreatableRoles(authRole);
+    return creatableRoles.includes(targetRole);
+}
+
+/**
+ * Valida si un usuario puede ver otro usuario.
+ * Permite que un usuario vea su propia información.
+ */
+export function canView(auth: AuthContext, target: TargetUser): boolean {
     // Permitir que un usuario vea su propia información
-    if (authUserId && userIdToView && authUserId === userIdToView) {
+    if (auth.id === target.id) {
         return true;
     }
+    const viewableRoles = getViewableRoles(auth.role);
+    return viewableRoles.includes(target.role);
+}
 
-    if (authUserRole === 'ADMIN') {
-        // ADMIN puede ver WORKER y CLIENT
-        return userRoleToView === 'WORKER' || userRoleToView === 'CLIENT';
+/**
+ * Valida que un rol esté incluido en la lista de roles permitidos.
+ * Lanza ForbiddenError si no está permitido.
+ *
+ * @param canAction - Resultado de la validación de permiso
+ * @param errorMessage - Mensaje de error si validación falla
+ * @throws ForbiddenError si targetRole no está en allowedRoles
+ */
+export function validateRolePermission(
+    canAction: boolean,
+    errorMessage: string,
+): void {
+    if (!canAction) {
+        throw new ForbiddenError(errorMessage);
     }
-    if (authUserRole === 'WORKER') {
-        // WORKER solo puede ver CLIENT
-        return userRoleToView === 'CLIENT';
-    }
-    if (authUserRole === 'CLIENT') {
-        // CLIENT solo puede ver WORKER
-        return userRoleToView === 'WORKER';
-    }
-    return false;
 }
