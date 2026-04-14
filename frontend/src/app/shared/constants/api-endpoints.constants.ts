@@ -13,14 +13,15 @@ export const API_ENDPOINTS = {
     GET: (id: number) => `${environment.apiUrl}/services/${id}`,
     BY_WORKER: (workerId: number) => `${environment.apiUrl}/services?workerId=${workerId}`,
     CREATE: `${environment.apiUrl}/services`,
-    UPDATE: `${environment.apiUrl}/services`,
+    UPDATE: (id: number) => `${environment.apiUrl}/services/${id}`,
     DELETE: (id: number) => `${environment.apiUrl}/services/${id}`,
   },
   USERS: {
     PROFILE: (id: number) => `${environment.apiUrl}/users/${id}`,
-    LIST: (page: number, identifier: string) => `${environment.apiUrl}/users?page=${page}&identifier=${identifier}`,
+    LIST: `${environment.apiUrl}/users`,
     REGISTER:  `${environment.apiUrl}/users`,
     UPDATE: (id: number) => `${environment.apiUrl}/users/${id}`,
-    SET_STATE: (id: number) => `${environment.apiUrl}/users/${id}/status`
+    SET_STATE: (id: number) => `${environment.apiUrl}/users/${id}/status`,
+    DEACTIVATE: `${environment.apiUrl}/users/me/deactivate`
   }
 } as const;
