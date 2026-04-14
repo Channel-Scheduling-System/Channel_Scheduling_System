@@ -56,6 +56,7 @@ export function mapToServiceResponse(service: Service): ServiceResponse {
         color: service.colorHex,
         price: service.defaultPrice,
         duration: service.defaultDurationMin,
+        isActive: service.isActive,
     };
 }
 

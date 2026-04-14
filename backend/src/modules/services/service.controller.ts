@@ -45,7 +45,8 @@ export class ServiceController {
 
     update = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const data = await this.serviceService.update(req.body);
+            const id = req.params.id as unknown as number;
+            const data = await this.serviceService.update({ id, ...req.body });
             return res.status(200).json({
                 message: 'Servicio actualizado exitosamente',
                 data,
