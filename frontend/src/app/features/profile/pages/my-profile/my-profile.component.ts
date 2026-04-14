@@ -130,6 +130,7 @@ export class MyProfilePageComponent implements OnInit {
     const ref = this.dialog.open(ConfirmDeactivateAccountModalComponent, {
       panelClass:    'deactivate-account-panel',
       backdropClass: 'deactivate-account-backdrop',
+      autoFocus:     false,
       data:          {},
     });
 
