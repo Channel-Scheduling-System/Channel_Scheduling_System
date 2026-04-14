@@ -23,11 +23,11 @@ import { IUserService } from '../users/user.service.js';
 import { SERVICE_ERRORS } from '../../shared/constants/messages.js';
 
 export interface IServiceService {
-    add(input: CreateServiceInput): Promise<void>;
+    add(input: CreateServiceInput): Promise<ServiceResponse>;
     existsById(id: number): Promise<boolean>;
     getById(id: number): Promise<ServiceResponse>;
     getAll(filters: ServiceFilters): Promise<ServiceResponse[]>;
-    update(input: UpdateServiceInput): Promise<void>;
+    update(input: UpdateServiceInput): Promise<ServiceResponse>;
     delete(id: number): Promise<void>;
 }
 
@@ -37,10 +37,13 @@ export class ServiceService implements IServiceService {
         private readonly userService: IUserService,
     ) {}
 
-    async add(input: CreateServiceInput): Promise<void> {
+    async add(input: CreateServiceInput): Promise<ServiceResponse> {
         await this.ensureWorkerExists(input.workerId);
         await this.ensureNameIsUnique(input.workerId, input.name);
-        await this.serviceRepo.create(mapToCreateServiceData(input));
+        const service = await this.serviceRepo.create(
+            mapToCreateServiceData(input),
+        );
+        return mapToServiceResponse(service);
     }
 
     async existsById(id: number): Promise<boolean> {
@@ -56,12 +59,14 @@ export class ServiceService implements IServiceService {
         return mapToServicesResponse(await this.serviceRepo.findAll(filters));
     }
 
-    async update(input: UpdateServiceInput): Promise<void> {
+    async update(input: UpdateServiceInput): Promise<ServiceResponse> {
         const existing = await this.getServiceOrFail(input.id);
         if (input.name && input.name !== existing.name) {
             await this.ensureNameIsUnique(existing.workerId, input.name);
         }
         await this.serviceRepo.update(input.id, mapToUpdateServiceData(input));
+        const updatedService = await this.getServiceOrFail(input.id);
+        return mapToServiceResponse(updatedService);
     }
 
     async delete(id: number): Promise<void> {
