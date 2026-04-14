@@ -120,7 +120,7 @@ describe('AuthService', () => {
                 refreshToken: expect.any(String),
             },
         });
-            expect(userService.getByIdentifier).toHaveBeenCalledWith('johangil');
+        expect(userService.getByIdentifier).toHaveBeenCalledWith('johangil');
         expect(bcryptMock.compare).toHaveBeenCalledWith('Password123', 'hash');
         expect(repo.deleteRefreshTokensForUser).toHaveBeenCalledWith(1);
         expect(repo.createRefreshToken).toHaveBeenCalledWith(

@@ -23,11 +23,11 @@ import { IUserService } from '../users/user.service.js';
 import { SERVICE_ERRORS } from '../../shared/constants/messages.js';
 
 export interface IServiceService {
-    add(input: CreateServiceInput): Promise<ServiceResponse>;
+    add(input: CreateServiceInput): Promise<void>;
     existsById(id: number): Promise<boolean>;
     getById(id: number): Promise<ServiceResponse>;
     getAll(filters: ServiceFilters): Promise<ServiceResponse[]>;
-    update(input: UpdateServiceInput): Promise<ServiceResponse>;
+    update(input: UpdateServiceInput): Promise<void>;
     delete(id: number): Promise<void>;
 }
 
@@ -37,13 +37,10 @@ export class ServiceService implements IServiceService {
         private readonly userService: IUserService,
     ) {}
 
-    async add(input: CreateServiceInput): Promise<ServiceResponse> {
+    async add(input: CreateServiceInput): Promise<void> {
         await this.ensureWorkerExists(input.workerId);
         await this.ensureNameIsUnique(input.workerId, input.name);
-        const newService = await this.serviceRepo.create(
-            mapToCreateServiceData(input),
-        );
-        return mapToServiceResponse(newService);
+        await this.serviceRepo.create(mapToCreateServiceData(input));
     }
 
     async existsById(id: number): Promise<boolean> {
@@ -59,16 +56,12 @@ export class ServiceService implements IServiceService {
         return mapToServicesResponse(await this.serviceRepo.findAll(filters));
     }
 
-    async update(input: UpdateServiceInput): Promise<ServiceResponse> {
+    async update(input: UpdateServiceInput): Promise<void> {
         const existing = await this.getServiceOrFail(input.id);
         if (input.name && input.name !== existing.name) {
             await this.ensureNameIsUnique(existing.workerId, input.name);
         }
-        const updated = await this.serviceRepo.update(
-            input.id,
-            mapToUpdateServiceData(input),
-        );
-        return mapToServiceResponse(updated);
+        await this.serviceRepo.update(input.id, mapToUpdateServiceData(input));
     }
 
     async delete(id: number): Promise<void> {
