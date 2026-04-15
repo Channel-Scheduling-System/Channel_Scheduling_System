@@ -25,14 +25,17 @@ const ROLE_PERMISSIONS: Record<SystemRole, Record<string, SystemRole[]>> = {
     ADMIN: {
         create: ['ADMIN', 'WORKER', 'CLIENT'],
         view: ['WORKER', 'CLIENT'],
+        update: ['WORKER', 'CLIENT'],
     },
     WORKER: {
         create: ['CLIENT'],
         view: ['CLIENT'],
+        update: ['CLIENT'],
     },
     CLIENT: {
         create: [],
         view: ['WORKER'],
+        update: [],
     },
 };
 
@@ -49,6 +52,13 @@ export function getCreatableRoles(authRole: SystemRole): SystemRole[] {
  */
 export function getViewableRoles(authRole: SystemRole): SystemRole[] {
     return ROLE_PERMISSIONS[authRole]?.view ?? [];
+}
+
+/**
+ * Obtiene los roles que un usuario puede actualizar (excluyendo a sí mismo).
+ */
+export function getUpdatableRoles(authRole: SystemRole): SystemRole[] {
+    return ROLE_PERMISSIONS[authRole]?.update ?? [];
 }
 
 /**
@@ -73,6 +83,30 @@ export function canView(auth: AuthContext, target: TargetUser): boolean {
     }
     const viewableRoles = getViewableRoles(auth.role);
     return viewableRoles.includes(target.role);
+}
+
+/**
+ * Valida si un usuario puede actualizar otro usuario.
+ * Permite que un usuario actualice su propia información.
+ */
+export function canUpdate(auth: AuthContext, target: TargetUser): boolean {
+    // Permitir que un usuario actualice su propia información
+    if (auth.id === target.id) {
+        return true;
+    }
+    const updatableRoles = getUpdatableRoles(auth.role);
+    return updatableRoles.includes(target.role);
+}
+
+/**
+ * Valida si un usuario puede actualizar una contraseña.
+ * Solo se permite actualizar la contraseña propia.
+ */
+export function canUpdatePassword(
+    auth: AuthContext,
+    target: TargetUser,
+): boolean {
+    return auth.id === target.id;
 }
 
 /**

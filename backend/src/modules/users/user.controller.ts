@@ -1,9 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { IUserService } from './user.service.js';
-import {
-    mapToUserFilters,
-    mapToUserPagination,
-} from './user.mapper.js';
+import { mapToUserFilters, mapToUserPagination } from './user.mapper.js';
 import {
     extractAuthContext,
     extractRequestContextWithId,
@@ -65,6 +62,40 @@ export class UserController {
                 message: 'Usuarios recuperados exitosamente',
                 data: result.data,
                 meta: result.meta,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    update = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { id, authRole, authId } = extractRequestContextWithId(req);
+            await this.userService.update(
+                { id, ...req.body },
+                { role: authRole, id: authId },
+            );
+            return res.status(200).json({
+                message: 'Usuario actualizado exitosamente',
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    updatePassword = async (
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ) => {
+        try {
+            const { id, authRole, authId } = extractRequestContextWithId(req);
+            await this.userService.updatePassword(
+                { id, ...req.body },
+                { role: authRole, id: authId },
+            );
+            return res.status(200).json({
+                message: 'Su Contraseña se ha actualizado exitosamente',
             });
         } catch (error) {
             next(error);

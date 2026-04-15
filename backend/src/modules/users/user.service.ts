@@ -20,10 +20,14 @@ import {
     CreateFirstAdminInput,
     PaginatedUserResponse,
     AuthUserInput as AuthInput,
+    UpdatePasswordInput,
+    UpdateUserInput,
 } from './user.types.js';
 import { mapToUserResponse, mapToUsersResponse } from './user.mapper.js';
 import {
     canCreate,
+    canUpdate,
+    canUpdatePassword,
     canView,
     getViewableRoles,
     validateRolePermission,
@@ -43,6 +47,8 @@ export interface IUserService {
         filters: UserFilters,
         authRole?: SystemRole,
     ): Promise<PaginatedUserResponse>;
+    update(input: UpdateUserInput, auth?: AuthInput): Promise<UserResponse>;
+    updatePassword(input: UpdatePasswordInput, auth?: AuthInput): Promise<void>;
     countAdmins(): Promise<number>;
 }
 
@@ -138,6 +144,37 @@ export class UserService implements IUserService {
         };
     }
 
+    async update(
+        input: UpdateUserInput,
+        auth?: AuthInput,
+    ): Promise<UserResponse> {
+        const user = await this.getUserOrFail(input.id);
+        if (auth)
+            this.validateCanUpdate(auth, { id: user.id, role: user.role });
+
+        await this.validateUniqueFields(input, user);
+        const updated = await this.userRepo.update(input.id, input);
+        return mapToUserResponse(updated);
+    }
+
+    async updatePassword(
+        input: UpdatePasswordInput,
+        auth?: AuthInput,
+    ): Promise<void> {
+        const user = await this.getUserOrFail(input.id);
+        if (auth)
+            this.validateCanUpdatePassword(auth, {
+                id: user.id,
+                role: user.role,
+            });
+
+        const isValid = await bcrypt.compare(input.password, user.passwordHash);
+        if (!isValid) throw new InvalidCredentialsError();
+
+        const newHash = await bcrypt.hash(input.newPassword, SALT_ROUNDS);
+        await this.userRepo.updatePassword(input.id, newHash);
+    }
+
     async countAdmins(): Promise<number> {
         return this.userRepo.countAdmins();
     }
@@ -186,6 +223,23 @@ export class UserService implements IUserService {
         validateRolePermission(
             canView(auth, target),
             USER_ERRORS.ROLE_CANNOT_VIEW,
+        );
+    }
+
+    private validateCanUpdate(auth: AuthContext, target: TargetUser): void {
+        validateRolePermission(
+            canUpdate(auth, target),
+            USER_ERRORS.ROLE_CANNOT_UPDATE,
+        );
+    }
+
+    private validateCanUpdatePassword(
+        auth: AuthContext,
+        target: TargetUser,
+    ): void {
+        validateRolePermission(
+            canUpdatePassword(auth, target),
+            USER_ERRORS.ROLE_CANNOT_UPDATE_PASSWORD,
         );
     }
 }
