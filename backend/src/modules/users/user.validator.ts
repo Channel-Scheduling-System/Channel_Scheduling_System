@@ -85,23 +85,35 @@ export const CreateFirstAdminInput = CreateUserInput.extend({
     .omit({ role: true })
     .strict();
 
-// FILTERS
-export const UserPaginationSchema = z
-    .object({
-        page: z.coerce.number().positive('Página debe ser positiva').optional(),
-        limit: z.coerce
-            .number()
-            .positive('Límite debe ser positivo')
-            .max(100, 'Límite máximo es 100 registros')
-            .optional(),
-    });
+export const UpdateUserInput = UserSchema.partial()
+    .omit({
+        id: true,
+        role: true,
+    })
+    .strict();
 
-export const UserFiltersSchema = z
+export const UpdatePasswordInput = z
     .object({
-        role: oneOrMany(Role),
-        isActive: z.union([z.boolean(), z.stringbool()]).optional(),
-        identifier: z.string().optional(),
-    });
+        password: UserPassword,
+        newPassword: UserPassword,
+    })
+    .strict();
+
+// FILTERS
+export const UserPaginationSchema = z.object({
+    page: z.coerce.number().positive('Página debe ser positiva').optional(),
+    limit: z.coerce
+        .number()
+        .positive('Límite debe ser positivo')
+        .max(100, 'Límite máximo es 100 registros')
+        .optional(),
+});
+
+export const UserFiltersSchema = z.object({
+    role: oneOrMany(Role),
+    isActive: z.union([z.boolean(), z.stringbool()]).optional(),
+    identifier: z.string().optional(),
+});
 
 export const UserQuerySchema = UserFiltersSchema.and(UserPaginationSchema);
 
@@ -110,6 +122,8 @@ export const UserQuerySchema = UserFiltersSchema.and(UserPaginationSchema);
 export const userValidator = {
     create: validateBodyDTO(CreateUserInput),
     createFirstAdmin: validateBodyDTO(CreateFirstAdminInput),
+    update: validateBodyDTO(UpdateUserInput),
+    updatePassword: validateBodyDTO(UpdatePasswordInput),
     id: validateParamsDTO(ParamIdDTO),
     filters: validateQueryDTO(UserQuerySchema),
 };

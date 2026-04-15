@@ -28,6 +28,14 @@ export interface CreateUserData {
     role: SystemRole;
 }
 
+export interface UpdateUserData {
+    alias?: string;
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+    email?: string;
+}
+
 // INPUTS
 //* -----------------------------
 export interface AuthUserInput {
@@ -47,6 +55,21 @@ export interface CreateUserInput {
 
 export interface CreateFirstAdminInput extends Omit<CreateUserInput, 'role'> {
     secretCode: string;
+}
+
+export interface UpdateUserInput {
+    id: number;
+    alias?: string;
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+    email?: string;
+}
+
+export interface UpdatePasswordInput {
+    id: number;
+    password: string;
+    newPassword: string;
 }
 
 export interface UniqueFields {

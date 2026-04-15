@@ -34,4 +34,20 @@ userRouter.get(
     userController.getById,
 );
 
+userRouter.put(
+    '/:id',
+    authMiddleware,
+    userValidator.id,
+    userValidator.update,
+    userController.update,
+);
+
+userRouter.patch(
+    '/:id/password',
+    authMiddleware,
+    userValidator.id,
+    userValidator.updatePassword,
+    userController.updatePassword,
+);
+
 export default userRouter;

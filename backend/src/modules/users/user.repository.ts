@@ -1,6 +1,11 @@
 import prisma from '../../config/prisma.js';
 import { Prisma, SystemRole, User } from '@prisma/client.js';
-import { CreateUserData, UserFilters, UserPagination } from './user.types.js';
+import {
+    CreateUserData,
+    UpdateUserData,
+    UserFilters,
+    UserPagination,
+} from './user.types.js';
 
 export interface IUserRepository {
     create(data: CreateUserData): Promise<User>;
@@ -15,6 +20,8 @@ export interface IUserRepository {
         pagination: UserPagination,
         filters: UserFilters,
     ): Promise<{ data: User[]; total: number }>;
+    update(userId: number, data: UpdateUserData): Promise<User>;
+    updatePassword(userId: number, passwordHash: string): Promise<void>;
     countAdmins(): Promise<number>;
 }
 
@@ -121,6 +128,23 @@ export class UserRepository implements IUserRepository {
         }
 
         return where;
+    }
+
+    async update(id: number, data: UpdateUserData): Promise<User> {
+        return await prisma.user.update({
+            where: { id },
+            data,
+        });
+    }
+
+    async updatePassword(userId: number, passwordHash: string): Promise<void> {
+        await prisma.user.update({
+            where: { id: userId },
+            data: {
+                passwordHash,
+                mustChangePwd: false,
+            },
+        });
     }
 
     async countAdmins(): Promise<number> {
