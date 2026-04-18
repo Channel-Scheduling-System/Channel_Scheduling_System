@@ -201,7 +201,6 @@ describe('AuthService', () => {
                 alias: 'johangil',
                 email: 'johan@test.com',
                 password: 'Password123',
-                role: 'ADMIN',
             }),
         ).rejects.toBeInstanceOf(ConflictError);
         expect(userService.add).toHaveBeenCalledWith({
@@ -210,7 +209,7 @@ describe('AuthService', () => {
             alias: 'johangil',
             email: 'johan@test.com',
             password: 'Password123',
-            role: 'ADMIN',
+            role: 'CLIENT',
         });
     });
 
@@ -224,7 +223,7 @@ describe('AuthService', () => {
             firstName: 'Johan',
             lastName: 'Gil',
             alias: 'johangil',
-            role: 'ADMIN',
+            role: 'CLIENT',
         } as any);
         repo.createRefreshToken.mockResolvedValue();
 
@@ -235,7 +234,6 @@ describe('AuthService', () => {
             email: 'johan@test.com',
             phone: '3001234567',
             password: 'Password123',
-            role: 'ADMIN',
         });
 
         expect(userService.add).toHaveBeenCalledWith({
@@ -245,14 +243,14 @@ describe('AuthService', () => {
             email: 'johan@test.com',
             phone: '3001234567',
             password: 'Password123',
-            role: 'ADMIN',
+            role: 'CLIENT',
         });
         expect(result).toEqual({
             user: {
                 id: 5,
                 name: 'Johan Gil',
                 alias: 'johangil',
-                role: 'ADMIN',
+                role: 'CLIENT',
             },
             tokens: {
                 accessToken: expect.any(String),

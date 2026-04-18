@@ -109,7 +109,6 @@ describe('AuthController', () => {
                 alias: 'johangil',
                 email: 'johan@test.com',
                 password: 'Password123',
-                role: 'ADMIN',
             },
         } as any;
         const res = {

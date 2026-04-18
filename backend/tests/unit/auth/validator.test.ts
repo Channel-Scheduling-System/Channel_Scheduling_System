@@ -15,7 +15,6 @@ describe('Auth DTO validators', () => {
             email: 'johan@test.com',
             phone: '3001234567',
             password: 'Password123!',
-            role: 'ADMIN',
         });
 
         expect(result.success).toBe(true);
@@ -28,7 +27,6 @@ describe('Auth DTO validators', () => {
             alias: 'johangil',
             email: 'johan@test.com',
             password: '123',
-            role: 'ADMIN',
         });
 
         expect(result.success).toBe(false);
@@ -41,7 +39,6 @@ describe('Auth DTO validators', () => {
             alias: 'johangil',
             email: 'johan@test.com',
             password: 'Password123',
-            role: 'ADMIN',
             extraField: 'not-allowed',
         });
 
