@@ -1,11 +1,15 @@
 /// <reference types="jest" />
 
 import bcrypt from 'bcrypt';
+import { createHash } from 'crypto';
 
 import { AuthService } from '../../../src/modules/auth/auth.service';
 import type { IAuthRepository } from '../../../src/modules/auth/auth.repository';
 import type { IUserService } from '../../../src/modules/users/user.service';
-import { ConflictError } from '../../../src/shared/errors/domain.error';
+import {
+    ConflictError,
+    TokenReuseError,
+} from '../../../src/shared/errors/domain.error';
 import { InvalidCredentialsError } from '../../../src/shared/errors/validation.error';
 
 jest.mock('#/config/env.js', () => ({
@@ -77,8 +81,26 @@ function createUserServiceMock(): jest.Mocked<IUserService> {
         getById: jest.fn(),
         getByIdentifier: jest.fn(),
         getAll: jest.fn(),
+        update: jest.fn(),
+        updatePassword: jest.fn(),
         countAdmins: jest.fn(),
     };
+}
+
+function buildRefreshToken(sub: number, role: string): string {
+    const payload = Buffer.from(
+        JSON.stringify({
+            sub: sub.toString(),
+            role,
+            exp: Math.floor(Date.now() / 1000) + 3600,
+        }),
+    ).toString('base64');
+
+    return `header.${payload}.signature`;
+}
+
+function hashToken(token: string): string {
+    return createHash('sha256').update(token).digest('hex');
 }
 
 describe('AuthService', () => {
@@ -242,5 +264,99 @@ describe('AuthService', () => {
             expect.any(String),
             expect.any(Date),
         );
+    });
+
+    it('should rotate refresh token on refresh', async () => {
+        const repo = createRepoMock();
+        const userService = createUserServiceMock();
+        const service = new AuthService(repo, userService);
+
+        const refreshToken = buildRefreshToken(1, 'ADMIN');
+        const refreshTokenHash = hashToken(refreshToken);
+
+        repo.findRefreshToken.mockResolvedValue({
+            userId: 1,
+            tokenHash: refreshTokenHash,
+        } as any);
+        repo.invalidateRefreshToken.mockResolvedValue();
+        repo.createRefreshToken.mockResolvedValue();
+        userService.getById.mockResolvedValue({
+            id: 1,
+            firstName: 'Johan',
+            lastName: 'Gil',
+            alias: 'johangil',
+            role: 'ADMIN',
+        } as any);
+
+        const result = await service.refresh({ refreshToken });
+
+        expect(repo.findRefreshToken).toHaveBeenCalledWith(refreshTokenHash);
+        expect(repo.invalidateRefreshToken).toHaveBeenCalledWith(
+            refreshTokenHash,
+        );
+        expect(repo.createRefreshToken).toHaveBeenCalledWith(
+            1,
+            expect.any(String),
+            expect.any(Date),
+        );
+        expect(result.user).toEqual({
+            id: 1,
+            name: 'Johan Gil',
+            alias: 'johangil',
+            role: 'ADMIN',
+        });
+        expect(result.tokens.accessToken).toEqual(expect.any(String));
+        expect(result.tokens.refreshToken).toEqual(expect.any(String));
+    });
+
+    it('should throw TokenReuseError when refresh token is not stored', async () => {
+        const repo = createRepoMock();
+        const userService = createUserServiceMock();
+        const service = new AuthService(repo, userService);
+
+        const refreshToken = buildRefreshToken(1, 'ADMIN');
+        const refreshTokenHash = hashToken(refreshToken);
+
+        repo.findRefreshToken.mockResolvedValue(null);
+
+        await expect(service.refresh({ refreshToken })).rejects.toBeInstanceOf(
+            TokenReuseError,
+        );
+        expect(repo.deleteRefreshTokensForUser).toHaveBeenCalledWith(1);
+        expect(repo.findRefreshToken).toHaveBeenCalledWith(refreshTokenHash);
+        expect(repo.invalidateRefreshToken).not.toHaveBeenCalled();
+    });
+
+    it('should logout and invalidate stored refresh token', async () => {
+        const repo = createRepoMock();
+        const userService = createUserServiceMock();
+        const service = new AuthService(repo, userService);
+
+        const refreshToken = buildRefreshToken(1, 'ADMIN');
+        const refreshTokenHash = hashToken(refreshToken);
+
+        repo.findRefreshToken.mockResolvedValue({
+            userId: 1,
+            tokenHash: refreshTokenHash,
+        } as any);
+        repo.invalidateRefreshToken.mockResolvedValue();
+
+        await service.logout({ refreshToken, userId: 1 });
+
+        expect(repo.findRefreshToken).toHaveBeenCalledWith(refreshTokenHash);
+        expect(repo.invalidateRefreshToken).toHaveBeenCalledWith(
+            refreshTokenHash,
+        );
+    });
+
+    it('should return true when an admin exists', async () => {
+        const repo = createRepoMock();
+        const userService = createUserServiceMock();
+        const service = new AuthService(repo, userService);
+
+        userService.countAdmins.mockResolvedValue(2);
+
+        await expect(service.checkAdminExists()).resolves.toBe(true);
+        expect(userService.countAdmins).toHaveBeenCalled();
     });
 });

@@ -44,10 +44,6 @@ describe('ServiceController', () => {
         expect(res.status).toHaveBeenCalledWith(201);
         expect(res.json).toHaveBeenCalledWith({
             message: 'Servicio creado exitosamente',
-            data: expect.objectContaining({
-                id: 1,
-                name: 'Corte de cabello',
-            }),
         });
         expect(serviceService.add).toHaveBeenCalledWith(req.body);
         expect(next).not.toHaveBeenCalled();
@@ -172,8 +168,8 @@ describe('ServiceController', () => {
         const controller = new ServiceController(serviceService as any);
 
         const req = {
+            params: { id: '1' },
             body: {
-                id: 1,
                 name: 'Corte premium',
                 price: 75000,
             },
@@ -191,12 +187,11 @@ describe('ServiceController', () => {
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
             message: 'Servicio actualizado exitosamente',
-            data: expect.objectContaining({
-                id: 1,
-                name: 'Corte premium',
-            }),
         });
-        expect(serviceService.update).toHaveBeenCalledWith(req.body);
+        expect(serviceService.update).toHaveBeenCalledWith({
+            id: '1',
+            ...req.body,
+        });
         expect(next).not.toHaveBeenCalled();
     });
 
