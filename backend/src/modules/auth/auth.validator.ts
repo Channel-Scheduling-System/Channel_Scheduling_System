@@ -5,18 +5,16 @@ import {
 } from '../../shared/middlewares/validateDTO.middleware.js';
 import {
     UserPassword,
-    UserSchema,
     UserAlias,
     UserEmail,
     UserPhone,
+    CreateUserInput,
 } from '../users/user.validator.js';
 
 // REGISTER
 //* -----------------------------
-export const RegisterDTO = UserSchema.extend({
-    password: UserPassword,
-})
-    .omit({ id: true })
+export const RegisterDTO = CreateUserInput
+    .omit({ role: true })
     .strict();
 
 // LOGIN
