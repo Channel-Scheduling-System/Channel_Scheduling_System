@@ -20,11 +20,17 @@ function createRepoMock(): jest.Mocked<IServiceRepository> {
     };
 }
 
-function createUserServiceMock(): jest.Mocked<
-    Pick<IUserService, 'existsByIdAndRole'>
-> {
+function createUserServiceMock(): jest.Mocked<IUserService> {
     return {
+        add: jest.fn(),
+        addFirstAdmin: jest.fn(),
         existsByIdAndRole: jest.fn(),
+        getById: jest.fn(),
+        getByIdentifier: jest.fn(),
+        getAll: jest.fn(),
+        update: jest.fn(),
+        updatePassword: jest.fn(),
+        countAdmins: jest.fn(),
     };
 }
 
@@ -74,6 +80,7 @@ describe('ServiceService', () => {
                 color: '#FF5733',
                 price: 50000,
                 duration: 30,
+                isActive: true,
             });
             expect(userService.existsByIdAndRole).toHaveBeenCalledWith(
                 1,
@@ -163,6 +170,7 @@ describe('ServiceService', () => {
                 color: '#FF5733',
                 price: 50000,
                 duration: 30,
+                isActive: true,
             });
             expect(repo.findById).toHaveBeenCalledWith(1);
         });
@@ -225,6 +233,7 @@ describe('ServiceService', () => {
                 color: '#FF5733',
                 price: 50000,
                 duration: 30,
+                isActive: true,
             });
         });
 
@@ -282,7 +291,9 @@ describe('ServiceService', () => {
                 defaultPrice: 75000,
             };
 
-            repo.findById.mockResolvedValue(existingService);
+            repo.findById
+                .mockResolvedValueOnce(existingService)
+                .mockResolvedValueOnce(updatedService);
             repo.existsByName.mockResolvedValue(false);
             repo.update.mockResolvedValue(updatedService);
 
@@ -292,8 +303,15 @@ describe('ServiceService', () => {
                 price: 75000,
             });
 
-            expect(result.name).toBe('Corte premium');
-            expect(result.price).toBe(75000);
+            expect(result).toEqual({
+                id: 1,
+                name: 'Corte premium',
+                description: 'Servicio de corte de cabello profesional',
+                color: '#FF5733',
+                price: 75000,
+                duration: 30,
+                isActive: true,
+            });
             expect(repo.update).toHaveBeenCalled();
         });
 
