@@ -10,6 +10,16 @@ const REFRESH_TOKEN_DAYS = 7;
 export class AuthController {
     constructor(private readonly authService: IAuthService) {}
 
+    private readonly refreshCookieOptions = {
+        httpOnly: true,
+        secure: env.nodeEnv === 'production',
+        sameSite: (env.nodeEnv === 'production' ? 'none' : 'lax') as
+            | 'none'
+            | 'lax',
+        maxAge: ONE_DAY_IN_MS * REFRESH_TOKEN_DAYS,
+        path: '/',
+    };
+
     register = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const data = await this.authService.register(req.body);
@@ -88,21 +98,11 @@ export class AuthController {
     };
 
     private setRefreshTokenCookie = (res: Response, refreshToken: string) => {
-        res.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            secure: env.nodeEnv === 'production',
-            sameSite: 'strict',
-            maxAge: ONE_DAY_IN_MS * REFRESH_TOKEN_DAYS,
-            path: '/',
-        });
+        res.cookie('refreshToken', refreshToken, this.refreshCookieOptions);
     };
 
     private clearRefreshTokenCookie = (res: Response) => {
-        res.clearCookie('refreshToken', {
-            httpOnly: true,
-            secure: env.nodeEnv === 'production',
-            sameSite: 'strict',
-            path: '/',
-        });
+        const { maxAge, ...cookieOptions } = this.refreshCookieOptions;
+        res.clearCookie('refreshToken', cookieOptions);
     };
 }
