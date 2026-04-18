@@ -12,7 +12,7 @@ export type { CreateUserData };
 
 // INPUTS
 //* -----------------------------
-export type { CreateUserInput as RegisterInput };
+export interface RegisterInput extends Omit<CreateUserInput, 'role'> {}
 
 export interface LoginInput {
     identifier: string; // alias, email or phone

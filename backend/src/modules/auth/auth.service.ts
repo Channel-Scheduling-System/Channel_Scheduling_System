@@ -52,7 +52,7 @@ export class AuthService implements IAuthService {
     ) {}
 
     async register(input: RegisterInput): Promise<AuthResult> {
-        const user = await this.userService.add(input);
+        const user = await this.userService.add({ ...input, role: 'CLIENT' });
         const tokens = await this.generateAndStoreTokens(user.id, user.role);
 
         return {
