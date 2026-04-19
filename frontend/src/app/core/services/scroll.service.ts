@@ -26,4 +26,11 @@ export class ScrollService implements IScrollService{
     }
   }
 
+  requestScrollToBottom(): void {
+    setTimeout(() => {
+      const el = document.querySelector('.layout-main');
+      if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+    }, 0);
+  }
+
 }
