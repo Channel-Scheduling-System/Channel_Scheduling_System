@@ -5,15 +5,17 @@ import { CreateServiceRequest } from '../models/requests/create-service-request.
 import { UpdateServiceResponse } from '../models/responses/update-service-response.model';
 import { UpdateServiceRequest } from '../models/requests/update-service-request.model';
 import { DeleteServiceResponse } from '../models/responses/delete-service-response.model';
+import { ServiceFilters } from '../models/requests/service-filters.model';
+import { SetStateServiceRequest } from '../models/requests/set-state-service-request.model';
 
 export interface IServicesService {
   
-  getServicesByWorker(workerId: number): Observable<ServicesListResponse>;
+  getServices(filters: ServiceFilters): Observable<ServicesListResponse>;
 
   createService(request: CreateServiceRequest): Observable<CreateServiceResponse>;
 
   updateService(request: UpdateServiceRequest, id: number): Observable<UpdateServiceResponse>;
 
-  deleteService(id: number): Observable<DeleteServiceResponse>;
+  setServiceState(id: number, data: SetStateServiceRequest): Observable<DeleteServiceResponse>;
 
 }
