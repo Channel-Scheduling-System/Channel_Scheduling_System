@@ -1,0 +1,21 @@
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmerRow {
+  from {
+    transform: translateX(-100%) skewX(-8deg);
+  }
+
+  to {
+    transform: translateX(250%) skewX(-8deg);
+  }
+}

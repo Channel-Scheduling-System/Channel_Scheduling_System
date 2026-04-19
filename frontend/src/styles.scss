@@ -33,6 +33,12 @@
   }
 }
 
+@media (max-width: 315px) {
+  :root {
+    font-size: 60%;
+  }
+}
+
 html {
   @include mat.theme((
     color: (
