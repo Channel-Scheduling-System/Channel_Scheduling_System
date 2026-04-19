@@ -87,7 +87,7 @@
             [class.user-card--inactive]="!user.isActive">
 
             <div class="flex flex-col gap-[0.2rem] min-w-0">
-                <span class="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-[#b0a8a7] truncate">@{{ user.alias
+                <span class="text-[0.68rem] font-bold tracking-[0.2em] text-[#b0a8a7] truncate">@{{ user.alias
                     }}</span>
                 <h3 class="font-manrope font-black text-[1.1rem] text-[#1c1b1b] leading-tight truncate">
                     {{ user.firstName }} {{ user.lastName }}
@@ -127,39 +127,12 @@
         </div>
     </div>
 
-    <div *ngIf="!isLoading && meta.total > 0" class="flex flex-wrap justify-between items-center gap-3 pt-2">
-        <p class="text-[0.75rem] font-medium text-[#877270] m-0">
-            Mostrando {{ displayedCount }} de {{ meta.total }}
-            {{ meta.total === 1 ? 'usuario' : 'usuarios' }}
-            <ng-container *ngIf="searchTerm || selectedState !== undefined || selectedRole !== undefined">
-                filtrados</ng-container>
-        </p>
-        <div class="flex gap-2 flex-wrap">
-            <button
-                class="users-page__page-btn flex items-center gap-1 px-4 py-[0.45rem] bg-white border-[1.5px] border-[#e5e2e1] rounded-lg text-[0.75rem] font-bold text-[#2a0002] cursor-pointer"
-                [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
-                <span class="material-symbols-outlined text-base leading-none" translate="no">chevron_left</span>
-                Anterior
-            </button>
-            <ng-container *ngFor="let p of paginationItems">
-                <span *ngIf="p === '...'"
-                    class="users-page__page-ellipsis flex items-center justify-center min-w-9 px-[0.6rem] py-[0.45rem] text-[0.75rem] font-bold text-[#877270] select-none">
-                    …
-                </span>
-                <button *ngIf="p !== '...'"
-                    class="users-page__page-btn users-page__page-btn--number flex items-center justify-center min-w-9 px-[0.6rem] py-[0.45rem] bg-white border-[1.5px] border-[#e5e2e1] rounded-lg text-[0.75rem] font-bold text-[#2a0002] cursor-pointer"
-                    [class.users-page__page-btn--active]="p === currentPage" (click)="goToPage(+p)">
-                    {{ p }}
-                </button>
-            </ng-container>
-            <button
-                class="users-page__page-btn flex items-center gap-1 px-4 py-[0.45rem] bg-white border-[1.5px] border-[#e5e2e1] rounded-lg text-[0.75rem] font-bold text-[#2a0002] cursor-pointer"
-                [disabled]="currentPage === meta.totalPages" (click)="goToPage(currentPage + 1)">
-                Siguiente
-                <span class="material-symbols-outlined text-base leading-none" translate="no">chevron_right</span>
-            </button>
-        </div>
-    </div>
+    <app-pagination *ngIf="!isLoading && meta.total > 0" [currentPage]="currentPage" [totalPages]="meta.totalPages"
+        [totalItems]="meta.total" [displayedItems]="displayedCount" [itemLabel]="'usuario'"
+        [itemLabelPlural]="'usuarios'"
+        [showFiltered]="searchTerm !== '' || selectedState !== undefined || selectedRole !== undefined"
+        (pageChange)="goToPage($event)">
+    </app-pagination>
 
 </div>
 
