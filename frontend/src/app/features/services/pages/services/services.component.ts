@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, TemplateRef, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, OnDestroy, OnInit, TemplateRef, ViewChild, ViewContainerRef, HostListener } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ServicesService } from '../../services/services.service';
@@ -20,24 +20,32 @@ import { ScrollService } from '../../../../core/services/scroll.service';
 import { FabService } from '../../../../core/services/fab.services';
 import { TemplatePortal } from '@angular/cdk/portal';
 import { ErrorResponse } from '../../../../shared/models/api/error-response.schema';
+import { SetStateServiceRequest } from '../../models/requests/set-state-service-request.model';
+import { STATE_OPTIONS } from '../../constants/service-filter-options.constants';
+import { PaginationComponent } from '../../../../core/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-services',
   standalone: true,
-  imports: [CommonModule, CurrencyPipe, MatProgressSpinnerModule],
+  imports: [CommonModule, CurrencyPipe, MatProgressSpinnerModule, PaginationComponent],
   templateUrl: './services.component.html',
   styleUrl: './services.component.scss',
 })
 export class ServicesPageComponent implements OnInit, OnDestroy {
   @ViewChild('fabTemplate') fabTemplate!: TemplateRef<any>;
-  services: Service[] = [];
-  filteredServices: Service[] = [];
-  isLoading = false;
-  searchTerm = '';
-  isModalOpen = false;
+  private services: Service[] = [];
+  private filteredServices: Service[] = [];
+  private readonly pageSize = 8;
+  private restoreScrollAfterLoad = false;
+  
+  protected isLoading = false;
+  protected searchTerm = '';
+  protected selectedState: boolean | undefined = true;
+  protected stateDropdownOpen = false;
+  protected readonly stateOptions = STATE_OPTIONS
+  protected currentPage = 1;
 
-  readonly pageSize = 8;
-  currentPage = 1;
+  
 
   constructor(
     private fabService: FabService,
@@ -48,39 +56,56 @@ export class ServicesPageComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     private overlay: Overlay,
     private scrollService: ScrollService
-    
-  ) {}
-  ngOnDestroy(): void {
+
+  ) { }
+
+  @HostListener('document:click')
+  public onDocumentClick(): void {
+    this.stateDropdownOpen = false;
+  }
+
+  public ngOnDestroy(): void {
     this.fabService.clear();
   }
 
-  ngAfterViewInit(): void {
+  public ngAfterViewInit(): void {
     this.fabService.set(new TemplatePortal(this.fabTemplate, this.viewContainerRef));
   }
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.loadServices();
   }
 
-  loadServices(): void {
+  protected get selectedStateLabel(): string {
+    return this.stateOptions.find(o => o.value === this.selectedState)?.label ?? 'Todos los estados';
+  }
+
+  private loadServices(): void {
     const workerId = this.sessionService.getSession()?.id || 2;
     if (!workerId) {
       this.messageService.showMessage('No se pudo obtener la información del trabajador', AlertType.ERROR);
       return;
     }
     this.isLoading = true;
-    
-    this.servicesService.getServicesByWorker(workerId).subscribe({
+
+    this.servicesService.getServices({ workerId: workerId, isActive: this.selectedState }).subscribe({
       next: (response) => this.handleServicesSuccess(response),
-      error: (error)   => this.handleServicesError(error)
+      error: (error) => this.handleServicesError(error)
     });
   }
 
   private handleServicesSuccess(response: ServicesListResponse): void {
     this.services = response.data;
-    this.filteredServices = response.data;
-    this.currentPage = 1;
+    this.filterServices();
     this.isLoading = false;
+    this.applyPostLoadScroll();
+  }
+
+  private applyPostLoadScroll(): void {
+    if (this.restoreScrollAfterLoad) {
+      this.restoreScrollAfterLoad = false;
+      this.scrollService.restorePosition();
+    }
   }
 
   private handleServicesError(error: any): void {
@@ -88,19 +113,22 @@ export class ServicesPageComponent implements OnInit, OnDestroy {
     this.messageService.showMessage(error.message, AlertType.ERROR);
   }
 
-  onSearch(event: Event): void {
+  protected onSearch(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.searchTerm = input.value.toLowerCase();
-    this.filteredServices = this.services.filter(
-      (s) => s.name.toLowerCase().includes(this.searchTerm) ||
-             s.description?.toLowerCase().includes(this.searchTerm)
-    );
+    this.filterServices();
     this.currentPage = 1;
   }
 
-  createService(): void {
+  private filterServices(): void {
+    this.filteredServices = this.services.filter(
+      (s) => s.name.toLowerCase().includes(this.searchTerm) ||
+        s.description?.toLowerCase().includes(this.searchTerm)
+    );
+  }
+
+  protected createService(): void {
     const dialogData: ServiceFormModalData = { isEdit: false };
-    
     const dialogRef = this.dialog.open(ServiceFormModalComponent, {
       width: 'auto',
       maxWidth: '90vw',
@@ -115,9 +143,8 @@ export class ServicesPageComponent implements OnInit, OnDestroy {
     dialogData.onSubmit = (result: CreateServiceRequest) => this.onModalSave(result, dialogRef);
   }
 
-  updateService(service: Service): void {
+  protected updateService(service: Service): void {
     const dialogData: ServiceFormModalData = { isEdit: true, service };
-
     const dialogRef = this.dialog.open(ServiceFormModalComponent, {
       width: 'auto',
       maxWidth: '90vw',
@@ -132,40 +159,56 @@ export class ServicesPageComponent implements OnInit, OnDestroy {
     dialogData.onSubmit = (result: UpdateServiceRequest) => this.onModalUpdate(result, service.id, dialogRef);
   }
 
-  onModalSave(data: CreateServiceRequest, dialogRef: MatDialogRef<ServiceFormModalComponent>): void {
+  private onModalSave(data: CreateServiceRequest, dialogRef: MatDialogRef<ServiceFormModalComponent>): void {
     const workerId = this.sessionService.getSession()?.id;
     if (!workerId) return;
-
     const request: CreateServiceRequest = { ...data, workerId };
 
-    console.log(request);
     this.servicesService.createService(request).subscribe({
-      next: (response) => this.handleActionServiceSuccess(response),
+      next: (response) => this.handleActionServiceSuccess(response, dialogRef),
       error: (error) => this.handleActionServiceError(error, dialogRef)
     });
   }
 
-  onModalUpdate(data: UpdateServiceRequest, id: number, dialogRef: MatDialogRef<ServiceFormModalComponent>): void {
-    console.log(data);
+  private onModalUpdate(data: UpdateServiceRequest, id: number, dialogRef: MatDialogRef<ServiceFormModalComponent>): void {
+    this.scrollService.savePosition();
     this.servicesService.updateService(data, id).subscribe({
-      next: (response) => this.handleActionServiceSuccess(response),
+      next: (response) => this.handleActionServiceSuccess(response, dialogRef),
       error: (error) => this.handleActionServiceError(error, dialogRef)
     });
   }
 
-  deleteService(service: Service): void {
-    this.servicesService.deleteService(service.id).subscribe({
+  protected toggleServiceState(service: Service): void {
+    this.scrollService.savePosition();
+    this.restoreScrollAfterLoad = true;
+    const request: SetStateServiceRequest = { isActive: !service.isActive };
+    this.servicesService.setServiceState(service.id, request).subscribe({
       next: (response) => this.handleActionServiceSuccess(response),
       error: (error) => this.handleActionServiceError(error)
     });
   }
 
   private handleActionServiceSuccess(
-    response: CreateServiceResponse | UpdateServiceResponse | DeleteServiceResponse
+    response: CreateServiceResponse | UpdateServiceResponse | DeleteServiceResponse,
+    dialog?: MatDialogRef<ServiceFormModalComponent>
   ): void {
-    this.dialog.closeAll();
+    if (dialog) {
+      this.handleAfterAction(dialog);
+    }
     this.messageService.showMessage(response.message, AlertType.SUCCESS);
     this.loadServices();
+  }
+
+  private handleAfterAction(dialog: MatDialogRef<ServiceFormModalComponent>): void {
+    dialog.componentInstance.setSubmitting(false);
+    if (!dialog.componentInstance.isEditMode) {
+      dialog.componentInstance.reset();
+      this.currentPage = 1;
+      this.selectedState = true;
+      this.scrollService.requestScrollToTop();
+    } else {
+      this.restoreScrollAfterLoad = true;
+    }
   }
 
   private handleActionServiceError(error: ErrorResponse, dialog?: MatDialogRef<ServiceFormModalComponent>): void {
@@ -173,30 +216,35 @@ export class ServicesPageComponent implements OnInit, OnDestroy {
     this.messageService.showMessage(error.message, AlertType.ERROR);
   }
 
-  goToPage(page: number): void {
+  protected goToPage(page: number): void {
     if (page < 1 || page > this.totalPages) return;
     this.currentPage = page;
     this.scrollService.requestScrollToTop();
   }
-  
-  onModalClose(): void {
-    this.isModalOpen = false;
-  }
 
-  getTotalCount(): number { return this.filteredServices.length; }
-  getDisplayedCount(): number { return this.pagedServices.length; }
+  protected getTotalCount(): number { return this.filteredServices.length; }
+  protected getDisplayedCount(): number { return this.pagedServices.length; }
 
-  get totalPages(): number {
+  protected get totalPages(): number {
     return Math.max(1, Math.ceil(this.filteredServices.length / this.pageSize));
   }
 
-  get pageNumbers(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
-  }
-
-  get pagedServices(): Service[] {
+  protected get pagedServices(): Service[] {
     const start = (this.currentPage - 1) * this.pageSize;
     return this.filteredServices.slice(start, start + this.pageSize);
+  }
+
+  protected toggleStateDropdown(event: MouseEvent): void {
+    event.stopPropagation();
+    this.stateDropdownOpen = !this.stateDropdownOpen;
+  }
+
+  protected selectState(value: boolean | undefined, event: MouseEvent): void {
+    event.stopPropagation();
+    this.selectedState = value;
+    this.stateDropdownOpen = false;
+    this.currentPage = 1;
+    this.loadServices();
   }
 
 }
