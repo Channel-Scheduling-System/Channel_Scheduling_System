@@ -11,10 +11,9 @@ export const API_ENDPOINTS = {
   SERVICES: {
     LIST: `${environment.apiUrl}/services`,
     GET: (id: number) => `${environment.apiUrl}/services/${id}`,
-    BY_WORKER: (workerId: number) => `${environment.apiUrl}/services?workerId=${workerId}`,
     CREATE: `${environment.apiUrl}/services`,
     UPDATE: (id: number) => `${environment.apiUrl}/services/${id}`,
-    DELETE: (id: number) => `${environment.apiUrl}/services/${id}`,
+    SET_STATE: (id: number) => `${environment.apiUrl}/services/${id}/status`,
   },
   USERS: {
     PROFILE: (id: number) => `${environment.apiUrl}/users/${id}`,
