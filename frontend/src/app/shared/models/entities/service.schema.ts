@@ -34,7 +34,8 @@ export const ServiceSchema = z.object({
     .int('La duración debe ser un número entero')
     .positive('La duración debe ser un número positivo')
     .min(5, 'La duración mínima es 5 minutos')
-    .max(300, 'La duración máxima es 300 minutos')
+    .max(300, 'La duración máxima es 300 minutos'),
+  isActive: z.boolean().optional().default(true)
 });
 
 export type Service = z.infer<typeof ServiceSchema>;

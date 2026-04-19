@@ -145,6 +145,12 @@ export class RegisterUserPageComponent implements OnInit {
   private handleSuccess(data: any): void {
     this.isLoading = false;
     this.messageService.showMessage(data.message, AlertType.SUCCESS);
+    this.form.reset();
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { ...this.route.snapshot.queryParams, userCreated: true },
+      replaceUrl: true
+    });
   }
 
   private handleError(error: any): void {

@@ -1,7 +1,9 @@
 @use '../../../../shared/styles/components/open-add-button';
+@use '../../../../shared/styles/animations.scss';
 
 $primary: #2a0002;
 $vinotinto: #4a0010;
+$vinotinto-mid: #4A0E0E;
 $error: #ba1a1a;
 
 :host {
@@ -10,19 +12,14 @@ $error: #ba1a1a;
   height: 100%;
 }
 
-@keyframes shimmerRow {
-  from { transform: translateX(-100%) skewX(-8deg); }
-  to   { transform: translateX(250%)  skewX(-8deg); }
-}
-
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
 @keyframes overlayIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .svc-overlay {
@@ -36,8 +33,10 @@ $error: #ba1a1a;
 .services-page__search {
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
 
-  &:focus-within {
+  &:focus-within,
+  &:hover {
     border-color: $vinotinto;
+    background-color: white;
     box-shadow: 0 0 0 3px rgba(74, 0, 16, 0.2), 0 2px 8px rgba(0, 0, 0, 0.05);
 
     .services-page__search-icon {
@@ -53,7 +52,6 @@ $error: #ba1a1a;
 
 .services-page__search-input {
   transition: width 0.2s ease;
-  &:focus { width: 14rem; }
 }
 
 .services-table {
@@ -67,25 +65,32 @@ $error: #ba1a1a;
     position: relative;
     overflow: hidden;
 
-    &--alt { background-color: #faf8f8; }
+    &--alt {
+      background-color: #faf8f8;
+    }
+
+    &--inactive {
+      background-color: #e2e2e2 !important;
+      border-color: #b9b6b5;
+
+    }
 
     &::before {
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(
-        115deg,
-        transparent 20%,
-        rgba(255, 255, 255, 0.45) 50%,
-        transparent 80%
-      );
+      background: linear-gradient(115deg,
+          transparent 20%,
+          rgba(255, 255, 255, 0.45) 50%,
+          transparent 80%);
       transform: translateX(-100%) skewX(-8deg);
       pointer-events: none;
       z-index: 1;
       width: 50%;
     }
 
-    &:hover::before, &:focus-within::before {
+    &:hover::before,
+    &:focus-within::before {
       animation: shimmerRow 3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
 
@@ -97,13 +102,37 @@ $error: #ba1a1a;
         "desc     desc     desc"
         "price    duration actions";
 
-      .services-table__action { flex-shrink: 1; min-width: 0; }
-      .services-table__col--accent { display: none; }
-      .services-table__col--name { grid-area: name; }
-      .services-table__col--desc { grid-area: desc; }
-      .services-table__col--price { grid-area: price; justify-content: flex-start; }
-      .services-table__col--duration { grid-area: duration; justify-content: center; }
-      .services-table__col--actions { grid-area: actions; justify-content: flex-end; }
+      .services-table__action {
+        flex-shrink: 1;
+        min-width: 0;
+      }
+
+      .services-table__col--accent {
+        display: none;
+      }
+
+      .services-table__col--name {
+        grid-area: name;
+      }
+
+      .services-table__col--desc {
+        grid-area: desc;
+      }
+
+      .services-table__col--price {
+        grid-area: price;
+        justify-content: flex-start;
+      }
+
+      .services-table__col--duration {
+        grid-area: duration;
+        justify-content: center;
+      }
+
+      .services-table__col--actions {
+        grid-area: actions;
+        justify-content: flex-end;
+      }
     }
   }
 
@@ -143,30 +172,57 @@ $error: #ba1a1a;
       height: 200%;
     }
 
-    &:hover, &:focus {
+    &:hover,
+    &:focus {
       transform: scale(1.12);
-      .material-symbols-outlined { transform: rotate(8deg) scale(1.1); }
+
+      .material-symbols-outlined {
+        transform: rotate(8deg) scale(1.1);
+      }
     }
 
-    &:active { transform: scale(0.88); }
-    &--edit:hover, &--edit:focus { 
-      background-color: $vinotinto; 
-      border-color: $vinotinto; 
-      color: white; 
+    &:active {
+      transform: scale(0.88);
+    }
+
+    &--edit:hover,
+    &--edit:focus {
+      background-color: $vinotinto;
+      border-color: $vinotinto;
+      color: white;
       box-shadow: 0 0 6px 1px rgba($vinotinto, 0.5), 0 0 10px 2px rgba($vinotinto, 0.2);
     }
-    &--delete:hover, &--delete:focus { 
-      background-color: $error; 
-      border-color: $error; 
-      color: white; 
-      box-shadow: 0 0 6px 1px rgba($error, 0.5), 0 0 10px 2px rgba($error, 0.2);
+
+    &--deactivate {
+      border-color: #c23b22;
+      color: #c23b22;
+
+      &:hover, &:focus {
+        background-color: $error;
+        border-color: $error;
+        color: white;
+        box-shadow: 0 0 6px 1px rgba($error, 0.5), 0 0 10px 2px rgba($error, 0.2);
+      }
+    }
+
+    &--activate {
+      border-color: #1a7a3c;
+      color: #1a7a3c;
+
+      &:hover, &:focus {
+        background-color: #1a7a3c;
+        border-color: #1a7a3c;
+        color: white;
+        box-shadow: 0 0 6px 1px rgba(26, 122, 60, 0.5), 0 0 10px 2px rgba(26, 122, 60, 0.2);
+      }
     }
   }
 
   &__page-btn {
     transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
 
-    &:hover, &:focus {
+    &:hover,
+    &:focus {
       background-color: $vinotinto;
       border-color: $vinotinto;
       color: white;
@@ -174,7 +230,9 @@ $error: #ba1a1a;
       transform: translateY(-2px) scale(1.02);
     }
 
-    &:active { transform: translateY(1px) scale(0.98); }
+    &:active {
+      transform: translateY(1px) scale(0.98);
+    }
 
     &--active {
       background-color: $vinotinto;
@@ -183,17 +241,129 @@ $error: #ba1a1a;
       box-shadow: 0 4px 12px rgba($vinotinto, 0.4);
       pointer-events: none;
 
-      &:hover, &:focus {
+      &:hover,
+      &:focus {
         transform: translateY(0);
         box-shadow: 0 4px 12px rgba($vinotinto, 0.4);
       }
     }
 
-    &:disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
   }
+
+  &__page-ellipsis {
+    letter-spacing: 0.05em;
+    pointer-events: none;
+  }
+
   @media ((pointer: coarse) and (max-width: 639px)) or ((pointer: fine) and (max-width: 950px)) {
-      &__header {
-        display: none;
+    &__header {
+      display: none;
+    }
+  }
+}
+
+.services-filter {
+  &__dropdown {
+    position: relative;
+
+    &--open {
+      .services-filter__trigger {
+        border-color: $vinotinto-mid;
+        box-shadow: 0 0 0 3px rgba(74, 14, 14, 0.12);
+        color: $vinotinto-mid;
+      }
+      .services-filter__arrow {
+        transform: rotate(180deg);
       }
     }
+  }
+
+  &__trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.9rem;
+    background: white;
+    border: 1.5px solid #e5e2e1;
+    border-radius: 999px;
+    color: #544341;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+    white-space: nowrap;
+
+    &:hover {
+      border-color: rgba(74, 14, 14, 0.3);
+      color: $vinotinto-mid;
+    }
+  }
+
+  &__trigger-icon {
+    color: #877270;
+    transition: color 0.2s ease;
+  }
+
+  &__trigger:hover &__trigger-icon {
+    color: $vinotinto-mid;
+  }
+
+  &__arrow {
+    color: #877270;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease;
+  }
+
+  &__trigger-label {
+    max-width: 10rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__options {
+    position: absolute;
+    top: calc(100% + 0.4rem);
+    left: 0;
+    min-width: 100%;
+    background: white;
+    border: 1.5px solid #e5e2e1;
+    border-radius: 0.875rem;
+    box-shadow: 0 8px 24px rgba(42, 0, 2, 0.1);
+    overflow: hidden;
+    z-index: 100;
+    animation: fadeInUp 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  &__option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.55rem 0.9rem;
+    background: none;
+    border: none;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #544341;
+    cursor: pointer;
+    text-align: left;
+    transition: background-color 0.15s ease, color 0.15s ease;
+    white-space: nowrap;
+
+    &:hover {
+      background-color: #f6f3f2;
+      color: $vinotinto-mid;
+    }
+
+    &--selected {
+      color: $vinotinto-mid;
+      background-color: rgba(74, 14, 14, 0.05);
+    }
+  }
 }

@@ -1,6 +1,6 @@
 import {z} from 'zod';
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient} from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../../../shared/constants/api-endpoints.constants';
@@ -12,7 +12,7 @@ import { RegisterResponse, RegisterResponseSchema, RegisterUserResponse, Registe
 import { IUserService } from '../interfaces/user-service.interface';
 import { ListUsersResponse, ListUsersResponseSchema } from '../models/responses/list-users-response.model';
 import { GetUserResponse, GetUserResponseSchema } from '../models/responses/get-user-response.model';
-import { UpdateUserRequest } from '../models/requests/update-request.model';
+import { UpdateUserRequest, UpdateUserRequestSchema } from '../models/requests/update-request.model';
 import { UpdateUserResponse, UpdateUserResponseSchema } from '../models/responses/update-response.model';
 import { SetStateUserResponse, SetStateUserResponseSchema } from '../models/responses/set-state-user-response.model';
 import { SetStateUserRequest } from '../models/requests/set-state-user-request.model';
@@ -61,10 +61,10 @@ export class UserService implements IUserService {
     );
   }
 
-  public updateUser(userId: number, data: UpdateUserRequest): Observable<UpdateUserResponse> {
-    return this.http.put(API_ENDPOINTS.USERS.UPDATE(userId), data).pipe(
-      map(response => { 
-        console.log('Raw response from update user API:', response);
+  public updateUser(userId: number, request: UpdateUserRequest): Observable<UpdateUserResponse> {
+    const validatedRequest = UpdateUserRequestSchema.parse(request);
+    return this.http.put(API_ENDPOINTS.USERS.UPDATE(userId), validatedRequest).pipe(
+      map(response => {
         return this.responseHandler.handleSuccess(response, UpdateUserResponseSchema); })
     );
   }

@@ -1,0 +1,33 @@
+<div class="flex flex-wrap justify-between items-center gap-3" *ngIf="totalItems > 0">
+  <p class="pagination__summary">
+    Mostrando {{ displayedItems }} de {{ totalItems }}
+    {{ totalItems === 1 ? itemLabel : itemLabelPlural }}
+    <ng-container *ngIf="showFiltered"> filtrado{{ totalItems === 1 ? '' : 's' }}</ng-container>
+  </p>
+  <div class="flex gap-2 flex-wrap">
+    <button
+      class="pagination__btn flex items-center gap-1 px-4 py-[0.45rem] bg-white border-[1.5px] border-[#e5e2e1] rounded-lg text-[0.75rem] font-bold text-[#2a0002] cursor-pointer"
+      [disabled]="currentPage === 1"
+      (click)="goToPage(currentPage - 1)">
+      <span class="material-symbols-outlined text-base leading-none" translate="no">chevron_left</span>
+      Anterior
+    </button>
+    <ng-container *ngFor="let p of paginationItems">
+      <span *ngIf="p === '...'"
+        class="pagination__ellipsis flex items-center justify-center min-w-9 px-[0.6rem] py-[0.45rem] text-[0.75rem] font-bold text-[#877270] select-none">
+        …
+      </span>
+      <button *ngIf="p !== '...'"
+        class="pagination__btn pagination__btn--number flex items-center justify-center min-w-9 px-[0.6rem] py-[0.45rem] bg-white border-[1.5px] border-[#e5e2e1] rounded-lg text-[0.75rem] font-bold text-[#2a0002] cursor-pointer"
+        [class.pagination__btn--active]="p === currentPage"
+        (click)="goToPage(+p)">{{ p }}</button>
+    </ng-container>
+    <button
+      class="pagination__btn flex items-center gap-1 px-4 py-[0.45rem] bg-white border-[1.5px] border-[#e5e2e1] rounded-lg text-[0.75rem] font-bold text-[#2a0002] cursor-pointer"
+      [disabled]="currentPage === totalPages"
+      (click)="goToPage(currentPage + 1)">
+      Siguiente
+      <span class="material-symbols-outlined text-base leading-none" translate="no">chevron_right</span>
+    </button>
+  </div>
+</div>

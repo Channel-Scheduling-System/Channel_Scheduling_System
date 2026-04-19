@@ -20,25 +20,23 @@ import { DEFAULT_SERVICE_COLOR, SERVICE_COLOR_PALETTE } from '../../../../shared
 })
 export class ServiceFormModalComponent implements OnInit {
 
-  readonly colorPalette = SERVICE_COLOR_PALETTE;
+  public readonly colorPalette = SERVICE_COLOR_PALETTE;
 
-  isEditMode = false;
-  serviceId?: number;
-  serviceForm!: FormGroup;
-  isSubmitting = false;
-  selectedColor = DEFAULT_SERVICE_COLOR;
-  showColorPicker = false;
+  public isEditMode = false;
+  protected serviceForm!: FormGroup;
+  public isSubmitting = false;
+  protected selectedColor = DEFAULT_SERVICE_COLOR;
+  protected showColorPicker = false;
 
   constructor(
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<ServiceFormModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: ServiceFormModalData
+    @Inject(MAT_DIALOG_DATA) public readonly data: ServiceFormModalData
   ) {
     this.isEditMode = data?.isEdit || false;
-    this.serviceId = data?.service?.id;
   }
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.buildForm();
     if (this.isEditMode && this.data?.service) {
       this.serviceForm.patchValue({
@@ -53,14 +51,14 @@ export class ServiceFormModalComponent implements OnInit {
 
   private buildForm(): void {
     this.serviceForm = this.fb.group({
-      name:        ['', [Validators.required, serviceFieldValidator('name')]],
+      name: ['', [Validators.required, serviceFieldValidator('name')]],
       description: ['', [serviceFieldValidator('description')]],
-      price:       [null, [Validators.required, serviceFieldValidator('price')]],
-      duration:    [null, [Validators.required, serviceFieldValidator('duration')]],
+      price: [null, [Validators.required, serviceFieldValidator('price')]],
+      duration: [null, [Validators.required, serviceFieldValidator('duration')]],
     });
   }
 
-  getFieldError(fieldName: string): string {
+  protected getFieldError(fieldName: string): string {
     const control = this.serviceForm.get(fieldName);
     if (control?.touched && control?.errors) {
       if (control.errors['required']) return 'Este campo es obligatorio';
@@ -69,10 +67,10 @@ export class ServiceFormModalComponent implements OnInit {
     return '';
   }
 
-  onSubmit(): void {
+  protected onSubmit(): void {
     this.serviceForm.markAllAsTouched();
     if (this.serviceForm.invalid) return;
-    
+
     this.isSubmitting = true;
     const formValue = this.serviceForm.value;
 
@@ -86,48 +84,54 @@ export class ServiceFormModalComponent implements OnInit {
     this.data.onSubmit?.(request);
   }
 
-  setSubmitting(isSubmitting: boolean): void {
+  public setSubmitting(isSubmitting: boolean): void {
     this.isSubmitting = isSubmitting;
   }
 
-  onCancel(): void {
+  protected onCancel(): void {
     this.dialogRef.close();
   }
 
-  selectColor(color: string): void {
+  protected selectColor(color: string): void {
     this.selectedColor = color;
     this.showColorPicker = false;
   }
 
-  toggleColorPicker(): void {
+  protected toggleColorPicker(): void {
     this.showColorPicker = !this.showColorPicker;
   }
 
-  onColorInputChange(event: Event): void {
+  protected onColorInputChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.selectedColor = input.value;
   }
 
-  get modalTitle(): string {
+  protected get modalTitle(): string {
     return this.isEditMode ? 'Editar Servicio' : 'Nuevo Servicio';
   }
 
-  get modalSubtitle(): string {
-    return this.isEditMode 
-      ? 'Actualiza los detalles de tu servicio' 
+  protected get modalSubtitle(): string {
+    return this.isEditMode
+      ? 'Actualiza los detalles de tu servicio'
       : 'Define los detalles de tu nueva oferta de belleza';
   }
 
-  get submitButtonText(): string {
+  protected get submitButtonText(): string {
     return this.isEditMode ? 'Actualizar Servicio' : 'Crear Servicio';
   }
 
-  get submitIcon(): string {
+  protected get submitIcon(): string {
     return this.isEditMode ? 'check' : 'arrow_forward';
   }
 
-  get loadingText(): string {
+  protected get loadingText(): string {
     return this.isEditMode ? 'Actualizando...' : 'Guardando...';
+  }
+
+  public reset(): void {
+    this.serviceForm.reset();
+    this.selectedColor = DEFAULT_SERVICE_COLOR;
+    this.isSubmitting = false;
   }
 
 }

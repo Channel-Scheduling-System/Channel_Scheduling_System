@@ -5,7 +5,7 @@ import { UserService } from '../../services/user.service';
 import { MessageService } from '../../../../core/services/message.service';
 import { AlertType } from '../../../../core/utils/enums/AlertType';
 import { ListUserItem, ListUsersResponse, Meta } from '../../models/responses/list-users-response.model';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, Params } from '@angular/router';
 import { FabService } from '../../../../core/services/fab.services';
 import { TemplatePortal } from '@angular/cdk/portal';
 import { SessionService } from '../../../../core/services/session.service';
@@ -13,11 +13,12 @@ import { take } from 'rxjs/internal/operators/take';
 import { ScrollService } from '../../../../core/services/scroll.service';
 import { ROLE_OPTIONS, STATE_OPTIONS } from '../../constants/user-filter-options.constants';
 import { ErrorResponse } from '../../../../shared/models/api/error-response.schema';
+import { PaginationComponent } from '../../../../core/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [CommonModule, MatProgressSpinnerModule],
+  imports: [CommonModule, MatProgressSpinnerModule, PaginationComponent],
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss',
 })
@@ -30,7 +31,7 @@ export class UsersPageComponent implements OnInit, OnDestroy {
   protected currentPage = 1;
   protected searchTerm = '';
   protected selectedRole: string | undefined = undefined;
-  protected selectedState: boolean | undefined = undefined;
+  protected selectedState: boolean | undefined = true;
 
   protected isLoading = false;
   protected roleDropdownOpen = false;
@@ -38,6 +39,8 @@ export class UsersPageComponent implements OnInit, OnDestroy {
 
   protected readonly roleOptions  = ROLE_OPTIONS;
   protected readonly stateOptions = STATE_OPTIONS;
+
+  private scrollToTopAfterLoad = false;
 
   constructor(
     private userService: UserService,
@@ -52,14 +55,32 @@ export class UsersPageComponent implements OnInit, OnDestroy {
 
   public ngOnInit(): void {
     this.route.queryParams.pipe(take(1)).subscribe(params => {
-      this.currentPage   = params['page']  ? + params['page'] : 1;
-      this.searchTerm    = params['search'] ?? '';
-      this.selectedRole  = params['role']  ?? undefined;
-      this.selectedState = params['state'] !== undefined 
-        ? params['state'] === 'true' 
-        : undefined;
+      if (params['userCreated'] === 'true') {
+        this.initParamsUserCreated();
+      } else {
+        this.resetFilters(params);
+      }
       this.loadUsers();
     });
+  }
+
+  private initParamsUserCreated(): void {
+    this.currentPage   = 1;
+    this.selectedState = true;
+    this.selectedRole  = undefined;
+    this.searchTerm    = '';
+    this.scrollToTopAfterLoad = true;
+  }
+
+  private resetFilters(params: Params): void {
+    this.currentPage   = params['page']  ? +params['page'] : 1;
+    this.searchTerm    = params['search'] ?? '';
+    this.selectedRole  = params['role']  ?? undefined;
+    this.selectedState = params['state'] === 'all'
+  ? undefined
+  : params['state'] !== undefined
+    ? params['state'] === 'true'
+    : true;
   }
 
   public ngAfterViewInit(): void {
@@ -92,20 +113,6 @@ export class UsersPageComponent implements OnInit, OnDestroy {
     return this.users.length;
   }
 
-  protected get paginationItems(): (number | '...')[] {
-    const total   = this.meta.totalPages;
-    const current = this.currentPage;
-    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
-    const items: (number | '...')[] = [1];
-    if (current > 3) items.push('...');
-    const start = Math.max(2, current - 1);
-    const end   = Math.min(total - 1, current + 1);
-    for (let i = start; i <= end; i++) items.push(i);
-    if (current < total - 2) items.push('...');
-    items.push(total);
-    return items;
-  }
-
   private loadUsers(): void {
     this.isLoading = true;
     this.syncQueryParams();
@@ -128,7 +135,8 @@ export class UsersPageComponent implements OnInit, OnDestroy {
         page:   this.currentPage > 1        ? this.currentPage   : null,
         search: this.searchTerm?.trim()     ? this.searchTerm.trim()    : null,
         role:   this.selectedRole === undefined ? null : this.selectedRole,
-        state: this.selectedState === undefined ? null : String(this.selectedState),
+        state: this.selectedState === undefined ? 'all' : String(this.selectedState),
+        userCreated: null,
       },
       queryParamsHandling: 'merge',
       replaceUrl: true
@@ -139,7 +147,12 @@ export class UsersPageComponent implements OnInit, OnDestroy {
     this.users = response.data.data;
     this.meta  = response.data.meta;
     this.isLoading = false;
-    this.scrollService.restorePosition();
+    if (this.scrollToTopAfterLoad) {
+      this.scrollToTopAfterLoad = false;
+      this.scrollService.requestScrollToTop();
+    } else {
+      this.scrollService.restorePosition();
+    }
   }
 
   private handleUsersError(error: ErrorResponse): void {
@@ -209,4 +222,5 @@ export class UsersPageComponent implements OnInit, OnDestroy {
       queryParamsHandling: 'preserve'
     });
   }
+
 }

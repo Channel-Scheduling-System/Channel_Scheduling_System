@@ -1,4 +1,4 @@
-<div class="modal-card" (click)="$event.stopPropagation()">
+<div class="modal-card w-[28rem]" (click)="$event.stopPropagation()">
 
     <div class="modal-card__icon-wrap">
         <span class="material-symbols-outlined modal-card__icon" translate="no">warning</span>
@@ -43,7 +43,7 @@
             Cancelar
         </button>
 
-        <button class="modal-card__confirm-btn modal-card__confirm-btn--deactivate" type="button" [disabled]="isLoading"
+        <button class="modal-card__confirm-btn modal-card__confirm-btn--deactivate" type="button min-w-[10.5rem]" [disabled]="isLoading"
             (click)="confirm()">
             <span class="modal-card__confirm-btn-shimmer"></span>
             <span class="modal-card__confirm-btn-content relative z-[2] flex items-center gap-2">

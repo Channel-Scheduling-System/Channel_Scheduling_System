@@ -1,4 +1,5 @@
 @use '../../../../shared/styles/components/open-add-button';
+@use '../../../../shared/styles/animations.scss';
 
 $primary: #2a0002;
 $vinotinto: #4a0010;
@@ -6,7 +7,6 @@ $vinotinto-light: #ce2d2d;
 $vinotinto-mid: #4A0E0E;
 $error: #ba1a1a;
 $icon-scale-hover: 1.3;
-
 
 :host {
     display: block;
@@ -24,28 +24,6 @@ $icon-scale-hover: 1.3;
     75%  { transform: translate(-2px,    0px)   rotate(-2deg) scale($icon-scale-hover); }
     87%  { transform: translate(-1.4px, -1.4px) rotate(-6deg) scale($icon-scale-hover); }
     100% { transform: translate(0px,    -2px)   rotate(-6deg) scale($icon-scale-hover); }
-}
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(16px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes shimmerRow {
-    from {
-        transform: translateX(-100%) skewX(-8deg);
-    }
-
-    to {
-        transform: translateX(250%) skewX(-8deg);
-    }
 }
 
 .users-page {
@@ -264,8 +242,8 @@ $icon-scale-hover: 1.3;
     }
 
     &--inactive {
-        background-color: #f4f1f0;
-        border-color: #dedad9;
+        background-color: #e2e2e2;
+        border-color: #b9b6b5;
 
         h3 { color: #6b6564; }
         .text-\[\#1c1b1b\] { color: #6b6564; }

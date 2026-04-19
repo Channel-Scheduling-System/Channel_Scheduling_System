@@ -1,5 +1,10 @@
 @use '../../../../shared/styles/components/user-form-field';
 @use '../../../../shared/styles/components/user-buttons';
+@use '../../../../shared/styles/animations.scss';
+
+.my-profile-page {
+  animation: fadeInUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
 
 .reset-password-btn {
     position: relative;
