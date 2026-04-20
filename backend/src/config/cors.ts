@@ -22,7 +22,7 @@ export const corsOptions: cors.CorsOptions = {
         }
         callback(new Error(`CORS: Origin not allowed -> ${origin}`));
     },
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     credentials: true,
     optionsSuccessStatus: 200,
     maxAge: 86400, // 24 horas
