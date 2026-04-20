@@ -22,6 +22,7 @@ export interface IUserRepository {
     ): Promise<{ data: User[]; total: number }>;
     update(userId: number, data: UpdateUserData): Promise<User>;
     updatePassword(userId: number, passwordHash: string): Promise<void>;
+    updateIsActive(id: number, isActive: boolean): Promise<void>;
     countAdmins(): Promise<number>;
 }
 
@@ -144,6 +145,13 @@ export class UserRepository implements IUserRepository {
                 passwordHash,
                 mustChangePwd: false,
             },
+        });
+    }
+
+    async updateIsActive(id: number, isActive: boolean): Promise<void> {
+        await prisma.user.update({
+            where: { id },
+            data: { isActive },
         });
     }
 

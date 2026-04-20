@@ -5,7 +5,7 @@ import {
     validateParamsDTO,
     validateQueryDTO,
 } from '../../shared/middlewares/validateDTO.middleware.js';
-import { Id } from '../../shared/zod/shemas.js';
+import { Id, UpdateStateDTO } from '../../shared/zod/shemas.js';
 
 // SERVICES
 //* -----------------------------
@@ -60,10 +60,6 @@ export const CreateServiceDTO = ServiceSchema.omit({ id: true }).strict();
 export const UpdateServiceDTO = ServiceSchema.partial()
     .omit({ workerId: true })
     .strict();
-
-export const UpdateStateDTO = z.object({
-    isActive: z.boolean(),
-}).strict();
 
 // FILTERS
 export const ServiceFiltersSchema = z

@@ -101,4 +101,19 @@ export class UserController {
             next(error);
         }
     };
+
+    updateState = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { id, authRole, authId } = extractRequestContextWithId(req);
+            const state = await this.userService.updateState(
+                { id, ...req.body },
+                { role: authRole, id: authId },
+            );
+            return res.status(200).json({
+                message: `Usuario ${state ? 'activado' : 'desactivado'} exitosamente`,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
 }

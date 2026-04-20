@@ -21,12 +21,14 @@ import {
     PaginatedUserResponse,
     UpdatePasswordInput,
     UpdateUserInput,
+    UpdateStateInput,
 } from './user.types.js';
 import { mapToUserResponse, mapToUsersResponse } from './user.mapper.js';
 import {
     canCreate,
     canUpdate,
     canUpdatePassword,
+    canUpdateState,
     canView,
     getViewableRoles,
     validateRolePermission,
@@ -51,6 +53,7 @@ export interface IUserService {
         input: UpdatePasswordInput,
         auth?: AuthContext,
     ): Promise<void>;
+    updateState(input: UpdateStateInput, auth?: AuthContext): Promise<boolean>;
     countAdmins(): Promise<number>;
 }
 
@@ -96,8 +99,13 @@ export class UserService implements IUserService {
     }
 
     async getById(id: number, auth?: AuthContext): Promise<UserResponse> {
-        const user = await this.getUserOrFail(id);
-        if (auth) this.validateCanView(auth, { id: user.id, role: user.role });
+        const user = await this.getUserOrFail(id, true);
+        if (auth)
+            this.validateCanView(auth, {
+                id: user.id,
+                role: user.role,
+                isActive: user.isActive,
+            });
         return mapToUserResponse(user);
     }
 
@@ -177,13 +185,32 @@ export class UserService implements IUserService {
         await this.userRepo.updatePassword(input.id, newHash);
     }
 
+    async updateState(
+        input: UpdateStateInput,
+        auth?: AuthContext,
+    ): Promise<boolean> {
+        const user = await this.getUserOrFail(input.id, true);
+        if (auth)
+            this.validateCanUpdateState(auth, {
+                id: user.id,
+                role: user.role,
+            });
+        await this.userRepo.updateIsActive(input.id, input.isActive);
+        return input.isActive;
+    }
+
     async countAdmins(): Promise<number> {
         return this.userRepo.countAdmins();
     }
 
-    private async getUserOrFail(id: number): Promise<User> {
+    private async getUserOrFail(
+        id: number,
+        includeInactive: boolean = false,
+    ): Promise<User> {
         const user = await this.userRepo.findById(id);
         if (!user) throw new NotFoundError(USER_ERRORS.ID_NOTFOUND);
+        if (includeInactive === false && !user.isActive)
+            throw new NotFoundError(USER_ERRORS.ID_NOTFOUND);
         return user;
     }
 
@@ -219,6 +246,9 @@ export class UserService implements IUserService {
     }
 
     private validateCanView(auth: AuthContext, target: TargetUser): void {
+        if (auth.role === 'CLIENT' && !target.isActive) {
+            throw new NotFoundError(USER_ERRORS.ID_NOTFOUND);
+        }
         validateRolePermission(
             canView(auth, target),
             USER_ERRORS.ROLE_CANNOT_VIEW,
@@ -239,6 +269,16 @@ export class UserService implements IUserService {
         validateRolePermission(
             canUpdatePassword(auth, target),
             USER_ERRORS.ROLE_CANNOT_UPDATE_PASSWORD,
+        );
+    }
+
+    private validateCanUpdateState(
+        auth: AuthContext,
+        target: TargetUser,
+    ): void {
+        validateRolePermission(
+            canUpdateState(auth, target),
+            USER_ERRORS.ROLE_CANNOT_UPDATE_STATE,
         );
     }
 }

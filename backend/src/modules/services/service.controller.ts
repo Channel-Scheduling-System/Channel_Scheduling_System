@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { IServiceService } from './service.service.js';
 import { mapToServiceFilters } from './service.mapper.js';
+import { extractRequestContextWithId } from '../../shared/utils/request-parser.util.js';
 
 export class ServiceController {
     constructor(private readonly serviceService: IServiceService) {}
@@ -56,11 +57,11 @@ export class ServiceController {
 
     updateState = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const id = req.params.id as unknown as number;
-            const state = await this.serviceService.updateState({
-                id,
-                ...req.body,
-            });
+            const { id, authRole, authId } = extractRequestContextWithId(req);
+            const state = await this.serviceService.updateState(
+                { id, ...req.body },
+                { role: authRole, id: authId },
+            );
             return res.status(200).json({
                 message: `Servicio ${state ? 'activado' : 'desactivado'} exitosamente`,
             });

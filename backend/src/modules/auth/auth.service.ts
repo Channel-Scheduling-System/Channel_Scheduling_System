@@ -24,6 +24,7 @@ import {
     SystemRole,
 } from './auth.types.js';
 import { IUserService } from '../users/user.service.js';
+import { AUTH_ERRORS, USER_ERRORS } from '#/shared/constants/messages.js';
 
 export interface IAuthService {
     register(input: RegisterInput): Promise<AuthResult>;
@@ -34,16 +35,6 @@ export interface IAuthService {
 }
 
 const TOKEN_HASH_ALGORITHM = 'sha256';
-
-const AUTH_ERRORS = {
-    EMAIL_REGISTERED: 'El email ya está registrado',
-    TOKEN_REUSE_DETECTED:
-        'Sesión comprometida. Por favor inicie sesión nuevamente.',
-    USER_NOT_FOUND: 'Usuario no encontrado',
-    TOKEN_DECODE_FAILED: 'Decodificación de token fallida',
-    LOGOUT_INVALID_TOKEN: 'Token de sesión inválido o expirado',
-    LOGOUT_UNAUTHORIZED: 'No autorizado para cerrar esta sesión',
-} as const;
 
 export class AuthService implements IAuthService {
     constructor(
@@ -64,6 +55,7 @@ export class AuthService implements IAuthService {
     async login(input: LoginInput): Promise<AuthResult> {
         const user = await this.userService.getByIdentifier(input.identifier);
         if (!user) throw new InvalidCredentialsError();
+        if (!user.isActive) throw new UnauthorizedError(USER_ERRORS.USER_DEACTIVATED);
 
         const isValid = await bcrypt.compare(input.password, user.passwordHash);
         if (!isValid) throw new InvalidCredentialsError();
@@ -91,6 +83,7 @@ export class AuthService implements IAuthService {
 
         const user = await this.userService.getById(payload.sub);
         if (!user) throw new UnauthorizedError(AUTH_ERRORS.USER_NOT_FOUND);
+        if (!user.isActive) throw new UnauthorizedError(USER_ERRORS.USER_DEACTIVATED);
 
         await this.authRepo.invalidateRefreshToken(tokenHash);
         const tokens = await this.generateAndStoreTokens(user.id, user.role);

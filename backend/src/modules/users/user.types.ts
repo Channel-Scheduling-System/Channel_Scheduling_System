@@ -66,6 +66,11 @@ export interface UpdatePasswordInput {
     newPassword: string;
 }
 
+export interface UpdateStateInput {
+    id: number;
+    isActive: boolean;
+}
+
 export interface UniqueFields {
     email?: string;
     alias?: string;

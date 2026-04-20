@@ -4,7 +4,7 @@ import {
     validateParamsDTO,
     validateQueryDTO,
 } from '../../shared/middlewares/validateDTO.middleware.js';
-import { Id, oneOrMany } from '../../shared/zod/shemas.js';
+import { Id, oneOrMany, UpdateStateDTO } from '../../shared/zod/shemas.js';
 import { z } from 'zod';
 
 export const Role = z.enum(['ADMIN', 'CLIENT', 'WORKER']);
@@ -124,6 +124,7 @@ export const userValidator = {
     createFirstAdmin: validateBodyDTO(CreateFirstAdminInput),
     update: validateBodyDTO(UpdateUserInput),
     updatePassword: validateBodyDTO(UpdatePasswordInput),
+    updateState: validateBodyDTO(UpdateStateDTO),
     id: validateParamsDTO(ParamIdDTO),
     filters: validateQueryDTO(UserQuerySchema),
 };
