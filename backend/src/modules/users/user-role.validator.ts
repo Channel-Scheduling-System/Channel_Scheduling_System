@@ -1,13 +1,8 @@
+import type { AuthContext } from '../../shared/utils/request-parser.util.js';
 import type { SystemRole } from './user.types.js';
 import { ForbiddenError } from '../../shared/errors/domain.error.js';
 
-/**
- * Contexto de autenticación del usuario
- */
-export interface AuthContext {
-    id: number;
-    role: SystemRole;
-}
+export type { AuthContext };
 
 /**
  * Información del usuario objetivo (target)
@@ -64,12 +59,9 @@ export function getUpdatableRoles(authRole: SystemRole): SystemRole[] {
 /**
  * Valida si un usuario puede crear otro usuario.
  */
-export function canCreate(
-    authRole: SystemRole,
-    targetRole: SystemRole,
-): boolean {
-    const creatableRoles = getCreatableRoles(authRole);
-    return creatableRoles.includes(targetRole);
+export function canCreate(auth: AuthContext, target: TargetUser): boolean {
+    const creatableRoles = getCreatableRoles(auth.role);
+    return creatableRoles.includes(target.role);
 }
 
 /**

@@ -29,12 +29,21 @@ serviceRouter.get(
 );
 
 serviceRouter.put(
-    '/',
+    '/:id',
     authMiddleware,
     requireRole('WORKER'),
     serviceValidator.id,
     serviceValidator.update,
     serviceController.update,
+);
+
+serviceRouter.patch(
+    '/:id/state',
+    authMiddleware,
+    requireRole('WORKER'),
+    serviceValidator.id,
+    serviceValidator.updateState,
+    serviceController.updateState,
 );
 
 serviceRouter.delete(

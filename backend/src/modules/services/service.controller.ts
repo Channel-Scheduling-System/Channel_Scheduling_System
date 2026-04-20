@@ -54,6 +54,21 @@ export class ServiceController {
         }
     };
 
+    updateState = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const id = req.params.id as unknown as number;
+            const state = await this.serviceService.updateState({
+                id,
+                ...req.body,
+            });
+            return res.status(200).json({
+                message: `Servicio ${state ? 'activado' : 'desactivado'} exitosamente`,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
     delete = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = req.params.id as unknown as number;

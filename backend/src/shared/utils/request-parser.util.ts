@@ -6,8 +6,8 @@ import type { SystemRole } from '../../modules/users/user.types.js';
  * Contiene el rol y ID del usuario autenticado
  */
 export interface AuthContext {
-    authRole: SystemRole;
-    authId: number;
+    id: number;
+    role: SystemRole;
 }
 
 /**
@@ -16,25 +16,25 @@ export interface AuthContext {
  */
 export interface RequestContextWithId {
     id: number;
-    authRole: SystemRole;
     authId: number;
+    authRole: SystemRole;
 }
 
 /**
  * Extrae y tipifica el contexto de autenticación del request
  *
  * @param req - Express Request object con user autenticado
- * @returns AuthContext con authRole e authId tipificados
+ * @returns AuthContext con id y role tipificados
  * @throws Error si el usuario no está autenticado
  *
  * @example
- * const { authRole, authId } = extractAuthContext(req);
+ * const { id, role } = extractAuthContext(req);
  */
 export function extractAuthContext(req: Request): AuthContext {
-    const authRole = req.user?.role as SystemRole;
-    const authId = req.user?.sub as unknown as number;
+    const id = req.user?.sub as unknown as number;
+    const role = req.user?.role as SystemRole;
 
-    return { authRole, authId };
+    return { id, role };
 }
 
 /**
@@ -42,18 +42,18 @@ export function extractAuthContext(req: Request): AuthContext {
  * Convierte req.params.id (string) a number con validación
  *
  * @param req - Express Request object
- * @returns RequestContextWithId con id, authRole e authId tipificados
+ * @returns RequestContextWithId con id, authId y authRole tipificados
  * @throws Error si el usuario no está autenticado
  *
  * @example
- * const { id, authRole, authId } = extractRequestContextWithId(req);
+ * const { id, authId, authRole } = extractRequestContextWithId(req);
  */
 export function extractRequestContextWithId(
     req: Request,
 ): RequestContextWithId {
     const id = Number(req.params.id);
-    const authRole = req.user?.role as SystemRole;
     const authId = req.user?.sub as unknown as number;
+    const authRole = req.user?.role as SystemRole;
 
-    return { id, authRole, authId };
+    return { id, authId, authRole };
 }

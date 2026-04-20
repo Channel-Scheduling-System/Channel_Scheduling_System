@@ -19,7 +19,6 @@ import {
     UserResponse,
     CreateFirstAdminInput,
     PaginatedUserResponse,
-    AuthUserInput as AuthInput,
     UpdatePasswordInput,
     UpdateUserInput,
 } from './user.types.js';
@@ -37,18 +36,21 @@ import {
 import { USER_ERRORS } from '../../shared/constants/messages.js';
 
 export interface IUserService {
-    add(input: CreateUserInput, authRole?: SystemRole): Promise<UserResponse>;
+    add(input: CreateUserInput, auth?: AuthContext): Promise<UserResponse>;
     addFirstAdmin(input: CreateFirstAdminInput): Promise<UserResponse>;
     existsByIdAndRole(id: number, role: SystemRole): Promise<boolean>;
-    getById(id: number, auth?: AuthInput): Promise<UserResponse>;
+    getById(id: number, auth?: AuthContext): Promise<UserResponse>;
     getByIdentifier(identifier: string): Promise<User | null>;
     getAll(
         pagination: UserPagination,
         filters: UserFilters,
         authRole?: SystemRole,
     ): Promise<PaginatedUserResponse>;
-    update(input: UpdateUserInput, auth?: AuthInput): Promise<UserResponse>;
-    updatePassword(input: UpdatePasswordInput, auth?: AuthInput): Promise<void>;
+    update(input: UpdateUserInput, auth?: AuthContext): Promise<UserResponse>;
+    updatePassword(
+        input: UpdatePasswordInput,
+        auth?: AuthContext,
+    ): Promise<void>;
     countAdmins(): Promise<number>;
 }
 
@@ -59,9 +61,9 @@ export class UserService implements IUserService {
 
     async add(
         input: CreateUserInput,
-        authRole?: SystemRole,
+        auth?: AuthContext,
     ): Promise<UserResponse> {
-        if (authRole) this.validateCanCreate(authRole, input.role);
+        if (auth) this.validateCanCreate(auth, { id: 0, role: input.role });
 
         await this.validateUniqueFields(input);
 
@@ -93,7 +95,7 @@ export class UserService implements IUserService {
         return this.userRepo.existsByIdAndRole(id, role);
     }
 
-    async getById(id: number, auth?: AuthInput): Promise<UserResponse> {
+    async getById(id: number, auth?: AuthContext): Promise<UserResponse> {
         const user = await this.getUserOrFail(id);
         if (auth) this.validateCanView(auth, { id: user.id, role: user.role });
         return mapToUserResponse(user);
@@ -146,7 +148,7 @@ export class UserService implements IUserService {
 
     async update(
         input: UpdateUserInput,
-        auth?: AuthInput,
+        auth?: AuthContext,
     ): Promise<UserResponse> {
         const user = await this.getUserOrFail(input.id);
         if (auth)
@@ -159,7 +161,7 @@ export class UserService implements IUserService {
 
     async updatePassword(
         input: UpdatePasswordInput,
-        auth?: AuthInput,
+        auth?: AuthContext,
     ): Promise<void> {
         const user = await this.getUserOrFail(input.id);
         if (auth)
@@ -209,12 +211,9 @@ export class UserService implements IUserService {
         if (phoneExists) throw new ConflictError(USER_ERRORS.PHONE_REGISTERED);
     }
 
-    private validateCanCreate(
-        authRole: SystemRole,
-        targetRole: SystemRole,
-    ): void {
+    private validateCanCreate(auth: AuthContext, target: TargetUser): void {
         validateRolePermission(
-            canCreate(authRole, targetRole),
+            canCreate(auth, target),
             USER_ERRORS.ROLE_CANNOT_CREATE,
         );
     }

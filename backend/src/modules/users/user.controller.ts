@@ -11,8 +11,8 @@ export class UserController {
 
     add = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { authRole } = extractAuthContext(req);
-            await this.userService.add(req.body, authRole);
+            const auth = extractAuthContext(req);
+            await this.userService.add(req.body, auth);
             return res.status(201).json({
                 message: 'Usuario registrado exitosamente',
             });
@@ -52,11 +52,11 @@ export class UserController {
         try {
             const pagination = mapToUserPagination(req.query);
             const filters = mapToUserFilters(req.query);
-            const { authRole } = extractAuthContext(req);
+            const { role } = extractAuthContext(req);
             const result = await this.userService.getAll(
                 pagination,
                 filters,
-                authRole,
+                role,
             );
             return res.status(200).json({
                 message: 'Usuarios recuperados exitosamente',

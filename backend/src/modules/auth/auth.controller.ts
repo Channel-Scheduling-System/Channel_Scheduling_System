@@ -102,7 +102,7 @@ export class AuthController {
     };
 
     private clearRefreshTokenCookie = (res: Response) => {
-        const { maxAge, ...cookieOptions } = this.refreshCookieOptions;
+        const { maxAge: _maxAge, ...cookieOptions } = this.refreshCookieOptions;
         res.clearCookie('refreshToken', cookieOptions);
     };
 }
