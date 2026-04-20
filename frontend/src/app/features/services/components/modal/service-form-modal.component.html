@@ -94,7 +94,7 @@
                 type="number" placeholder="45" min="1" formControlName="duration" name="duration">
             </div>
             <div *ngIf="getFieldError('duration')"
-              class="svc-field__error flex items-center gap-[0.3rem] text-[0.875rem] text-[#ba1a1a] pl-1 break-words whitespace-normal max-w-full">
+              class="svc-field__error flex items-center gap-[0.3rem] text-[0.875rem] text-[#ba1a1a] font-semibold pl-1 break-words whitespace-normal max-w-full">
               <span class="material-symbols-outlined">error</span>
               {{ getFieldError('duration') }}
             </div>
