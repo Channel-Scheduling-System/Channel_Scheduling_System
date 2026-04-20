@@ -1,5 +1,3 @@
-export type SystemRole = 'ADMIN' | 'CLIENT' | 'WORKER';
-
 // ENTITY
 export interface Service {
     id: number;
@@ -51,6 +49,11 @@ export interface UpdateServiceInput {
     color?: string;
     price?: number; // en COP
     duration?: number; // en minutos
+}
+
+export interface UpdateStateInput {
+    id: number;
+    isActive: boolean;
 }
 
 // SERVICE RESPONSE

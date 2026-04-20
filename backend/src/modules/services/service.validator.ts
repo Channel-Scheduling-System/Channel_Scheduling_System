@@ -61,6 +61,10 @@ export const UpdateServiceDTO = ServiceSchema.partial()
     .omit({ workerId: true })
     .strict();
 
+export const UpdateStateDTO = z.object({
+    isActive: z.boolean(),
+}).strict();
+
 // FILTERS
 export const ServiceFiltersSchema = z
     .object({
@@ -74,6 +78,7 @@ export const ServiceFiltersSchema = z
 export const serviceValidator = {
     create: validateBodyDTO(CreateServiceDTO),
     update: validateBodyDTO(UpdateServiceDTO),
+    updateState: validateBodyDTO(UpdateStateDTO),
     id: validateParamsDTO(ParamIdDTO),
     filters: validateQueryDTO(ServiceFiltersSchema),
 };

@@ -37,12 +37,6 @@ export interface UpdateUserData {
 }
 
 // INPUTS
-//* -----------------------------
-export interface AuthUserInput {
-    id: number;
-    role: SystemRole;
-}
-
 export interface CreateUserInput {
     alias: string;
     firstName: string;

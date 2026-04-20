@@ -6,6 +6,7 @@ import {
     ServiceResponse,
     ServiceFilters,
     UpdateServiceInput,
+    UpdateStateInput,
 } from './service.types.js';
 import {
     mapToCreateServiceData,
@@ -21,6 +22,7 @@ import {
 import { IUserService } from '../users/user.service.js';
 
 import { SERVICE_ERRORS } from '../../shared/constants/messages.js';
+import { AuthContext } from '../users/user-role.validator.js';
 
 export interface IServiceService {
     add(input: CreateServiceInput): Promise<ServiceResponse>;
@@ -28,6 +30,7 @@ export interface IServiceService {
     getById(id: number): Promise<ServiceResponse>;
     getAll(filters: ServiceFilters): Promise<ServiceResponse[]>;
     update(input: UpdateServiceInput): Promise<ServiceResponse>;
+    updateState(input: UpdateStateInput, auth?: AuthContext): Promise<boolean>;
     delete(id: number): Promise<void>;
 }
 
@@ -69,14 +72,21 @@ export class ServiceService implements IServiceService {
         return mapToServiceResponse(updatedService);
     }
 
+    async updateState(
+        input: UpdateStateInput,
+        auth?: AuthContext,
+    ): Promise<boolean> {
+        const service = await this.getServiceOrFail(input.id);
+        if (auth) this.validateCanUpdateState(auth, service.workerId);
+        await this.serviceRepo.updateIsActive(input.id, input.isActive);
+        return input.isActive;
+    }
+
     async delete(id: number): Promise<void> {
         await this.getServiceOrFail(id);
         // TODO: Verificar que el servicio no tenga citas asociadas
         await this.serviceRepo.delete(id);
     }
-
-    // TODO: Add changeStatus (activate/deactivate)
-    // - Solo el worker asignado pueden modificar el servicio
 
     private async getServiceOrFail(id: number): Promise<Service> {
         const service = await this.serviceRepo.findById(id);
@@ -102,5 +112,11 @@ export class ServiceService implements IServiceService {
             name,
         );
         if (existingUser) throw new ConflictError(SERVICE_ERRORS.NAME_CONFLICT);
+    }
+
+    private validateCanUpdateState(auth: AuthContext, workerId: number): void {
+        if (auth.id !== workerId) {
+            throw new ConflictError(SERVICE_ERRORS.UPDATE_STATE_FORBIDDEN);
+        }
     }
 }

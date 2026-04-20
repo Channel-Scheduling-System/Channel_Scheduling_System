@@ -13,6 +13,7 @@ export interface IServiceRepository {
     findById(id: number): Promise<Service | null>;
     findAll(filters: ServiceFilters): Promise<Service[]>;
     update(id: number, data: UpdateServiceData): Promise<Service>;
+    updateIsActive(id: number, isActive: boolean): Promise<void>;
     delete(id: number): Promise<Service>;
 }
 
@@ -54,6 +55,13 @@ export class ServiceRepository implements IServiceRepository {
         return await prisma.service.update({
             where: { id },
             data,
+        });
+    }
+
+    async updateIsActive(id: number, isActive: boolean): Promise<void> {
+        await prisma.service.update({
+            where: { id },
+            data: { isActive },
         });
     }
 
