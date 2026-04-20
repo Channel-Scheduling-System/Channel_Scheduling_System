@@ -9,6 +9,8 @@ import { UpdateUserRequest } from '../models/requests/update-request.model';
 import { SetStateUserResponse } from '../models/responses/set-state-user-response.model';
 import { SetStateUserRequest } from '../models/requests/set-state-user-request.model';
 import { UserFilters } from '../models/requests/user-filters.model';
+import { ResetUserPasswordRequest } from '../../profile/models/requests/reset-password-request.model';
+import { ResetUserPasswordResponse } from '../../profile/models/responses/reset-password-response.model';
 
 export interface IUserService {
   
@@ -36,7 +38,7 @@ export interface IUserService {
   
   setUserState(
     userId: number, 
-    data: SetStateUserRequest
+    request: SetStateUserRequest
   ): Observable<SetStateUserResponse>;
 
 }
