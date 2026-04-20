@@ -15,11 +15,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const headerService = inject(HeaderService);
   const router = inject(Router);
   const errorHandler = inject(HttpErrorHandler);
-  const responseHandler = inject(ResponseHandler);
   
   const token = tokenService.getToken();
 
-  if (req.url.includes('/auth/')) {
+  if (req.url.includes('/auth/') || req.url.includes('/admin/')) {
     return next(req);
   }
 
