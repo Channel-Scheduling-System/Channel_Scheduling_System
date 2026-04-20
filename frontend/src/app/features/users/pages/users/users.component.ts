@@ -144,8 +144,8 @@ export class UsersPageComponent implements OnInit, OnDestroy {
   }
 
   private handleUsersSuccess(response: ListUsersResponse): void {
-    this.users = response.data.data;
-    this.meta  = response.data.meta;
+    this.users = response.data;
+    this.meta  = response.meta;
     this.isLoading = false;
     if (this.scrollToTopAfterLoad) {
       this.scrollToTopAfterLoad = false;
@@ -162,7 +162,7 @@ export class UsersPageComponent implements OnInit, OnDestroy {
 
   protected getRoleLabel(role: string): string {
     const labels: Record<string, string> = {
-      ADMIN: 'Administrador', WORKER: 'Trabajador', CUSTOMER: 'Cliente'
+      ADMIN: 'Administrador', WORKER: 'Trabajador', CLIENT: 'Cliente'
     };
     return labels[role] ?? role;
   }

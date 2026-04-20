@@ -1,9 +1,8 @@
-import { z } from 'zod';
-import { UserSchema } from '../../../../shared/models/entities/user.schema';
+import z from "zod";
+import { UserSchema } from "../../../../shared/models/entities/user.schema";
 
-const UserRegistrationFields = UserSchema.omit({ id: true, isActive: true});
-
-export const RegisterUserRequestBaseSchema = UserRegistrationFields.extend({
+const ClientRegistrationFields = UserSchema.omit({ id: true, role: true, isActive: true });
+export const RegisterClientRequestSchema = ClientRegistrationFields.extend({
     password: z.string()
         .min(8, 'La contraseña debe tener al menos 8 caracteres')
         .max(50, 'La contraseña no puede exceder 50 caracteres')
@@ -13,4 +12,4 @@ export const RegisterUserRequestBaseSchema = UserRegistrationFields.extend({
         .regex(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/, 'La contraseña debe contener al menos un carácter especial')
 });
 
-export type RegisterUserRequest = z.infer<typeof RegisterUserRequestBaseSchema>;
+export type RegisterClientRequest = z.infer<typeof RegisterClientRequestSchema>;

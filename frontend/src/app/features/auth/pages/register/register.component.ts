@@ -2,13 +2,16 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../../users/services/user.service';
-import { ClientRegisterRequest, ClientRegisterRequestSchema } from '../../../users/models/requests/register-request.model';
 import { MessageService } from '../../../../core/services/message.service';
 import { AlertType } from '../../../../core/utils/enums/AlertType';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
 import { UserFormFactory } from '../../../users/utils/user-form.factory';
 import { Router } from '@angular/router';
+import { RegisterClientRequest } from '../../models/requests/register-client-request.model';
+import { AuthService } from '../../services/auth.service';
+import { RegisterClientResponse } from '../../models/responses/register-client-response.model';
+import { ErrorResponse } from '../../../../shared/models/api/error-response.schema';
 
 @Component({
   selector: 'app-register',
@@ -18,15 +21,15 @@ import { Router } from '@angular/router';
   styleUrl: './register.component.scss'
 })
 export class RegisterPageComponent {
-  registerForm: FormGroup;
-  showPassword = false;
-  showConfirmPassword = false;
-  isLoading = false;
-  showChecklist = false;
+  protected registerForm: FormGroup;
+  protected showPassword = false;
+  protected showConfirmPassword = false;
+  protected isLoading = false;
+  protected showChecklist = false;
 
   constructor(
     private fb: FormBuilder,
-    private userService: UserService,
+    private authService: AuthService,
     private router: Router,
     private messageService: MessageService
   ) {
@@ -36,7 +39,7 @@ export class RegisterPageComponent {
     });
   }
 
-  get pwdChecks() {
+  protected get pwdChecks() {
     return UserFormFactory.getPasswordChecks(this.registerForm.get('password')?.value ?? '');
   }
 
@@ -66,24 +69,23 @@ export class RegisterPageComponent {
 
     this.isLoading = true;
 
-    const credentials: ClientRegisterRequest = {
-      ...this.registerForm.value,
-      role: 'CLIENT'
-    };
+    const { confirmPassword, ...rest } = this.registerForm.value;
+    const request: RegisterClientRequest = rest;
 
-    this.userService.register(credentials, ClientRegisterRequestSchema).subscribe({
-      next:  (data)  => this.handleRegisterSuccess(data),
+    this.authService.registerClientAndLogin(request).subscribe({
+      next:  (response)  => this.handleRegisterSuccess(response),
       error: (error) => this.handleRegisterError(error)
     });
+
   }
 
-  private handleRegisterSuccess(data: any): void {
+  private handleRegisterSuccess(response: RegisterClientResponse): void {
     this.isLoading = false;
-    this.messageService.showMessage(data.message, AlertType.SUCCESS);
+    this.messageService.showMessage(response.message, AlertType.SUCCESS);
     this.router.navigate(['/home']);
   }
 
-  private handleRegisterError(error: any): void {
+  private handleRegisterError(error: ErrorResponse): void {
     this.isLoading = false;
     this.messageService.showMessage(error.message, AlertType.ERROR);
   }

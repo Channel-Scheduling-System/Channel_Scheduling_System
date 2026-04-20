@@ -55,7 +55,7 @@ export class ServiceFormModalComponent implements OnInit {
   private buildForm(): void {
     this.serviceForm = this.fb.group({
       name: ['', [Validators.required, serviceFieldValidator('name')]],
-      description: ['', [serviceFieldValidator('description')]],
+      description: ['', [Validators.required, serviceFieldValidator('description')]],
       price: [null, [Validators.required, serviceFieldValidator('price')]],
       duration: [null, [Validators.required, serviceFieldValidator('duration')]],
     });

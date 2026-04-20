@@ -9,7 +9,7 @@
   },
   "include": [
     "src/**/*.ts"
-, "src/app/features/users/models/requests/deactivate-user"  ],
+, "src/app/features/users/models/requests/deactivate-user", "src/app/features/users/models/responses/set-state-user-response.model.ts"  ],
   "exclude": [
     "src/**/*.spec.ts"
   ]

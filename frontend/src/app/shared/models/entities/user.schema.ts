@@ -28,7 +28,7 @@ export const UserSchema = z.object({
     role: z.enum(ROLES).refine(val => ROLES.includes(val), {
         message: `El rol debe ser uno de: ${ROLES.join(', ')}`
         }),
-    isActive: z.boolean().optional().default(true)
+    isActive: z.boolean().default(true)
 });
 
 export type UserData = z.infer<typeof UserSchema>;

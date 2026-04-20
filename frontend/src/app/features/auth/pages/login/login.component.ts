@@ -8,6 +8,8 @@ import { AlertType } from '../../../../core/utils/enums/AlertType';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { loginFieldValidator } from '../../validators/login.validators';
 import { Router, RouterModule } from '@angular/router';
+import { RegisterClientResponse } from '../../models/responses/register-client-response.model';
+import { ErrorResponse } from '../../../../shared/models/api/error-response.schema';
 
 @Component({
   selector: 'app-login',
@@ -17,9 +19,9 @@ import { Router, RouterModule } from '@angular/router';
   styleUrls: ['./login.component.scss']
 })
 export class LoginPageComponent {
-  loginForm: FormGroup;
-  showPassword = false;
-  isLoading = false;
+  protected loginForm: FormGroup;
+  protected showPassword = false;
+  protected isLoading = false;
 
   constructor(
     private fb: FormBuilder,
@@ -62,20 +64,19 @@ export class LoginPageComponent {
       return;
     }
     this.isLoading = true;
-    const credentials: LoginRequest = this.loginForm.value;
-    this.authService.login(credentials).subscribe({
-      next: (data) => this.handleLoginSuccess(data),
+    const request: LoginRequest = this.loginForm.value;
+    this.authService.login(request).subscribe({
+      next: (response) => this.handleLoginSuccess(response),
       error: (error) => this.handleLoginError(error)
     });
   }
 
-  private handleLoginSuccess(data: any): void {
+  private handleLoginSuccess(response: RegisterClientResponse): void {
     this.isLoading = false;
-    this.messageService.showMessage(data.message, AlertType.SUCCESS);
     this.router.navigate(['/home']);
   }
 
-  private handleLoginError(error: any): void {
+  private handleLoginError(error: ErrorResponse): void {
     this.isLoading = false;
     this.messageService.showMessage(error.message, AlertType.ERROR);
   }

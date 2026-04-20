@@ -1,7 +1,6 @@
-import { z } from 'zod';
 import { Observable } from 'rxjs';
-import { RegisterRequest, RegisterUserRequestSchema } from '../models/requests/register-request.model';
-import { RegisterResponse, RegisterUserResponse } from '../models/responses/register-response.model';
+import { RegisterUserRequest } from '../models/requests/register-request.model';
+import { RegisterUserResponse } from '../models/responses/register-response.model';
 import { ListUsersResponse } from '../models/responses/list-users-response.model';
 import { GetUserResponse } from '../models/responses/get-user-response.model';
 import { UpdateUserResponse } from '../models/responses/update-response.model';
@@ -9,18 +8,11 @@ import { UpdateUserRequest } from '../models/requests/update-request.model';
 import { SetStateUserResponse } from '../models/responses/set-state-user-response.model';
 import { SetStateUserRequest } from '../models/requests/set-state-user-request.model';
 import { UserFilters } from '../models/requests/user-filters.model';
-import { ResetUserPasswordRequest } from '../../profile/models/requests/reset-password-request.model';
-import { ResetUserPasswordResponse } from '../../profile/models/responses/reset-password-response.model';
 
 export interface IUserService {
-  
-  register<T extends RegisterRequest>(
-    credentials: T,
-    schema: z.ZodTypeAny
-  ): Observable<RegisterResponse>;
 
   registerUser(
-    data: RegisterUserRequestSchema
+    data: RegisterUserRequest
   ): Observable<RegisterUserResponse>;
   
   getUsers(

@@ -1,15 +1,17 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { UserService } from '../../../users/services/user.service';
-import { AdminRegisterRequest, AdminRegisterRequestSchema } from '../../../users/models/requests/register-request.model';
-import { AdminRegisterResponse } from '../../../../shared/models/admin/admin-register-response.model';
 import { MessageService } from '../../../../core/services/message.service';
 import { AlertType } from '../../../../core/utils/enums/AlertType';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
 import { UserFormFactory } from '../../../users/utils/user-form.factory';
 import { Router } from '@angular/router';
+import { passwordMatchValidator, registerFirstAdminFieldValidator } from '../../validators/register-first-admin.validators';
+import { RegisterFirstAdminRequest } from '../../models/requests/register-first-admin-request.model';
+import { AuthService } from '../../services/auth.service';
+import { RegisterFirstAdminResponse } from '../../models/responses/register-first-admin-response.model';
+import { ErrorResponse } from '../../../../shared/models/api/error-response.schema';
 
 @Component({
   selector: 'app-admin-register',
@@ -19,26 +21,45 @@ import { Router } from '@angular/router';
   styleUrl: './admin-register.component.scss'
 })
 export class AdminRegisterPageComponent {
-  adminRegisterForm: FormGroup;
-  showPassword = false;
-  showConfirmPassword = false;
-  isLoading = false;
-  showChecklist = false;
+  protected adminRegisterForm!: FormGroup;
+  protected showPassword = false;
+  protected showConfirmPassword = false;
+  protected isLoading = false;
+  protected showChecklist = false;
+  protected showSecretCode = false;
 
   constructor(
     private fb: FormBuilder,
-    private userService: UserService,
+    private authService: AuthService,
     private messageService: MessageService,
     private router: Router
   ) {
-    this.adminRegisterForm = UserFormFactory.createRegisterForm(this.fb, 'ADMIN');
+  }
 
+  public ngOnInit(): void {
+    this.buildForm();
     this.adminRegisterForm.get('password')!.valueChanges.subscribe((value: string) => {
       this.showChecklist = !!value;
     });
+  } 
+
+  private buildForm(): void {
+    this.adminRegisterForm = this.fb.group(
+      {
+        alias:           ['', [Validators.required, registerFirstAdminFieldValidator('alias')]],
+        firstName:       ['', [Validators.required, registerFirstAdminFieldValidator('firstName')]],
+        lastName:        ['', [Validators.required, registerFirstAdminFieldValidator('lastName')]],
+        phone:           ['', [Validators.required, registerFirstAdminFieldValidator('phone')]],
+        email:           ['', [Validators.required, registerFirstAdminFieldValidator('email')]],
+        password:        ['', [Validators.required, registerFirstAdminFieldValidator('password')]],
+        confirmPassword: ['', Validators.required],
+        secretCode:      ['', [Validators.required, registerFirstAdminFieldValidator('secretCode')]],
+      },
+      { validators: passwordMatchValidator('password', 'confirmPassword') }
+    );
   }
 
-  get pwdChecks() {
+  protected get pwdChecks() {
     return UserFormFactory.getPasswordChecks(this.adminRegisterForm.get('password')?.value ?? '');
   }
 
@@ -48,6 +69,10 @@ export class AdminRegisterPageComponent {
 
   public toggleConfirmPassword(): void {
     this.showConfirmPassword = !this.showConfirmPassword;
+  }
+
+  public toggleSecretCode(): void {
+    this.showSecretCode = !this.showSecretCode;
   }
 
   public getFieldError(fieldName: string): string {
@@ -68,23 +93,22 @@ export class AdminRegisterPageComponent {
 
     this.isLoading = true;
 
-    const credentials: AdminRegisterRequest = {
-      ...this.adminRegisterForm.value,
-      role: 'ADMIN'
-    };
-    this.userService.register(credentials, AdminRegisterRequestSchema).subscribe({
-      next:  (data)  => this.handleRegisterSuccess(data),
+    const { confirmPassword, ...rest } = this.adminRegisterForm.value;
+    const request: RegisterFirstAdminRequest = rest;
+
+    this.authService.registerFirstAdmin(request).subscribe({
+      next:  (response)  => this.handleRegisterSuccess(response),
       error: (error) => this.handleRegisterError(error)
     });
   }
 
-  private handleRegisterSuccess(data: AdminRegisterResponse): void {
+  private handleRegisterSuccess(response: RegisterFirstAdminResponse): void {
     this.isLoading = false;
-    this.messageService.showMessage(data.message, AlertType.SUCCESS);
+    this.messageService.showMessage(response.message, AlertType.SUCCESS);
     this.router.navigate(['/auth/login']);
   }
 
-  private handleRegisterError(error: any): void {
+  private handleRegisterError(error: ErrorResponse): void {
     this.isLoading = false;
     this.messageService.showMessage(error.message, AlertType.ERROR);
   }

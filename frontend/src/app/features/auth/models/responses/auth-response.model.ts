@@ -13,7 +13,5 @@ export const AuthDataSchema = z.object({
     )
 });
 
-export type AuthData = z.infer<typeof AuthDataSchema>;
-
 export const AuthResponseSchema = SuccessResponseWithDataSchema(AuthDataSchema);
 export type AuthResponse = z.infer<typeof AuthResponseSchema>;

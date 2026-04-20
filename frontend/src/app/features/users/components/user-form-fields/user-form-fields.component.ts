@@ -16,14 +16,14 @@ export class UserFormFieldsComponent {
   protected roleDropdownOpen = false;
 
   protected readonly roleOptions = [
-    { value: 'CUSTOMER', label: 'Cliente'        },
+    { value: 'CLIENT', label: 'Cliente'        },
     { value: 'WORKER',   label: 'Trabajador'     },
     { value: 'ADMIN',    label: 'Administrador' },
   ];
 
   private readonly roleLabels: Record<string, string> = {
     ADMIN:    'Administrador',
-    CUSTOMER: 'Cliente',
+    CLIENT: 'Cliente',
     WORKER:   'Trabajador',
   };
 

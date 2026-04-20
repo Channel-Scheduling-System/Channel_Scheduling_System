@@ -1,16 +1,13 @@
-import {z} from 'zod';
 import { Injectable } from '@angular/core';
 import { HttpClient} from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { map} from 'rxjs/operators';
 import { API_ENDPOINTS } from '../../../shared/constants/api-endpoints.constants';
 import { ResponseHandler } from '../../../core/utils/handlers/response.handler';
-import { TokenService } from '../../../core/services/token.service';
-import { SessionService } from '../../../core/services/session.service';
-import { RegisterRequest, RegisterUserRequestSchema } from '../models/requests/register-request.model';
-import { RegisterResponse, RegisterResponseSchema, RegisterUserResponse, RegisterUserResponseSchema } from '../models/responses/register-response.model';
+import { RegisterUserRequest } from '../models/requests/register-request.model';
+import { RegisterUserResponse, RegisterUserResponseSchema } from '../models/responses/register-response.model';
 import { IUserService } from '../interfaces/user-service.interface';
-import { ListUsersResponse, ListUsersResponseSchema } from '../models/responses/list-users-response.model';
+import { ListUsersResponse, ListUsersResponseSchema} from '../models/responses/list-users-response.model';
 import { GetUserResponse, GetUserResponseSchema } from '../models/responses/get-user-response.model';
 import { UpdateUserRequest, UpdateUserRequestSchema } from '../models/requests/update-request.model';
 import { UpdateUserResponse, UpdateUserResponseSchema } from '../models/responses/update-response.model';
@@ -23,26 +20,10 @@ import { buildUserHttpParams } from '../utils/user-params.util';
 export class UserService implements IUserService {
   constructor(
     private http: HttpClient,
-    private responseHandler: ResponseHandler,
-    private tokenService: TokenService,
-    private sessionService: SessionService
+    private responseHandler: ResponseHandler
   ) {}
 
-  public register<T extends RegisterRequest>(
-    credentials: T,
-    schema: z.ZodTypeAny
-  ): Observable<RegisterResponse> {
-    const validatedRequest = schema.parse(credentials);
-    return this.http.post(API_ENDPOINTS.AUTH.REGISTER, validatedRequest).pipe(
-      map(response => this.responseHandler.handleSuccess(response, RegisterResponseSchema)),
-      tap((response: RegisterResponse) => {
-        this.tokenService.setToken(response.data.token);
-        this.sessionService.setSession(response.data.user);
-      })
-    );
-  }
-
-  public registerUser(data: RegisterUserRequestSchema): Observable<RegisterUserResponse> {
+  public registerUser(data: RegisterUserRequest): Observable<RegisterUserResponse> {
     return this.http.post(API_ENDPOINTS.USERS.REGISTER, data).pipe(
       map(response => this.responseHandler.handleSuccess(response, RegisterUserResponseSchema))
     );

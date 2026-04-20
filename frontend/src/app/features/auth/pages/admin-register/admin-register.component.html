@@ -22,7 +22,8 @@
       <header class="admin-form-container__header">
         <div>
           <h2 class="text-2xl font-black tracking-tight text-gray-900">Crear Perfil Admin</h2>
-          <p class="text-base font-medium text-gray-500 mt-0.5">Ingrese los detalles para configurar el acceso maestro al sistema.</p>
+          <p class="text-base font-medium text-gray-500 mt-0.5">Ingrese los detalles para configurar el acceso maestro
+            al sistema.</p>
         </div>
       </header>
 
@@ -32,13 +33,7 @@
           <label class="input-label">Alias de usuario</label>
           <div class="input-wrapper">
             <span class="material-symbols-outlined input-icon">alternate_email</span>
-            <input
-              class="input-field"
-              placeholder="MasterAdmin"
-              type="text"
-              formControlName="alias"
-              name="alias"
-            >
+            <input class="input-field" placeholder="MasterAdmin" type="text" formControlName="alias" name="alias">
           </div>
           <div *ngIf="getFieldError('alias')" class="error-message">
             {{ getFieldError('alias') }}
@@ -49,13 +44,8 @@
           <div class="flex flex-col gap-2">
             <label class="input-label">Nombres</label>
             <div class="input-wrapper">
-              <input
-                class="input-field input-field--no-icon"
-                placeholder="Alexander"
-                type="text"
-                formControlName="firstName"
-                name="firstName"
-              >
+              <input class="input-field input-field--no-icon" placeholder="Alexander" type="text"
+                formControlName="firstName" name="firstName">
             </div>
             <div *ngIf="getFieldError('firstName')" class="error-message">
               {{ getFieldError('firstName') }}
@@ -65,13 +55,8 @@
           <div class="flex flex-col gap-2">
             <label class="input-label">Apellidos</label>
             <div class="input-wrapper">
-              <input
-                class="input-field input-field--no-icon"
-                placeholder="Channel"
-                type="text"
-                formControlName="lastName"
-                name="lastName"
-              >
+              <input class="input-field input-field--no-icon" placeholder="Channel" type="text"
+                formControlName="lastName" name="lastName">
             </div>
             <div *ngIf="getFieldError('lastName')" class="error-message">
               {{ getFieldError('lastName') }}
@@ -83,13 +68,7 @@
           <label class="input-label">Teléfono</label>
           <div class="input-wrapper">
             <span class="material-symbols-outlined input-icon">call</span>
-            <input
-              class="input-field"
-              placeholder="3224434221"
-              type="tel"
-              formControlName="phone"
-              name="phone"
-            >
+            <input class="input-field" placeholder="3224434221" type="tel" formControlName="phone" name="phone">
           </div>
           <div *ngIf="getFieldError('phone')" class="error-message">
             {{ getFieldError('phone') }}
@@ -100,13 +79,8 @@
           <label class="input-label">Correo electrónico</label>
           <div class="input-wrapper">
             <span class="material-symbols-outlined input-icon">mail</span>
-            <input
-              class="input-field"
-              placeholder="admin@peluqueriachannel.com"
-              type="email"
-              formControlName="email"
-              name="email"
-            >
+            <input class="input-field" placeholder="admin@peluqueriachannel.com" type="email" formControlName="email"
+              name="email">
           </div>
           <div *ngIf="getFieldError('email')" class="error-message">
             {{ getFieldError('email') }}
@@ -117,13 +91,8 @@
           <label class="input-label">Contraseña</label>
           <div class="input-wrapper">
             <span class="material-symbols-outlined input-icon">lock</span>
-            <input
-              class="input-field input-field--password"
-              placeholder="••••••••"
-              [type]="showPassword ? 'text' : 'password'"
-              formControlName="password"
-              name="password"
-            >
+            <input class="input-field input-field--password" placeholder="••••••••"
+              [type]="showPassword ? 'text' : 'password'" formControlName="password" name="password">
             <button class="toggle-password" type="button" (click)="togglePassword()">
               <span class="material-symbols-outlined">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
             </button>
@@ -171,13 +140,9 @@
           <label class="input-label">Confirmar contraseña</label>
           <div class="input-wrapper">
             <span class="material-symbols-outlined input-icon">lock</span>
-            <input
-              class="input-field input-field--password"
-              placeholder="••••••••"
-              [type]="showConfirmPassword ? 'text' : 'password'"
-              formControlName="confirmPassword"
-              name="confirmPassword"
-            >
+            <input class="input-field input-field--password" placeholder="••••••••"
+              [type]="showConfirmPassword ? 'text' : 'password'" formControlName="confirmPassword"
+              name="confirmPassword">
             <button class="toggle-password" type="button" (click)="toggleConfirmPassword()">
               <span class="material-symbols-outlined">{{ showConfirmPassword ? 'visibility_off' : 'visibility' }}</span>
             </button>
@@ -187,12 +152,23 @@
           </div>
         </div>
 
-        <button
-          class="login-btn"
-          type="submit"
-          [disabled]="isLoading"
-          [class.login-btn--loading]="isLoading"
-        >
+        <div class="flex flex-col gap-2">
+          <label class="input-label">Llave de administrador</label>
+          <div class="input-wrapper">
+            <span class="material-symbols-outlined input-icon">key</span>
+            <input class="input-field input-field--password" placeholder="••••••"
+              [type]="showSecretCode ? 'text' : 'password'" formControlName="secretCode" name="secretCode"
+              autocomplete="off">
+            <button class="toggle-password" type="button" (click)="toggleSecretCode()">
+              <span class="material-symbols-outlined">{{ showSecretCode ? 'visibility_off' : 'visibility' }}</span>
+            </button>
+          </div>
+          <div *ngIf="getFieldError('secretCode')" class="error-message">
+            {{ getFieldError('secretCode') }}
+          </div>
+        </div>
+
+        <button class="login-btn" type="submit" [disabled]="isLoading" [class.login-btn--loading]="isLoading">
           <span class="login-btn__shimmer"></span>
           <span class="login-btn__glow"></span>
           <span class="login-btn__content">
