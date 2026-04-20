@@ -9,6 +9,7 @@ import { AlertType } from '../../../../core/utils/enums/AlertType';
 import { deactivatePasswordValidator } from '../../../profile/validators/deactivate-profile.validators';
 import { DeactivateProfileResponse } from '../../models/responses/deativate-profile-response.model';
 import { ErrorResponse } from '../../../../shared/models/api/error-response.schema';
+import { SessionService } from '../../../../core/services/session.service';
 
 @Component({
   selector: 'app-confirm-deactivate-account-modal',
@@ -40,8 +41,13 @@ export class ConfirmDeactivateAccountModalComponent {
     public  dialogRef:      MatDialogRef<ConfirmDeactivateAccountModalComponent>,
     private profileService: ProfileService,
     private messageService: MessageService,
+    private sessionService: SessionService,
     @Inject(MAT_DIALOG_DATA) public data: {}
   ) {}
+
+  protected get reactivationContact(): string {
+    return this.sessionService.getRole() === 'ADMIN' ? 'el Equipo de Soporte' : 'un Administrador';
+  }
 
   protected togglePassword(): void {
     this.showPassword = !this.showPassword;
@@ -50,7 +56,10 @@ export class ConfirmDeactivateAccountModalComponent {
   protected confirm(): void {
     if (this.isLoading) return;
     this.passwordControl.markAsTouched();
-    if (this.passwordControl.invalid) return;
+    if (this.passwordControl.invalid) {
+      this.messageService.showMessage('Porfavor completa el campo correctamente', AlertType.WARNING);
+      return;
+    }
 
     this.isLoading = true;
     this.profileService.deactivateAccount({ password: this.passwordControl.value! }).subscribe({

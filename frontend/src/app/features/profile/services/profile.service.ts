@@ -7,9 +7,11 @@ import { ResponseHandler } from '../../../core/utils/handlers/response.handler';
 import { GetProfileResponse, GetProfileResponseSchema} from '../models/responses/get-profile-response.model';
 import { IProfileService } from '../interfaces/profile-services.interface';
 import { UpdateProfileResponse, UpdateProfileResponseSchema } from '../models/responses/update-profile-response.model';
-import { UpdateProfileRequest } from '../models/requests/update-profile-request.model';
+import { UpdateProfileRequest, UpdateProfileRequestSchema } from '../models/requests/update-profile-request.model';
 import { DeactivateProfileResponse, DeactivateProfileResponseSchema } from '../models/responses/deativate-profile-response.model';
-import { DeactivateProfileRequest } from '../models/requests/deactivate-profile-request.model';
+import { DeactivateProfileRequest, DeactivateProfileRequestSchema } from '../models/requests/deactivate-profile-request.model';
+import { ResetUserPasswordRequest, ResetUserPasswordRequestSchema } from '../models/requests/reset-password-request.model';
+import { ResetUserPasswordResponse, ResetUserPasswordResponseSchema } from '../models/responses/reset-password-response.model';
 
 @Injectable({ providedIn: 'root' })
 export class ProfileService implements IProfileService {
@@ -25,15 +27,25 @@ export class ProfileService implements IProfileService {
     );
   }
 
-  updateProfile(userId: number, data: UpdateProfileRequest): Observable<UpdateProfileResponse> {
-    return this.http.put(API_ENDPOINTS.USERS.UPDATE(userId), data).pipe(
+  updateProfile(userId: number, request: UpdateProfileRequest): Observable<UpdateProfileResponse> {
+    const validatedRequest = UpdateProfileRequestSchema.parse(request);
+    return this.http.put(API_ENDPOINTS.USERS.UPDATE(userId), validatedRequest).pipe(
       map(response => this.responseHandler.handleSuccess(response, UpdateProfileResponseSchema))
     );
   }
 
-  deactivateAccount(data: DeactivateProfileRequest): Observable<DeactivateProfileResponse> {
-    return this.http.patch(API_ENDPOINTS.USERS.DEACTIVATE, data, { withCredentials: true }).pipe(
+  deactivateAccount(request: DeactivateProfileRequest): Observable<DeactivateProfileResponse> {
+    const validatedRequest = DeactivateProfileRequestSchema.parse(request);
+    return this.http.patch(API_ENDPOINTS.USERS.DEACTIVATE, validatedRequest, { withCredentials: true }).pipe(
       map(response => this.responseHandler.handleSuccess(response, DeactivateProfileResponseSchema))
     );
   }
+
+  resetProfilePassword(userId: number, request: ResetUserPasswordRequest): Observable<ResetUserPasswordResponse> {
+    const validatedRequest = ResetUserPasswordRequestSchema.parse(request);
+    return this.http.patch(API_ENDPOINTS.USERS.RESET_PASSWORD(userId), validatedRequest).pipe(
+      map(response => this.responseHandler.handleSuccess(response, ResetUserPasswordResponseSchema))
+    );
+  }
+
 }

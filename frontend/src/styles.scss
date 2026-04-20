@@ -1,9 +1,4 @@
 
-// Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
 @use './app/shared/styles/background.scss' as bg;
 @tailwind base;
@@ -151,5 +146,32 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   transition: backdrop-filter 0.2s ease;
   &--visible {
     backdrop-filter: blur(4px);
+  }
+}
+
+.reset-password-backdrop {
+  background: rgba(30, 30, 35, 0.75);
+  backdrop-filter: blur(8px);
+  transform: translateZ(0);
+  will-change: transform;
+  transition: backdrop-filter 0.2s ease;
+}
+
+.reset-password-panel {
+  width: 30rem;
+  max-width: min(30rem, 92vw);
+
+  .mat-mdc-dialog-container {
+    max-height: 85vh;
+    overflow: hidden;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .mat-mdc-dialog-surface {
+    background: transparent;
+    box-shadow: none;
+    overflow: hidden;
   }
 }

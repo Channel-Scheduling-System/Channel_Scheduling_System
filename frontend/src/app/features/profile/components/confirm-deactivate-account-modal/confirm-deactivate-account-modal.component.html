@@ -9,8 +9,8 @@
             Desactivar tu cuenta
         </h2>
         <p class="text-[0.9rem] font-medium text-[#877270] leading-relaxed max-w-[22rem] mx-auto">
-            Perderás el acceso al sistema de inmediato. Para volver a activar tu cuenta debes contactar con un
-            <b>Administrador</b>. Digita tu contraseña para confirmar la acción si estás seguro.
+            Perderás el acceso al sistema de inmediato. Para volver a activar tu cuenta debes contactar con
+            <b>{{ reactivationContact }}</b>. Digita tu contraseña para confirmar la acción si estás seguro.
         </p>
     </div>
 
@@ -43,8 +43,8 @@
             Cancelar
         </button>
 
-        <button class="modal-card__confirm-btn modal-card__confirm-btn--deactivate" type="button min-w-[10.5rem]" [disabled]="isLoading"
-            (click)="confirm()">
+        <button class="modal-card__confirm-btn modal-card__confirm-btn--deactivate" type="button min-w-[10.5rem]"
+            [disabled]="isLoading" (click)="confirm()">
             <span class="modal-card__confirm-btn-shimmer"></span>
             <span class="modal-card__confirm-btn-content relative z-[2] flex items-center gap-2">
                 <ng-container *ngIf="!isLoading">

@@ -15,7 +15,7 @@ import { GetUserResponse, GetUserResponseSchema } from '../models/responses/get-
 import { UpdateUserRequest, UpdateUserRequestSchema } from '../models/requests/update-request.model';
 import { UpdateUserResponse, UpdateUserResponseSchema } from '../models/responses/update-response.model';
 import { SetStateUserResponse, SetStateUserResponseSchema } from '../models/responses/set-state-user-response.model';
-import { SetStateUserRequest } from '../models/requests/set-state-user-request.model';
+import { SetStateUserRequest, SetStateUserRequestSchema } from '../models/requests/set-state-user-request.model';
 import { UserFilters } from '../models/requests/user-filters.model';
 import { buildUserHttpParams } from '../utils/user-params.util';
 
@@ -69,8 +69,9 @@ export class UserService implements IUserService {
     );
   }
 
-  public setUserState(userId: number, data: SetStateUserRequest): Observable<SetStateUserResponse> {
-    return this.http.patch(API_ENDPOINTS.USERS.SET_STATE(userId), data).pipe(
+  public setUserState(userId: number, request: SetStateUserRequest): Observable<SetStateUserResponse> {
+    const validatedRequest = SetStateUserRequestSchema.parse(request);
+    return this.http.patch(API_ENDPOINTS.USERS.SET_STATE(userId), validatedRequest).pipe(
       map(response => this.responseHandler.handleSuccess(response, SetStateUserResponseSchema))
     );
   }

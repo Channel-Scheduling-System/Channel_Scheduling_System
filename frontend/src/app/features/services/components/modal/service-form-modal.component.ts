@@ -6,6 +6,8 @@ import { serviceFieldValidator } from '../../validators/create-service.validator
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ServiceFormModalData } from '../../../auth/interfaces/modal-data.interface';
 import { DEFAULT_SERVICE_COLOR, SERVICE_COLOR_PALETTE } from '../../../../shared/constants/color-palete-constants';
+import { MessageService } from '../../../../core/services/message.service';
+import { AlertType } from '../../../../core/utils/enums/AlertType';
 
 @Component({
   selector: 'app-service-form-modal',
@@ -31,6 +33,7 @@ export class ServiceFormModalComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<ServiceFormModalComponent>,
+    private messageService: MessageService,
     @Inject(MAT_DIALOG_DATA) public readonly data: ServiceFormModalData
   ) {
     this.isEditMode = data?.isEdit || false;
@@ -69,7 +72,10 @@ export class ServiceFormModalComponent implements OnInit {
 
   protected onSubmit(): void {
     this.serviceForm.markAllAsTouched();
-    if (this.serviceForm.invalid) return;
+    if (this.serviceForm.invalid) {
+      this.messageService.showMessage('Porfavor completa los campos requeridos correctamente', AlertType.WARNING);
+      return;
+    }
 
     this.isSubmitting = true;
     const formValue = this.serviceForm.value;
