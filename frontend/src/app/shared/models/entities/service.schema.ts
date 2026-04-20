@@ -18,8 +18,7 @@ export const ServiceSchema = z.object({
     )
     .min(10, 'La descripción debe tener al menos 10 caracteres')
     .max(500, 'La descripción no puede exceder 500 caracteres')
-    .or(z.literal(''))
-    .optional(),
+    .or(z.literal('')),
   color: z.string()
     .regex(
       /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/,
@@ -35,7 +34,7 @@ export const ServiceSchema = z.object({
     .positive('La duración debe ser un número positivo')
     .min(5, 'La duración mínima es 5 minutos')
     .max(300, 'La duración máxima es 300 minutos'),
-  isActive: z.boolean().optional().default(true)
+  isActive: z.boolean().default(true)
 });
 
 export type Service = z.infer<typeof ServiceSchema>;

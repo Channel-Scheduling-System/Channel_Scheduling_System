@@ -1,7 +1,6 @@
 import { z } from 'zod';
-import { SuccessResponseWithDataSchema } from '../../../../shared/models/api/success-response.schema';
-import { ServiceSchema } from '../../../../shared/models/entities/service.schema';
+import { BaseSuccessResponseSchema} from '../../../../shared/models/api/success-response.schema';
 
-export const UpdateServiceResponseSchema = SuccessResponseWithDataSchema(ServiceSchema);
+export const UpdateServiceResponseSchema = BaseSuccessResponseSchema;
 
 export type UpdateServiceResponse = z.infer<typeof UpdateServiceResponseSchema>;
