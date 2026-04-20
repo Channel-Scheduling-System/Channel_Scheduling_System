@@ -10,6 +10,7 @@ export type { AuthContext };
 export interface TargetUser {
     id: number;
     role: SystemRole;
+    isActive?: boolean;
 }
 
 /**
@@ -99,6 +100,19 @@ export function canUpdatePassword(
     target: TargetUser,
 ): boolean {
     return auth.id === target.id;
+}
+
+/**
+ * Valida si un usuario puede actualizar el estado de otro usuario.
+ * No se permite actualizar el estado propio.
+ */
+export function canUpdateState(auth: AuthContext, target: TargetUser): boolean {
+    // Un usuario no puede actualizar su propio estado
+    if (auth.id === target.id) {
+        return false;
+    }
+    const updatableRoles = getUpdatableRoles(auth.role);
+    return updatableRoles.includes(target.role);
 }
 
 /**

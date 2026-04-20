@@ -29,7 +29,7 @@ export interface IServiceService {
     existsById(id: number): Promise<boolean>;
     getById(id: number): Promise<ServiceResponse>;
     getAll(filters: ServiceFilters): Promise<ServiceResponse[]>;
-    update(input: UpdateServiceInput): Promise<ServiceResponse>;
+    update(input: UpdateServiceInput): Promise<void>;
     updateState(input: UpdateStateInput, auth?: AuthContext): Promise<boolean>;
     delete(id: number): Promise<void>;
 }
@@ -54,43 +54,48 @@ export class ServiceService implements IServiceService {
     }
 
     async getById(id: number): Promise<ServiceResponse> {
+        // TODO: Validar que el servicio sea visible para el rol del auth
         const service = await this.getServiceOrFail(id);
         return mapToServiceResponse(service);
     }
 
     async getAll(filters: ServiceFilters): Promise<ServiceResponse[]> {
+        // TODO: Validar que los servicios sean visibles para el rol del auth
         return mapToServicesResponse(await this.serviceRepo.findAll(filters));
     }
 
-    async update(input: UpdateServiceInput): Promise<ServiceResponse> {
+    async update(input: UpdateServiceInput): Promise<void> {
         const existing = await this.getServiceOrFail(input.id);
         if (input.name && input.name !== existing.name) {
             await this.ensureNameIsUnique(existing.workerId, input.name);
         }
         await this.serviceRepo.update(input.id, mapToUpdateServiceData(input));
-        const updatedService = await this.getServiceOrFail(input.id);
-        return mapToServiceResponse(updatedService);
     }
 
     async updateState(
         input: UpdateStateInput,
         auth?: AuthContext,
     ): Promise<boolean> {
-        const service = await this.getServiceOrFail(input.id);
+        const service = await this.getServiceOrFail(input.id, true);
         if (auth) this.validateCanUpdateState(auth, service.workerId);
         await this.serviceRepo.updateIsActive(input.id, input.isActive);
         return input.isActive;
     }
 
     async delete(id: number): Promise<void> {
-        await this.getServiceOrFail(id);
+        await this.getServiceOrFail(id, true);
         // TODO: Verificar que el servicio no tenga citas asociadas
         await this.serviceRepo.delete(id);
     }
 
-    private async getServiceOrFail(id: number): Promise<Service> {
+    private async getServiceOrFail(
+        id: number,
+        includeInactive: boolean = false,
+    ): Promise<Service> {
         const service = await this.serviceRepo.findById(id);
         if (!service) throw new NotFoundError(SERVICE_ERRORS.ID_NOTFOUND);
+        if (includeInactive === false && !service.isActive)
+            throw new NotFoundError(SERVICE_ERRORS.ID_NOTFOUND);
         return service;
     }
 

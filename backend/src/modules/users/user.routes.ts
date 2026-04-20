@@ -50,4 +50,13 @@ userRouter.patch(
     userController.updatePassword,
 );
 
+userRouter.patch(
+    '/:id/state',
+    authMiddleware,
+    requireRole(['ADMIN', 'WORKER']),
+    userValidator.id,
+    userValidator.updateState,
+    userController.updateState,
+);
+
 export default userRouter;
