@@ -139,6 +139,8 @@ export class UserService implements IUserService {
         authRole?: SystemRole,
     ): UserFilters {
         if (!authRole) return filters;
+         // Clientes solo ven usuarios activos
+        if (authRole === 'CLIENT') filters.isActive = true;
         const viewableRoles = getViewableRoles(authRole);
         // Si no se especifican roles, limitar a los roles permitidos
         if (!filters.role || filters.role.length === 0) {
