@@ -9,11 +9,12 @@ import { AlertType } from '../../../../core/utils/enums/AlertType';
 import { GetProfileResponse } from '../../models/responses/get-profile-response.model';
 import { UpdateProfileRequest } from '../../models/requests/update-profile-request.model';
 import { updateProfileFieldValidator } from '../../validators/update-profile.validators';
-import { ConfirmUserStateModalComponent } from '../../../users/components/confirm-user-state-modal/confirm-user-state-modal.component';
 import { MatDialog } from '@angular/material/dialog';
-import { DeactivateProfileResponse } from '../../models/responses/deativate-profile-response.model';
 import { ConfirmDeactivateAccountModalComponent } from '../../components/confirm-deactivate-account-modal/confirm-deactivate-account-modal.component';
+import { ResetPasswordModalComponent } from '../../components/reset-password-modal/reset-password-modal.component';
 import { Router } from '@angular/router';
+import { ErrorResponse } from '../../../../shared/models/api/error-response.schema';
+import { UpdateProfileResponse } from '../../models/responses/update-profile-response.model';
 
 @Component({
   selector: 'app-my-profile',
@@ -76,7 +77,7 @@ export class MyProfilePageComponent implements OnInit {
     this.isLoading = false;
   }
 
-  private handleLoadError(error: any): void {
+  private handleLoadError(error: ErrorResponse): void {
     this.isLoading = false;
     this.messageService.showMessage(error.message, AlertType.ERROR);
   }
@@ -104,26 +105,31 @@ export class MyProfilePageComponent implements OnInit {
     this.isSaving = true;
     const payload: UpdateProfileRequest = this.form.value;
     this.profileService.updateProfile(userId, payload).subscribe({
-      next: (data) => this.handleSaveSuccess(data),
+      next: (response) => this.handleSaveSuccess(response),
       error: (error) => this.handleSaveError(error),
     });
   }
 
-  private handleSaveSuccess(data: any): void {
-    this.messageService.showMessage(data.message, AlertType.SUCCESS);
+  private handleSaveSuccess(response: UpdateProfileResponse): void {
+    this.messageService.showMessage(response.message, AlertType.SUCCESS);
     setTimeout(() => {
       window.location.reload();
       this.isSaving = false;
     }, 2500);
   }
 
-  private handleSaveError(error: any): void {
+  private handleSaveError(error: ErrorResponse): void {
     this.isSaving = false;
     this.messageService.showMessage(error.message, AlertType.ERROR);
   }
 
   protected resetPassword(): void {
-    // TODO: implementar
+    this.dialog.open(ResetPasswordModalComponent, {
+      panelClass:    'reset-password-panel',
+      backdropClass: 'reset-password-backdrop',
+      autoFocus:     false,
+      data:          {},
+    });
   }
 
   protected deactivateAccount(): void {

@@ -21,6 +21,7 @@ export const API_ENDPOINTS = {
     REGISTER:  `${environment.apiUrl}/users`,
     UPDATE: (id: number) => `${environment.apiUrl}/users/${id}`,
     SET_STATE: (id: number) => `${environment.apiUrl}/users/${id}/status`,
-    DEACTIVATE: `${environment.apiUrl}/users/me/deactivate`
+    DEACTIVATE: `${environment.apiUrl}/users/me/deactivate`,
+    RESET_PASSWORD: (id: number) => `${environment.apiUrl}/users/${id}/password`
   }
 } as const;
