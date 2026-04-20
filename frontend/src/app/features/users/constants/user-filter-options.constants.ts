@@ -11,7 +11,7 @@ export interface StateOption {
 
 export const ROLE_OPTIONS: RoleOption[] = [
   { value: undefined,   label: 'Todos los roles' },
-  { value: 'CUSTOMER',  label: 'Clientes'        },
+  { value: 'CLIENT',  label: 'Clientes'        },
   { value: 'WORKER',    label: 'Trabajadores'    },
 ];
 

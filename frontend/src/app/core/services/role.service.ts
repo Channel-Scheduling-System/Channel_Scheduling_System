@@ -29,6 +29,6 @@ export class RoleService {
 
   getAdminRole(): Role { return 'ADMIN'; }
   getWorkerRole(): Role { return 'WORKER'; }
-  getClientRole(): Role { return 'CUSTOMER'; }
+  getClientRole(): Role { return 'CLIENT'; }
 
 }

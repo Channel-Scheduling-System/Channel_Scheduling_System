@@ -19,7 +19,7 @@ import {
   registerUserFieldValidator,
   passwordMatchValidator,
 } from './../../validators/register-user.validators';
-import { RegisterUserRequestSchema } from '../../models/requests/register-request.model';
+import { RegisterUserRequest } from '../../models/requests/register-request.model';
 
 @Component({
   selector: 'app-register-user',
@@ -112,7 +112,7 @@ export class RegisterUserPageComponent implements OnInit {
     }
     this.isLoading = true;
     const { confirmPassword, ...rest } = this.form.value;
-    const payload: RegisterUserRequestSchema = rest;
+    const payload: RegisterUserRequest = rest;
     this.userService.registerUser(payload).subscribe({
       next:  (data)  => this.handleSuccess(data),
       error: (error) => this.handleError(error),
@@ -134,7 +134,7 @@ export class RegisterUserPageComponent implements OnInit {
         lastName:  ['', [Validators.required, registerUserFieldValidator('lastName')]],
         phone:     ['', [Validators.required, registerUserFieldValidator('phone')]],
         email:     ['', [Validators.required, Validators.email, registerUserFieldValidator('email')]],
-        role:      [this.isAdmin ? 'CUSTOMER' : 'CUSTOMER', this.isAdmin ? Validators.required : []],
+        role:      [this.isAdmin ? 'CLIENT' : 'CLIENT', this.isAdmin ? Validators.required : []],
         password:        ['', [Validators.required, registerUserFieldValidator('password')]],
         confirmPassword: ['', Validators.required],
       },
