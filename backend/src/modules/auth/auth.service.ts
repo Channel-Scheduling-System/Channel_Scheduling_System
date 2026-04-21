@@ -55,7 +55,8 @@ export class AuthService implements IAuthService {
     async login(input: LoginInput): Promise<AuthResult> {
         const user = await this.userService.getByIdentifier(input.identifier);
         if (!user) throw new InvalidCredentialsError();
-        if (!user.isActive) throw new UnauthorizedError(USER_ERRORS.USER_DEACTIVATED);
+        if (!user.isActive)
+            throw new UnauthorizedError(USER_ERRORS.USER_DEACTIVATED);
 
         const isValid = await bcrypt.compare(input.password, user.passwordHash);
         if (!isValid) throw new InvalidCredentialsError();
@@ -83,7 +84,8 @@ export class AuthService implements IAuthService {
 
         const user = await this.userService.getById(payload.sub);
         if (!user) throw new UnauthorizedError(AUTH_ERRORS.USER_NOT_FOUND);
-        if (!user.isActive) throw new UnauthorizedError(USER_ERRORS.USER_DEACTIVATED);
+        if (!user.isActive)
+            throw new UnauthorizedError(USER_ERRORS.USER_DEACTIVATED);
 
         await this.authRepo.invalidateRefreshToken(tokenHash);
         const tokens = await this.generateAndStoreTokens(user.id, user.role);

@@ -59,4 +59,11 @@ userRouter.patch(
     userController.updateState,
 );
 
+userRouter.patch(
+    '/me/deactivate',
+    authMiddleware,
+    userValidator.deactivateMe,
+    userController.deactivateMe,
+);
+
 export default userRouter;

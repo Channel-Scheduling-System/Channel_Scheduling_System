@@ -79,23 +79,29 @@ export const CreateUserInput = UserSchema.extend({
     .omit({ id: true })
     .strict();
 
-export const CreateFirstAdminInput = CreateUserInput.extend({
+export const CreateFirstAdminDTO = CreateUserInput.extend({
     secretCode: z.string().length(10, 'Código secreto con longitud incorrecta'),
 })
     .omit({ role: true })
     .strict();
 
-export const UpdateUserInput = UserSchema.partial()
+export const UpdateUserDTO = UserSchema.partial()
     .omit({
         id: true,
         role: true,
     })
     .strict();
 
-export const UpdatePasswordInput = z
+export const UpdatePasswordDTO = z
     .object({
         password: UserPassword,
         newPassword: UserPassword,
+    })
+    .strict();
+
+export const DeactivateMeDTO = z
+    .object({
+        password: UserPassword,
     })
     .strict();
 
@@ -121,10 +127,11 @@ export const UserQuerySchema = UserFiltersSchema.and(UserPaginationSchema);
 //* -----------------------------
 export const userValidator = {
     create: validateBodyDTO(CreateUserInput),
-    createFirstAdmin: validateBodyDTO(CreateFirstAdminInput),
-    update: validateBodyDTO(UpdateUserInput),
-    updatePassword: validateBodyDTO(UpdatePasswordInput),
+    createFirstAdmin: validateBodyDTO(CreateFirstAdminDTO),
+    update: validateBodyDTO(UpdateUserDTO),
+    updatePassword: validateBodyDTO(UpdatePasswordDTO),
     updateState: validateBodyDTO(UpdateStateDTO),
+    deactivateMe: validateBodyDTO(DeactivateMeDTO),
     id: validateParamsDTO(ParamIdDTO),
     filters: validateQueryDTO(UserQuerySchema),
 };
