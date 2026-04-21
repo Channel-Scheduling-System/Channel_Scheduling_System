@@ -94,21 +94,30 @@
           </div>
         </div>
         <div class="services-table__col services-table__col--actions flex items-center justify-center min-w-0 gap-2">
-          <button
-            class="services-table__action services-table__action--edit relative overflow-hidden w-[2.75rem] h-[2.75rem] shrink-0 rounded-full border-[2px] border-[#8B1a3a] bg-transparent cursor-pointer flex items-center justify-center text-[#8B1a3a]"
-            title="Editar servicio" (click)="updateService(service)">
-            <span class="material-symbols-outlined leading-none text-[1.35rem]" translate="no">edit</span>
-          </button>
-          <button
-            class="services-table__action relative overflow-hidden w-[2.75rem] h-[2.75rem] shrink-0 rounded-full border-[2px] bg-transparent cursor-pointer flex items-center justify-center"
-            [class.services-table__action--deactivate]="service.isActive"
-            [class.services-table__action--activate]="!service.isActive"
-            [title]="service.isActive ? 'Desactivar servicio' : 'Activar servicio'"
-            (click)="toggleServiceState(service)">
-            <span class="material-symbols-outlined leading-none text-[1.35rem]" translate="no">
-              {{ service.isActive ? 'block' : 'check_circle' }}
-            </span>
-          </button>
+          <div [class.cursor-not-allowed]="!service.isActive">
+            <button
+              class="services-table__action services-table__action--edit relative overflow-hidden w-[2.75rem] h-[2.75rem] shrink-0 rounded-full border-[2px] border-[#8B1a3a] bg-transparent flex items-center justify-center text-[#8B1a3a]"
+              [class.opacity-30]="!service.isActive" [class.pointer-events-none]="!service.isActive"
+              [class.cursor-pointer]="service.isActive" title="Editar servicio" [disabled]="!service.isActive"
+              (click)="updateService(service)">
+              <span class="material-symbols-outlined leading-none text-[1.35rem]" translate="no">edit</span>
+            </button>
+          </div>
+          <div [class.cursor-not-allowed]="loadingStates.has(service.id)">
+            <button
+              class="services-table__action relative overflow-hidden w-[2.75rem] h-[2.75rem] shrink-0 rounded-full border-[2px] bg-transparent flex items-center justify-center"
+              [class.services-table__action--deactivate]="service.isActive"
+              [class.services-table__action--activate]="!service.isActive"
+              [class.opacity-50]="loadingStates.has(service.id)"
+              [class.pointer-events-none]="loadingStates.has(service.id)"
+              [class.cursor-pointer]="!loadingStates.has(service.id)" [disabled]="loadingStates.has(service.id)"
+              [title]="service.isActive ? 'Desactivar servicio' : 'Activar servicio'"
+              (click)="toggleServiceState(service)">
+              <span class="material-symbols-outlined leading-none text-[1.35rem]" translate="no">
+                {{ loadingStates.has(service.id) ? 'hourglass_empty' : (service.isActive ? 'block' : 'check_circle') }}
+              </span>
+            </button>
+          </div>
         </div>
       </div>
     </ng-container>
