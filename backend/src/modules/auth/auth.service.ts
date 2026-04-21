@@ -24,7 +24,7 @@ import {
     SystemRole,
 } from './auth.types.js';
 import { IUserService } from '../users/user.service.js';
-import { AUTH_ERRORS, USER_ERRORS } from '#/shared/constants/messages.js';
+import { AUTH_ERRORS, USER_ERRORS } from '../../shared/constants/messages.js';
 
 export interface IAuthService {
     register(input: RegisterInput): Promise<AuthResult>;
