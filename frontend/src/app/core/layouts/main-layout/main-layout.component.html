@@ -38,7 +38,7 @@
 
     <button
       class="sidebar__toggle mt-auto flex items-center justify-center w-full p-[0.6rem] bg-transparent border-none rounded-xl text-[#525252] cursor-pointer"
-      (click)="toggleSidebar()" title="Minimizar barra de navegación">
+      (click)="toggleSidebar()" title="{{ isCollapsed ? 'Expandir' : 'Minimizar' }} barra de navegación">
       <span class="material-symbols-outlined" translate="no">
         {{ isCollapsed ? 'chevron_right' : 'chevron_left' }}
       </span>
