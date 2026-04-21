@@ -54,6 +54,7 @@ export interface IUserService {
         auth?: AuthContext,
     ): Promise<void>;
     updateState(input: UpdateStateInput, auth?: AuthContext): Promise<boolean>;
+    deactivateMe(password: string, auth: AuthContext): Promise<void>;
     countAdmins(): Promise<number>;
 }
 
@@ -139,7 +140,7 @@ export class UserService implements IUserService {
         authRole?: SystemRole,
     ): UserFilters {
         if (!authRole) return filters;
-         // Clientes solo ven usuarios activos
+        // Clientes solo ven usuarios activos
         if (authRole === 'CLIENT') filters.isActive = true;
         const viewableRoles = getViewableRoles(authRole);
         // Si no se especifican roles, limitar a los roles permitidos
@@ -180,8 +181,7 @@ export class UserService implements IUserService {
                 role: user.role,
             });
 
-        const isValid = await bcrypt.compare(input.password, user.passwordHash);
-        if (!isValid) throw new InvalidCredentialsError();
+        await this.validatePassword(input.password, user.passwordHash);
 
         const newHash = await bcrypt.hash(input.newPassword, SALT_ROUNDS);
         await this.userRepo.updatePassword(input.id, newHash);
@@ -201,6 +201,12 @@ export class UserService implements IUserService {
         return input.isActive;
     }
 
+    async deactivateMe(password: string, auth: AuthContext): Promise<void> {
+        const user = await this.getUserOrFail(auth.id);
+        await this.validatePassword(password, user.passwordHash);
+        await this.userRepo.updateIsActive(auth.id, false);
+    }
+
     async countAdmins(): Promise<number> {
         return this.userRepo.countAdmins();
     }
@@ -218,6 +224,14 @@ export class UserService implements IUserService {
 
     // VALIDACIONES DE NEGOCIO Y PERMISOS
     //* -----------------------------
+
+    private async validatePassword(
+        plainPassword: string,
+        passwordHash: string,
+    ): Promise<void> {
+        const isValid = await bcrypt.compare(plainPassword, passwordHash);
+        if (!isValid) throw new InvalidCredentialsError();
+    }
 
     private async validateUniqueFields(
         input: UniqueFields,

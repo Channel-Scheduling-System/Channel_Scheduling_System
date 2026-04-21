@@ -73,7 +73,7 @@ export class UserController {
             const { id, authRole, authId } = extractRequestContextWithId(req);
             await this.userService.update(
                 { id, ...req.body },
-                { role: authRole, id: authId },
+                { id: authId, role: authRole },
             );
             return res.status(200).json({
                 message: 'Usuario actualizado exitosamente',
@@ -92,7 +92,7 @@ export class UserController {
             const { id, authRole, authId } = extractRequestContextWithId(req);
             await this.userService.updatePassword(
                 { id, ...req.body },
-                { role: authRole, id: authId },
+                { id: authId, role: authRole },
             );
             return res.status(200).json({
                 message: 'Su Contraseña se ha actualizado exitosamente',
@@ -107,10 +107,25 @@ export class UserController {
             const { id, authRole, authId } = extractRequestContextWithId(req);
             const state = await this.userService.updateState(
                 { id, ...req.body },
-                { role: authRole, id: authId },
+                { id: authId, role: authRole },
             );
             return res.status(200).json({
                 message: `Usuario ${state ? 'activado' : 'desactivado'} exitosamente`,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    deactivateMe = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { id, role } = extractAuthContext(req);
+            await this.userService.deactivateMe(req.body.password, {
+                id,
+                role,
+            });
+            return res.status(200).json({
+                message: 'Su cuenta ha sido desactivada exitosamente',
             });
         } catch (error) {
             next(error);
