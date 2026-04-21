@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener, signal} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -43,7 +43,7 @@ export class UpdateUserPageComponent implements OnInit {
   protected form!: FormGroup;
   protected isLoading = false;
   protected isSaving = false;
-  protected userIsActive = true;
+  protected userIsActive = signal(true);
   protected stateDropdownOpen = false;
   protected readonly stateOptions = [
     { value: true,  label: 'Activo',   icon: 'check_circle'  },
@@ -86,7 +86,7 @@ export class UpdateUserPageComponent implements OnInit {
       phone:     user.phone,
       email:     user.email,
     });
-    this.userIsActive = user.isActive ?? true;
+    this.userIsActive.set(user.isActive ?? true);
     this.isLoading = false;
   }
 
@@ -96,7 +96,7 @@ export class UpdateUserPageComponent implements OnInit {
   }
 
   protected get currentStateOption() {
-    return this.stateOptions.find(o => o.value === this.userIsActive)!;
+    return this.stateOptions.find(o => o.value === this.userIsActive())!;
   }
 
   protected toggleStateDropdown(event: MouseEvent): void {
@@ -107,7 +107,7 @@ export class UpdateUserPageComponent implements OnInit {
   protected requestStateChange(newState: boolean, event: MouseEvent): void {
     event.stopPropagation();
     this.stateDropdownOpen = false;
-    if (newState === this.userIsActive) return;
+    if (newState === this.userIsActive()) return;
 
     const ref = this.dialog.open(ConfirmUserStateModalComponent, {
       data: { isActive: newState },
@@ -131,7 +131,7 @@ export class UpdateUserPageComponent implements OnInit {
   }
 
   private handleStateSuccess(data: SetStateUserResponse, isActive: boolean): void {
-    this.userIsActive = isActive;
+    this.userIsActive.set(isActive);
     this.messageService.showMessage(data.message, AlertType.SUCCESS);
   }
 

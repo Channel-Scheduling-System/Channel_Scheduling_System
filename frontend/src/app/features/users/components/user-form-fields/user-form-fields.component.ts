@@ -1,4 +1,4 @@
-import { Component, Input, HostListener, ElementRef } from '@angular/core';
+import { Component, Input, HostListener, ElementRef, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
 
@@ -12,6 +12,7 @@ import { ReactiveFormsModule, FormGroup } from '@angular/forms';
 export class UserFormFieldsComponent {
   @Input({ required: true }) public formGroup!: FormGroup;
   @Input() public showRole = false;
+  @Input() public disabled = false;
 
   protected roleDropdownOpen = false;
 
@@ -28,6 +29,12 @@ export class UserFormFieldsComponent {
   };
 
   constructor(private readonly el: ElementRef) {}
+
+  public ngOnChanges(changes: SimpleChanges): void {
+    if (changes['disabled']) {
+      this.disabled ? this.formGroup.disable() : this.formGroup.enable();
+    }
+  }
 
   protected get selectedRoleLabel(): string {
     const value = this.formGroup.get('role')?.value;

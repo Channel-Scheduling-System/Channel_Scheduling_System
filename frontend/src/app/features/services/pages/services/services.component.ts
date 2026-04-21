@@ -45,6 +45,8 @@ export class ServicesPageComponent implements OnInit, OnDestroy {
   protected readonly stateOptions = STATE_OPTIONS
   protected currentPage = 1;
 
+  protected loadingStates = new Set<number>();
+
   
 
   constructor(
@@ -179,12 +181,17 @@ export class ServicesPageComponent implements OnInit, OnDestroy {
   }
 
   protected toggleServiceState(service: Service): void {
+    this.loadingStates.add(service.id);
     this.scrollService.savePosition();
     this.restoreScrollAfterLoad = true;
     const request: SetStateServiceRequest = { isActive: !service.isActive };
     this.servicesService.setServiceState(service.id, request).subscribe({
-      next: (response) => this.handleActionServiceSuccess(response),
-      error: (error) => this.handleActionServiceError(error)
+      next: (response) => {
+        this.loadingStates.delete(service.id);
+        return this.handleActionServiceSuccess(response)},
+      error: (error) => {
+        this.loadingStates.delete(service.id);
+        return this.handleActionServiceError(error)}
     });
   }
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { Router, NavigationEnd, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
@@ -19,18 +19,11 @@ import { PortalModule } from '@angular/cdk/portal';
 export class MainLayoutComponent implements OnInit {
   @ViewChild('mainContent') mainContent!: ElementRef<HTMLElement>;
 
-  userAlias = '';
-  isCollapsed = localStorage.getItem('sidebar_collapsed') === 'true' || false;
-  windowWidth = window.innerWidth;
-  isReady = false;
+  protected userAlias = '';
+  protected isCollapsed = localStorage.getItem('sidebar_collapsed') === 'true' || false;
+  protected isReady = false;
 
   private readonly SIDEBAR_STATE_KEY = 'sidebar_collapsed';
-
-
-  @HostListener('window:resize')
-  onResize() {
-    this.windowWidth = window.innerWidth;
-  }
 
   constructor(
     private sessionService: SessionService,
@@ -41,7 +34,7 @@ export class MainLayoutComponent implements OnInit {
     protected fabService: FabService
   ) { }
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.initializeUserAlias();
     this.enableTransitions();
     this.setupNavigationScroll();
@@ -75,11 +68,14 @@ export class MainLayoutComponent implements OnInit {
     requestAnimationFrame(() => this.isReady = true);
   }
 
-  get navItems() {
+  protected get navItems() {
     const userRole = this.sessionService.getRole();
     return this.navigationService.getNavItemsForRole(userRole);
   }
-  onLogout(): void {
+
+  protected onLogout(): void {
+    this.isCollapsed = false;
+    this.saveSidebarState();
     this.sessionService.logout().subscribe({
       next: () => { },
       error: (error) => {
