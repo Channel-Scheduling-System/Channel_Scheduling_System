@@ -19,34 +19,34 @@ export class App implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.checkAdmin();
+  }
+
+  private checkAdmin(): void {
     this.adminService.checkAdminExists().subscribe({
       next: (response) => {
         if (!response.data.exists) {
           this.sessionService.setAuthReady();
           this.router.navigate(['/auth/admin-register']);
-        }else {
-          this.sessionService.initAuth().subscribe({
-            next: () => {
-              this.sessionService.setAuthReady();
-            },
-            error: () => { 
-              this.sessionService.setAuthReady();
-              this.router.navigate(['/auth/login']);
-            }
-          });
+        } else {
+          this.initAuth();
         }
       },
-      error: () => {
-        this.sessionService.initAuth().subscribe({
-          next: () => {
-            this.sessionService.setAuthReady();
-          },
-          error: () => {
-            this.sessionService.setAuthReady();
-            this.router.navigate(['/auth/login']);
-           }
-        });
-      }
+      error: () => this.initAuth()
     });
+  }
+
+  private initAuth(): void {
+    this.sessionService.initAuth().subscribe({
+      next: () => this.sessionService.setAuthReady(),
+      error: () => this.handleAuthError()
+    });
+  }
+
+  private handleAuthError(): void {
+    this.sessionService.setAuthReady();
+    if (!window.location.pathname.includes('/auth')) {
+      this.router.navigate(['/auth/login']);
+    }
   }
 }
