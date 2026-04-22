@@ -24,7 +24,7 @@ export class ServiceRepository implements IServiceRepository {
 
     async existsById(id: number): Promise<boolean> {
         const exists = await prisma.service.findUnique({
-            where: { id },
+            where: { id, isActive: true },
             select: { id: true },
         });
         return !!exists;

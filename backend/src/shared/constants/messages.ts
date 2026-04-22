@@ -1,8 +1,9 @@
 export const AUTH_ERRORS = {
+    ACCESS_TOKEN_MISSING: 'Access Token no proporcionado',
+    ACCESS_TOKEN_INVALID: 'Access Token inválido',
     EMAIL_REGISTERED: 'El email ya está registrado',
     TOKEN_REUSE_DETECTED:
         'Sesión comprometida. Por favor inicie sesión nuevamente.',
-    USER_NOT_FOUND: 'Usuario no encontrado',
     TOKEN_DECODE_FAILED: 'Decodificación de token fallida',
     LOGOUT_INVALID_TOKEN: 'Token de sesión inválido o expirado',
     LOGOUT_UNAUTHORIZED: 'No autorizado para cerrar esta sesión',
@@ -23,9 +24,7 @@ export const USER_ERRORS = {
     EMAIL_REGISTERED: 'El email ya está registrado',
     ALIAS_REGISTERED: 'El alias ya está registrado',
     PHONE_REGISTERED: 'El teléfono ya está registrado',
-    ID_NOTFOUND: 'El usuario con el id solicitado no existe',
-    IDENTIFIER_NOTFOUND:
-        'No se encontró un usuario con el identificador proporcionado',
+    NOT_FOUND: 'Usuario no encontrado',
     USER_DEACTIVATED: 'Usuario desactivado. Contacta al administrador.',
 } as const;
 
