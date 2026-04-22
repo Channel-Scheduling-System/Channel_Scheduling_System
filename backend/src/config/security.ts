@@ -30,8 +30,8 @@ export const registerLimiter = rateLimit({
  * 100 requests cada 15 minutos (protege contra DDoS)
  */
 export const apiLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutos
-    max: 100,
+    windowMs: 5 * 60 * 1000, // 5 minutos
+    max: 50,
     message: 'Demasiadas solicitudes. Intenta más tarde.',
     standardHeaders: true,
 });

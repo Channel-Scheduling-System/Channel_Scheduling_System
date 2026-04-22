@@ -37,7 +37,7 @@ export class UserRepository implements IUserRepository {
 
     async existsById(id: number): Promise<boolean> {
         const exists = await prisma.user.findUnique({
-            where: { id },
+            where: { id, isActive: true },
             select: { id: true },
         });
         return !!exists;
@@ -69,7 +69,7 @@ export class UserRepository implements IUserRepository {
 
     async existsByIdAndRole(id: number, role: SystemRole): Promise<boolean> {
         const exists = await prisma.user.findFirst({
-            where: { id, role },
+            where: { id, role, isActive: true },
             select: { id: true },
         });
         return !!exists;

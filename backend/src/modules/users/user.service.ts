@@ -8,6 +8,7 @@ import {
 import { InvalidCredentialsError } from '../../shared/errors/validation.error.js';
 
 import { IUserRepository } from './user.repository.js';
+import { IAuthRepository } from '../auth/auth.repository.js';
 
 import {
     SystemRole,
@@ -61,7 +62,10 @@ export interface IUserService {
 const SALT_ROUNDS = 10;
 
 export class UserService implements IUserService {
-    constructor(private readonly userRepo: IUserRepository) {}
+    constructor(
+        private readonly userRepo: IUserRepository,
+        private readonly authRepo: IAuthRepository,
+    ) {}
 
     async add(
         input: CreateUserInput,
@@ -198,6 +202,10 @@ export class UserService implements IUserService {
                 role: user.role,
             });
         await this.userRepo.updateIsActive(input.id, input.isActive);
+
+        if (!input.isActive)
+            await this.authRepo.deleteRefreshTokensForUser(input.id);
+
         return input.isActive;
     }
 
@@ -205,6 +213,7 @@ export class UserService implements IUserService {
         const user = await this.getUserOrFail(auth.id);
         await this.validatePassword(password, user.passwordHash);
         await this.userRepo.updateIsActive(auth.id, false);
+        await this.authRepo.deleteRefreshTokensForUser(auth.id);
     }
 
     async countAdmins(): Promise<number> {
@@ -216,9 +225,9 @@ export class UserService implements IUserService {
         includeInactive: boolean = false,
     ): Promise<User> {
         const user = await this.userRepo.findById(id);
-        if (!user) throw new NotFoundError(USER_ERRORS.ID_NOTFOUND);
+        if (!user) throw new NotFoundError(USER_ERRORS.NOT_FOUND);
         if (includeInactive === false && !user.isActive)
-            throw new NotFoundError(USER_ERRORS.ID_NOTFOUND);
+            throw new NotFoundError(USER_ERRORS.NOT_FOUND);
         return user;
     }
 
@@ -263,7 +272,7 @@ export class UserService implements IUserService {
 
     private validateCanView(auth: AuthContext, target: TargetUser): void {
         if (auth.role === 'CLIENT' && !target.isActive) {
-            throw new NotFoundError(USER_ERRORS.ID_NOTFOUND);
+            throw new NotFoundError(USER_ERRORS.NOT_FOUND);
         }
         validateRolePermission(
             canView(auth, target),

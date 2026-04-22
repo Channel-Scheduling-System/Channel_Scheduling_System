@@ -83,7 +83,7 @@ export class AuthService implements IAuthService {
         }
 
         const user = await this.userService.getById(payload.sub);
-        if (!user) throw new UnauthorizedError(AUTH_ERRORS.USER_NOT_FOUND);
+        if (!user) throw new UnauthorizedError(USER_ERRORS.NOT_FOUND);
         if (!user.isActive)
             throw new UnauthorizedError(USER_ERRORS.USER_DEACTIVATED);
 
