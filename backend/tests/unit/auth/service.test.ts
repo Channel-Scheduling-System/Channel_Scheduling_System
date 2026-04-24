@@ -119,6 +119,7 @@ describe('AuthService', () => {
             lastName: 'Gil',
             alias: 'johangil',
             role: 'ADMIN',
+            isActive: true,
             passwordHash: 'hash',
         } as any);
         bcryptMock.compare.mockResolvedValue(true);
@@ -175,6 +176,7 @@ describe('AuthService', () => {
             lastName: 'Gil',
             alias: 'johangil',
             role: 'ADMIN',
+            isActive: true,
             passwordHash: 'hash',
         } as any);
         bcryptMock.compare.mockResolvedValue(false);
@@ -284,6 +286,7 @@ describe('AuthService', () => {
             lastName: 'Gil',
             alias: 'johangil',
             role: 'ADMIN',
+            isActive: true,
         } as any);
 
         const result = await service.refresh({ refreshToken });

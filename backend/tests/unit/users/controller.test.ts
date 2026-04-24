@@ -12,6 +12,8 @@ describe('UserController', () => {
         getAll: jest.fn(),
         update: jest.fn(),
         updatePassword: jest.fn(),
+        updateState: jest.fn(),
+        deactivateMe: jest.fn(),
         countAdmins: jest.fn(),
     });
 
@@ -43,7 +45,10 @@ describe('UserController', () => {
 
         await controller.add(req, res, next);
 
-        expect(userService.add).toHaveBeenCalledWith(req.body, 'ADMIN');
+        expect(userService.add).toHaveBeenCalledWith(req.body, {
+            id: 99,
+            role: 'ADMIN',
+        });
         expect(res.status).toHaveBeenCalledWith(201);
         expect(res.json).toHaveBeenCalledWith({
             message: 'Usuario registrado exitosamente',
@@ -279,6 +284,92 @@ describe('UserController', () => {
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
             message: 'Su Contraseña se ha actualizado exitosamente',
+        });
+        expect(next).not.toHaveBeenCalled();
+    });
+
+    it('should activate a user successfully', async () => {
+        const userService = createUserServiceMock();
+        userService.updateState.mockResolvedValue(true);
+        const controller = new UserController(userService as any);
+
+        const req = {
+            params: { id: '2' },
+            body: { isActive: true },
+            user: { role: 'ADMIN', sub: 99 },
+        } as any;
+        const res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn(),
+        } as any;
+        const next = jest.fn();
+
+        await controller.updateState(req, res, next);
+
+        expect(userService.updateState).toHaveBeenCalledWith(
+            { id: 2, isActive: true },
+            { id: 99, role: 'ADMIN' },
+        );
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({
+            message: 'Usuario activado exitosamente',
+        });
+        expect(next).not.toHaveBeenCalled();
+    });
+
+    it('should deactivate a user successfully', async () => {
+        const userService = createUserServiceMock();
+        userService.updateState.mockResolvedValue(false);
+        const controller = new UserController(userService as any);
+
+        const req = {
+            params: { id: '2' },
+            body: { isActive: false },
+            user: { role: 'ADMIN', sub: 99 },
+        } as any;
+        const res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn(),
+        } as any;
+        const next = jest.fn();
+
+        await controller.updateState(req, res, next);
+
+        expect(userService.updateState).toHaveBeenCalledWith(
+            { id: 2, isActive: false },
+            { id: 99, role: 'ADMIN' },
+        );
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({
+            message: 'Usuario desactivado exitosamente',
+        });
+        expect(next).not.toHaveBeenCalled();
+    });
+
+    it('should deactivate own account successfully', async () => {
+        const userService = createUserServiceMock();
+        userService.deactivateMe.mockResolvedValue(undefined);
+        const controller = new UserController(userService as any);
+
+        const req = {
+            body: { password: 'Password123!' },
+            user: { role: 'CLIENT', sub: 5 },
+        } as any;
+        const res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn(),
+        } as any;
+        const next = jest.fn();
+
+        await controller.deactivateMe(req, res, next);
+
+        expect(userService.deactivateMe).toHaveBeenCalledWith('Password123!', {
+            id: 5,
+            role: 'CLIENT',
+        });
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({
+            message: 'Su cuenta ha sido desactivada exitosamente',
         });
         expect(next).not.toHaveBeenCalled();
     });
