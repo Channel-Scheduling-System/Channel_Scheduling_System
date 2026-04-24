@@ -161,6 +161,7 @@ describe('ServiceController', () => {
                 price: 75000,
                 duration: 45,
             }),
+            updateState: jest.fn(),
             delete: jest.fn(),
             existsById: jest.fn(),
         };
@@ -201,6 +202,7 @@ describe('ServiceController', () => {
             getById: jest.fn(),
             getAll: jest.fn(),
             update: jest.fn(),
+            updateState: jest.fn(),
             delete: jest.fn().mockResolvedValue(undefined),
             existsById: jest.fn(),
         };
@@ -235,6 +237,7 @@ describe('ServiceController', () => {
             getById: jest.fn(),
             getAll: jest.fn(),
             update: jest.fn(),
+            updateState: jest.fn(),
             delete: jest.fn(),
             existsById: jest.fn(),
         };
@@ -267,6 +270,7 @@ describe('ServiceController', () => {
             getById: jest.fn().mockRejectedValue(error),
             getAll: jest.fn(),
             update: jest.fn(),
+            updateState: jest.fn(),
             delete: jest.fn(),
             existsById: jest.fn(),
         };
@@ -283,5 +287,79 @@ describe('ServiceController', () => {
         await controller.getById(req, res, next);
 
         expect(next).toHaveBeenCalledWith(error);
+    });
+
+    it('should activate service state successfully', async () => {
+        const serviceService = {
+            add: jest.fn(),
+            getById: jest.fn(),
+            getAll: jest.fn(),
+            update: jest.fn(),
+            updateState: jest.fn().mockResolvedValue(true),
+            delete: jest.fn(),
+            existsById: jest.fn(),
+        };
+
+        const controller = new ServiceController(serviceService as any);
+
+        const req = {
+            params: { id: '1' },
+            body: { isActive: true },
+            user: { sub: 10, role: 'WORKER' },
+        } as any;
+        const res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn(),
+        } as any;
+        const next = jest.fn();
+
+        await controller.updateState(req, res, next);
+
+        expect(serviceService.updateState).toHaveBeenCalledWith(
+            { id: 1, isActive: true },
+            { id: 10, role: 'WORKER' },
+        );
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({
+            message: 'Servicio activado exitosamente',
+        });
+        expect(next).not.toHaveBeenCalled();
+    });
+
+    it('should deactivate service state successfully', async () => {
+        const serviceService = {
+            add: jest.fn(),
+            getById: jest.fn(),
+            getAll: jest.fn(),
+            update: jest.fn(),
+            updateState: jest.fn().mockResolvedValue(false),
+            delete: jest.fn(),
+            existsById: jest.fn(),
+        };
+
+        const controller = new ServiceController(serviceService as any);
+
+        const req = {
+            params: { id: '1' },
+            body: { isActive: false },
+            user: { sub: 10, role: 'WORKER' },
+        } as any;
+        const res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn(),
+        } as any;
+        const next = jest.fn();
+
+        await controller.updateState(req, res, next);
+
+        expect(serviceService.updateState).toHaveBeenCalledWith(
+            { id: 1, isActive: false },
+            { id: 10, role: 'WORKER' },
+        );
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({
+            message: 'Servicio desactivado exitosamente',
+        });
+        expect(next).not.toHaveBeenCalled();
     });
 });

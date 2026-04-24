@@ -45,7 +45,7 @@ describe('AuthController', () => {
         expect(res.cookie).toHaveBeenCalledWith(
             'refreshToken',
             'refresh-token-123',
-            expect.objectContaining({ httpOnly: true, sameSite: 'strict' }),
+            expect.objectContaining({ httpOnly: true, sameSite: 'lax' }),
         );
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
@@ -123,7 +123,7 @@ describe('AuthController', () => {
         expect(res.cookie).toHaveBeenCalledWith(
             'refreshToken',
             'refresh-token-456',
-            expect.objectContaining({ httpOnly: true, sameSite: 'strict' }),
+            expect.objectContaining({ httpOnly: true, sameSite: 'lax' }),
         );
         expect(res.status).toHaveBeenCalledWith(201);
         expect(res.json).toHaveBeenCalledWith({
@@ -180,7 +180,7 @@ describe('AuthController', () => {
         expect(res.cookie).toHaveBeenCalledWith(
             'refreshToken',
             'refresh-token-789',
-            expect.objectContaining({ httpOnly: true, sameSite: 'strict' }),
+            expect.objectContaining({ httpOnly: true, sameSite: 'lax' }),
         );
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
@@ -234,7 +234,7 @@ describe('AuthController', () => {
             'refreshToken',
             expect.objectContaining({
                 httpOnly: true,
-                sameSite: 'strict',
+                sameSite: 'lax',
                 path: '/',
             }),
         );

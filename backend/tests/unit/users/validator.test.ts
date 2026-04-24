@@ -1,10 +1,10 @@
 /// <reference types="jest" />
 
 import {
-    CreateFirstAdminInput,
+    CreateFirstAdminDTO,
     CreateUserInput,
-    UpdatePasswordInput,
-    UpdateUserInput,
+    UpdatePasswordDTO,
+    UpdateUserDTO,
     UserFiltersSchema,
     UserQuerySchema,
 } from '../../../src/modules/users/user.validator';
@@ -38,7 +38,7 @@ describe('User DTO validators', () => {
     });
 
     it('should validate CreateFirstAdminInput payload', () => {
-        const result = CreateFirstAdminInput.safeParse({
+        const result = CreateFirstAdminDTO.safeParse({
             alias: 'adminone',
             firstName: 'Admin',
             lastName: 'One',
@@ -52,7 +52,7 @@ describe('User DTO validators', () => {
     });
 
     it('should reject CreateFirstAdminInput without secretCode', () => {
-        const result = CreateFirstAdminInput.safeParse({
+        const result = CreateFirstAdminDTO.safeParse({
             alias: 'adminone',
             firstName: 'Admin',
             lastName: 'One',
@@ -65,7 +65,7 @@ describe('User DTO validators', () => {
     });
 
     it('should validate UpdateUserInput payload', () => {
-        const result = UpdateUserInput.safeParse({
+        const result = UpdateUserDTO.safeParse({
             firstName: 'Carlos',
             lastName: 'Gil',
         });
@@ -74,7 +74,7 @@ describe('User DTO validators', () => {
     });
 
     it('should reject UpdateUserInput with role field', () => {
-        const result = UpdateUserInput.safeParse({
+        const result = UpdateUserDTO.safeParse({
             id: 1,
             role: 'ADMIN',
         });
@@ -83,7 +83,7 @@ describe('User DTO validators', () => {
     });
 
     it('should validate UpdatePasswordInput payload', () => {
-        const result = UpdatePasswordInput.safeParse({
+        const result = UpdatePasswordDTO.safeParse({
             password: 'OldPass123!',
             newPassword: 'NewPass123!',
         });
@@ -92,7 +92,7 @@ describe('User DTO validators', () => {
     });
 
     it('should reject UpdatePasswordInput with invalid password', () => {
-        const result = UpdatePasswordInput.safeParse({
+        const result = UpdatePasswordDTO.safeParse({
             password: 'old',
             newPassword: 'NewPass123!',
         });

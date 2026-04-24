@@ -18,6 +18,7 @@ jest.mock('bcrypt', () => ({
 
 import { UserService } from '../../../src/modules/users/user.service';
 import type { IUserRepository } from '../../../src/modules/users/user.repository';
+import type { IAuthRepository } from '../../../src/modules/auth/auth.repository';
 import { ConflictError, NotFoundError } from '../../../src/shared/errors/domain.error';
 import { InvalidCredentialsError } from '../../../src/shared/errors/validation.error';
 
@@ -54,7 +55,18 @@ function createRepoMock(): jest.Mocked<IUserRepository> {
         findAll: jest.fn(),
         update: jest.fn(),
         updatePassword: jest.fn(),
+        updateIsActive: jest.fn(),
         countAdmins: jest.fn(),
+    };
+}
+
+function createAuthRepoMock(): jest.Mocked<IAuthRepository> {
+    return {
+        createRefreshToken: jest.fn(),
+        findRefreshToken: jest.fn(),
+        findRefreshTokenByUserAndHash: jest.fn(),
+        invalidateRefreshToken: jest.fn(),
+        deleteRefreshTokensForUser: jest.fn(),
     };
 }
 
@@ -103,7 +115,7 @@ describe('UserService', () => {
         bcryptMock.hash.mockResolvedValue('hashed-password');
         repo.create.mockResolvedValue(createdUser as any);
 
-        const result = await service.add(input, 'ADMIN');
+        const result = await service.add(input, { id: 99, role: 'ADMIN' });
 
         expect(result).toEqual({
             id: 1,
@@ -384,5 +396,59 @@ describe('UserService', () => {
         repo.findById.mockResolvedValue(null);
 
         await expect(service.getById(999)).rejects.toBeInstanceOf(NotFoundError);
+    });
+
+    it('should activate a user account', async () => {
+        const repo = createRepoMock();
+        const authRepo = createAuthRepoMock();
+        const service = new UserService(repo, authRepo);
+
+        repo.findById.mockResolvedValue(
+            createUserEntity({ id: 2, role: 'CLIENT', isActive: false }) as any,
+        );
+
+        const result = await service.updateState(
+            { id: 2, isActive: true },
+            { id: 99, role: 'ADMIN' },
+        );
+
+        expect(result).toBe(true);
+        expect(repo.updateIsActive).toHaveBeenCalledWith(2, true);
+        expect(authRepo.deleteRefreshTokensForUser).not.toHaveBeenCalled();
+    });
+
+    it('should deactivate a user account and revoke refresh tokens', async () => {
+        const repo = createRepoMock();
+        const authRepo = createAuthRepoMock();
+        const service = new UserService(repo, authRepo);
+
+        repo.findById.mockResolvedValue(
+            createUserEntity({ id: 2, role: 'CLIENT', isActive: true }) as any,
+        );
+
+        const result = await service.updateState(
+            { id: 2, isActive: false },
+            { id: 99, role: 'ADMIN' },
+        );
+
+        expect(result).toBe(false);
+        expect(repo.updateIsActive).toHaveBeenCalledWith(2, false);
+        expect(authRepo.deleteRefreshTokensForUser).toHaveBeenCalledWith(2);
+    });
+
+    it('should deactivate own account when password is valid', async () => {
+        const repo = createRepoMock();
+        const authRepo = createAuthRepoMock();
+        const service = new UserService(repo, authRepo);
+
+        repo.findById.mockResolvedValue(
+            createUserEntity({ id: 5, role: 'CLIENT', passwordHash: 'old-hash' }) as any,
+        );
+        bcryptMock.compare.mockResolvedValue(true);
+
+        await service.deactivateMe('Password123!', { id: 5, role: 'CLIENT' });
+
+        expect(repo.updateIsActive).toHaveBeenCalledWith(5, false);
+        expect(authRepo.deleteRefreshTokensForUser).toHaveBeenCalledWith(5);
     });
 });

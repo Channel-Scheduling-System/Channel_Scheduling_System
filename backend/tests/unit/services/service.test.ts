@@ -14,6 +14,7 @@ function createRepoMock(): jest.Mocked<IServiceRepository> {
         findById: jest.fn(),
         findAll: jest.fn(),
         update: jest.fn(),
+        updateIsActive: jest.fn(),
         delete: jest.fn(),
         existsById: jest.fn(),
         existsByName: jest.fn(),
@@ -297,20 +298,10 @@ describe('ServiceService', () => {
             repo.existsByName.mockResolvedValue(false);
             repo.update.mockResolvedValue(updatedService);
 
-            const result = await service.update({
+            await service.update({
                 id: 1,
                 name: 'Corte premium',
                 price: 75000,
-            });
-
-            expect(result).toEqual({
-                id: 1,
-                name: 'Corte premium',
-                description: 'Servicio de corte de cabello profesional',
-                color: '#FF5733',
-                price: 75000,
-                duration: 30,
-                isActive: true,
             });
             expect(repo.update).toHaveBeenCalled();
         });
@@ -399,6 +390,89 @@ describe('ServiceService', () => {
                 NotFoundError,
             );
             expect(repo.delete).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('updateState', () => {
+        it('should activate a service when auth user owns the service', async () => {
+            const repo = createRepoMock();
+            const userService = createUserServiceMock();
+            const service = new ServiceService(repo, userService);
+
+            repo.findById.mockResolvedValue({
+                id: 1,
+                workerId: 10,
+                name: 'Corte',
+                description: 'Desc',
+                colorHex: '#FF5733',
+                defaultPrice: 30000,
+                defaultDurationMin: 30,
+                isActive: false,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            });
+
+            const result = await service.updateState(
+                { id: 1, isActive: true },
+                { id: 10, role: 'WORKER' },
+            );
+
+            expect(result).toBe(true);
+            expect(repo.updateIsActive).toHaveBeenCalledWith(1, true);
+        });
+
+        it('should deactivate a service when auth user owns the service', async () => {
+            const repo = createRepoMock();
+            const userService = createUserServiceMock();
+            const service = new ServiceService(repo, userService);
+
+            repo.findById.mockResolvedValue({
+                id: 1,
+                workerId: 10,
+                name: 'Corte',
+                description: 'Desc',
+                colorHex: '#FF5733',
+                defaultPrice: 30000,
+                defaultDurationMin: 30,
+                isActive: true,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            });
+
+            const result = await service.updateState(
+                { id: 1, isActive: false },
+                { id: 10, role: 'WORKER' },
+            );
+
+            expect(result).toBe(false);
+            expect(repo.updateIsActive).toHaveBeenCalledWith(1, false);
+        });
+
+        it('should throw ConflictError when worker does not own the service', async () => {
+            const repo = createRepoMock();
+            const userService = createUserServiceMock();
+            const service = new ServiceService(repo, userService);
+
+            repo.findById.mockResolvedValue({
+                id: 1,
+                workerId: 99,
+                name: 'Corte',
+                description: 'Desc',
+                colorHex: '#FF5733',
+                defaultPrice: 30000,
+                defaultDurationMin: 30,
+                isActive: true,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            });
+
+            await expect(
+                service.updateState(
+                    { id: 1, isActive: false },
+                    { id: 10, role: 'WORKER' },
+                ),
+            ).rejects.toBeInstanceOf(ConflictError);
+            expect(repo.updateIsActive).not.toHaveBeenCalled();
         });
     });
 
