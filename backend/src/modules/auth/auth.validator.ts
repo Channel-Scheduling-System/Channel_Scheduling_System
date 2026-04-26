@@ -10,12 +10,11 @@ import {
     UserPhone,
     CreateUserInput,
 } from '../users/user.validator.js';
+import { ResetCodeRequestDTO } from '../reset-codes/reset-code.validator.js';
 
 // REGISTER
 //* -----------------------------
-export const RegisterDTO = CreateUserInput
-    .omit({ role: true })
-    .strict();
+export const RegisterDTO = CreateUserInput.omit({ role: true }).strict();
 
 // LOGIN
 //* -----------------------------
@@ -48,4 +47,5 @@ export const authValidator = {
     register: validateBodyDTO(RegisterDTO),
     login: validateBodyDTO(LoginDTO),
     refreshToken: validateCookieDTO('refreshToken', RefreshTokenDTO),
+    requestPasswordReset: validateBodyDTO(ResetCodeRequestDTO),
 };

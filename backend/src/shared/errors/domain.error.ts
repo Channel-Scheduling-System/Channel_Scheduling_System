@@ -20,6 +20,15 @@ export class DomainError extends Error {
 }
 
 /**
+ * Thrown when an external service fails or is unavailable
+ */
+export class ServiceError extends DomainError {
+    constructor(message: string) {
+        super(message, 503, 'SERVICE_ERROR');
+    }
+}
+
+/**
  * Thrown when requested resource does not exist
  * Status: 404 (Not Found)
  */

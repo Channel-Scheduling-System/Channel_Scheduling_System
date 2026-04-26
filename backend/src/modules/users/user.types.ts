@@ -11,6 +11,7 @@ export interface User {
     passwordHash: string;
     role: SystemRole;
     mustChangePwd: boolean;
+    resetVersion: number;
     isActive: boolean;
     createdAt: Date;
     updatedAt: Date;

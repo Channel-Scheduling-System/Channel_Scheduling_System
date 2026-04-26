@@ -19,6 +19,7 @@ model User {
   passwordHash  String     @db.VarChar(60)
   role          SystemRole @default(CLIENT)
   mustChangePwd Boolean    @default(false)
+  resetVersion  Int        @default(0)
   isActive      Boolean    @default(true)
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
@@ -29,7 +30,7 @@ model User {
   notifications      Notification[]
   blockedTimes       BlockedTime[]
   workingHours       WorkingHour[]
-  recoveryCodes      RecoveryCode[]
+  resetCodes         ResetCode[]
   refreshTokens      RefreshToken[]
 
   @@index([role])
@@ -178,22 +179,24 @@ model WorkingHour {
   @@map("working_hours")
 }
 
-//* RECOVERY CODES
+//* RESET CODES
 // ============================================
-model RecoveryCode {
+model ResetCode {
   id        Int      @id @default(autoincrement())
-  code      String   @db.Char(5)
+  codeHash  String   @db.Char(64)
   used      Boolean  @default(false)
+  attempts  Int      @default(0)
   expireAt  DateTime @db.DateTime()
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int
 
   @@index([userId, used])
-  @@map("recovery_codes")
+  @@map("reset_codes")
 }
 
 //* REFRESH TOKENS 
+// ============================================
 model RefreshToken {
   id        Int      @id @default(autoincrement())
   tokenHash String   @unique @db.Char(64)

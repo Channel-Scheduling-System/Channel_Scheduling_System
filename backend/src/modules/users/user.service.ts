@@ -43,6 +43,7 @@ export interface IUserService {
     addFirstAdmin(input: CreateFirstAdminInput): Promise<UserResponse>;
     existsByIdAndRole(id: number, role: SystemRole): Promise<boolean>;
     getById(id: number, auth?: AuthContext): Promise<UserResponse>;
+    getByEmail(email: string): Promise<User | null>;
     getByIdentifier(identifier: string): Promise<User | null>;
     getAll(
         pagination: UserPagination,
@@ -112,6 +113,10 @@ export class UserService implements IUserService {
                 isActive: user.isActive,
             });
         return mapToUserResponse(user);
+    }
+
+    async getByEmail(email: string): Promise<User | null> {
+        return this.userRepo.findByEmail(email);
     }
 
     async getByIdentifier(identifier: string): Promise<User | null> {
