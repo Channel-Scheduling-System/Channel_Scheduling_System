@@ -3,15 +3,19 @@ import { env } from '../../../config/env.js';
 import { ServiceError } from '../../errors/domain.error.js';
 import { EmailOptions, IEmailService } from './email.types.js';
 
+const transporterOptions = {
+    host: env.email.host,
+    port: env.email.port,
+    secure: env.email.port === 465,
+    auth: {
+        user: env.email.user,
+        pass: env.email.pass,
+    },
+};
+
 export class NodemailerEmailService implements IEmailService {
-    private transporter = nodemailer.createTransport({
-        host: env.email.host,
-        port: env.email.port,
-        secure: env.email.port === 465,
-        auth: {
-            user: env.email.user,
-            pass: env.email.pass,
-        },
+    private transporter = nodemailer.createTransport(transporterOptions, {
+        from: env.email.from,
     });
 
     async send(options: EmailOptions): Promise<void> {
