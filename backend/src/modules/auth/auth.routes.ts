@@ -1,7 +1,11 @@
 import { Router } from 'express';
 import { authController } from './auth.module.js';
 import { authValidator } from './auth.validator.js';
-import { loginLimiter, registerLimiter } from '../../config/security.js';
+import {
+    loginLimiter,
+    passwordResetLimiter,
+    registerLimiter,
+} from '../../config/security.js';
 import { authMiddleware } from '../../shared/middlewares/auth.middleware.js';
 
 const authRouter = Router();
@@ -27,6 +31,13 @@ authRouter.post(
     authMiddleware,
     authValidator.refreshToken,
     authController.logout,
+);
+
+authRouter.post(
+    '/password-reset/request',
+    passwordResetLimiter,
+    authValidator.requestPasswordReset,
+    authController.requestPasswordReset,
 );
 
 authRouter.get('/admin/exists', authController.checkAdminExists);

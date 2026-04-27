@@ -66,9 +66,7 @@ export function handleErrorMiddleware(
                     res,
                     500,
                     'Error en la base de datos:' + error.code,
-                    {
-                        errors: error.meta,
-                    },
+                    { errors: error.meta },
                 );
         }
     }
@@ -76,6 +74,7 @@ export function handleErrorMiddleware(
     // 5. Errores estándar de JS
     //* -----------------------------
     if (error instanceof Error) {
+        console.error('Unhandled error:', error);
         return send(res, 500, error.message);
     }
 

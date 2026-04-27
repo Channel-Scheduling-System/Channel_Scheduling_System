@@ -3,7 +3,7 @@ import { env } from './env.js';
 
 /**
  * Rate limiting para login - Protege contra fuerza bruta
- * 5 intentos cada 15 minutos
+ * 10 intentos cada 15 minutos
  */
 export const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutos
@@ -15,12 +15,24 @@ export const loginLimiter = rateLimit({
 
 /**
  * Rate limiting para registro - Intenta registrarse demasiadas veces
- * 3 intentos cada 1 hora
+ * 5 intentos cada 1 hora
  */
 export const registerLimiter = rateLimit({
-    windowMs: 30 * 60 * 1000, // 30 minutos
+    windowMs: 60 * 60 * 1000, // 60 minutos
     max: 5,
     message: 'Demasiados intentos de registro. Intenta nuevamente más tarde.',
+    standardHeaders: true,
+    skip: () => env.nodeEnv === 'development',
+});
+
+/**
+ * Rate limiting para solicitud de reset password - Protege contra abuso
+ * 5 intentos cada 30 minutos
+ */
+export const passwordResetLimiter = rateLimit({
+    windowMs: 30 * 60 * 1000, // 30 minutos
+    max: 5,
+    message: 'Demasiados intentos de solicitud de restablecimiento. Intenta nuevamente más tarde.',
     standardHeaders: true,
     skip: () => env.nodeEnv === 'development',
 });

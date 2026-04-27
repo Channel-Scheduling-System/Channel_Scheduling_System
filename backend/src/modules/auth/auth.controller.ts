@@ -79,6 +79,22 @@ export class AuthController {
         }
     };
 
+    requestPasswordReset = async (
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ) => {
+        try {
+            await this.authService.requestPasswordReset(req.body.email);
+            res.status(200).json({
+                message:
+                    'Si el correo está registrado, recibirá un código de recuperación',
+            });
+        } catch (err) {
+            next(err);
+        }
+    };
+
     checkAdminExists = async (
         req: Request,
         res: Response,

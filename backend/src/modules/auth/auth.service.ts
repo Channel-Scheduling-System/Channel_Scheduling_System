@@ -10,9 +10,8 @@ import {
     InvalidCredentialsError,
     InvalidTokenError,
 } from '../../shared/errors/validation.error.js';
-import { IAuthRepository } from './auth.repository.js';
-import { mapToAuthUser } from './auth.mapper.js';
 
+import { mapToAuthUser } from './auth.mapper.js';
 import {
     AuthResult,
     AuthTokens,
@@ -23,7 +22,10 @@ import {
     RegisterInput,
     SystemRole,
 } from './auth.types.js';
+
+import { IAuthRepository } from './auth.repository.js';
 import { IUserService } from '../users/user.service.js';
+import { IResetCodeService } from '../reset-codes/reset-code.service.js';
 import { AUTH_ERRORS, USER_ERRORS } from '../../shared/constants/messages.js';
 
 export interface IAuthService {
@@ -31,15 +33,18 @@ export interface IAuthService {
     login(input: LoginInput): Promise<AuthResult>;
     refresh(input: RefreshTokenInput): Promise<AuthResult>;
     logout(input: LogoutInput): Promise<void>;
+    requestPasswordReset(email: string): Promise<void>;
     checkAdminExists(): Promise<boolean>;
 }
 
 const TOKEN_HASH_ALGORITHM = 'sha256';
+const AUTH_EMAIL_NOT_FOUND_DELAY_MS = 2500;
 
 export class AuthService implements IAuthService {
     constructor(
         private readonly authRepo: IAuthRepository,
         private readonly userService: IUserService,
+        private readonly resetCodeService: IResetCodeService,
     ) {}
 
     async register(input: RegisterInput): Promise<AuthResult> {
@@ -115,6 +120,19 @@ export class AuthService implements IAuthService {
         await this.authRepo.invalidateRefreshToken(tokenHash);
     }
 
+    async requestPasswordReset(email: string): Promise<void> {
+        const user = await this.userService.getByEmail(email);
+        if (!user || !user.isActive)
+            return await new Promise((resolve) =>
+                setTimeout(resolve, AUTH_EMAIL_NOT_FOUND_DELAY_MS),
+            );
+
+        await this.resetCodeService.generateAndSend({
+            userId: user.id,
+            email,
+        });
+    }
+
     async checkAdminExists(): Promise<boolean> {
         const count = await this.userService.countAdmins();
         return count > 0;
@@ -150,6 +168,7 @@ export class AuthService implements IAuthService {
             role: payload.role,
         })
             .setProtectedHeader({ alg: 'HS256' })
+            .setAudience('access')
             .setExpirationTime(env.jwt.expiresIn)
             .sign(secret);
         return token;
@@ -162,7 +181,19 @@ export class AuthService implements IAuthService {
             role: payload.role,
         })
             .setProtectedHeader({ alg: 'HS256' })
+            .setAudience('refresh')
             .setExpirationTime(env.jwt.expiresInRefresh)
+            .sign(secret);
+        return token;
+    }
+
+    private async generateResetToken(userId: number): Promise<string> {
+        const secret = new TextEncoder().encode(env.jwt.resetPass);
+        const token = await new SignJWT()
+            .setProtectedHeader({ alg: 'HS256' })
+            .setSubject(userId.toString())
+            .setAudience('password-reset')
+            .setExpirationTime(env.jwt.expiresInResetPass)
             .sign(secret);
         return token;
     }
@@ -206,7 +237,7 @@ export class AuthService implements IAuthService {
 
     private hashToken(token: string): string {
         return crypto
-            .createHash(TOKEN_HASH_ALGORITHM)
+            .createHmac(TOKEN_HASH_ALGORITHM, env.token.secret)
             .update(token)
             .digest('hex');
     }

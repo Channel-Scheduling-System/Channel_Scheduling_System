@@ -15,6 +15,7 @@ export interface IUserRepository {
     existsByPhone(phone: string): Promise<boolean>;
     existsByIdAndRole(id: number, role: SystemRole): Promise<boolean>;
     findById(id: number): Promise<User | null>;
+    findByEmail(email: string): Promise<User | null>;
     findByIdentifier(identifier: string): Promise<User | null>;
     findAll(
         pagination: UserPagination,
@@ -78,6 +79,12 @@ export class UserRepository implements IUserRepository {
     async findById(id: number): Promise<User | null> {
         return await prisma.user.findUnique({
             where: { id },
+        });
+    }
+
+    async findByEmail(email: string): Promise<User | null> {
+        return await prisma.user.findUnique({
+            where: { email },
         });
     }
 

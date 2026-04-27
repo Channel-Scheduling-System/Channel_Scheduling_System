@@ -4,7 +4,7 @@ import type { RefreshToken } from '@prisma/client.js';
 export interface IAuthRepository {
     createRefreshToken(
         userId: number,
-        token: string,
+        tokenHash: string,
         expireAt: Date,
     ): Promise<void>;
     findRefreshToken(tokenHash: string): Promise<RefreshToken | null>;
@@ -12,7 +12,7 @@ export interface IAuthRepository {
         userId: number,
         tokenHash: string,
     ): Promise<RefreshToken | null>;
-    invalidateRefreshToken(token: string): Promise<void>;
+    invalidateRefreshToken(tokenHash: string): Promise<void>;
     deleteRefreshTokensForUser(userId: number): Promise<void>;
 }
 
