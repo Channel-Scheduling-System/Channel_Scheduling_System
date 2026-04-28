@@ -19,7 +19,7 @@ export interface IResetCodeService {
 const CODE_HASH_ALGORITHM = 'sha256';
 const OTP_LENGTH = 6;
 const SUBJECT = 'Restablece tu contraseña - Channel Scheduling System';
-const MAX_ATTEMPTS = 5;
+const MAX_ATTEMPTS = 3;
 
 export class ResetCodeService implements IResetCodeService {
     constructor(private resetCodeRepo: IResetCodeRepository) {}

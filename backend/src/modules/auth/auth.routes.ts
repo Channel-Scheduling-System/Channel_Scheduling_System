@@ -5,6 +5,7 @@ import {
     loginLimiter,
     passwordResetLimiter,
     registerLimiter,
+    verifyResetCodeLimiter,
 } from '../../config/security.js';
 import { authMiddleware } from '../../shared/middlewares/auth.middleware.js';
 
@@ -42,7 +43,7 @@ authRouter.post(
 
 authRouter.post(
     '/password-reset/verify',
-    passwordResetLimiter,
+    verifyResetCodeLimiter,
     authValidator.verifyResetCode,
     authController.verifyResetCode,
 );
