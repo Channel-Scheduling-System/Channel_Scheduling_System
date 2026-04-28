@@ -95,6 +95,22 @@ export class AuthController {
         }
     };
 
+    verifyResetCode = async (
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ) => {
+        try {
+            const resetToken = await this.authService.verifyResetCode(req.body);
+            res.status(200).json({
+                message: 'Código verificado correctamente',
+                resetToken,
+            });
+        } catch (err) {
+            next(err);
+        }
+    };
+
     checkAdminExists = async (
         req: Request,
         res: Response,

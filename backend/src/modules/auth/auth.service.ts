@@ -21,6 +21,7 @@ import {
     RefreshTokenInput,
     RegisterInput,
     SystemRole,
+    VerifyResetCodeInput,
 } from './auth.types.js';
 
 import { IAuthRepository } from './auth.repository.js';
@@ -34,6 +35,7 @@ export interface IAuthService {
     refresh(input: RefreshTokenInput): Promise<AuthResult>;
     logout(input: LogoutInput): Promise<void>;
     requestPasswordReset(email: string): Promise<void>;
+    verifyResetCode(input: VerifyResetCodeInput): Promise<string>;
     checkAdminExists(): Promise<boolean>;
 }
 
@@ -131,6 +133,22 @@ export class AuthService implements IAuthService {
             userId: user.id,
             email,
         });
+    }
+
+    async verifyResetCode(input: VerifyResetCodeInput): Promise<string> {
+        const user = await this.userService.getByEmail(input.email);
+        if (!user || !user.isActive) throw new InvalidCredentialsError();
+
+        try {
+            await this.resetCodeService.verifyCode(user.id, input.code);
+        } catch (error) {
+            if (error instanceof Error) {
+                console.error(`Reset code validation failed: ${error.message}`);
+            }
+            throw new InvalidCredentialsError();
+        }
+
+        return await this.generateResetToken(user.id);
     }
 
     async checkAdminExists(): Promise<boolean> {

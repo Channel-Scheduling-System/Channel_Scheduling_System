@@ -40,6 +40,13 @@ authRouter.post(
     authController.requestPasswordReset,
 );
 
+authRouter.post(
+    '/password-reset/verify',
+    passwordResetLimiter,
+    authValidator.verifyResetCode,
+    authController.verifyResetCode,
+);
+
 authRouter.get('/admin/exists', authController.checkAdminExists);
 
 export default authRouter;

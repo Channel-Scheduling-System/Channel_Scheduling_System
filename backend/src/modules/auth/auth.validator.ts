@@ -35,6 +35,15 @@ export const RefreshTokenDTO = z
         'Token JWT inválido',
     );
 
+// VERIFY RESET CODE
+//* -----------------------------
+export const VerifyResetCodeDTO = z
+    .object({
+        email: UserEmail,
+        code: z.string().length(6, 'El código debe tener 6 dígitos'),
+    })
+    .strict();
+
 // TYPES (DTOs)
 //* -----------------------------
 export type LoginRequestDTO = z.infer<typeof LoginDTO>;
@@ -48,4 +57,5 @@ export const authValidator = {
     login: validateBodyDTO(LoginDTO),
     refreshToken: validateCookieDTO('refreshToken', RefreshTokenDTO),
     requestPasswordReset: validateBodyDTO(ResetCodeRequestDTO),
+    verifyResetCode: validateBodyDTO(VerifyResetCodeDTO),
 };
