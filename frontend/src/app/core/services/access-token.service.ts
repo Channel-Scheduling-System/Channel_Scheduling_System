@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ITokenProvider } from '../interfaces/token-service.interface';
 
 @Injectable({ providedIn: 'root' })
-export class TokenService implements ITokenProvider {
+export class AccessTokenService implements ITokenProvider {
   private accessToken: string | null = null;
 
   setToken(token: string): void {
