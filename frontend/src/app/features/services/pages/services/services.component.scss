@@ -1,5 +1,6 @@
 @use '../../../../shared/styles/components/open-add-button';
 @use '../../../../shared/styles/animations.scss';
+@use '../../../../shared/styles/components/filter-dropdown' as fd;
 
 $primary: #2a0002;
 $vinotinto: #4a0010;
@@ -58,6 +59,16 @@ $error: #ba1a1a;
   &__header {
     display: grid;
     grid-template-columns: 3rem 1.5fr 2fr 8rem 7rem 7.5rem;
+    border: none;
+    background-image:
+      linear-gradient(to right, transparent 0%, $vinotinto-mid 5%, $vinotinto-mid 95%, transparent 100%),
+      linear-gradient(to right, transparent 0%, $vinotinto-mid 5%, $vinotinto-mid 95%, transparent 100%);
+    background-color: #ffffff;
+    background-size: 100% 2px, 100% 2px, 100% 100%;
+    background-position: top, bottom, center;
+    background-repeat: no-repeat;
+    color: #2a0002;
+    letter-spacing: 0.18em;
   }
 
   &__row {
@@ -66,12 +77,23 @@ $error: #ba1a1a;
     overflow: hidden;
 
     &--alt {
-      background-color: #faf8f8;
+      background-image:
+        linear-gradient(to right, transparent 0%, #d4bfbf 5%, #d4bfbf 95%, transparent 100%),
+        linear-gradient(to right, transparent 0%, rgba(250, 248, 248, 0.9) 5%, rgba(250, 248, 248, 0.9) 95%, transparent 100%);
+      background-size: 100% 1.5px, 100% 100%;
+      background-position: bottom, center;
+      background-repeat: no-repeat;
+      background-color: transparent;
     }
 
     &--inactive {
-      background-color: #e2e2e2;
-      border-color: #b9b6b5;
+      background-image:
+        linear-gradient(to right, transparent 0%, #d4bfbf 5%, #d4bfbf 95%, transparent 100%),
+        linear-gradient(to right, transparent 0%, #e2e2e2 5%, #e2e2e2 95%, transparent 100%);
+      background-size: 100% 1.5px, 100% 100%;
+      background-position: bottom, center;
+      background-repeat: no-repeat;
+      background-color: transparent;
 
       .font-manrope,
       .font-bold,
@@ -86,7 +108,17 @@ $error: #ba1a1a;
       .services-table__col--accent div {
         opacity: 0.35;
       }
+    }
 
+    &:not(:last-child) {
+      background-image: linear-gradient(to right, transparent 0%, #d4bfbf 5%, #d4bfbf 95%, transparent 100%);
+      background-size: 100% 1.5px;
+      background-position: bottom;
+      background-repeat: no-repeat;
+    }
+
+    &:last-child {
+      background-image: none;
     }
 
     &::before {
@@ -107,6 +139,7 @@ $error: #ba1a1a;
     &:focus-within::before {
       animation: shimmerRow 3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
+
 
     @media ((pointer: coarse) and (max-width: 639px)) or ((pointer: fine) and (max-width: 1000px)) {
       display: grid;
@@ -283,104 +316,4 @@ $error: #ba1a1a;
   }
 }
 
-.services-filter {
-  &__dropdown {
-    position: relative;
-
-    &--open {
-      .services-filter__trigger {
-        border-color: $vinotinto-mid;
-        box-shadow: 0 0 0 3px rgba(74, 14, 14, 0.12);
-        color: $vinotinto-mid;
-      }
-
-      .services-filter__arrow {
-        transform: rotate(180deg);
-      }
-    }
-  }
-
-  &__trigger {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.45rem 0.9rem;
-    background: white;
-    border: 1.5px solid #e5e2e1;
-    border-radius: 999px;
-    color: #544341;
-    font-family: 'Manrope', sans-serif;
-    font-size: 0.78rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
-    white-space: nowrap;
-
-    &:hover {
-      border-color: rgba(74, 14, 14, 0.3);
-      color: $vinotinto-mid;
-    }
-  }
-
-  &__trigger-icon {
-    color: #877270;
-    transition: color 0.2s ease;
-  }
-
-  &__trigger:hover &__trigger-icon {
-    color: $vinotinto-mid;
-  }
-
-  &__arrow {
-    color: #877270;
-    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease;
-  }
-
-  &__trigger-label {
-    max-width: 10rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  &__options {
-    position: absolute;
-    top: calc(100% + 0.4rem);
-    left: 0;
-    min-width: 100%;
-    background: white;
-    border: 1.5px solid #e5e2e1;
-    border-radius: 0.875rem;
-    box-shadow: 0 8px 24px rgba(42, 0, 2, 0.1);
-    overflow: hidden;
-    z-index: 100;
-    animation: fadeInUp 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
-  &__option {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    width: 100%;
-    padding: 0.55rem 0.9rem;
-    background: none;
-    border: none;
-    font-family: 'Manrope', sans-serif;
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: #544341;
-    cursor: pointer;
-    text-align: left;
-    transition: background-color 0.15s ease, color 0.15s ease;
-    white-space: nowrap;
-
-    &:hover {
-      background-color: #f6f3f2;
-      color: $vinotinto-mid;
-    }
-
-    &--selected {
-      color: $vinotinto-mid;
-      background-color: rgba(74, 14, 14, 0.05);
-    }
-  }
-}
+@include fd.filter-dropdown('.services-filter');

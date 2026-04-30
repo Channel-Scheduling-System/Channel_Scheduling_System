@@ -61,6 +61,7 @@ export class LoginPageComponent {
   public onSubmit(): void {
     this.loginForm.markAllAsTouched();
     if (this.loginForm.invalid) {
+      this.messageService.showMessage('Porfavor completa todos los campos correctamente', AlertType.WARNING);   
       return;
     }
     this.isLoading = true;

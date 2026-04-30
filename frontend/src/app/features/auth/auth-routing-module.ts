@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { LoginPageComponent } from './pages/login/login.component';
 import { RegisterPageComponent } from './pages/register/register.component';
 import { AdminRegisterPageComponent } from './pages/admin-register/admin-register.component';
+import { RecoveryPasswordPageComponent } from './pages/recovery-password/recovery-password.component';
 
 const routes: Routes = [
   {
@@ -16,6 +17,10 @@ const routes: Routes = [
   {
     path: 'admin-register',
     component: AdminRegisterPageComponent
+  },
+  {
+    path: 'recovery-password',
+    component: RecoveryPasswordPageComponent
   }
 ];
 

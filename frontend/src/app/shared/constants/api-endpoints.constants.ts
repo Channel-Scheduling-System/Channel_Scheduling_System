@@ -7,7 +7,10 @@ export const API_ENDPOINTS = {
     REFRESH: `${environment.apiUrl}/auth/refresh`,
     LOGOUT: `${environment.apiUrl}/auth/logout`,
     ADMIN_EXISTS: `${environment.apiUrl}/auth/admin/exists`,
-    REGISTER_FIRST_ADMIN: `${environment.apiUrl}/users/admin/first`
+    REGISTER_FIRST_ADMIN: `${environment.apiUrl}/users/admin/first`,
+    RECOVERY_SEND_CODE: `${environment.apiUrl}/auth/password-reset/request`,
+    RECOVERY_VERIFY_CODE: `${environment.apiUrl}/auth/password-reset/verify`,
+    RECOVERY_RESET_PASSWORD: `${environment.apiUrl}/auth/password-reset/reset`
   },
   SERVICES: {
     LIST: `${environment.apiUrl}/services`,

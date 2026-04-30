@@ -1,13 +1,8 @@
 import { z } from 'zod';
+import { identifier } from '../../../../shared/models/entities/user.schema';
   
 export const LoginRequestSchema = z.object({
-  identifier: z.string()
-    .regex(
-      /^[a-zA-Z0-9@._-]+$/,
-      'El identificador solo puede contener letras, números, @, ., _ o -'
-    )
-    .min(3, 'El identificador debe tener al menos 3 caracteres')
-    .max(100, 'El identificador no puede exceder 100 caracteres'),
+  identifier: identifier,
   password: z.string()
     .regex(
       /^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+$/,

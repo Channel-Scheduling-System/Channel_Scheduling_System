@@ -2,7 +2,8 @@
 
     <div>
         <span class="block text-[0.7rem] font-bold uppercase tracking-[0.3em] text-[#877270] mb-[0.4rem]">Gestión</span>
-        <h1 class="font-manrope text-[2.4rem] font-extrabold text-[#2a0002] tracking-[-0.03em] leading-none">Mi Perfil</h1>
+        <h1 class="font-manrope text-[2.4rem] font-extrabold text-[#2a0002] tracking-[-0.03em] leading-none">Mi Perfil
+        </h1>
     </div>
 
     <div *ngIf="isLoading" class="flex items-center justify-center gap-3 py-12 text-[#877270] text-sm font-medium">
@@ -13,20 +14,24 @@
     <ng-container *ngIf="!isLoading && form">
 
         <div class="bg-white rounded-3xl shadow-[0_4px_40px_rgba(42,0,2,0.06)] overflow-hidden">
-            <div class="px-8 py-5 bg-[#f0edec] border-b border-[#e5e2e1]">
+            <div class="px-8 py-5">
                 <h2 class="font-manrope font-black text-[#4A0E0E] tracking-tight text-lg">Información básica</h2>
+                <div class="section-bar"></div>
             </div>
+
 
             <div class="px-8 py-8 grid grid-cols-1 md:grid-cols-2 gap-6" [formGroup]="form">
 
                 <div class="md:col-span-2">
                     <div class="profile-field w-full">
                         <div class="profile-field__label-row">
-                            <span class="material-symbols-outlined profile-field__icon" translate="no">alternate_email</span>
+                            <span class="material-symbols-outlined profile-field__icon"
+                                translate="no">alternate_email</span>
                             <label class="profile-field__label-text">Alias</label>
                         </div>
                         <div class="profile-field__input-wrap">
-                            <input class="profile-field__input" type="text" formControlName="alias" name="alias" placeholder=" ">
+                            <input class="profile-field__input" type="text" formControlName="alias" name="alias"
+                                placeholder=" ">
                             <span class="profile-field__placeholder">Lucas_Sanchez84</span>
                         </div>
                         <div class="field-error" *ngIf="getFieldError('alias')">
@@ -41,7 +46,8 @@
                         <label class="profile-field__label-text">Nombres</label>
                     </div>
                     <div class="profile-field__input-wrap">
-                        <input class="profile-field__input" type="text" formControlName="firstName" name="firstName" placeholder=" ">
+                        <input class="profile-field__input" type="text" formControlName="firstName" name="firstName"
+                            placeholder=" ">
                         <span class="profile-field__placeholder">Ej. Lucas</span>
                     </div>
                     <div class="field-error" *ngIf="getFieldError('firstName')">
@@ -55,7 +61,8 @@
                         <label class="profile-field__label-text">Apellidos</label>
                     </div>
                     <div class="profile-field__input-wrap">
-                        <input class="profile-field__input" type="text" formControlName="lastName" name="lastName" placeholder=" ">
+                        <input class="profile-field__input" type="text" formControlName="lastName" name="lastName"
+                            placeholder=" ">
                         <span class="profile-field__placeholder">Ej. Sánchez</span>
                     </div>
                     <div class="field-error" *ngIf="getFieldError('lastName')">
@@ -69,7 +76,8 @@
                         <label class="profile-field__label-text">Teléfono</label>
                     </div>
                     <div class="profile-field__input-wrap">
-                        <input class="profile-field__input" type="tel" formControlName="phone" name="phone" placeholder=" ">
+                        <input class="profile-field__input" type="tel" formControlName="phone" name="phone"
+                            placeholder=" ">
                         <span class="profile-field__placeholder">3001234567</span>
                     </div>
                     <div class="field-error" *ngIf="getFieldError('phone')">
@@ -83,7 +91,8 @@
                         <label class="profile-field__label-text">Correo electrónico</label>
                     </div>
                     <div class="profile-field__input-wrap">
-                        <input class="profile-field__input" type="email" formControlName="email" name="email" placeholder=" ">
+                        <input class="profile-field__input" type="email" formControlName="email" name="email"
+                            placeholder=" ">
                         <span class="profile-field__placeholder">correo@ejemplo.com</span>
                     </div>
                     <div class="field-error" *ngIf="getFieldError('email')">
@@ -95,8 +104,9 @@
         </div>
 
         <div class="bg-white rounded-3xl shadow-[0_4px_40px_rgba(42,0,2,0.06)] overflow-hidden">
-            <div class="px-8 py-5 bg-[#f0edec] border-b border-[#e5e2e1]">
+            <div class="px-8 py-5">
                 <h2 class="font-manrope font-black text-[#4A0E0E] tracking-tight text-lg">Seguridad</h2>
+                <div class="section-bar"></div>
             </div>
             <div class="px-8 py-6">
                 <button class="reset-password-btn" type="button" (click)="resetPassword()">

@@ -1,43 +1,33 @@
+@use '../../../../shared/styles/animations.scss';
 @use '../../../../shared/styles/components/user-form-field';
 @use '../../../../shared/styles/components/user-buttons';
 @use '../../../../shared/styles/components/password-checklist';
+@use '../../../../shared/styles/components/toggle-password' as tp;
+
+.register-user-page {
+  animation: fadeInUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
 
 .profile-field {
-    
+
     &__input--password {
 
         padding-right: 2.8rem;
     }
 
-    &__toggle-password {
-        position: absolute;
-        right: 0.75rem;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        cursor: pointer;
-        color: #969392;
-        display: flex;
-        align-items: center;
-        padding: 0.2rem;
-        border-radius: 0.35rem;
-        z-index: 4;
-        transition: color 0.2s ease, background 0.2s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    .profile-field {
+        &__toggle-password {
+            @include tp.toggle-password-base(#4A0E0E);
+            right: 0.75rem;
+            padding: 0.2rem;
+            color: #969392;
+            transform: translateY(-50%);
+            z-index: 4;
 
-        .material-symbols-outlined {
-            font-size: 1.1rem !important;
-            line-height: 1 !important;
-        }
-
-        &:hover {
-            color: #4A0E0E;
-            background: rgba(74, 14, 14, 0.08);
-            transform: translateY(-50%) scale(1.15);
-        }
-
-        &:active {
-            transform: translateY(-50%) scale(0.92);
+            .material-symbols-outlined {
+                font-size: 1.1rem !important;
+                line-height: 1 !important;
+            }
         }
     }
 

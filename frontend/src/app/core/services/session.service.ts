@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { map, catchError, tap, take, filter } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../../shared/constants/api-endpoints.constants';
 import { HttpErrorHandler } from '../utils/handlers/error.handler';
-import { TokenService } from './token.service';
+import { AccessTokenService } from './access-token.service';
 import { LogoutResponse, LogoutResponseSchema } from '../../shared/models/auth/logout-response.model';
 import { RefreshResponse, RefreshResponseSchema } from '../../shared/models/auth/refresh-response.model';
 import { HeaderService } from './header.service';
@@ -20,7 +20,7 @@ export class SessionService implements ISessionService {
     private http: HttpClient,
     private responseHandler: ResponseHandler,
     private errorHandler: HttpErrorHandler,
-    private tokenService: TokenService,
+    private tokenService: AccessTokenService,
     private headerService: HeaderService,
     private router: Router,
     private messageService: MessageService

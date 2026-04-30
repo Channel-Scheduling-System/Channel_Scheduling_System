@@ -1,22 +1,20 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { TokenService } from '../services/token.service';
+import { AccessTokenService } from '../services/access-token.service';
 import { SessionService } from '../services/session.service';
 import { HeaderService } from '../services/header.service';
 import { catchError, switchMap, map } from 'rxjs';
 import { Router } from '@angular/router';
 import { HttpErrorHandler } from '../utils/handlers/error.handler';
-import { ResponseHandler } from '../utils/handlers/response.handler';
-import { RefreshResponseSchema } from '../../shared/models/auth/refresh-response.model';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const tokenService = inject(TokenService);
+  const accessTokenService = inject(AccessTokenService);
   const sessionService = inject(SessionService);
   const headerService = inject(HeaderService);
   const router = inject(Router);
   const errorHandler = inject(HttpErrorHandler);
   
-  const token = tokenService.getToken();
+  const token = accessTokenService.getToken();
 
   if (req.url.includes('/auth/') || req.url.includes('/admin/')) {
     return next(req);
@@ -35,10 +33,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
               headers: headerService.getHeaders()
             });
             return next(newAuthReq);
-          }),
-          catchError((refreshError) => {
-            router.navigate(['/auth/login']);
-            return errorHandler.handleError(refreshError);
           })
         );
       }

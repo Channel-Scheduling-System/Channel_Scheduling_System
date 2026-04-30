@@ -65,8 +65,10 @@ export class RegisterPageComponent {
 
   public onSubmit(): void {
     this.registerForm.markAllAsTouched();
-    if (this.registerForm.invalid) return;
-
+    if (this.registerForm.invalid) {
+      this.messageService.showMessage('Porfavor completa todos los campos correctamente', AlertType.WARNING);   
+      return;
+    }
     this.isLoading = true;
 
     const { confirmPassword, ...rest } = this.registerForm.value;

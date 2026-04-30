@@ -16,6 +16,7 @@ import { ConfirmUserStateModalComponent } from '../../components/confirm-user-st
 import { SetStateUserResponse } from '../../models/responses/set-state-user-response.model';
 import { SetStateUserRequest } from '../../models/requests/set-state-user-request.model';
 import { UpdateUserResponse } from '../../models/responses/update-response.model';
+import { ErrorResponse } from '../../../../shared/models/api/error-response.schema';
 
 @Component({
   selector: 'app-update-user',
@@ -90,7 +91,7 @@ export class UpdateUserPageComponent implements OnInit {
     this.isLoading = false;
   }
 
-  private handleLoadError(error: any): void {
+  private handleLoadError(error: ErrorResponse): void {
     this.isLoading = false;
     this.messageService.showMessage(error.message, AlertType.ERROR);
   }

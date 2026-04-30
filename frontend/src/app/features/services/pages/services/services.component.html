@@ -7,7 +7,7 @@
       </h1>
     </div>
     <div
-      class="services-page__search flex items-center gap-2 bg-[#f6f3f2] border-[1.5px] border-[#e5e2e1] rounded-full px-5 py-[0.6rem]">
+      class="services-page__search flex items-center gap-2 bg-white border-[2px] border-[#d4c8c6] rounded-full px-5 py-[0.6rem]">
       <span class="material-symbols-outlined services-page__search-icon text-[1.1rem] leading-none text-[#877270]"
         translate="no">search</span>
       <input
@@ -18,7 +18,7 @@
   </div>
 
   <div class="flex items-center gap-3 flex-wrap">
-    <span class="text-[0.7rem] font-bold uppercase tracking-[0.2em] text-[#877270]">Filtrar por:</span>
+    <span class="text-[0.8rem] font-bold tracking-[0.2em] text-[#877270]">Filtrar por:</span>
     <div class="services-filter__dropdown" [class.services-filter__dropdown--open]="stateDropdownOpen">
       <button class="services-filter__trigger" type="button" (click)="toggleStateDropdown($event)">
         <span class="material-symbols-outlined services-filter__trigger-icon text-[1rem] leading-none" translate="no">
@@ -39,10 +39,11 @@
     </div>
   </div>
 
-  <div class="bg-white rounded-3xl overflow-hidden shadow-[0_4px_40px_rgba(42,0,2,0.06)]">
+  <div class="bg-white shadow-[0_4px_40px_rgba(42,0,2,0.06)]">
+
 
     <div
-      class="services-table__header gap-4 px-8 py-4 bg-[#f0edec] border-b border-[#e5e2e1] text-[0.7rem] font-bold uppercase tracking-[0.15em] text-[#544341]">
+      class="services-table__header gap-4 px-8 py-4 bg-[#f0edec] text-[0.7rem] font-bold uppercase tracking-[0.15em] text-[#544341]">
       <div class="services-table__col services-table__col--accent flex items-center justify-center min-w-0"></div>
       <div class="flex items-center min-w-0">Nombre</div>
       <div class="flex items-center min-w-0">Descripción</div>
@@ -66,7 +67,7 @@
 
     <ng-container *ngIf="!isLoading">
       <div *ngFor="let service of pagedServices; let i = index"
-        class="services-table__row grid gap-4 sm:px-8 px-4 sm:py-6 py-5 border-b border-[#f0edec] last:border-b-0 hover:bg-[#fcf9f8] transition-colors duration-[250ms]"
+        class="services-table__row grid gap-4 sm:px-8 px-4 sm:py-6 py-5 last:border-b-0 hover:bg-[#fcf9f8] transition-colors duration-[250ms]"
         [class.services-table__row--alt]="i % 2 !== 0" [class.services-table__row--inactive]="!service.isActive">
 
         <div class="services-table__col services-table__col--accent flex items-center min-w-0">
@@ -122,14 +123,11 @@
       </div>
     </ng-container>
 
-    <div class="px-8 py-4 bg-[#f6f3f2] border-t border-[#e5e2e1]" *ngIf="!isLoading && getTotalCount() > 0">
-      <app-pagination [currentPage]="currentPage" [totalPages]="totalPages" [totalItems]="getTotalCount()"
-        [displayedItems]="getDisplayedCount()" [itemLabel]="'servicio'" [itemLabelPlural]="'servicios'"
-        [showFiltered]="searchTerm !== '' || selectedState !== undefined" (pageChange)="goToPage($event)">
-      </app-pagination>
-    </div>
-
   </div>
+  <app-pagination [currentPage]="currentPage" [totalPages]="totalPages" [totalItems]="getTotalCount()"
+    [displayedItems]="getDisplayedCount()" [itemLabel]="'servicio'" [itemLabelPlural]="'servicios'"
+    [showFiltered]="searchTerm !== '' || selectedState !== undefined" (pageChange)="goToPage($event)">
+  </app-pagination>
 
 </div>
 

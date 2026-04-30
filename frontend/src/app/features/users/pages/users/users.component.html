@@ -8,7 +8,7 @@
                 Usuarios</h1>
         </div>
         <div
-            class="users-page__search flex items-center bg-[#f6f3f2] border-[1.5px] border-[#e5e2e1] rounded-full h-[2.6rem] pr-5 gap-3">
+            class="users-page__search flex items-center bg-white border-[2px] border-[#d4c8c6] rounded-full h-[2.6rem] pr-5 gap-3">
             <button class="users-page__search-btn" title="Buscar" type="button"
                 (click)="triggerSearch(searchInput.value)">
                 <span class="users-page__search-btn-ripple"></span>
@@ -24,7 +24,7 @@
     </div>
 
     <div class="flex items-center gap-3 flex-wrap">
-        <span class="text-[0.7rem] font-bold uppercase tracking-[0.2em] text-[#877270]">Filtrar por:</span>
+        <span class="text-[0.8rem] font-bold tracking-[0.2em] text-[#877270]">Filtrar por:</span>
 
         <div class="users-filter__dropdown" [class.users-filter__dropdown--open]="stateDropdownOpen">
             <button class="users-filter__trigger" type="button" (click)="toggleStateDropdown($event)">
@@ -83,11 +83,11 @@
 
     <div *ngIf="!isLoading && users.length > 0" class="flex flex-col gap-3">
         <div *ngFor="let user of users; let i = index"
-            class="user-card bg-white rounded-2xl border border-[#f0edec] shadow-[0_2px_16px_rgba(42,0,2,0.04)] px-6 py-5 flex items-center justify-between gap-4"
+            class="user-card bg-white rounded-2xl shadow-[0_2px_16px_rgba(42,0,2,0.04)] px-6 py-5 flex items-center justify-between gap-4"
             [class.user-card--inactive]="!user.isActive">
 
             <div class="flex flex-col gap-[0.2rem] min-w-0">
-                <span class="text-[0.68rem] font-bold tracking-[0.2em] text-[#b0a8a7] truncate">@{{ user.alias
+                <span class="text-[0.68rem] font-bold tracking-[0.2em] text-[#877270] truncate">@{{ user.alias
                     }}</span>
                 <h3 class="font-manrope font-black text-[1.1rem] text-[#1c1b1b] leading-tight truncate">
                     {{ user.firstName }} {{ user.lastName }}
