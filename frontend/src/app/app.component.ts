@@ -19,7 +19,13 @@ export class App implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.beginInitialTransitions();
     this.checkAdmin();
+  }
+
+  private beginInitialTransitions(): void {
+    const delay = -((performance.now() / 1000) % 8);
+    document.documentElement.style.setProperty('--anim-sync', `${delay}s`);
   }
 
   private checkAdmin(): void {
@@ -29,6 +35,11 @@ export class App implements OnInit {
           this.sessionService.setAuthReady();
           this.router.navigate(['/auth/admin-register']);
         } else {
+          if (window.location.pathname.includes('/auth/admin-register')) {
+            this.router.navigate(['/auth/login']);
+            this.sessionService.setAuthReady();
+            return;
+          }
           this.initAuth();
         }
       },

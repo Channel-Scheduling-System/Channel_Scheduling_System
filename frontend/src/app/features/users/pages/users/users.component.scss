@@ -1,5 +1,6 @@
 @use '../../../../shared/styles/components/open-add-button';
 @use '../../../../shared/styles/animations.scss';
+@use '../../../../shared/styles/components/filter-dropdown' as fd;
 
 $primary: #2a0002;
 $vinotinto: #4a0010;
@@ -15,15 +16,41 @@ $icon-scale-hover: 1.3;
 }
 
 @keyframes searchFloat {
-    0%   { transform: translate(0px,    -2px)   rotate(-6deg) scale($icon-scale-hover); }
-    12%  { transform: translate(1.4px,  -1.4px) rotate(-2deg) scale($icon-scale-hover); }
-    25%  { transform: translate(2px,     0px)   rotate(2deg)  scale($icon-scale-hover); }
-    37%  { transform: translate(1.4px,   1.4px) rotate(6deg)  scale($icon-scale-hover); }
-    50%  { transform: translate(0px,     2px)   rotate(8deg)  scale($icon-scale-hover); }
-    62%  { transform: translate(-1.4px,  1.4px) rotate(4deg)  scale($icon-scale-hover); }
-    75%  { transform: translate(-2px,    0px)   rotate(-2deg) scale($icon-scale-hover); }
-    87%  { transform: translate(-1.4px, -1.4px) rotate(-6deg) scale($icon-scale-hover); }
-    100% { transform: translate(0px,    -2px)   rotate(-6deg) scale($icon-scale-hover); }
+    0% {
+        transform: translate(0px, -2px) rotate(-6deg) scale($icon-scale-hover);
+    }
+
+    12% {
+        transform: translate(1.4px, -1.4px) rotate(-2deg) scale($icon-scale-hover);
+    }
+
+    25% {
+        transform: translate(2px, 0px) rotate(2deg) scale($icon-scale-hover);
+    }
+
+    37% {
+        transform: translate(1.4px, 1.4px) rotate(6deg) scale($icon-scale-hover);
+    }
+
+    50% {
+        transform: translate(0px, 2px) rotate(8deg) scale($icon-scale-hover);
+    }
+
+    62% {
+        transform: translate(-1.4px, 1.4px) rotate(4deg) scale($icon-scale-hover);
+    }
+
+    75% {
+        transform: translate(-2px, 0px) rotate(-2deg) scale($icon-scale-hover);
+    }
+
+    87% {
+        transform: translate(-1.4px, -1.4px) rotate(-6deg) scale($icon-scale-hover);
+    }
+
+    100% {
+        transform: translate(0px, -2px) rotate(-6deg) scale($icon-scale-hover);
+    }
 }
 
 .users-page {
@@ -52,11 +79,11 @@ $icon-scale-hover: 1.3;
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 100%; 
-    aspect-ratio: 1; 
+    height: 100%;
+    aspect-ratio: 1;
     border-radius: 50%;
     background: white;
-    border: 1.5px solid #e5e2e1;
+    border: 1px solid #d4c8c6;
     cursor: pointer;
     color: #877270;
     flex-shrink: 0;
@@ -118,7 +145,8 @@ $icon-scale-hover: 1.3;
         box-shadow 0.3s ease,
         border-color 0.3s ease,
         transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-
+    border: 2px solid rgba(74, 14, 14, 0.05);
+    box-shadow: 0 2px 16px rgba(42, 0, 2, 0.04);
 
 
     &::before {
@@ -140,8 +168,9 @@ $icon-scale-hover: 1.3;
         content: '';
         position: absolute;
         left: 0;
-        top: 20%;
-        height: 60%;
+        top: 0%;
+        
+        height: 100%;
         width: 3px;
         border-radius: 0 2px 2px 0;
         background: $vinotinto-mid;
@@ -154,8 +183,9 @@ $icon-scale-hover: 1.3;
     }
 
     &:hover {
-        box-shadow: 0 8px 32px rgba(42, 0, 2, 0.1);
-        border-color: rgba(74, 14, 14, 0.15);
+        border-color: rgba(74, 14, 14, 0.65);
+        box-shadow: 0 8px 32px rgba(42, 0, 2, 0.12),
+            0 0 0 3px rgba(74, 14, 14, 0.08);
         transform: translateY(-3px);
 
         &::before {
@@ -242,11 +272,15 @@ $icon-scale-hover: 1.3;
     }
 
     &--inactive {
-        background-color: #e2e2e2;
-        border-color: #b9b6b5;
+        background-color: #f5f5f5;
 
-        h3 { color: #6b6564; }
-        .text-\[\#1c1b1b\] { color: #6b6564; }
+        h3 {
+            color: #6b6564;
+        }
+
+        .text-\[\#1c1b1b\] {
+            color: #6b6564;
+        }
     }
 }
 
@@ -287,125 +321,8 @@ $icon-scale-hover: 1.3;
 }
 
 .users-page__page-ellipsis {
-  letter-spacing: 0.05em;
-  pointer-events: none;
+    letter-spacing: 0.05em;
+    pointer-events: none;
 }
 
-.users-filter {
-    &__dropdown {
-        position: relative;
-
-        &--open {
-            .users-filter__trigger {
-                border-color: $vinotinto-mid;
-                box-shadow: 0 0 0 3px rgba(74, 14, 14, 0.12);
-                color: $vinotinto-mid;
-            }
-            .users-filter__arrow {
-                transform: rotate(180deg);
-            }
-        }
-    }
-
-    &__trigger {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        padding: 0.45rem 0.9rem;
-        background: white;
-        border: 1.5px solid #e5e2e1;
-        border-radius: 999px;
-        color: #544341;
-        font-family: 'Manrope', sans-serif;
-        font-size: 0.78rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
-        white-space: nowrap;
-
-        &:hover {
-            border-color: rgba(74, 14, 14, 0.3);
-            color: $vinotinto-mid;
-        }
-    }
-
-    &__trigger-icon {
-        color: #877270;
-        transition: color 0.2s ease;
-    }
-
-    &__trigger:hover &__trigger-icon {
-        color: $vinotinto-mid;
-    }
-
-    &__arrow {
-        color: #877270;
-        transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease;
-    }
-
-    &__trigger-label {
-        max-width: 10rem;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    &__options {
-        position: absolute;
-        top: calc(100% + 0.4rem);
-        left: 0;
-        min-width: 100%;
-        background: white;
-        border: 1.5px solid #e5e2e1;
-        border-radius: 0.875rem;
-        box-shadow: 0 8px 24px rgba(42, 0, 2, 0.1);
-        overflow: hidden;
-        z-index: 100;
-        animation: fadeInUp 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
-    }
-
-    &__option {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        width: 100%;
-        padding: 0.55rem 0.9rem;
-        background: none;
-        border: none;
-        font-family: 'Manrope', sans-serif;
-        font-size: 0.78rem;
-        font-weight: 600;
-        color: #544341;
-        cursor: pointer;
-        text-align: left;
-        transition: background-color 0.15s ease, color 0.15s ease;
-        white-space: nowrap;
-
-        &:hover {
-            background-color: #f6f3f2;
-            color: $vinotinto-mid;
-        }
-
-        &--selected {
-            color: $vinotinto-mid;
-            background-color: rgba(74, 14, 14, 0.05);
-
-        }
-    }
-
-    &__option-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background-color: #c8c6c5;
-        flex-shrink: 0;
-        transition: background-color 0.2s ease, transform 0.2s ease;
-        transform: scale(0.8);
-    }
-
-    &__option--selected &__option-dot {
-        background-color: $vinotinto-mid;
-        transform: scale(1);
-    }
-
-}
-
+@include fd.filter-dropdown('.users-filter');

@@ -1,5 +1,6 @@
 @use '../../../../shared/styles/components/user-form-field';
 @use '../../../../shared/styles/components/user-buttons';
+@use '../../../../shared/styles/animations.scss';
 
 .edit-user-page {
     animation: fadeInUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -16,7 +17,9 @@
 
 .profile-field {
 
-    &__icon { color: #4A0E0E; }
+    &__icon {
+        color: #4A0E0E;
+    }
 
     &__dropdown-wrap {
         position: relative;
@@ -24,19 +27,41 @@
         &--has-value:not(:hover) {
             .profile-field__dropdown-trigger {
                 border-color: #4A0E0E;
-                box-shadow: 0 0 8px rgba(233, 42, 42, 0.1);
+                box-shadow:
+                    0 0 0 3px rgba(74, 14, 14, 0.06),
+                    0 0 10px rgba(74, 14, 14, 0.14),
+                    0 0 25px rgba(74, 14, 14, 0.08),
+                    0 0 45px rgba(74, 14, 14, 0.04);
             }
-            .profile-field__label-text--shifted { color: #4A0E0E; }
-            .profile-field__dropdown-arrow      { color: #4A0E0E; }
+
+            .profile-field__label-text--shifted {
+                color: #4A0E0E;
+            }
+
+            .profile-field__dropdown-arrow {
+                color: #4A0E0E;
+            }
         }
 
-        &--has-value:hover {
+        &--has-value:hover,
+        &--has-value:focus-within {
             .profile-field__dropdown-trigger {
                 border-color: #e62b2b;
-                box-shadow: 0 0 8px rgba(243, 3, 3, 0.15);
+                box-shadow:
+                    0 0 0 3px rgba(186, 26, 26, 0.08),
+                    0 0 10px rgba(186, 26, 26, 0.20),
+                    0 0 25px rgba(186, 26, 26, 0.13),
+                    0 0 50px rgba(186, 26, 26, 0.07),
+                    0 0 80px rgba(186, 26, 26, 0.03);
             }
-            .profile-field__label-text--shifted { color: #e62b2b; }
-            .profile-field__dropdown-arrow      { color: #e62b2b; }
+
+            .profile-field__label-text--shifted {
+                color: #e62b2b;
+            }
+
+            .profile-field__dropdown-arrow {
+                color: #e62b2b;
+            }
         }
 
         &--open {
@@ -47,6 +72,7 @@
                 border-bottom-right-radius: 0;
                 border-bottom-color: #f0edec;
             }
+
             .profile-field__dropdown-arrow {
                 transform: rotate(180deg);
                 color: #e62b2b;
@@ -117,17 +143,11 @@
             color 0.15s ease,
             padding-left 0.2s ease;
 
-        &:not(:last-child) { border-bottom: 1px solid #f6f3f2; }
+        &:not(:last-child) {
+            border-bottom: 1px solid #f6f3f2;
+        }
     }
 
-    &__label-text--shifted {
-        margin-left: calc(1rem + 0.4rem);
-    }
-
-    &__icon--floating {
-        left: 0;
-        transform: translateY(-50%) scale(1.15);
-    }
 }
 
 .state-field {
@@ -139,56 +159,98 @@
         flex-shrink: 0;
         transition: background 0.2s ease;
 
-        &--active   { background: #16a34a; box-shadow: 0 0 6px rgba(22, 163, 74, 0.5); }
-        &--inactive { background: #dc2626; box-shadow: 0 0 6px rgba(220, 38, 38, 0.5); }
+        &--active {
+            background: #16a34a;
+            box-shadow: 0 0 6px rgba(22, 163, 74, 0.5);
+        }
+
+        &--inactive {
+            background: #dc2626;
+            box-shadow: 0 0 6px rgba(220, 38, 38, 0.5);
+        }
     }
 
     &__trigger-label {
         font-weight: 600;
-        &--active   { color: #15803d; }
-        &--inactive { color: #b91c1c; }
+
+        &--active {
+            color: #15803d;
+        }
+
+        &--inactive {
+            color: #b91c1c;
+        }
     }
 
     &__option {
         &--active-item {
-            .state-field__option-icon { color: #86efac; transition: color 0.15s ease; }
+            .state-field__option-icon {
+                color: #86efac;
+                transition: color 0.15s ease;
+            }
 
             &:hover {
                 background: rgba(22, 163, 74, 0.07) !important;
                 color: #15803d !important;
                 padding-left: 1.3rem;
-                .state-field__option-icon { color: #16a34a; }
+
+                .state-field__option-icon {
+                    color: #16a34a;
+                }
             }
 
             &.state-field__option--selected {
                 background: rgba(22, 163, 74, 0.08) !important;
                 color: #15803d !important;
                 font-weight: 700;
-                .state-field__option-icon  { color: #16a34a; }
-                .state-field__option-check { color: #16a34a; }
+
+                .state-field__option-icon {
+                    color: #16a34a;
+                }
+
+                .state-field__option-check {
+                    color: #16a34a;
+                }
             }
         }
 
         &--inactive-item {
-            .state-field__option-icon { color: #fca5a5; transition: color 0.15s ease; }
+            .state-field__option-icon {
+                color: #fca5a5;
+                transition: color 0.15s ease;
+            }
 
             &:hover {
                 background: rgba(220, 38, 38, 0.07) !important;
                 color: #b91c1c !important;
                 padding-left: 1.3rem;
-                .state-field__option-icon { color: #dc2626; }
+
+                .state-field__option-icon {
+                    color: #dc2626;
+                }
             }
 
             &.state-field__option--selected {
                 background: rgba(220, 38, 38, 0.08) !important;
                 color: #b91c1c !important;
                 font-weight: 700;
-                .state-field__option-icon  { color: #dc2626; }
-                .state-field__option-check { color: #dc2626; }
+
+                .state-field__option-icon {
+                    color: #dc2626;
+                }
+
+                .state-field__option-check {
+                    color: #dc2626;
+                }
             }
         }
     }
 
-    &__option-icon  { flex-shrink: 0; }
-    &__option-check { opacity: 0.8;   }
+    &__option-icon {
+        flex-shrink: 0;
+    }
+
+    &__option-check {
+        opacity: 0.8;
+    }
 }
