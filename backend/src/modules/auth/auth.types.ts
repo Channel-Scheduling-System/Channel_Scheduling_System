@@ -28,6 +28,11 @@ export interface RefreshTokenInput {
     refreshToken: string;
 }
 
+export interface VerifyResetCodeInput {
+    email: string;
+    code: string;
+}
+
 // TOKENS
 //* -----------------------------
 export interface AuthTokens {

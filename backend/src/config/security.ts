@@ -27,12 +27,24 @@ export const registerLimiter = rateLimit({
 
 /**
  * Rate limiting para solicitud de reset password - Protege contra abuso
- * 5 intentos cada 30 minutos
+ * 5 intentos cada 60 minutos
  */
 export const passwordResetLimiter = rateLimit({
-    windowMs: 30 * 60 * 1000, // 30 minutos
+    windowMs: 60 * 60 * 1000, // 60 minutos
     max: 5,
     message: 'Demasiados intentos de solicitud de restablecimiento. Intenta nuevamente más tarde.',
+    standardHeaders: true,
+    skip: () => env.nodeEnv === 'development',
+});
+
+/**
+ * Rate limiting para verificación de código de reset - Protege contra fuerza bruta
+ * 3 intentos cada 7 minutos
+ */
+export const verifyResetCodeLimiter = rateLimit({
+    windowMs: 7 * 60 * 1000, // 7 minutos
+    max: 3,
+    message: 'Demasiados intentos fallidos. Intenta nuevamente en 7 minutos.',
     standardHeaders: true,
     skip: () => env.nodeEnv === 'development',
 });

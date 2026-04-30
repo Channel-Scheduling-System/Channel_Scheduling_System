@@ -28,6 +28,13 @@ export const USER_ERRORS = {
     USER_DEACTIVATED: 'Usuario desactivado. Contacta al administrador.',
 } as const;
 
+export const RESET_CODE_ERRORS = {
+    NOT_FOUND: 'Código de restablecimiento no encontrado',
+    EXPIRED: 'Código de restablecimiento expirado',
+    INVALID_CODE: 'Código de restablecimiento inválido',
+    MAX_ATTEMPTS: 'Demasiados intentos. Solicita un nuevo código.',
+} as const;
+
 export const SERVICE_ERRORS = {
     UPDATE_STATE_FORBIDDEN:
         'No tienes permisos para modificar el estado del servicio',

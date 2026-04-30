@@ -5,6 +5,7 @@ import {
     loginLimiter,
     passwordResetLimiter,
     registerLimiter,
+    verifyResetCodeLimiter,
 } from '../../config/security.js';
 import { authMiddleware } from '../../shared/middlewares/auth.middleware.js';
 
@@ -38,6 +39,13 @@ authRouter.post(
     passwordResetLimiter,
     authValidator.requestPasswordReset,
     authController.requestPasswordReset,
+);
+
+authRouter.post(
+    '/password-reset/verify',
+    verifyResetCodeLimiter,
+    authValidator.verifyResetCode,
+    authController.verifyResetCode,
 );
 
 authRouter.get('/admin/exists', authController.checkAdminExists);

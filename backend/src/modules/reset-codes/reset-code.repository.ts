@@ -4,7 +4,10 @@ import { CreateResetCodeData } from './reset-code.types.js';
 
 export interface IResetCodeRepository {
     create(data: CreateResetCodeData): Promise<ResetCode>;
-    invalidate(userId: number): Promise<void>;
+    invalidatePreviousCodes(userId: number): Promise<void>;
+    findByUserId(userId: number): Promise<ResetCode | null>;
+    incrementAttempts(id: number): Promise<void>;
+    markAsUsed(id: number): Promise<void>;
 }
 
 export class ResetCodeRepository implements IResetCodeRepository {
@@ -12,7 +15,7 @@ export class ResetCodeRepository implements IResetCodeRepository {
         return await prisma.resetCode.create({ data });
     }
 
-    async invalidate(userId: number): Promise<void> {
+    async invalidatePreviousCodes(userId: number): Promise<void> {
         await prisma.resetCode.updateMany({
             where: {
                 userId,
@@ -21,6 +24,30 @@ export class ResetCodeRepository implements IResetCodeRepository {
             data: {
                 used: true,
             },
+        });
+    }
+
+    async findByUserId(userId: number): Promise<ResetCode | null> {
+        return await prisma.resetCode.findFirst({
+            where: {
+                userId,
+                used: false,
+            },
+            orderBy: { createdAt: 'desc' },
+        });
+    }
+
+    async incrementAttempts(id: number): Promise<void> {
+        await prisma.resetCode.updateMany({
+            where: { id, used: false },
+            data: { attempts: { increment: 1 } },
+        });
+    }
+
+    async markAsUsed(id: number): Promise<void> {
+        await prisma.resetCode.update({
+            where: { id },
+            data: { used: true },
         });
     }
 }
