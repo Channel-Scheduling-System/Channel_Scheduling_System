@@ -111,6 +111,16 @@ export class AuthController {
         }
     };
 
+    resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const id = req.user?.sub as unknown as number;
+            await this.authService.resetPassword(id, req.body.newPassword);
+            res.json({ message: 'Contraseña actualizada con éxito' });
+        } catch (err) {
+            next(err);
+        }
+    };
+
     checkAdminExists = async (
         req: Request,
         res: Response,

@@ -57,6 +57,7 @@ export interface IUserService {
     ): Promise<void>;
     updateState(input: UpdateStateInput, auth?: AuthContext): Promise<boolean>;
     deactivateMe(password: string, auth: AuthContext): Promise<void>;
+    resetPasswordDirect(id: number, newPassword: string): Promise<void>;
     countAdmins(): Promise<number>;
 }
 
@@ -219,6 +220,12 @@ export class UserService implements IUserService {
         await this.validatePassword(password, user.passwordHash);
         await this.userRepo.updateIsActive(auth.id, false);
         await this.authRepo.deleteRefreshTokensForUser(auth.id);
+    }
+
+    async resetPasswordDirect(id: number, newPassword: string): Promise<void> {
+        await this.getUserOrFail(id);
+        const newHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+        await this.userRepo.updatePassword(id, newHash);
     }
 
     async countAdmins(): Promise<number> {

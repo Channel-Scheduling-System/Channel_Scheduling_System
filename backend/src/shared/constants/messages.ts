@@ -1,6 +1,11 @@
 export const AUTH_ERRORS = {
     ACCESS_TOKEN_MISSING: 'Access Token no proporcionado',
     ACCESS_TOKEN_INVALID: 'Access Token inválido',
+    ACCESS_TOKEN_EXPIRED: 'Access Token expirado',
+    REFRESH_TOKEN_INVALID: 'Refresh Token inválido',
+    REFRESH_TOKEN_EXPIRED: 'Refresh Token expirado',
+    RESETPASS_TOKEN_INVALID: 'Token de restablecimiento inválido',
+    RESETPASS_TOKEN_EXPIRED: 'Token de restablecimiento expirado',
     EMAIL_REGISTERED: 'El email ya está registrado',
     TOKEN_REUSE_DETECTED:
         'Sesión comprometida. Por favor inicie sesión nuevamente.',

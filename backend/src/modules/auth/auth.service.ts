@@ -36,6 +36,7 @@ export interface IAuthService {
     logout(input: LogoutInput): Promise<void>;
     requestPasswordReset(email: string): Promise<void>;
     verifyResetCode(input: VerifyResetCodeInput): Promise<string>;
+    resetPassword(userId: number, newPassword: string): Promise<void>;
     checkAdminExists(): Promise<boolean>;
 }
 
@@ -78,8 +79,7 @@ export class AuthService implements IAuthService {
     }
 
     async refresh(input: RefreshTokenInput): Promise<AuthResult> {
-        await this.verifyRefreshToken(input.refreshToken);
-        const payload = this.decodeRefreshToken(input.refreshToken);
+        const payload = await this.verifyRefreshToken(input.refreshToken);
 
         const tokenHash = this.hashToken(input.refreshToken);
         const storedToken = await this.authRepo.findRefreshToken(tokenHash);
@@ -104,9 +104,8 @@ export class AuthService implements IAuthService {
     }
 
     async logout(input: LogoutInput): Promise<void> {
-        // Verifica validez del token
-        await this.verifyRefreshToken(input.refreshToken);
-        const payload = this.decodeRefreshToken(input.refreshToken);
+        // Verifica validez e integridad del token
+        const payload = await this.verifyRefreshToken(input.refreshToken);
         // Verifica que el token corresponde al id de usuario proporcionado
         if (input.userId && input.userId !== payload.sub)
             throw new UnauthorizedError(AUTH_ERRORS.LOGOUT_UNAUTHORIZED);
@@ -151,10 +150,17 @@ export class AuthService implements IAuthService {
         return await this.generateResetToken(user.id);
     }
 
+    async resetPassword(userId: number, newPassword: string): Promise<void> {
+        await this.userService.resetPasswordDirect(userId, newPassword);
+    }
+
     async checkAdminExists(): Promise<boolean> {
         const count = await this.userService.countAdmins();
         return count > 0;
     }
+
+    // MÉTODOS AUXILIARES
+    //* -----------------------------
 
     private async generateAndStoreTokens(
         userId: number,
@@ -168,7 +174,7 @@ export class AuthService implements IAuthService {
         const accessToken = await this.generateAccessToken(payload);
         const refreshToken = await this.generateRefreshToken(payload);
 
-        const expireAt = this.extractTokenExpiration(refreshToken);
+        const expireAt = await this.extractTokenExpiration(refreshToken);
         const tokenHash = this.hashToken(refreshToken);
 
         await this.authRepo.createRefreshToken(userId, tokenHash, expireAt);
@@ -216,37 +222,36 @@ export class AuthService implements IAuthService {
         return token;
     }
 
-    private decodeRefreshToken(token: string): JwtPayload & { exp?: number } {
-        // Decodificar sin verificar para obtener claims
-        const parts = token.split('.');
-        if (parts.length !== 3) {
-            throw new InvalidTokenError();
-        }
-        try {
-            const decoded = JSON.parse(
-                Buffer.from(parts[1], 'base64').toString('utf-8'),
-            ) as { sub: string; role: string; exp?: number };
-            return {
-                sub: parseInt(decoded.sub, 10),
-                role: decoded.role as SystemRole,
-                exp: decoded.exp,
-            };
-        } catch {
-            throw new InvalidTokenError(AUTH_ERRORS.TOKEN_DECODE_FAILED);
-        }
-    }
-
-    private async verifyRefreshToken(token: string): Promise<void> {
+    private async verifyRefreshToken(token: string): Promise<JwtPayload> {
         try {
             const secret = new TextEncoder().encode(env.jwt.refresh);
-            await jwtVerify(token, secret);
-        } catch {
-            throw new InvalidTokenError();
+            const { payload } = await jwtVerify(token, secret, {
+                audience: 'refresh',
+            });
+
+            if (!payload.sub)
+                throw new InvalidTokenError(AUTH_ERRORS.REFRESH_TOKEN_INVALID);
+
+            return {
+                sub: Number(payload.sub),
+                role: String(payload.role) as SystemRole,
+            };
+        } catch (error) {
+            if (error instanceof Error && error.message.includes('expired')) {
+                throw new InvalidTokenError(AUTH_ERRORS.REFRESH_TOKEN_EXPIRED);
+            }
+            throw error instanceof InvalidTokenError
+                ? error
+                : new InvalidTokenError(AUTH_ERRORS.REFRESH_TOKEN_INVALID);
         }
     }
 
-    private extractTokenExpiration(token: string): Date {
-        const payload = this.decodeRefreshToken(token);
+    private async extractTokenExpiration(token: string): Promise<Date> {
+        const secret = new TextEncoder().encode(env.jwt.refresh);
+        const { payload } = await jwtVerify(token, secret, {
+            audience: 'refresh',
+        });
+
         if (!payload.exp) {
             throw new InvalidTokenError(AUTH_ERRORS.TOKEN_DECODE_FAILED);
         }
