@@ -44,6 +44,12 @@ export const VerifyResetCodeDTO = z
     })
     .strict();
 
+// RESET PASSWORD
+//* -----------------------------
+export const ResetPasswordDTO = z
+    .object({ newPassword: UserPassword })
+    .strict();
+
 // TYPES (DTOs)
 //* -----------------------------
 export type LoginRequestDTO = z.infer<typeof LoginDTO>;
@@ -58,4 +64,5 @@ export const authValidator = {
     refreshToken: validateCookieDTO('refreshToken', RefreshTokenDTO),
     requestPasswordReset: validateBodyDTO(ResetCodeRequestDTO),
     verifyResetCode: validateBodyDTO(VerifyResetCodeDTO),
+    resetPassword: validateBodyDTO(ResetPasswordDTO),
 };

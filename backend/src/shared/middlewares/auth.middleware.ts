@@ -16,6 +16,7 @@ import prisma from '../../config/prisma.js';
 export interface CustomJwtPayload {
     sub: number;
     role?: string;
+    exp?: number;
 }
 
 /**
@@ -61,7 +62,7 @@ export async function authMiddleware(
 /**
  * Extrae el token del header Authorization
  */
-function extractToken(authHeader?: string): string {
+export function extractToken(authHeader?: string): string {
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         throw new InvalidTokenError(AUTH_ERRORS.ACCESS_TOKEN_MISSING);
     }
@@ -74,7 +75,9 @@ function extractToken(authHeader?: string): string {
 async function verifyToken(token: string): Promise<CustomJwtPayload> {
     try {
         const secret = new TextEncoder().encode(env.jwt.secret);
-        const { payload } = await jwtVerify(token, secret);
+        const { payload } = await jwtVerify(token, secret, {
+            audience: 'access',
+        });
         if (!payload.sub)
             throw new InvalidTokenError(AUTH_ERRORS.ACCESS_TOKEN_INVALID);
 
@@ -82,15 +85,20 @@ async function verifyToken(token: string): Promise<CustomJwtPayload> {
             sub: Number(payload.sub),
             role: String(payload.role),
         };
-    } catch {
-        throw new InvalidTokenError(AUTH_ERRORS.ACCESS_TOKEN_INVALID);
+    } catch (error) {
+        if (error instanceof Error && error.message.includes('expired')) {
+            throw new InvalidTokenError(AUTH_ERRORS.ACCESS_TOKEN_EXPIRED);
+        }
+        throw error instanceof InvalidTokenError
+            ? error
+            : new InvalidTokenError(AUTH_ERRORS.ACCESS_TOKEN_INVALID);
     }
 }
 
 /**
  * Valida que el usuario exista y esté activo
  */
-async function validateActiveUser(userId: number): Promise<void> {
+export async function validateActiveUser(userId: number): Promise<void> {
     const user = await prisma.user.findUnique({
         where: { id: userId },
         select: { id: true, isActive: true },
