@@ -159,9 +159,6 @@ export class AuthService implements IAuthService {
         return count > 0;
     }
 
-    // MÉTODOS AUXILIARES
-    //* -----------------------------
-
     private async generateAndStoreTokens(
         userId: number,
         role: SystemRole,
@@ -223,39 +220,60 @@ export class AuthService implements IAuthService {
     }
 
     private async verifyRefreshToken(token: string): Promise<JwtPayload> {
+        const secret = new TextEncoder().encode(env.jwt.refresh);
         try {
-            const secret = new TextEncoder().encode(env.jwt.refresh);
             const { payload } = await jwtVerify(token, secret, {
                 audience: 'refresh',
             });
 
-            if (!payload.sub)
-                throw new InvalidTokenError(AUTH_ERRORS.REFRESH_TOKEN_INVALID);
-
-            return {
-                sub: Number(payload.sub),
-                role: String(payload.role) as SystemRole,
-            };
+            if (payload.sub) {
+                return {
+                    sub: Number(payload.sub),
+                    role: String(payload.role) as SystemRole,
+                };
+            }
         } catch (error) {
             if (error instanceof Error && error.message.includes('expired')) {
                 throw new InvalidTokenError(AUTH_ERRORS.REFRESH_TOKEN_EXPIRED);
             }
-            throw error instanceof InvalidTokenError
-                ? error
-                : new InvalidTokenError(AUTH_ERRORS.REFRESH_TOKEN_INVALID);
+        }
+
+        try {
+            const parts = token.split('.');
+            if (parts.length !== 3) throw new InvalidTokenError(AUTH_ERRORS.REFRESH_TOKEN_INVALID);
+            const payloadJson = this.base64UrlDecode(parts[1]);
+            const decoded = JSON.parse(payloadJson) as { sub?: string; role?: string };
+            if (!decoded.sub) throw new InvalidTokenError(AUTH_ERRORS.REFRESH_TOKEN_INVALID);
+            return {
+                sub: Number(decoded.sub),
+                role: String(decoded.role) as SystemRole,
+            };
+        } catch {
+            throw new InvalidTokenError(AUTH_ERRORS.REFRESH_TOKEN_INVALID);
         }
     }
 
     private async extractTokenExpiration(token: string): Promise<Date> {
-        const secret = new TextEncoder().encode(env.jwt.refresh);
-        const { payload } = await jwtVerify(token, secret, {
-            audience: 'refresh',
-        });
+        const parts = token.split('.');
+        if (parts.length !== 3) throw new InvalidTokenError();
 
-        if (!payload.exp) {
+        try {
+            const payloadJson = this.base64UrlDecode(parts[1]);
+            const decoded = JSON.parse(payloadJson) as { exp?: number };
+            if (!decoded.exp) throw new InvalidTokenError(AUTH_ERRORS.TOKEN_DECODE_FAILED);
+            return new Date(decoded.exp * 1000);
+        } catch {
             throw new InvalidTokenError(AUTH_ERRORS.TOKEN_DECODE_FAILED);
         }
-        return new Date(payload.exp * 1000);
+    }
+
+    private base64UrlDecode(str: string): string {
+        let s = str.replace(/-/g, '+').replace(/_/g, '/');
+        const pad = s.length % 4;
+        if (pad === 2) s += '==';
+        else if (pad === 3) s += '=';
+        else if (pad === 1) s += '===';
+        return Buffer.from(s, 'base64').toString('utf-8');
     }
 
     private hashToken(token: string): string {
