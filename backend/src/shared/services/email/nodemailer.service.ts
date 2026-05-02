@@ -3,7 +3,7 @@ import { env } from '../../../config/env.js';
 import { ServiceError } from '../../errors/domain.error.js';
 import { EmailOptions, IEmailService } from './email.types.js';
 
-const transporterOptions = {
+const transporter = nodemailer.createTransport({
     host: env.email.host,
     port: env.email.port,
     secure: env.email.port === 465,
@@ -11,16 +11,20 @@ const transporterOptions = {
         user: env.email.user,
         pass: env.email.pass,
     },
-};
+    requireTLS: env.nodeEnv === 'production',
+    tls: {
+        rejectUnauthorized: false,
+    },
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 10000,
+});
 
 export class NodemailerEmailService implements IEmailService {
-    private transporter = nodemailer.createTransport(transporterOptions, {
-        from: env.email.from,
-    });
-
     async send(options: EmailOptions): Promise<void> {
         try {
-            await this.transporter.sendMail({
+            await transporter.sendMail({
+                from: env.email.from,
                 to: options.to,
                 subject: options.subject,
                 html: options.html,
@@ -34,7 +38,7 @@ export class NodemailerEmailService implements IEmailService {
 
     async verify(): Promise<boolean> {
         try {
-            await this.transporter.verify();
+            await transporter.verify();
             return true;
         } catch {
             return false;
