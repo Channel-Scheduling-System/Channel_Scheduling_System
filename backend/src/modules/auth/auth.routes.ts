@@ -8,7 +8,7 @@ import {
     verifyResetCodeLimiter,
 } from '../../config/security.js';
 import { authMiddleware } from '../../shared/middlewares/auth.middleware.js';
-import { resetTokenMiddleware } from '#/shared/middlewares/reset-pass.middleware.js';
+import { resetTokenMiddleware } from '../../shared/middlewares/reset-pass.middleware.js';
 
 const authRouter = Router();
 
