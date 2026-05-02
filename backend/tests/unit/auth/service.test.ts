@@ -1,7 +1,7 @@
 /// <reference types="jest" />
 
 import bcrypt from 'bcrypt';
-import { createHash } from 'crypto';
+import { createHmac } from 'crypto';
 
 import { AuthService } from '../../../src/modules/auth/auth.service';
 import type { IAuthRepository } from '../../../src/modules/auth/auth.repository';
@@ -15,11 +15,16 @@ import { InvalidCredentialsError } from '../../../src/shared/errors/validation.e
 jest.mock('#/config/env.js', () => ({
     __esModule: true,
     env: {
+        token: {
+            secret: 'test-token-secret',
+        },
         jwt: {
             secret: 'test-jwt-secret',
             expiresIn: '1h',
             refresh: 'test-jwt-refresh',
             expiresInRefresh: '7d',
+            resetPass: 'test-jwt-reset-pass',
+            expiresInResetPass: '15m',
         },
     },
 }));
@@ -40,7 +45,9 @@ jest.mock(
             .fn()
             .mockImplementation((payload: { sub: string; role: string }) => ({
                 setProtectedHeader: jest.fn().mockReturnThis(),
+                setAudience: jest.fn().mockReturnThis(),
                 setExpirationTime: jest.fn().mockReturnThis(),
+                setSubject: jest.fn().mockReturnThis(),
                 sign: jest.fn().mockImplementation(async () => {
                     const exp = Math.floor(Date.now() / 1000) + 3600;
                     const encodedPayload = Buffer.from(
@@ -100,7 +107,7 @@ function buildRefreshToken(sub: number, role: string): string {
 }
 
 function hashToken(token: string): string {
-    return createHash('sha256').update(token).digest('hex');
+    return createHmac('sha256', 'test-token-secret').update(token).digest('hex');
 }
 
 describe('AuthService', () => {
