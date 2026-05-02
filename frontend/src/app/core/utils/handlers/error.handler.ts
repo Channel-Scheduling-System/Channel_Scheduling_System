@@ -22,7 +22,7 @@ export class HttpErrorHandler implements IErrorHandler{
 
   private handleHttpError(error: HttpErrorResponse): ReturnType<typeof throwError> {
     if (error.status === 0) {
-      return throwError(() => this.createError('NETWORK_ERROR', 'No se pudo conectar al servidor'));
+      return throwError(() => this.createError('NETWORK_ERROR', 'No se pudo conectar al servidor. Intenta de nuevo más tarde.'));
     }
     try {
       const apiError = ErrorResponseSchema.parse(error.error);
