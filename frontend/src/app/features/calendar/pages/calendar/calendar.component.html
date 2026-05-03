@@ -1,0 +1,214 @@
+<div class="calendar-page">
+
+  <div class="calendar-page__header">
+    <div>
+      <span class="calendar-page__eyebrow">Gestión</span>
+      <h1 class="calendar-page__title">Mi Agenda</h1>
+    </div>
+  </div>
+
+  <div class="calendar-shell" [class.calendar-shell--delete-mode]="isDeleteMode">
+
+    <div class="cal-topbar">
+
+      <div class="cal-topbar__nav">
+        <button class="cal-nav-btn" (click)="goToPrev()" title="Anterior">
+          <span class="material-symbols-outlined" translate="no">chevron_left</span>
+        </button>
+        <button class="cal-today-btn" (click)="goToToday()" title="Hoy">Hoy</button>
+        <button class="cal-nav-btn" (click)="goToNext()" title="Siguiente">
+          <span class="material-symbols-outlined" translate="no">chevron_right</span>
+        </button>
+      </div>
+
+      <div class="cal-topbar__range">
+        <span class="cal-range-label">{{ dateRangeLabel }}</span>
+      </div>
+
+      <div class="cal-view-switcher">
+        <button
+          class="cal-view-btn"
+          [class.cal-view-btn--active]="currentView === 'month'"
+          (click)="setView('month')">
+          Mes
+        </button>
+        <button
+          class="cal-view-btn"
+          [class.cal-view-btn--active]="currentView === 'week'"
+          (click)="setView('week')">
+          Semana
+        </button>
+        <button
+          class="cal-view-btn"
+          [class.cal-view-btn--active]="currentView === 'day'"
+          (click)="setView('day')">
+          Día
+        </button>
+      </div>
+    </div>
+
+    <div class="cal-body">
+
+      <div class="cal-grid-wrap" #gridWrap>
+
+        <ng-container *ngIf="currentView === 'week'">
+          <div class="cal-grid cal-grid--week">
+
+            <div class="cal-grid__corner"></div>
+            <div
+              *ngFor="let day of visibleDays; trackBy: trackByDay"
+              class="cal-grid__day-header"
+              [class.cal-grid__day-header--today]="isDayToday(day)"
+              [class.cal-grid__day-header--selected]="isSelectedDay(day)"
+              (click)="onDayHeaderClick(day)"
+              title="Marcar como día libre">
+              <span class="cal-grid__day-name">{{ formatDayName(day) }}</span>
+              <span class="cal-grid__day-number">{{ formatDayNumber(day) }}</span>
+            </div>
+
+            <ng-container *ngFor="let slot of timeSlots; trackBy: trackBySlot">
+              <div class="cal-grid__time-label" [class.cal-grid__time-label--half]="slot.minute === 30">
+                <span *ngIf="slot.minute === 0">{{ slot.label }}</span>
+              </div>
+              <div
+                *ngFor="let day of visibleDays; trackBy: trackByDay"
+                class="cal-grid__cell"
+                [class.cal-grid__cell--today]="isDayToday(day)"
+                [class.cal-grid__cell--half]="slot.minute === 30"
+                (click)="onSlotClick(day, slot)">
+              </div>
+            </ng-container>
+
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="currentView === 'day'">
+          <div class="cal-grid cal-grid--day">
+
+            <div class="cal-grid__corner"></div>
+            <div
+              class="cal-grid__day-header"
+              [class.cal-grid__day-header--today]="isDayToday(currentDate)"
+              (click)="onDayHeaderClick(currentDate)"
+              title="Marcar como día libre">
+              <span class="cal-grid__day-name">{{ formatDayName(currentDate) }}</span>
+              <span class="cal-grid__day-number">{{ formatDayNumber(currentDate) }}</span>
+            </div>
+
+            <ng-container *ngFor="let slot of timeSlots; trackBy: trackBySlot">
+              <div class="cal-grid__time-label" [class.cal-grid__time-label--half]="slot.minute === 30">
+                <span *ngIf="slot.minute === 0">{{ slot.label }}</span>
+              </div>
+              <div
+                class="cal-grid__cell"
+                [class.cal-grid__cell--today]="isDayToday(currentDate)"
+                [class.cal-grid__cell--half]="slot.minute === 30"
+                (click)="onSlotClick(currentDate, slot)">
+              </div>
+            </ng-container>
+
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="currentView === 'month'">
+          <div class="cal-month">
+
+            <div class="cal-month__weekdays">
+              <div *ngFor="let name of weekDayNames" class="cal-month__weekday">{{ name }}</div>
+            </div>
+
+            <div class="cal-month__grid">
+              <div
+                *ngFor="let day of visibleDays; trackBy: trackByDay"
+                class="cal-month__day"
+                [class.cal-month__day--outside]="!isCurrentMonth(day)"
+                [class.cal-month__day--today]="isDayToday(day)"
+                [class.cal-month__day--selected]="false"
+                (click)="onMonthDayClick(day)"
+                (pointerdown)="onMonthDayPointerDown(day)">
+                <span class="cal-month__day-number">{{ formatDayNumber(day) }}</span>
+                <div class="cal-month__day-indicators"></div>
+              </div>
+            </div>
+
+          </div>
+        </ng-container>
+
+      </div>
+
+      <aside class="cal-sidebar">
+
+        <div class="cal-sidebar__config-group">
+
+          <button
+            class="cal-sidebar__btn cal-sidebar__btn--hours"
+            (click)="openWorkingHoursConfig()"
+            title="Configurar horario base">
+            <span class="cal-sidebar__btn-icon">
+              <span class="material-symbols-outlined" translate="no">schedule</span>
+            </span>
+            <span class="cal-sidebar__btn-label">Horario base</span>
+          </button>
+
+          <button
+            class="cal-sidebar__btn cal-sidebar__btn--dayoff"
+            (click)="openDayOffConfig()"
+            title="Configurar días libres">
+            <span class="cal-sidebar__btn-icon">
+              <span class="material-symbols-outlined" translate="no">event_busy</span>
+            </span>
+            <span class="cal-sidebar__btn-label">Día libre</span>
+          </button>
+
+          <button
+            class="cal-sidebar__btn cal-sidebar__btn--block"
+            (click)="openTimeBlockConfig()"
+            title="Configurar bloqueos de tiempo">
+            <span class="cal-sidebar__btn-icon">
+              <span class="material-symbols-outlined" translate="no">lock_clock</span>
+            </span>
+            <span class="cal-sidebar__btn-label">Bloqueo</span>
+          </button>
+
+          <button
+            class="cal-sidebar__btn cal-sidebar__btn--vacation"
+            (click)="openVacationConfig()"
+            title="Configurar vacaciones">
+            <span class="cal-sidebar__btn-icon">
+              <span class="material-symbols-outlined" translate="no">beach_access</span>
+            </span>
+            <span class="cal-sidebar__btn-label">Vacaciones</span>
+          </button>
+
+        </div>
+
+        <div class="cal-sidebar__divider"></div>
+
+        <button
+          class="cal-sidebar__btn cal-sidebar__btn--delete"
+          [class.cal-sidebar__btn--delete-active]="isDeleteMode"
+          (click)="toggleDeleteMode()"
+          [title]="isDeleteMode ? 'Desactivar modo eliminar' : 'Activar modo eliminar'">
+          <span class="cal-sidebar__btn-icon">
+            <span class="material-symbols-outlined" translate="no">
+              {{ isDeleteMode ? 'delete_forever' : 'delete' }}
+            </span>
+          </span>
+          <span class="cal-sidebar__btn-label">{{ isDeleteMode ? 'Cancelar' : 'Eliminar' }}</span>
+        </button>
+
+      </aside>
+
+    </div>
+
+    <div class="cal-delete-banner" *ngIf="isDeleteMode">
+      <span class="material-symbols-outlined" translate="no">warning</span>
+      <span>Modo eliminar activo — haz clic sobre un elemento para eliminarlo</span>
+      <button class="cal-delete-banner__close" (click)="toggleDeleteMode()">
+        <span class="material-symbols-outlined" translate="no">close</span>
+      </button>
+    </div>
+
+  </div>
+
+</div>
