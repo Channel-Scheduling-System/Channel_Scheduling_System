@@ -27,6 +27,12 @@ export const routes: Routes = [
                 path: 'profile', 
                 loadChildren: () => import('./features/profile/profile-module').then(m => m.ProfileModule)
             },
+            {
+                path: 'calendar',
+                loadChildren: () => import('./features/calendar/calendar-module').then(m => m.CalendarModule),
+                canActivate: [RoleGuard],
+                data: { roles: [WORKER] }
+            },
             { 
                 path: 'services', 
                 loadChildren: () => import('./features/services/services-module').then(m => m.ServicesModule),
