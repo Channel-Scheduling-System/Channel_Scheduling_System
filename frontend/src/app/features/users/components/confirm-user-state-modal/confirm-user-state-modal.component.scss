@@ -1,0 +1,93 @@
+@use '../../../../shared/styles/components/modal-card.scss';
+
+@keyframes glowGreen {
+  0%,
+  100% {
+    box-shadow: 0 6px 20px rgba(22, 163, 74, 0.35);
+  }
+  50% {
+    box-shadow: 0 12px 32px rgba(22, 163, 74, 0.55);
+  }
+}
+
+@keyframes glowRed {
+  0%,
+  100% {
+    box-shadow: 0 6px 20px rgba(185, 28, 28, 0.35);
+  }
+  50% {
+    box-shadow: 0 12px 32px rgba(185, 28, 28, 0.55);
+  }
+}
+
+.modal-card {
+  &__icon-wrap {
+    &--activate {
+      background: rgba(22, 163, 74, 0.1);
+      border: 2px solid rgba(22, 163, 74, 0.25);
+
+      .modal-card__icon {
+        color: #16a34a;
+      }
+    }
+
+    &--deactivate {
+      background: rgba(185, 28, 28, 0.08);
+      border: 2px solid rgba(185, 28, 28, 0.2);
+
+      .modal-card__icon {
+        color: #b91c1c;
+      }
+    }
+  }
+
+  &__confirm-btn {
+    &--activate {
+      background: linear-gradient(135deg, #15803d 0%, #16a34a 50%, #166534 100%);
+      box-shadow: 0 4px 16px rgba(22, 163, 74, 0.35);
+
+      &::before {
+        box-shadow: 0 0 12px 3px rgba(22, 163, 74, 0.5), 0 0 30px 8px rgba(22, 163, 74, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      }
+
+      &:hover,
+      &:focus-visible {
+        animation: btnLift 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+          glowGreen 2s ease-in-out 0.3s infinite;
+
+        .modal-card__confirm-btn-shimmer {
+          animation: shimmerSweep 0.6s ease forwards;
+        }
+      }
+
+      &:active {
+        box-shadow: 0 2px 8px rgba(22, 163, 74, 0.3);
+      }
+    }
+
+    &--deactivate {
+      background: linear-gradient(135deg, #991b1b 0%, #dc2626 50%, #7f1d1d 100%);
+      box-shadow: 0 4px 16px rgba(185, 28, 28, 0.35);
+
+      &::before {
+        box-shadow: 0 0 12px 3px rgba(185, 28, 28, 0.5), 0 0 30px 8px rgba(185, 28, 28, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      }
+
+      &:hover,
+      &:focus-visible {
+        animation: btnLift 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+          glowRed 2s ease-in-out 0.3s infinite;
+
+        .modal-card__confirm-btn-shimmer {
+          animation: shimmerSweep 0.6s ease forwards;
+        }
+      }
+
+      &:active {
+        box-shadow: 0 2px 8px rgba(185, 28, 28, 0.3);
+      }
+    }
+  }
+}

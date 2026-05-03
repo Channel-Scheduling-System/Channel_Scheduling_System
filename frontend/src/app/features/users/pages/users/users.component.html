@@ -1,0 +1,149 @@
+<div class="users-page flex flex-col gap-8 pb-24">
+
+    <div class="flex justify-between items-end flex-wrap gap-4">
+        <div>
+            <span
+                class="block text-[0.7rem] font-bold uppercase tracking-[0.3em] text-[#877270] mb-[0.4rem]">Gestión</span>
+            <h1 class="font-manrope text-[2.4rem] font-extrabold text-[#2a0002] tracking-[-0.03em] leading-none">
+                Usuarios</h1>
+        </div>
+        <div
+            class="users-page__search flex items-center bg-white border-[2px] border-[#d4c8c6] rounded-full h-[2.6rem] pr-5 gap-3">
+            <button class="users-page__search-btn" title="Buscar" type="button"
+                (click)="triggerSearch(searchInput.value)">
+                <span class="users-page__search-btn-ripple"></span>
+                <span
+                    class="users-page__search-btn-icon material-symbols-outlined text-[1.1rem] leading-none relative z-[1]"
+                    translate="no">search</span>
+            </button>
+            <input #searchInput
+                class="users-page__search-input bg-transparent border-none outline-none text-sm font-medium text-[#1c1b1b] w-56 placeholder:text-[#c8c6c5]"
+                placeholder="Buscar por alias, correo o teléfono..." type="text" [value]="searchTerm"
+                (keyup.enter)="triggerSearch(searchInput.value)" name="identifier">
+        </div>
+    </div>
+
+    <div class="flex items-center gap-3 flex-wrap">
+        <span class="text-[0.8rem] font-bold tracking-[0.2em] text-[#877270]">Filtrar por:</span>
+
+        <div class="users-filter__dropdown" [class.users-filter__dropdown--open]="stateDropdownOpen">
+            <button class="users-filter__trigger" type="button" (click)="toggleStateDropdown($event)">
+                <span class="material-symbols-outlined users-filter__trigger-icon text-[1rem] leading-none"
+                    translate="no">
+                    {{ selectedState === undefined ? 'group' : selectedState ? 'check_circle' : 'cancel' }}
+                </span>
+                <span class="users-filter__trigger-label">{{ selectedStateLabel }}</span>
+                <span class="material-symbols-outlined users-filter__arrow text-[1rem] leading-none"
+                    translate="no">expand_more</span>
+            </button>
+            <div class="users-filter__options" *ngIf="stateDropdownOpen">
+                <button *ngFor="let opt of stateOptions" class="users-filter__option"
+                    [class.users-filter__option--selected]="selectedState === opt.value" type="button"
+                    (click)="selectState(opt.value, $event)">
+
+                    <span class="material-symbols-outlined text-[0.9rem] leading-none" translate="no">
+                        {{ opt.icon }}
+                    </span>
+                    {{ opt.label }}
+                </button>
+            </div>
+        </div>
+
+        <div class="users-filter__dropdown" [class.users-filter__dropdown--open]="roleDropdownOpen" *ngIf="isAdmin">
+            <button class="users-filter__trigger" type="button" (click)="toggleRoleDropdown($event)">
+                <span class="material-symbols-outlined users-filter__trigger-icon text-[1rem] leading-none"
+                    translate="no">manage_accounts</span>
+                <span class="users-filter__trigger-label">{{ selectedRoleLabel }}</span>
+                <span class="material-symbols-outlined users-filter__arrow text-[1rem] leading-none"
+                    translate="no">expand_more</span>
+            </button>
+            <div class="users-filter__options" *ngIf="roleDropdownOpen">
+                <button *ngFor="let opt of roleOptions" class="users-filter__option"
+                    [class.users-filter__option--selected]="selectedRole === opt.value" type="button"
+                    (click)="selectRole(opt.value, $event)">
+                    <span class="users-filter__option-dot"></span>
+                    {{ opt.label }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="isLoading" class="flex items-center justify-center gap-3 py-16 text-[#877270] text-sm font-medium">
+        <mat-spinner diameter="32"></mat-spinner>
+        <span>Cargando usuarios...</span>
+    </div>
+
+    <div *ngIf="!isLoading && users.length === 0"
+        class="flex flex-col items-center justify-center gap-3 py-20 text-[#b0a8a7] bg-white rounded-3xl shadow-[0_4px_40px_rgba(42,0,2,0.06)]">
+        <span class="material-symbols-outlined text-[2.5rem] leading-none opacity-40" translate="no">group_off</span>
+        <p class="text-sm font-medium m-0">
+            {{ searchTerm ? 'Sin resultados para "' + searchTerm + '"' : 'No hay usuarios registrados.' }}
+        </p>
+    </div>
+
+    <div *ngIf="!isLoading && users.length > 0" class="flex flex-col gap-3">
+        <div *ngFor="let user of users; let i = index"
+            class="user-card bg-white rounded-2xl shadow-[0_2px_16px_rgba(42,0,2,0.04)] px-6 py-5 flex items-center justify-between gap-4"
+            [class.user-card--inactive]="!user.isActive">
+
+            <div class="flex flex-col gap-[0.2rem] min-w-0">
+                <span class="text-[0.68rem] font-bold tracking-[0.2em] text-[#877270] truncate">@{{ user.alias
+                    }}</span>
+                <h3 class="font-manrope font-black text-[1.1rem] text-[#1c1b1b] leading-tight truncate">
+                    {{ user.firstName }} {{ user.lastName }}
+                </h3>
+                <div class="flex flex-wrap gap-x-5 gap-y-1 mt-1">
+                    <div class="flex items-center gap-1.5 text-[#636262] text-[0.8rem] min-w-0 max-w-[16rem]">
+                        <span class="material-symbols-outlined text-[0.9rem] leading-none shrink-0"
+                            translate="no">mail</span>
+                        <span class="truncate">{{ user.email }}</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-[#636262] text-[0.8rem] min-w-0">
+                        <span class="material-symbols-outlined text-[0.9rem] leading-none shrink-0"
+                            translate="no">call</span>
+                        <span class="truncate">{{ user.phone }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-5 shrink-0">
+                <span
+                    class="user-card__role-badge px-3 py-[0.3rem] text-[0.65rem] font-black uppercase tracking-[0.18em] rounded-full whitespace-nowrap"
+                    [class.user-card__role-badge--admin]="user.role === 'ADMIN'"
+                    [class.user-card__role-badge--worker]="user.role === 'WORKER'"
+                    [class.user-card__role-badge--client]="user.role === 'CLIENT'">
+                    {{ getRoleLabel(user.role) }}
+                </span>
+
+                <button
+                    class="user-card__edit-btn relative overflow-hidden w-[2.75rem] h-[2.75rem] shrink-0 rounded-full bg-transparent cursor-pointer flex items-center justify-center"
+                    title="Editar usuario" (click)="editUser(user)">
+                    <span class="user-card__edit-btn-fill"></span>
+                    <span
+                        class="material-symbols-outlined leading-none text-[1.35rem] relative z-[1] user-card__edit-btn-icon"
+                        translate="no">edit</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <app-pagination *ngIf="!isLoading && meta.total > 0" [currentPage]="currentPage" [totalPages]="meta.totalPages"
+        [totalItems]="meta.total" [displayedItems]="displayedCount" [itemLabel]="'usuario'"
+        [itemLabelPlural]="'usuarios'"
+        [showFiltered]="searchTerm !== '' || selectedState !== undefined || selectedRole !== undefined"
+        (pageChange)="goToPage($event)">
+    </app-pagination>
+
+</div>
+
+<ng-template #fabTemplate>
+    <button
+        class="add-btn add-btn--border-neutral relative min-[240px]:whitespace-nowrap overflow-hidden inline-flex items-center text-white font-manrope font-extrabold text-sm tracking-[0.12em] uppercase px-12 py-4 rounded-2xl border-none cursor-pointer outline-none"
+        (click)="createUser()">
+        <span class="add-btn-shimmer"></span>
+        <span class="add-btn-content relative z-[2] flex items-center gap-2">
+            <span class="material-symbols-outlined text-[1.2rem]" translate="no">person_add</span>
+            <span>Nuevo Usuario</span>
+        </span>
+    </button>
+</ng-template>

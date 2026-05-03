@@ -1,0 +1,39 @@
+@use '../../../../shared/styles/animations.scss';
+@use '../../../../shared/styles/components/user-form-field';
+@use '../../../../shared/styles/components/user-buttons';
+@use '../../../../shared/styles/components/password-checklist';
+@use '../../../../shared/styles/components/toggle-password' as tp;
+
+.register-user-page {
+  animation: fadeInUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.profile-field {
+
+    &__input--password {
+
+        padding-right: 2.8rem;
+    }
+
+    .profile-field {
+        &__toggle-password {
+            @include tp.toggle-password-base(#4A0E0E);
+            right: 0.75rem;
+            padding: 0.2rem;
+            color: #969392;
+            transform: translateY(-50%);
+            z-index: 4;
+
+            .material-symbols-outlined {
+                font-size: 1.1rem !important;
+                line-height: 1 !important;
+            }
+        }
+    }
+
+}
+
+.save-btn::after {
+    background: linear-gradient(135deg, #9B4A4A 0%, #6B5B5B 40%, #7c6e7c 70%, #b3a7b3 100%);
+    background-size: 400% 400%;
+}

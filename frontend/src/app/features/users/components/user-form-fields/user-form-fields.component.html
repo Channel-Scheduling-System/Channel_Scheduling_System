@@ -1,0 +1,111 @@
+<ng-container [formGroup]="formGroup">
+
+    <div [ngClass]="showRole ? '' : 'md:col-span-2'">
+        <div class="profile-field w-full">
+            <div class="profile-field__label-row">
+                <span class="material-symbols-outlined profile-field__icon" translate="no">alternate_email</span>
+                <label class="profile-field__label-text">Alias</label>
+            </div>
+            <div class="profile-field__input-wrap">
+                <input class="profile-field__input" type="text" name="alias" formControlName="alias" placeholder=" ">
+                <span class="profile-field__placeholder">Lucas_Sanchez84</span>
+            </div>
+            <div class="field-error" *ngIf="getFieldError('alias')">
+                {{ getFieldError('alias') }}
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="showRole" class="profile-field">
+        <div class="profile-field__label-row">
+            <span class="material-symbols-outlined profile-field__icon profile-field__icon--floating"
+                translate="no">manage_accounts</span>
+            <label class="profile-field__label-text profile-field__label-text--shifted">Rol</label>
+        </div>
+        <div class="profile-field__dropdown-wrap"
+            [class.profile-field__dropdown-wrap--open]="roleDropdownOpen"
+            [class.profile-field__dropdown-wrap--has-value]="hasRoleValue">
+            <button
+                class="profile-field__dropdown-trigger"
+                type="button"
+                (click)="toggleRoleDropdown($event)">
+                <span [class.profile-field__dropdown-trigger-placeholder]="!hasRoleValue">
+                    {{ selectedRoleLabel }}
+                </span>
+                <span class="material-symbols-outlined profile-field__dropdown-arrow text-[1.1rem] leading-none"
+                    translate="no">expand_more</span>
+            </button>
+            <div class="profile-field__options" *ngIf="roleDropdownOpen">
+                <button
+                    *ngFor="let opt of roleOptions"
+                    class="profile-field__option"
+                    [class.profile-field__option--selected]="formGroup.get('role')?.value === opt.value"
+                    type="button"
+                    (click)="selectRole(opt.value, $event)">
+                    <span class="profile-field__option-dot"></span>
+                    {{ opt.label }}
+                </button>
+            </div>
+        </div>
+        <div class="field-error" *ngIf="getFieldError('role')">
+            {{ getFieldError('role') }}
+        </div>
+    </div>
+
+    <div class="profile-field">
+        <div class="profile-field__label-row">
+            <span class="material-symbols-outlined profile-field__icon" translate="no">person</span>
+            <label class="profile-field__label-text">Nombres</label>
+        </div>
+        <div class="profile-field__input-wrap">
+            <input class="profile-field__input" type="text" name="firstName" formControlName="firstName" placeholder=" ">
+            <span class="profile-field__placeholder">Ej. Lucas</span>
+        </div>
+        <div class="field-error" *ngIf="getFieldError('firstName')">
+            {{ getFieldError('firstName') }}
+        </div>
+    </div>
+
+    <div class="profile-field">
+        <div class="profile-field__label-row">
+            <span class="material-symbols-outlined profile-field__icon" translate="no">person</span>
+            <label class="profile-field__label-text">Apellidos</label>
+        </div>
+        <div class="profile-field__input-wrap">
+            <input class="profile-field__input" type="text" name="lastName" formControlName="lastName" placeholder=" ">
+            <span class="profile-field__placeholder">Ej. Sánchez</span>
+        </div>
+        <div class="field-error" *ngIf="getFieldError('lastName')">
+            {{ getFieldError('lastName') }}
+        </div>
+    </div>
+
+    <div class="profile-field">
+        <div class="profile-field__label-row">
+            <span class="material-symbols-outlined profile-field__icon" translate="no">call</span>
+            <label class="profile-field__label-text">Teléfono</label>
+        </div>
+        <div class="profile-field__input-wrap">
+            <input class="profile-field__input" type="tel" name="phone" formControlName="phone" placeholder=" ">
+            <span class="profile-field__placeholder">3001234567</span>
+        </div>
+        <div class="field-error" *ngIf="getFieldError('phone')">
+            {{ getFieldError('phone') }}
+        </div>
+    </div>
+
+    <div class="profile-field">
+        <div class="profile-field__label-row">
+            <span class="material-symbols-outlined profile-field__icon" translate="no">mail</span>
+            <label class="profile-field__label-text">Correo electrónico</label>
+        </div>
+        <div class="profile-field__input-wrap">
+            <input class="profile-field__input" type="email" name="email" formControlName="email" placeholder=" ">
+            <span class="profile-field__placeholder">correo@ejemplo.com</span>
+        </div>
+        <div class="field-error" *ngIf="getFieldError('email')">
+            {{ getFieldError('email') }}
+        </div>
+    </div>
+
+</ng-container>

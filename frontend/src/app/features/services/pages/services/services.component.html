@@ -1,0 +1,144 @@
+<div class="services-page flex flex-col gap-8 pb-24">
+
+  <div class="flex justify-between items-end flex-wrap gap-4">
+    <div>
+      <span class="block text-[0.7rem] font-bold uppercase tracking-[0.3em] text-[#877270] mb-[0.4rem]">Gestión</span>
+      <h1 class="font-manrope text-[2.4rem] font-extrabold text-[#2a0002] tracking-[-0.03em] leading-none">Mis Servicios
+      </h1>
+    </div>
+    <div
+      class="services-page__search flex items-center gap-2 bg-white border-[2px] border-[#d4c8c6] rounded-full px-5 py-[0.6rem]">
+      <span class="material-symbols-outlined services-page__search-icon text-[1.1rem] leading-none text-[#877270]"
+        translate="no">search</span>
+      <input
+        class="services-page__search-input bg-transparent border-none outline-none text-sm font-medium text-[#1c1b1b] w-48 placeholder:text-[#c8c6c5]"
+        placeholder="Buscar por nombre..." type="text" [value]="searchTerm" (input)="onSearch($event)"
+        name="serviceIdentifier">
+    </div>
+  </div>
+
+  <div class="flex items-center gap-3 flex-wrap">
+    <span class="text-[0.8rem] font-bold tracking-[0.2em] text-[#877270]">Filtrar por:</span>
+    <div class="services-filter__dropdown" [class.services-filter__dropdown--open]="stateDropdownOpen">
+      <button class="services-filter__trigger" type="button" (click)="toggleStateDropdown($event)">
+        <span class="material-symbols-outlined services-filter__trigger-icon text-[1rem] leading-none" translate="no">
+          {{ selectedState === undefined ? 'layers' : selectedState ? 'check_circle' : 'cancel' }}
+        </span>
+        <span class="services-filter__trigger-label">{{ selectedStateLabel }}</span>
+        <span class="material-symbols-outlined services-filter__arrow text-[1rem] leading-none"
+          translate="no">expand_more</span>
+      </button>
+      <div class="services-filter__options" *ngIf="stateDropdownOpen">
+        <button *ngFor="let opt of stateOptions" class="services-filter__option"
+          [class.services-filter__option--selected]="selectedState === opt.value" type="button"
+          (click)="selectState(opt.value, $event)">
+          <span class="material-symbols-outlined text-[0.9rem] leading-none" translate="no">{{ opt.icon }}</span>
+          {{ opt.label }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white shadow-[0_4px_40px_rgba(42,0,2,0.06)]">
+
+
+    <div
+      class="services-table__header gap-4 px-8 py-4 bg-[#f0edec] text-[0.7rem] font-bold uppercase tracking-[0.15em] text-[#544341]">
+      <div class="services-table__col services-table__col--accent flex items-center justify-center min-w-0"></div>
+      <div class="flex items-center min-w-0">Nombre</div>
+      <div class="flex items-center min-w-0">Descripción</div>
+      <div class="flex items-center justify-center min-w-0">Precio</div>
+      <div class="flex items-center justify-center min-w-0">Duración</div>
+      <div class="flex items-center justify-center min-w-0">Acciones</div>
+    </div>
+
+    <div *ngIf="isLoading" class="flex items-center justify-center gap-3 py-12 px-8 text-[#877270] text-sm font-medium">
+      <mat-spinner diameter="32"></mat-spinner>
+      <span>Cargando servicios...</span>
+    </div>
+
+    <div *ngIf="!isLoading && pagedServices.length === 0"
+      class="flex flex-col items-center justify-center gap-3 py-14 px-8 text-[#b0a8a7]">
+      <span class="material-symbols-outlined text-[2.5rem] leading-none opacity-50"
+        translate="no">sentiment_dissatisfied</span>
+      <p class="m-0 text-sm font-medium">{{ searchTerm ? 'Sin resultados para "' + searchTerm + '"' : 'Aún no tienes
+        servicios registrados.' }}</p>
+    </div>
+
+    <ng-container *ngIf="!isLoading">
+      <div *ngFor="let service of pagedServices; let i = index"
+        class="services-table__row grid gap-4 sm:px-8 px-4 sm:py-6 py-5 last:border-b-0 hover:bg-[#fcf9f8] transition-colors duration-[250ms]"
+        [class.services-table__row--alt]="i % 2 !== 0" [class.services-table__row--inactive]="!service.isActive">
+
+        <div class="services-table__col services-table__col--accent flex items-center min-w-0">
+          <div class="w-2 h-10 rounded-full" [style.background-color]="service.color"></div>
+        </div>
+        <div class="services-table__col services-table__col--name flex items-center min-w-0">
+          <span
+            class="font-manrope font-bold text-base text-[#1c1b1b] whitespace-nowrap overflow-hidden text-ellipsis max-w-full">{{
+            service.name }}</span>
+        </div>
+        <div class="services-table__col services-table__col--desc flex items-center min-w-0">
+          <p class="services-table__desc text-[0.825rem] text-[#636262] leading-[1.55] m-0">{{ service.description }}
+          </p>
+        </div>
+        <div class="services-table__col services-table__col--price flex items-center justify-center min-w-0">
+          <span
+            class="font-manrope font-extrabold text-base text-[#2a0002] whitespace-nowrap overflow-hidden text-ellipsis">{{
+            service.price | currency:'COP':'symbol-narrow':'1.0-0' }}</span>
+        </div>
+        <div class="services-table__col services-table__col--duration flex items-center justify-center min-w-0">
+          <div
+            class="inline-flex items-center gap-1 px-3 py-[0.3rem] bg-[#ebe7e7] rounded-full text-[0.75rem] font-semibold text-[#544341]">
+            <span class="material-symbols-outlined text-[0.85rem] leading-none" translate="no">schedule</span>
+            <span>{{ service.duration }}m</span>
+          </div>
+        </div>
+        <div class="services-table__col services-table__col--actions flex items-center justify-center min-w-0 gap-2">
+          <div [class.cursor-not-allowed]="!service.isActive">
+            <button
+              class="services-table__action services-table__action--edit relative overflow-hidden w-[2.75rem] h-[2.75rem] shrink-0 rounded-full border-[2px] border-[#8B1a3a] bg-transparent flex items-center justify-center text-[#8B1a3a]"
+              [class.opacity-30]="!service.isActive" [class.pointer-events-none]="!service.isActive"
+              [class.cursor-pointer]="service.isActive" title="Editar servicio" [disabled]="!service.isActive"
+              (click)="updateService(service)">
+              <span class="material-symbols-outlined leading-none text-[1.35rem]" translate="no">edit</span>
+            </button>
+          </div>
+          <div [class.cursor-not-allowed]="loadingStates.has(service.id)">
+            <button
+              class="services-table__action relative overflow-hidden w-[2.75rem] h-[2.75rem] shrink-0 rounded-full border-[2px] bg-transparent flex items-center justify-center"
+              [class.services-table__action--deactivate]="service.isActive"
+              [class.services-table__action--activate]="!service.isActive"
+              [class.opacity-50]="loadingStates.has(service.id)"
+              [class.pointer-events-none]="loadingStates.has(service.id)"
+              [class.cursor-pointer]="!loadingStates.has(service.id)" [disabled]="loadingStates.has(service.id)"
+              [title]="service.isActive ? 'Desactivar servicio' : 'Activar servicio'"
+              (click)="toggleServiceState(service)">
+              <span class="material-symbols-outlined leading-none text-[1.35rem]" translate="no">
+                {{ loadingStates.has(service.id) ? 'hourglass_empty' : (service.isActive ? 'block' : 'check_circle') }}
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+  </div>
+  <app-pagination [currentPage]="currentPage" [totalPages]="totalPages" [totalItems]="getTotalCount()"
+    [displayedItems]="getDisplayedCount()" [itemLabel]="'servicio'" [itemLabelPlural]="'servicios'"
+    [showFiltered]="searchTerm !== '' || selectedState !== undefined" (pageChange)="goToPage($event)">
+  </app-pagination>
+
+</div>
+
+<ng-template #fabTemplate>
+  <button
+    class="add-btn add-btn--border-gold relative min-[240px]:whitespace-nowrap overflow-hidden inline-flex items-center text-white font-manrope font-extrabold text-sm tracking-[0.12em] uppercase px-12 py-4 rounded-2xl border-none cursor-pointer outline-none"
+    (click)="createService()">
+    <span class="add-btn-shimmer"></span>
+    <span class="add-btn-content relative z-[2] flex items-center gap-2">
+      <span class="material-symbols-outlined text-[1.2rem]" translate="no">add</span>
+      <span>Nuevo Servicio</span>
+    </span>
+  </button>
+</ng-template>

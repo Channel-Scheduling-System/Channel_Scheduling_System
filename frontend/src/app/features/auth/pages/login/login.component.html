@@ -1,0 +1,107 @@
+<div class="login-wrapper">
+
+  <aside class="login-aside">
+    <div class="login-aside__content">
+      <div class="login-aside__brand">
+        <img src="/logos/channel_logo.png" alt="Salón de Belleza Channel" class="login-aside__brand-logo">
+        <div class="login-aside__brand-bar"></div>
+      </div>
+      <h1 class="login-aside__title">
+        Bienvenido,<br>es un placer<br>tenerte aquí
+      </h1>
+      <p class="login-aside__subtitle">
+        Inicia sesión y agenda tu próxima cita. Tu estilo te está esperando.
+      </p>
+    </div>
+  </aside>
+
+  <main class="login-main">
+    <div class="card card--animate">
+
+      <div class="flex flex-col items-center gap-4 mb-10">
+        <div class="logo-icon logo-icon--normal">
+          <div class="logo-icon__inner">
+            <span class="material-symbols-outlined logo-icon__scissors" translate="no">content_cut</span>
+            <img class="logo-icon__scissors-closed" src="/icons/scissor-closed.png" alt="Tijeras cerradas"
+              decoding="sync" fetchpriority="high">
+          </div>
+        </div>
+        <div class="text-center">
+          <h1 class="text-3xl font-black tracking-tight text-primary">Bienvenido</h1>
+          <p class="text-base font-medium mt-1 text-primary/70">Ingresa tus credenciales de acceso</p>
+        </div>
+      </div>
+
+      <form [formGroup]="loginForm" class="flex flex-col gap-6" (ngSubmit)="onSubmit()">
+
+        <div class="flex flex-col gap-2">
+          <label class="input-label">Alias, teléfono o correo</label>
+          <div class="input-wrapper">
+            <span class="material-symbols-outlined input-icon" translate="no">alternate_email</span>
+            <input
+              class="input-field"
+              placeholder="carlgonz10 / 3232882912 / carl01@gmail.com"
+              type="text"
+              formControlName="identifier"
+              name="identifier">
+          </div>
+          <div *ngIf="getFieldError('identifier')" class="error-message">
+            {{ getFieldError('identifier') }}
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label class="input-label">Contraseña</label>
+          <div class="input-wrapper">
+            <span class="material-symbols-outlined input-icon" translate="no">lock</span>
+            <input
+              class="input-field input-field--password"
+              placeholder="••••••••"
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password"
+              name="password">
+            <button class="toggle-password" type="button" (click)="togglePassword()">
+              <span class="material-symbols-outlined" translate="no">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+            </button>
+          </div>
+          <div *ngIf="getFieldError('password')" class="error-message">
+            {{ getFieldError('password') }}
+          </div>
+        </div>
+
+        <div class="flex justify-end">
+          <a class="font-semibold text-primary auth-link" routerLink="/auth/recovery-password">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <button
+          class="login-btn"
+          type="submit"
+          [disabled]="isLoading"
+          [class.login-btn--loading]="isLoading">
+          <span class="login-btn__shimmer"></span>
+          <span class="login-btn__glow"></span>
+          <span class="login-btn__content">
+            <ng-container *ngIf="!isLoading">
+              <span class="login-btn__text">INICIAR SESIÓN</span>
+              <span class="material-symbols-outlined login-btn__icon" translate="no">login</span>
+            </ng-container>
+            <ng-container *ngIf="isLoading">
+              <mat-spinner diameter="20" color="accent"></mat-spinner>
+              <span class="login-btn__text login-btn__text--loading">INICIANDO SESIÓN...</span>
+            </ng-container>
+          </span>
+        </button>
+
+      </form>
+
+      <div class="mt-8 text-center">
+        <p class="text-sm text-gray-600">
+          ¿Primera vez aquí?
+          <a class="font-semibold text-primary auth-link" routerLink="/auth/register">Crea tu cuenta</a>
+        </p>
+      </div>
+
+    </div>
+  </main>
+
+</div>

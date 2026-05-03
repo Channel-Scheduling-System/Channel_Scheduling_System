@@ -1,0 +1,177 @@
+
+@use '@angular/material' as mat;
+@use './app/shared/styles/background.scss' as bg;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+:root {
+  font-size: 95%;
+}
+
+@media (max-width: 768px) {
+  :root {
+    font-size: 85.5%;
+  }
+}
+
+@media (max-width: 430px) {
+  :root {
+    font-size: 75%;
+  }
+}
+
+@media (max-width: 355px) {
+  :root {
+    font-size: 65%;
+  }
+}
+
+@media (max-width: 315px) {
+  :root {
+    font-size: 60%;
+  }
+}
+
+html {
+  @include mat.theme((
+    color: (
+      primary: mat.$azure-palette,
+      tertiary: mat.$blue-palette,
+    ),
+    typography: Roboto,
+    density: 0,
+  ));
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+.error-snackbar {
+  &.mat-mdc-snack-bar-container {
+    .mdc-snackbar__surface {
+      background-color: #e53935;
+      border-radius: 1em;
+    }
+    .mat-mdc-snack-bar-label {
+      color: white;
+      font-weight: bold;
+    }
+    .mat-mdc-button {
+      color: white;
+      &:hover {
+        background-color: #9b2725;
+      }
+    }
+  }
+}
+
+.success-snackbar {
+  &.mat-mdc-snack-bar-container {
+    .mdc-snackbar__surface {
+      background-color: #13dd01;
+      border-radius: 1em;
+    }
+    .mat-mdc-snack-bar-label {
+      color: white;
+      font-weight: bold;
+    }
+    .mat-mdc-button {
+      color: white;
+      &:hover { background-color: #009900; }
+    }
+  }
+}
+
+.warning-snackbar {
+  &.mat-mdc-snack-bar-container {
+    .mdc-snackbar__surface {
+      background-color: #e58a35;
+      border-radius: 1em;
+    }
+    .mat-mdc-snack-bar-label {
+      color: white;
+      font-weight: bold;
+    }
+    .mat-mdc-button {
+      color: white;
+      &:hover { background-color: #9b5a25; }
+    }
+  }
+}
+
+body {
+  // Default the application to a light color theme. This can be changed to
+  // `dark` to enable the dark color theme, or to `light dark` to defer to the
+  // user's system settings.
+  color-scheme: light;
+
+  // Set a default background, font and text colors for the application using
+  // Angular Material's system-level CSS variables. Learn more about these
+  // variables at https://material.angular.dev/guide/system-variables
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+
+  // Reset the user agent margin.
+  margin: 0;
+}
+/* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+
+.service-dialog-panel {
+  .mat-mdc-dialog-container {
+    max-height: 85vh;
+    overflow: hidden;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  
+  .mat-mdc-dialog-surface {
+    background: transparent;
+    box-shadow: none;
+    overflow: hidden;
+  }
+}
+
+.service-dialog-backdrop {
+  background: rgba(30, 30, 35, 0.75);
+  backdrop-filter: blur(8px);
+  transform: translateZ(0);
+  will-change: transform;
+  transition: backdrop-filter 0.2s ease;
+  &--visible {
+    backdrop-filter: blur(4px);
+  }
+}
+
+.reset-password-backdrop {
+  background: rgba(30, 30, 35, 0.75);
+  backdrop-filter: blur(8px);
+  transform: translateZ(0);
+  will-change: transform;
+  transition: backdrop-filter 0.2s ease;
+}
+
+.reset-password-panel {
+  width: 30rem;
+  max-width: min(30rem, 92vw);
+
+  .mat-mdc-dialog-container {
+    max-height: 85vh;
+    overflow: hidden;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .mat-mdc-dialog-surface {
+    background: transparent;
+    box-shadow: none;
+    overflow: hidden;
+  }
+}

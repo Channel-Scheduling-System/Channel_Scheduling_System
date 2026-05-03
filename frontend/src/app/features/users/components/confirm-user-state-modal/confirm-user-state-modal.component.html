@@ -1,0 +1,48 @@
+<div class="modal-card" (click)="$event.stopPropagation()">
+
+    <div class="modal-card__icon-wrap"
+        [class.modal-card__icon-wrap--activate]="isActivating"
+        [class.modal-card__icon-wrap--deactivate]="!isActivating">
+        <span class="material-symbols-outlined modal-card__icon" translate="no">
+            {{ isActivating ? 'person_check' : 'person_off' }}
+        </span>
+    </div>
+
+    <div class="flex flex-col gap-2 text-center">
+        <h2 class="font-manrope text-[1.5rem] font-extrabold text-[#2a0002] tracking-[-0.02em] leading-tight">
+            {{ isActivating ? 'Activar usuario' : 'Desactivar usuario' }}
+        </h2>
+        <p class="text-[0.9rem] font-medium text-[#877270] leading-relaxed max-w-[22rem] mx-auto">
+            {{ isActivating
+                ? 'El usuario recuperará acceso completo al sistema. ¿Confirmas que deseas activar esta cuenta?'
+                : 'El usuario perderá acceso al sistema de inmediato. ¿Confirmas que deseas desactivar esta cuenta?' }}
+        </p>
+    </div>
+
+    <div class="w-full h-px bg-[#f0edec]"></div>
+
+    <div class="flex items-center justify-center gap-3 w-full">
+        <button
+            class="modal-card__cancel-btn font-manrope font-bold text-[0.8rem] uppercase tracking-[0.1em] text-[#877270] bg-transparent border-none cursor-pointer px-6 py-3 rounded-xl transition-colors hover:text-[#2a0002] hover:bg-[#f0edec]"
+            type="button"
+            (click)="cancel()">
+            Cancelar
+        </button>
+
+        <button
+            class="modal-card__confirm-btn"
+            [class.modal-card__confirm-btn--activate]="isActivating"
+            [class.modal-card__confirm-btn--deactivate]="!isActivating"
+            type="button"
+            (click)="confirm()">
+            <span class="modal-card__confirm-btn-shimmer"></span>
+            <span class="modal-card__confirm-btn-content relative z-[2] flex items-center gap-2">
+                <span class="material-symbols-outlined text-[1.05rem] leading-none" translate="no">
+                    {{ isActivating ? 'check_circle' : 'cancel' }}
+                </span>
+                <span>{{ isActivating ? 'Sí, activar' : 'Sí, desactivar' }}</span>
+            </span>
+        </button>
+    </div>
+
+</div>

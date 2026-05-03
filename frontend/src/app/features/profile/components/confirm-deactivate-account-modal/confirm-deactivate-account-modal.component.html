@@ -1,0 +1,62 @@
+<div class="modal-card w-[28rem]" (click)="$event.stopPropagation()">
+
+    <div class="modal-card__icon-wrap">
+        <span class="material-symbols-outlined modal-card__icon" translate="no">warning</span>
+    </div>
+
+    <div class="flex flex-col gap-2 text-center">
+        <h2 class="font-manrope text-[1.5rem] font-extrabold text-[#2a0002] tracking-[-0.02em] leading-tight">
+            Desactivar tu cuenta
+        </h2>
+        <p class="text-[0.9rem] font-medium text-[#877270] leading-relaxed max-w-[22rem] mx-auto">
+            Perderás el acceso al sistema de inmediato. Para volver a activar tu cuenta debes contactar con
+            <b>{{ reactivationContact }}</b>. Digita tu contraseña para confirmar la acción si estás seguro.
+        </p>
+    </div>
+
+    <div class="w-full h-px bg-[#f0edec]"></div>
+
+    <div class="password-field w-full" [class.password-field--error]="passwordError"
+        [class.password-field--filled]="passwordControl.value">
+
+        <div class="password-field__inner">
+            <span class="material-symbols-outlined password-field__lock-icon" translate="no">lock</span>
+            <input class="password-field__input" [type]="showPassword ? 'text' : 'password'"
+                [formControl]="passwordControl" placeholder="Contraseña actual" autocomplete="current-password">
+            <button class="password-field__toggle" type="button" (click)="togglePassword()" tabindex="-1">
+                <span class="material-symbols-outlined text-[1rem] leading-none" translate="no">
+                    {{ showPassword ? 'visibility_off' : 'visibility' }}
+                </span>
+            </button>
+        </div>
+
+        <div class="password-field__error" *ngIf="passwordError">
+            {{ passwordError }}
+        </div>
+
+    </div>
+
+    <div class="flex items-center justify-center gap-3 w-full">
+        <button
+            class="modal-card__cancel-btn font-manrope font-bold text-[0.8rem] uppercase tracking-[0.1em] text-[#877270] bg-transparent border-none cursor-pointer px-6 py-3 rounded-xl transition-colors hover:text-[#2a0002] hover:bg-[#f0edec]"
+            type="button" (click)="cancel()">
+            Cancelar
+        </button>
+
+        <button class="modal-card__confirm-btn modal-card__confirm-btn--deactivate" type="button min-w-[10.5rem]"
+            [disabled]="isLoading" (click)="confirm()">
+            <span class="modal-card__confirm-btn-shimmer"></span>
+            <span class="modal-card__confirm-btn-content relative z-[2] flex items-center gap-2">
+                <ng-container *ngIf="!isLoading">
+                    <span class="material-symbols-outlined text-[1.05rem] leading-none" translate="no">cancel</span>
+                    <span>Sí, desactivar</span>
+                </ng-container>
+                <ng-container *ngIf="isLoading">
+                    <mat-spinner diameter="16" color="accent"></mat-spinner>
+                    <span>Desactivando...</span>
+                </ng-container>
+            </span>
+        </button>
+    </div>
+
+</div>

@@ -1,0 +1,111 @@
+<div class="layout-wrapper flex h-svh w-full overflow-hidden">
+
+  <aside class="sidebar hidden md:flex shrink-0 h-full bg-[#1c1c1c] flex flex-col px-4 py-6 gap-2 z-[40]"
+    [class.sidebar--collapsed]="isCollapsed"
+    [class.sidebar--no-transition]="!isReady">
+    <div class="sidebar__brand flex items-center justify-center gap-3 px-4 mb-10">
+      <div class="sidebar__brand-logo">
+        <div class="logo-icon logo-icon--small">
+          <div class="logo-icon__inner">
+            <span class="material-symbols-outlined logo-icon__scissors" translate="no">content_cut</span>
+            <img class="logo-icon__scissors-closed" src="/icons/scissor-closed.png" alt="Tijeras cerradas">
+          </div>
+        </div>
+      </div>
+      <div>
+        <h1
+          class="sidebar__brand-title text-2xl font-manrope font-black text-[#fafafa] tracking-[-0.05em] uppercase whitespace-nowrap max-w-[200px]">
+          Channel</h1>
+        <p
+          class="sidebar__brand-sub text-[0.6rem] font-bold uppercase tracking-[0.2em] text-[#525252] mt-[0.15rem] whitespace-nowrap max-w-[200px]">
+          sistema de agendamiento</p>
+      </div>
+    </div>
+
+    <nav class="sidebar__nav flex flex-col gap-1 flex-1">
+      <a
+        *ngFor="let item of navItems"
+        class="sidebar__nav-item relative flex items-center rounded-xl no-underline text-[#a8a29e] font-['Manrope'] text-sm font-medium overflow-hidden min-h-12"
+        [routerLink]="item.route"
+        routerLinkActive="sidebar__nav-item--active"
+        [routerLinkActiveOptions]="{ exact: false }"
+        [title]="item.label">
+        <span class="sidebar__nav-item-fill"></span>
+        <span class="material-symbols-outlined sidebar__nav-item-icon" translate="no">{{ item.icon }}</span>
+        <span class="sidebar__nav-item-label">{{ item.label }}</span>
+      </a>
+    </nav>
+
+    <button
+      class="sidebar__toggle mt-auto flex items-center justify-center w-full p-[0.6rem] bg-transparent border-none rounded-xl text-[#525252] cursor-pointer"
+      (click)="toggleSidebar()" title="{{ isCollapsed ? 'Expandir' : 'Minimizar' }} barra de navegación">
+      <span class="material-symbols-outlined" translate="no">
+        {{ isCollapsed ? 'chevron_right' : 'chevron_left' }}
+      </span>
+    </button>
+  </aside>
+
+  <div class="flex-1 flex flex-col h-full overflow-hidden min-w-0">
+
+    <header
+      class="topbar h-20 flex items-center justify-between px-10 shrink-0 z-[30] shadow-[0_2px_12px_rgba(0,0,0,0.3)]">
+      <div class="flex-1 flex items-center min-w-0">
+        <div class="topbar__logo">
+          <div class="logo-icon logo-icon--small">
+            <div class="logo-icon__inner">
+              <span class="material-symbols-outlined logo-icon__scissors" translate="no">content_cut</span>
+              <img class="logo-icon__scissors-closed" src="/icons/scissor-closed.png" alt="Tijeras cerradas">
+            </div>
+          </div>
+          <div class="ml-2">
+            <h1 class="text-xl font-black text-white uppercase tracking-tighter font-manrope leading-none">Channel
+            </h1>
+            <p class="text-[0.55rem] font-bold uppercase tracking-[0.18em] text-white/45 whitespace-nowrap">sistema de
+              agendamiento</p>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center gap-5">
+
+
+
+        <button
+          class="topbar__user flex items-center gap-2 bg-transparent border-none cursor-pointer text-white/85 font-['Manrope'] text-sm font-semibold px-3 py-[0.4rem] rounded-lg" title="Mi perfil"
+          routerLink="/profile">
+          <span class="material-symbols-outlined" translate="no">account_circle</span>
+          <span class="topbar__user-label leading-none">{{ userAlias }}</span>
+        </button>
+        <div class="w-px h-6 bg-white/20"></div>
+        <button
+          class="topbar__logout flex items-center bg-transparent border-none cursor-pointer text-white/70 p-[0.4rem] rounded-lg"
+          (click)="onLogout()" title="Cerrar sesión">
+          <span class="material-symbols-outlined">logout</span>
+        </button>
+      </div>
+    </header>
+
+    <main #mainContent class="layout-main flex-1 overflow-y-auto py-8 px-10">
+      <router-outlet></router-outlet>
+    </main>
+
+  </div>
+  <nav class="bottom-nav">
+    <a
+      *ngFor="let item of navItems"
+      class="bottom-nav__item"
+      [routerLink]="item.route"
+      routerLinkActive="bottom-nav__item--active"
+      [routerLinkActiveOptions]="{ exact: false }"
+      [title]="item.label">
+      <span class="bottom-nav__item-fill"></span>
+      <span class="material-symbols-outlined" translate="no">{{ item.icon }}</span>
+    </a>
+  </nav>
+
+  @if (fabService.portal()) {
+    <div class="global-fab-host">
+      <ng-template [cdkPortalOutlet]="fabService.portal()"></ng-template>
+    </div>
+  }
+
+</div>
