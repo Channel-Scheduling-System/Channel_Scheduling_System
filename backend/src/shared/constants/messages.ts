@@ -48,3 +48,8 @@ export const SERVICE_ERRORS = {
     ID_NOTFOUND: 'El servicio con el id solicitado no existe',
     SERVICE_DEACTIVATED: 'Servicio desactivado. Contacta al trabajador.',
 } as const;
+
+export const AVAILABILITY_ERRORS = {
+    WORKER_NOT_FOUND: 'El trabajador asociado no existe',
+    DUPLICATE_DAYOFWEEK: 'No puede haber más de un horario por día de la semana',
+} as const;

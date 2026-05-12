@@ -1,20 +1,21 @@
 import { z } from 'zod';
 import {
-    ParamIdDTO,
     validateBodyDTO,
     validateParamsDTO,
     validateQueryDTO,
 } from '../../shared/middlewares/validateDTO.middleware.js';
-import { Id, UpdateStateDTO } from '../../shared/zod/shemas.js';
+import {
+    id,
+    paramId,
+    updateStateDTO,
+    workerId,
+} from '../../shared/zod/shemas.js';
 
 // SERVICES
 //* -----------------------------
-export const ServiceSchema = z.object({
-    id: Id,
-    workerId: z
-        .number()
-        .int('El ID del trabajador debe ser un número entero')
-        .positive('El ID del trabajador debe ser un número positivo'),
+const serviceSchema = z.object({
+    id: id,
+    workerId: workerId,
     name: z
         .string()
         .regex(
@@ -53,16 +54,15 @@ export const ServiceSchema = z.object({
 
 // TYPES (DTOs)
 //* -----------------------------
-export type ServiceData = z.infer<typeof ServiceSchema>;
+const createServiceDTO = serviceSchema.omit({ id: true }).strict();
 
-export const CreateServiceDTO = ServiceSchema.omit({ id: true }).strict();
-
-export const UpdateServiceDTO = ServiceSchema.partial()
+const updateServiceDTO = serviceSchema
+    .partial()
     .omit({ workerId: true })
     .strict();
 
 // FILTERS
-export const ServiceFiltersSchema = z
+export const serviceFiltersSchema = z
     .object({
         workerId: z.coerce.number().int().positive().optional(),
         isActive: z.union([z.boolean(), z.stringbool()]).optional(),
@@ -72,9 +72,9 @@ export const ServiceFiltersSchema = z
 // Export centralizado
 //* -----------------------------
 export const serviceValidator = {
-    create: validateBodyDTO(CreateServiceDTO),
-    update: validateBodyDTO(UpdateServiceDTO),
-    updateState: validateBodyDTO(UpdateStateDTO),
-    id: validateParamsDTO(ParamIdDTO),
-    filters: validateQueryDTO(ServiceFiltersSchema),
+    id: validateParamsDTO(paramId),
+    create: validateBodyDTO(createServiceDTO),
+    update: validateBodyDTO(updateServiceDTO),
+    updateState: validateBodyDTO(updateStateDTO),
+    filters: validateQueryDTO(serviceFiltersSchema),
 };

@@ -5,8 +5,8 @@ import {
     UserResponse,
 } from './user.types.js';
 import {
-    UserFiltersSchema,
-    UserPaginationSchema,
+    userFiltersSchema,
+    userPaginationSchema,
 } from './user.validator.js';
 
 /**
@@ -45,7 +45,7 @@ export function mapToUserFilters(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     filters: Record<string, any>,
 ): UserFilters {
-    return UserFiltersSchema.parse(filters);
+    return userFiltersSchema.parse(filters);
 }
 
 /**
@@ -57,5 +57,5 @@ export function mapToUserPagination(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     pagination: Record<string, any>,
 ): UserPagination {
-    return UserPaginationSchema.parse(pagination);
+    return userPaginationSchema.parse(pagination);
 }
