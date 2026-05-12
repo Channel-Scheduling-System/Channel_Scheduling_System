@@ -6,7 +6,7 @@ import { authMiddleware } from '../../shared/middlewares/auth.middleware.js';
 
 const availabilityRouter = Router();
 
-availabilityRouter.post(
+availabilityRouter.put(
     '/:id/working-hours',
     authMiddleware,
     requireRole('WORKER'),
