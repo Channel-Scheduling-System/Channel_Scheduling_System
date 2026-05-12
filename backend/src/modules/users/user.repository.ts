@@ -29,11 +29,7 @@ export interface IUserRepository {
 
 export class UserRepository implements IUserRepository {
     async create(data: CreateUserData): Promise<User> {
-        return await prisma.user.create({
-            data: {
-                ...data,
-            },
-        });
+        return await prisma.user.create({ data });
     }
 
     async existsById(id: number): Promise<boolean> {
