@@ -32,19 +32,9 @@ export const updateStateDTO = z
 // ============================================================
 // * TEMPORAL SCHEMAS
 // ============================================================
-export const dateSchema = z.iso.date().refine((value) => {
-    try {
-        Temporal.PlainDate.from(value);
-        return true;
-    } catch {
-        return false;
-    }
-}, 'Fecha de calendario invalida');
+export const dateSchema = z.iso.date();
 
-export const timeSchema = z.iso
-    .time({ precision: -1 })
-    // Transformación temporal para asegurar que prisma pueda manejarlo como DateTime
-    .transform((value) => `1900-01-01T${value}:00Z`);
+export const timeSchema = z.iso.time({ precision: -1 });
 
 // ============================================================
 // * HELPERS DE VALIDACIÓN DE RANGOS

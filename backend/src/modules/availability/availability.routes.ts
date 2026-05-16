@@ -15,4 +15,13 @@ availabilityRouter.put(
     availabilityController.addWorkingHours,
 );
 
+availabilityRouter.post(
+    '/:id/day-off',
+    authMiddleware,
+    requireRole('WORKER'),
+    availabilityValidator.id,
+    availabilityValidator.createDayOff,
+    availabilityController.addDayOff,
+);
+
 export default availabilityRouter;

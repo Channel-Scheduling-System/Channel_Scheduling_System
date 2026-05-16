@@ -28,7 +28,6 @@ export function handleErrorMiddleware(
     if (error instanceof z.ZodError) {
         return send(res, 400, 'Error de validación', {
             code: 'VALIDATION_ERROR',
-            errors: error.issues,
         });
     }
     // 2. Validaciones Zod (con ValidationDTOError)
@@ -36,7 +35,6 @@ export function handleErrorMiddleware(
     if (error instanceof ValidationError) {
         return send(res, error.status, error.message, {
             code: error.code,
-            error,
         });
     }
 
