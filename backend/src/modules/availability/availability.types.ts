@@ -9,12 +9,6 @@ export enum dayOfWeek {
 }
 
 export type TimeInterval = 'HOUR' | 'DAY' | 'PERIOD';
-export type ViewType = 'DAY' | 'WEEK' | 'MONTH';
-export type AvailabilityType =
-    | 'workingHours'
-    | 'timeOffs'
-    | 'dayOffs'
-    | 'periodOffs';
 
 // ============================================================
 // * ENTITIES
@@ -27,6 +21,17 @@ export interface WorkingHour {
     endTime: Temporal.PlainTime;
 }
 
+export interface BlockedTime {
+    id: number;
+    workerId: number;
+    type: TimeInterval;
+    startDate: Date;
+    endDate: Date | null;
+    startTime: Date | null;
+    endTime: Date | null;
+    reason: string | null;
+}
+
 // ============================================================
 // * PERSISTENCE MODELS
 // ============================================================
@@ -35,6 +40,16 @@ export interface CreateWorkingHourData {
     dayOfWeek: number;
     startTime: string;
     endTime: string;
+}
+
+export interface CreateBlockedTimeData {
+    workerId: number;
+    type: TimeInterval;
+    startDate: string;
+    endDate?: string;
+    startTime?: string;
+    endTime?: string;
+    reason?: string;
 }
 
 // ============================================================
@@ -49,6 +64,12 @@ export interface WorkingHourInput {
 export interface CreateWorkingHoursInput {
     workerId: number;
     workingHours: WorkingHourInput[];
+}
+
+export interface CreateDayOffInput {
+    workerId: number;
+    date: string; // ISO date string
+    reason?: string;
 }
 
 // ============================================================

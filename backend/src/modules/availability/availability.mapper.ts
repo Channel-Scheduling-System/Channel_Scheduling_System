@@ -1,7 +1,13 @@
 import {
+    isoDateToDateTime,
+    isoTimeToDateTime,
+} from '../../shared/utils/iso-to-datetime.util.js';
+import {
     CreateWorkingHoursInput,
     CreateWorkingHourData,
     dayOfWeek,
+    CreateBlockedTimeData,
+    CreateDayOffInput,
 } from './availability.types.js';
 
 // Mapeo entre strings (API) y números (BD)
@@ -30,14 +36,29 @@ export const numberToDayOfWeek: Record<number, dayOfWeek> = {
  * @param input - El input de creación de horarios.
  * @returns Un array de objetos con la información necesaria para crear los horarios en la base de datos.
  */
-
 export function mapToCreateWorkingHoursData(
     input: CreateWorkingHoursInput,
 ): CreateWorkingHourData[] {
     return input.workingHours.map((wh) => ({
         workerId: input.workerId,
         dayOfWeek: dayOfWeekToNumber[wh.dayOfWeek],
-        startTime: wh.startTime,
-        endTime: wh.endTime,
+        startTime: isoTimeToDateTime(wh.startTime),
+        endTime: isoTimeToDateTime(wh.endTime),
     }));
+}
+
+/**
+ * Mapea el input de creación de día libre a un formato adecuado para la base de datos.
+ * @param input - El input de creación de día libre.
+ * @returns Un objeto con la información necesaria para crear el día libre en la base de datos.
+ */
+export function mapToCreateDayOffData(
+    input: CreateDayOffInput,
+): CreateBlockedTimeData {
+    return {
+        workerId: input.workerId,
+        type: 'DAY',
+        startDate: isoDateToDateTime(input.date),
+        reason: input.reason,
+    };
 }

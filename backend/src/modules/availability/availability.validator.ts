@@ -5,6 +5,7 @@ import {
 import {
     id,
     workerId,
+    dateSchema,
     timeSchema,
     validateTimeRange,
     paramId,
@@ -16,6 +17,8 @@ import { z } from 'zod';
 // * BASE SCHEMAS
 // ============================================================
 export const dayOfWeekEnum = z.enum(dayOfWeek);
+
+export const timeIntervalEnum = z.enum(['HOUR', 'DAY', 'PERIOD']);
 
 export const workingHourSchema = z.object({
     id: id,
@@ -42,6 +45,11 @@ export const createWorkHourInput = z
     })
     .strict();
 
+export const createDayOffInput = z.object({
+    date: dateSchema,
+    reason: z.string().max(200).optional(),
+});
+
 // ============================================================
 // * FILTER SCHEMAS
 // ============================================================
@@ -53,4 +61,5 @@ export const createWorkHourInput = z
 export const availabilityValidator = {
     id: validateParamsDTO(paramId),
     createWorkHour: validateBodyDTO(createWorkHourInput),
+    createDayOff: validateBodyDTO(createDayOffInput),
 };

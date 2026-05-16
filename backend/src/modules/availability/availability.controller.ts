@@ -22,4 +22,16 @@ export class AvailabilityController {
             next(error);
         }
     };
+
+    addDayOff = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const workerId = req.params.id as unknown as number;
+            await this.availabilityService.addDayOff({ workerId, ...req.body });
+            return res.status(201).json({
+                message: 'Dia libre establecido correctamente',
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
 }

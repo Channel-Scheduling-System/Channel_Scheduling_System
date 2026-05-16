@@ -51,5 +51,8 @@ export const SERVICE_ERRORS = {
 
 export const AVAILABILITY_ERRORS = {
     WORKER_NOT_FOUND: 'El trabajador asociado no existe',
+    INVALID_TIME_INTERVAL: 'El intervalo de tiempo es inválido',
     DUPLICATE_DAYOFWEEK: 'No puede haber más de un horario por día de la semana',
+    OVERLAPPING_DAY_OFF: 'Ya existe un bloque de tiempo que solapa con esta fecha',
+    DAY_OFF_IN_PAST: 'No se puede crear un bloqueo en una fecha pasada',
 } as const;
