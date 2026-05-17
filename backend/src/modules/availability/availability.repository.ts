@@ -9,7 +9,9 @@ export interface IAvailabilityRepository {
     createWorkingHourBulk(data: CreateWorkingHourData[]): Promise<void>;
     deleteWorkingHoursByWorkerId(workerId: number): Promise<void>;
     createBlockedTime(data: CreateBlockedTimeData): Promise<void>;
+    findBlockedTimeById(id: number): Promise<BlockedTime | null>;
     findAllBlockedTimesByWorkerId(workerId: number): Promise<BlockedTime[]>;
+    deleteBlockedTime(id: number): Promise<void>;
 }
 
 export class AvailabilityRepository implements IAvailabilityRepository {
@@ -25,6 +27,12 @@ export class AvailabilityRepository implements IAvailabilityRepository {
         await prisma.blockedTime.create({ data });
     }
 
+    async findBlockedTimeById(id: number): Promise<BlockedTime | null> {
+        return await prisma.blockedTime.findUnique({
+            where: { id },
+        });
+    }
+
     async findAllBlockedTimesByWorkerId(
         workerId: number,
     ): Promise<BlockedTime[]> {
@@ -32,5 +40,9 @@ export class AvailabilityRepository implements IAvailabilityRepository {
             where: { workerId },
             orderBy: { startDate: 'asc' },
         });
+    }
+
+    async deleteBlockedTime(id: number): Promise<void> {
+        await prisma.blockedTime.delete({ where: { id } });
     }
 }

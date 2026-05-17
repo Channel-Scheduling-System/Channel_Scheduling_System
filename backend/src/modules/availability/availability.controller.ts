@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { IAvailabilityService } from './availability.service.js';
+import { extractRequestContextWithId } from '../../shared/utils/request-parser.util.js';
 
 export class AvailabilityController {
     constructor(private readonly availabilityService: IAvailabilityService) {}
@@ -29,6 +30,21 @@ export class AvailabilityController {
             await this.availabilityService.addDayOff({ workerId, ...req.body });
             return res.status(201).json({
                 message: 'Dia libre establecido correctamente',
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    delete = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { id, authId, authRole } = extractRequestContextWithId(req);
+            await this.availabilityService.delete(id, {
+                id: authId,
+                role: authRole,
+            });
+            return res.status(200).json({
+                message: 'Dia libre eliminado correctamente',
             });
         } catch (error) {
             next(error);

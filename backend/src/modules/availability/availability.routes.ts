@@ -24,4 +24,12 @@ availabilityRouter.post(
     availabilityController.addDayOff,
 );
 
+availabilityRouter.delete(
+    '/:id',
+    authMiddleware,
+    requireRole('WORKER'),
+    availabilityValidator.id,
+    availabilityController.delete,
+);
+
 export default availabilityRouter;
