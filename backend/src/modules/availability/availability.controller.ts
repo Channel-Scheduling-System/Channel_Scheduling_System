@@ -44,7 +44,7 @@ export class AvailabilityController {
                 role: authRole,
             });
             return res.status(200).json({
-                message: 'Dia libre eliminado correctamente',
+                message: 'Bloque de tiempo desbloqueado correctamente',
             });
         } catch (error) {
             next(error);
