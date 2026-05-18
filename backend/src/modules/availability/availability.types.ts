@@ -72,6 +72,13 @@ export interface CreateDayOffInput {
     reason?: string;
 }
 
+export interface CreatePeriodOffInput {
+    workerId: number;
+    startDate: string; // ISO date string
+    endDate: string; // ISO date string
+    reason?: string;
+}
+
 // ============================================================
 // * RESPONSES
 // ============================================================

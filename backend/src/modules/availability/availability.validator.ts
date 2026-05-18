@@ -8,6 +8,7 @@ import {
     dateSchema,
     timeSchema,
     validateTimeRange,
+    validateDateRange,
     paramId,
 } from '../../shared/zod/shemas.js';
 import { dayOfWeek } from './availability.types.js';
@@ -38,7 +39,8 @@ export const createWorkHourInput = z
                 workingHourSchema
                     .omit({ id: true, workerId: true })
                     .refine(validateTimeRange, {
-                        message: 'La hora de inicio debe ser menor a la hora de fin',
+                        message:
+                            'La hora de inicio debe ser menor a la hora de fin',
                     }),
             )
             .min(1, 'Debe proporcionar al menos un horario de trabajo'),
@@ -49,6 +51,16 @@ export const createDayOffInput = z.object({
     date: dateSchema,
     reason: z.string().max(200).optional(),
 });
+
+export const createPeriodOffInput = z
+    .object({
+        startDate: dateSchema,
+        endDate: dateSchema,
+        reason: z.string().max(200).optional(),
+    })
+    .refine(validateDateRange, {
+        message: 'La fecha de inicio debe ser menor a la fecha de fin',
+    });
 
 // ============================================================
 // * FILTER SCHEMAS
@@ -62,4 +74,5 @@ export const availabilityValidator = {
     id: validateParamsDTO(paramId),
     createWorkHour: validateBodyDTO(createWorkHourInput),
     createDayOff: validateBodyDTO(createDayOffInput),
+    createPeriodOff: validateBodyDTO(createPeriodOffInput),
 };

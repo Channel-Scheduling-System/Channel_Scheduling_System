@@ -8,6 +8,7 @@ import {
     dayOfWeek,
     CreateBlockedTimeData,
     CreateDayOffInput,
+    CreatePeriodOffInput,
 } from './availability.types.js';
 
 // Mapeo entre strings (API) y números (BD)
@@ -59,6 +60,18 @@ export function mapToCreateDayOffData(
         workerId: input.workerId,
         type: 'DAY',
         startDate: isoDateToDateTime(input.date),
+        reason: input.reason,
+    };
+}
+
+export function mapToCreatePeriodOffData(
+    input: CreatePeriodOffInput,
+): CreateBlockedTimeData {
+    return {
+        workerId: input.workerId,
+        type: 'PERIOD',
+        startDate: isoDateToDateTime(input.startDate),
+        endDate: isoDateToDateTime(input.endDate),
         reason: input.reason,
     };
 }
