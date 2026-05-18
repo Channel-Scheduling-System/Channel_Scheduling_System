@@ -175,3 +175,13 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     overflow: hidden;
   }
 }
+
+body.cal-boundary-dragging,
+body.cal-boundary-dragging * {
+  cursor: ns-resize !important;
+}
+
+body.cal-boundary-dragging-blocked,
+body.cal-boundary-dragging-blocked * {
+  cursor: not-allowed !important;
+}
