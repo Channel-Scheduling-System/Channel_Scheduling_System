@@ -1,0 +1,28 @@
+<ng-container *ngIf="visible()">
+  <div class="cal-sel-menu-backdrop" (click)="close()"></div>
+
+  <div class="cal-sel-menu" [style.top.px]="top()" [style.left.px]="left()">
+    <div class="cal-sel-menu__header">
+      <span class="material-symbols-outlined cal-sel-menu__icon" translate="no">
+        {{ headerIcon() }}
+      </span>
+      <span class="cal-sel-menu__range">{{ label() }}</span>
+      <button class="cal-sel-menu__close" type="button" (click)="close()">
+        <span class="material-symbols-outlined" translate="no">close</span>
+      </button>
+    </div>
+
+    <div class="cal-sel-menu__divider"></div>
+
+    <div class="cal-sel-menu__actions">
+      <button
+        *ngFor="let action of actions()"
+        class="cal-sel-menu__action"
+        type="button"
+        (click)="run(action.handler)">
+        <span class="material-symbols-outlined" translate="no">{{ action.icon }}</span>
+        <span>{{ action.label }}</span>
+      </button>
+    </div>
+  </div>
+</ng-container>

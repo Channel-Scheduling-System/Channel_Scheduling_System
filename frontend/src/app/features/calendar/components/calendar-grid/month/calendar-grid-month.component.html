@@ -1,0 +1,34 @@
+<div class="cal-month__weekdays">
+  <button *ngFor="let name of weekDayNames; let i = index" class="cal-month__weekday" type="button"
+    (click)="onWeekdayHeaderClick($event, name)">
+    {{ name }}
+  </button>
+</div>
+
+<div class="cal-month__grid">
+  <div *ngFor="let day of visibleDays; let i = index; trackBy: trackByDay" class="cal-month__day"
+    [class.cal-month__day--outside]="!isCurrentMonth(day)" [class.cal-month__day--today]="isDayToday(day)"
+    [class.cal-month__day--selected]="false" [class.cal-month__day--non-working]="!cellService.isWorkingDay(day)"
+    [class.cal-month__day--periodoff]="availabilityData && cellService.isInPeriodOff(day)"
+    [class.cal-month__day--dayoff]="availabilityData && !cellService.isInPeriodOff(day) && cellService.isDayOff(day)"
+    [class.cal-month__day--hovered-periodoff]="hoveredKind(day) === 'periodoff'"
+    [class.cal-month__day--hovered-dayoff]="hoveredKind(day) === 'dayoff'"
+    [class.cal-month__day--drag-selected]="isCellInSelection(i)"
+    [class.cal-month__day--selection-start]="isCellSelectionStart(i)"
+    [class.cal-month__day--selection-end]="isCellSelectionEnd(i)" (mousedown)="onCellMouseDown($event, day, i)"
+    (mouseenter)="onDayEnter($event, day); onCellMouseEnter(day, i)" (mousemove)="onDayMove($event, day)"
+    (mouseleave)="onDayLeave()" (click)="onMonthDayClick(day)" (pointerdown)="onMonthDayPointerDown(day)">
+    <span class="cal-month__day-number">{{ formatDayNumber(day) }}</span>
+    <div class="cal-month__day-indicators"></div>
+    <div class="cal-month__day-indicators">
+      <span *ngIf="availabilityData && cellService.isInPeriodOff(day)"
+        class="cal-month__day-reason cal-month__day-reason--periodoff">
+        {{ cellService.getPeriodOffReason(day) || 'Período libre' }}
+      </span>
+      <span *ngIf="availabilityData && !cellService.isInPeriodOff(day) && cellService.isDayOff(day)"
+        class="cal-month__day-reason cal-month__day-reason--dayoff">
+        {{ cellService.getDayOffReason(day) || 'Día libre' }}
+      </span>
+    </div>
+  </div>
+</div>

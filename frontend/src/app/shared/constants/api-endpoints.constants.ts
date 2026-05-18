@@ -12,6 +12,9 @@ export const API_ENDPOINTS = {
     RECOVERY_VERIFY_CODE: `${environment.apiUrl}/auth/password-reset/verify`,
     RECOVERY_RESET_PASSWORD: `${environment.apiUrl}/auth/password-reset/reset`
   },
+  CALENDAR: {
+    AVAILABILITY_CONFIG: (id: number) => `${environment.apiUrl}/availability/${id}/config`,
+  },
   SERVICES: {
     LIST: `${environment.apiUrl}/services`,
     GET: (id: number) => `${environment.apiUrl}/services/${id}`,
