@@ -103,16 +103,16 @@ export class ServicesPageComponent implements OnInit, OnDestroy {
     this.applyPostLoadScroll();
   }
 
+  private handleServicesError(error: ErrorResponse): void {
+    this.isLoading = false;
+    this.messageService.showMessage(error.message, AlertType.ERROR);
+  }
+
   private applyPostLoadScroll(): void {
     if (this.restoreScrollAfterLoad) {
       this.restoreScrollAfterLoad = false;
       this.scrollService.restorePosition();
     }
-  }
-
-  private handleServicesError(error: any): void {
-    this.isLoading = false;
-    this.messageService.showMessage(error.message, AlertType.ERROR);
   }
 
   protected onSearch(event: Event): void {
