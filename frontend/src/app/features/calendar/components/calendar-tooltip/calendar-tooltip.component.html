@@ -1,0 +1,19 @@
+<div
+  *ngIf="visible()"
+  class="cal-tooltip"
+  [class.cal-tooltip--timeoff]="data()?.type === 'timeoff'"
+  [class.cal-tooltip--periodoff]="data()?.type === 'periodoff'"
+  [class.cal-tooltip--dayoff]="data()?.type === 'dayoff'"
+  [style.top.px]="top()"
+  [style.left.px]="left()"
+>
+  <div class="cal-tooltip__header">
+    <span class="material-symbols-outlined cal-tooltip__icon" translate="no">{{ icon() }}</span>
+    <span class="cal-tooltip__type">{{ typeLabel() }}</span>
+  </div>
+
+  <div class="cal-tooltip__divider"></div>
+
+  <div class="cal-tooltip__reason">{{ data()?.reason }}</div>
+  <div class="cal-tooltip__range" *ngIf="rangeText()">{{ rangeText() }}</div>
+</div>

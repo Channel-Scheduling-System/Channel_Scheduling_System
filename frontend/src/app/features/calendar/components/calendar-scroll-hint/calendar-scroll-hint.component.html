@@ -1,0 +1,38 @@
+<ng-container *ngIf="view === 'week'">
+  <div class="scroll-hint-overlay scroll-hint-overlay--week" [style.top.px]="overlayTop">
+    <div class="scroll-hint-overlay__spacer"></div>
+    <div *ngFor="let day of visibleDays; trackBy: trackByDay" class="scroll-hint-overlay__col">
+      <ng-container *ngIf="getHintForDay(day) as hint">
+        <button class="scroll-hint-btn"
+          [class.scroll-hint-btn--visible]="hint.visible"
+          [class.scroll-hint-btn--timeoff]="hint.type === 'timeoff'"
+          [class.scroll-hint-btn--periodoff]="hint.type === 'periodoff'"
+          [class.scroll-hint-btn--dayoff]="hint.type === 'dayoff'"
+          (click)="scrollToEntity(getDayKey(day))">
+          <span class="material-symbols-outlined scroll-hint-btn__icon">keyboard_arrow_up</span>
+          <span class="scroll-hint-btn__reason">{{ hint.reason }}</span>
+        </button>
+      </ng-container>
+    </div>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="view === 'day'">
+  <div class="scroll-hint-overlay scroll-hint-overlay--day" [style.top.px]="overlayTop">
+    <div class="scroll-hint-overlay__spacer"></div>
+    <div class="scroll-hint-overlay__col">
+      <ng-container *ngIf="getHintForDay(currentDate) as hint">
+        <button class="scroll-hint-btn"
+          [class.scroll-hint-btn--visible]="hint.visible"
+          [class.scroll-hint-btn--timeoff]="hint.type === 'timeoff'"
+          [class.scroll-hint-btn--periodoff]="hint.type === 'periodoff'"
+          [class.scroll-hint-btn--dayoff]="hint.type === 'dayoff'"
+          (click)="scrollToEntity(getDayKey(currentDate))">
+          <span class="material-symbols-outlined scroll-hint-btn__icon">keyboard_arrow_up</span>
+          <span class="scroll-hint-btn__reason">{{ hint.reason }}</span>
+        </button>
+      </ng-container>
+    </div>
+    <div class="scroll-hint-overlay__spacer"></div>
+  </div>
+</ng-container>
