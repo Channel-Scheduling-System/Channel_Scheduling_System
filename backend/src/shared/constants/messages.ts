@@ -48,3 +48,13 @@ export const SERVICE_ERRORS = {
     ID_NOTFOUND: 'El servicio con el id solicitado no existe',
     SERVICE_DEACTIVATED: 'Servicio desactivado. Contacta al trabajador.',
 } as const;
+
+export const AVAILABILITY_ERRORS = {
+    NOT_FOUND: 'Bloque de tiempo no encontrado',
+    WORKER_NOT_FOUND: 'El trabajador asociado no existe',
+    OWNER_MISMATCH: 'No tienes permisos para modificar este bloque de tiempo',
+    INVALID_TIME_INTERVAL: 'El intervalo de tiempo es inválido',
+    DUPLICATE_DAYOFWEEK: 'No puede haber más de un horario por día de la semana',
+    OVERLAPPING_DAY_OFF: 'Ya existe un bloque de tiempo que solapa con esta fecha',
+    DAY_OFF_IN_PAST: 'No se puede crear un bloqueo en una fecha pasada',
+} as const;
