@@ -1,0 +1,410 @@
+@use '../../../styles/calendar-variables.scss' as *;
+
+@mixin styles() {
+
+    .cal-month {
+        &__weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            border-bottom: 1.5px solid rgba($vinotinto-mid, 0.25);
+            align-items: stretch;
+        }
+
+        &__weekday {
+            margin: 0;
+            text-align: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: $muted;
+            padding: 1.7rem 0.5rem;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            transition: background $transition, box-shadow $transition, color $transition;
+            user-select: none;
+
+            &:hover {
+                background: #faf5f6;
+                color: $vinotinto;
+                box-shadow:
+                    0 0 0 1.5px rgba($vinotinto, 0.3),
+                    0 0 16px rgba($vinotinto, 0.12),
+                    0 4px 20px rgba($vinotinto, 0.1);
+            }
+        }
+
+        &__grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+        }
+
+        &__day {
+            min-height: 6rem;
+            padding: 0.5rem;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            transition: background $transition;
+
+            &::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                z-index: 0;
+                pointer-events: none;
+                box-shadow:
+                    inset 0 -1px 0 rgba($outline, 0.55),
+                    inset -1px 0 0 rgba($outline, 0.45);
+            }
+
+            &:nth-child(7n)::before {
+                box-shadow: inset 0 -1px 0 rgba($outline, 0.55);
+            }
+
+            &::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: rgba($vinotinto, 0.08);
+                opacity: 0;
+                transition: opacity 0.15s ease;
+                box-shadow:
+                    inset 0 0 0 1.5px rgba($vinotinto, 0.3),
+                    inset 0 0 12px rgba($vinotinto, 0.08);
+                z-index: 1;
+                pointer-events: none;
+            }
+
+            &:hover::after {
+                opacity: 1;
+            }
+
+            &--outside {
+                background: rgba($surface-low, 0.35);
+
+                &::before {
+                    box-shadow:
+                        inset 0 -1px 0 rgba($outline, 0.25),
+                        inset -1px 0 0 rgba($outline, 0.18);
+                }
+
+                &:nth-child(7n)::before {
+                    box-shadow: inset 0 -1px 0 rgba($outline, 0.25);
+                }
+
+                .cal-month__day-number {
+                    color: rgba($muted, 0.3);
+                }
+            }
+
+            &--non-working {
+                background: rgb(24, 26, 26);
+
+                &::after {
+                    display: none;
+                }
+
+                .cal-month__day-number {
+                    color: rgba(rgb(114, 124, 124), 0.4);
+                }
+
+                &:hover::after {
+                    display: block;
+                    opacity: 1;
+                    background: rgba($vinotinto, 0.06);
+                    box-shadow:
+                        inset 0 0 0 1.5px rgba($vinotinto, 0.2),
+                        inset 0 0 12px rgba($vinotinto, 0.06);
+                }
+
+                &.cal-month__day--drag-selected {
+                    &::after {
+                        display: block !important;
+                        opacity: 1 !important;
+                        background: transparent !important;
+                        box-shadow:
+                            inset 0 1.5px 0 rgba($vinotinto, 0.55),
+                            inset 0 -1.5px 0 rgba($vinotinto, 0.55);
+                        transition: none !important;
+                    }
+
+                    &.cal-month__day--selection-start::after {
+                        box-shadow:
+                            inset 0 1.5px 0 rgba($vinotinto, 0.55),
+                            inset 0 -1.5px 0 rgba($vinotinto, 0.55),
+                            inset 1.5px 0 0 rgba($vinotinto, 0.55);
+                    }
+
+                    &.cal-month__day--selection-end::after {
+                        box-shadow:
+                            inset 0 1.5px 0 rgba($vinotinto, 0.55),
+                            inset 0 -1.5px 0 rgba($vinotinto, 0.55),
+                            inset -1.5px 0 0 rgba($vinotinto, 0.55);
+                    }
+
+                    &.cal-month__day--selection-start.cal-month__day--selection-end::after {
+                        box-shadow:
+                            inset 0 1.5px 0 rgba($vinotinto, 0.55),
+                            inset 1.5px 0 0 rgba($vinotinto, 0.55),
+                            inset -1.5px 0 0 rgba($vinotinto, 0.55),
+                            inset 0 -1.5px 0 rgba($vinotinto, 0.55);
+                    }
+                }
+            }
+
+            &--periodoff {
+                background: rgba(16, 3, 8, 0.96) !important;
+                cursor: default;
+
+                &::after {
+                    display: none;
+                }
+
+                &::before {
+                    box-shadow:
+                        inset 0 -1px 0 rgba(#b03050, 0.2),
+                        inset -1px 0 0 rgba(#b03050, 0.14);
+                }
+
+                &:nth-child(7n)::before {
+                    box-shadow: inset 0 -1px 0 rgba(#b03050, 0.2);
+                }
+
+                .cal-month__day-number {
+                    color: rgba(#e89aaa, 0.88);
+                    text-shadow: 0 0 12px rgba(#b03050, 0.45);
+                }
+
+                .cal-month__day-reason {
+                    color: rgba(#e89aaa, 0.88);
+                    text-shadow: 0 0 12px rgba(#b03050, 0.45);
+                }
+            }
+
+            &--dayoff {
+                background: rgba(18, 6, 10, 0.96) !important;
+                cursor: default;
+
+                &::after {
+                    display: none;
+                }
+
+                &::before {
+                    box-shadow:
+                        inset 0 -1px 0 rgba(#c8a0b5, 0.24),
+                        inset -1px 0 0 rgba(#c8a0b5, 0.16);
+                }
+
+                &:nth-child(7n)::before {
+                    box-shadow: inset 0 -1px 0 rgba(#c8a0b5, 0.24);
+                }
+
+                .cal-month__day-number {
+                    color: rgba(#f0d0df, 0.88);
+                    text-shadow: 0 0 12px rgba(#c8a0b5, 0.4);
+                }
+
+                .cal-month__day-reason {
+                    color: rgba(#f0d0df, 0.88);
+                    text-shadow: 0 0 12px rgba(#c8a0b5, 0.4);
+                }
+            }
+
+            &--today {
+                .cal-month__day-number {
+                    background: $vinotinto;
+                    color: white;
+                    width: 1.75rem;
+                    height: 1.75rem;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 2px 6px rgba($vinotinto, 0.45);
+                    font-size: 0.8rem;
+                }
+            }
+
+            &--selected:not(&--today) {
+                .cal-month__day-number {
+                    background: rgba($vinotinto, 0.14);
+                    color: $vinotinto;
+                    width: 1.75rem;
+                    height: 1.75rem;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 0.8rem;
+                }
+            }
+
+            &--hovered-periodoff {
+                background: rgba(30, 6, 14, 0.98) !important;
+                z-index: 2;
+
+                &::before {
+                    box-shadow:
+                        inset 0 0 0 1.5px rgba(#cc4865, 0.75),
+                        inset 0 0 0 3px rgba(#cc4865, 0.12) !important;
+                }
+
+                &:nth-child(7n)::before {
+                    box-shadow:
+                        inset 0 0 0 1.5px rgba(#cc4865, 0.75),
+                        inset 0 0 0 3px rgba(#cc4865, 0.12) !important;
+                }
+
+                .cal-month__day-number,
+                .cal-month__day-reason {
+                    color: #f8e0e5;
+                    text-shadow:
+                        0 0 2px #f0a8b8,
+                        0 0 6px #e898a8,
+                        0 0 14px rgba(#cc4865, 0.9),
+                        0 0 30px rgba(#b03050, 0.7),
+                        0 0 60px rgba(#8b1a35, 0.4);
+                }
+            }
+
+            &--hovered-dayoff {
+                background: rgba(38, 14, 22, 0.98) !important;
+                z-index: 2;
+
+                &::before {
+                    box-shadow:
+                        inset 0 0 0 1.5px rgba(#e0b8cc, 0.75),
+                        inset 0 0 0 3px rgba(#e0b8cc, 0.12) !important;
+                }
+
+                &:nth-child(7n)::before {
+                    box-shadow:
+                        inset 0 0 0 1.5px rgba(#e0b8cc, 0.75),
+                        inset 0 0 0 3px rgba(#e0b8cc, 0.12) !important;
+                }
+
+                .cal-month__day-number,
+                .cal-month__day-reason {
+                    color: #fce8ef;
+                    text-shadow:
+                        0 0 2px #f0c4d4,
+                        0 0 6px #e8b4c8,
+                        0 0 14px rgba(#d4a0b5, 0.9),
+                        0 0 30px rgba(#c890a8, 0.7),
+                        0 0 60px rgba(#b87098, 0.4);
+                }
+            }
+
+            &-reason {
+                font-size: 0.6rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.07em;
+                white-space: nowrap;
+                overflow: visible;
+                text-overflow: clip;
+                text-overflow: ellipsis;
+                max-width: 100%;
+                position: relative;
+                z-index: 2;
+                padding: 0.1rem 0;
+            }
+
+            &--drag-selected {
+                &::after {
+                    opacity: 1 !important;
+                    background: rgba($vinotinto, 0.13);
+                    box-shadow:
+                        inset 0 1.5px 0 rgba($vinotinto, 0.55),
+                        inset 0 -1.5px 0 rgba($vinotinto, 0.55);
+                    transition: none !important;
+                }
+
+                &:hover::after {
+                    background: rgba($vinotinto, 0.22) !important;
+                    box-shadow:
+                        inset 0 2px 0 rgba($vinotinto, 1),
+                        inset 0 -2px 0 rgba($vinotinto, 1) !important;
+                }
+
+                &.cal-month__day--selection-start::after {
+                    box-shadow:
+                        inset 0 1.5px 0 rgba($vinotinto, 0.55),
+                        inset 0 -1.5px 0 rgba($vinotinto, 0.55),
+                        inset 1.5px 0 0 rgba($vinotinto, 0.55);
+                }
+
+                &.cal-month__day--selection-end::after {
+                    box-shadow:
+                        inset 0 1.5px 0 rgba($vinotinto, 0.55),
+                        inset 0 -1.5px 0 rgba($vinotinto, 0.55),
+                        inset -1.5px 0 0 rgba($vinotinto, 0.55);
+                }
+
+                &.cal-month__day--selection-start.cal-month__day--selection-end::after {
+                    box-shadow:
+                        inset 0 1.5px 0 rgba($vinotinto, 0.55),
+                        inset 1.5px 0 0 rgba($vinotinto, 0.55),
+                        inset -1.5px 0 0 rgba($vinotinto, 0.55),
+                        inset 0 -1.5px 0 rgba($vinotinto, 0.55);
+                }
+
+                &.cal-month__day--selection-start:hover::after {
+                    box-shadow:
+                        inset 0 2px 0 rgba($vinotinto, 1),
+                        inset 0 -2px 0 rgba($vinotinto, 1),
+                        inset 2px 0 0 rgba($vinotinto, 1) !important;
+                }
+
+                &.cal-month__day--selection-end:hover::after {
+                    box-shadow:
+                        inset 0 2px 0 rgba($vinotinto, 1),
+                        inset 0 -2px 0 rgba($vinotinto, 1),
+                        inset -2px 0 0 rgba($vinotinto, 1) !important;
+                }
+
+                &.cal-month__day--selection-start.cal-month__day--selection-end:hover::after {
+                    box-shadow:
+                        inset 0 2px 0 rgba($vinotinto, 1),
+                        inset 1.5px 0 0 rgba($vinotinto, 1),
+                        inset -1.5px 0 0 rgba($vinotinto, 1),
+                        inset 0 -2px 0 rgba($vinotinto, 1) !important;
+                }
+            }
+        }
+
+        &__day-number {
+            font-family: 'Manrope', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: $on-surface;
+            line-height: 1;
+            position: relative;
+            z-index: 2;
+        }
+
+        &__day-indicators {
+            margin-top: 0.4rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            position: relative;
+            z-index: 2;
+        }
+    }
+
+    .cal-month__day-reason {
+        white-space: normal;
+
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+
+        overflow: hidden;
+        text-overflow: ellipsis;
+        word-break: break-word;
+    }
+}

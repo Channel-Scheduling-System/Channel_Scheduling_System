@@ -1,0 +1,780 @@
+@use '../../../styles/calendar-variables.scss' as *;
+@use '../../../styles/cell.utils.scss' as cell_utils;
+
+$week-day-min: 4.5rem;
+$week-min-w: calc(#{$time-col} + 7 * #{$week-day-min});
+
+@mixin styles() {
+  @keyframes cal-float-start {
+
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+
+    50% {
+      transform: translateY(-4px);
+    }
+  }
+
+  @keyframes cal-float-end {
+
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+
+    50% {
+      transform: translateY(4px);
+    }
+  }
+
+  .cal-grid {
+    display: grid;
+    min-width: 0;
+    contain: layout style paint;
+
+    &--week {
+      grid-template-columns: $time-col repeat(7, minmax(0, 1fr));
+
+      @media (max-width: 640px) {
+        grid-template-columns: 3rem repeat(7, minmax(2.5rem, 1fr));
+      }
+    }
+
+    &--day {
+      contain: layout style;
+      grid-template-columns: minmax(0, 1fr) min(calc(100% - 2rem), 20rem) minmax(0, 1fr);
+
+      @media (max-width: 640px) {
+        grid-template-columns: minmax(0, 1fr) min(calc(100% - 1rem), 20rem) minmax(0, 1fr);
+      }
+
+      @media (max-width: 420px) {
+        grid-template-columns: $time-col 1fr;
+
+        .cal-grid__spacer-header,
+        .cal-grid__spacer-cell {
+          display: none;
+        }
+
+        .cal-grid__day-header {
+          border-left: none;
+          border-right: none;
+        }
+
+        .cal-grid__cell {
+          &::before {
+            box-shadow:
+              inset 0 -1px 0 rgba($outline, 0.95),
+              inset 1px 0 0 rgba($outline, 0.95);
+          }
+
+          &--half::before {
+            box-shadow: inset 1px 0 0 rgba($outline, 0.95);
+            background:
+              repeating-linear-gradient(to right,
+                rgba($outline, 0.6) 0px,
+                rgba($outline, 0.6) 4px,
+                transparent 4px,
+                transparent 8px) 0 100% / 8px 1px repeat-x;
+          }
+        }
+      }
+
+      .cal-grid__cell {
+        &::before {
+          box-shadow:
+            inset 0 -1px 0 rgba($outline, 0.95),
+            inset 1px 0 0 rgba($outline, 0.95),
+            inset -1px 0 0 rgba($outline, 0.95);
+        }
+
+        &--half::before {
+          box-shadow:
+            inset 1px 0 0 rgba($outline, 0.95),
+            inset -1px 0 0 rgba($outline, 0.95);
+          background:
+            repeating-linear-gradient(to right,
+              rgba($outline, 0.6) 0px,
+              rgba($outline, 0.6) 4px,
+              transparent 4px,
+              transparent 8px) 0 100% / 8px 1px repeat-x;
+        }
+      }
+
+      .cal-grid__spacer-header {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        background: white;
+        border-bottom: 1.5px solid rgba($vinotinto-mid, 0.25);
+      }
+
+      .cal-grid__spacer-cell {
+        background: white;
+      }
+
+      .cal-grid__day-header {
+        border-left: 1px solid rgba($outline, 0.2);
+        border-right: 1px solid rgba($outline, 0.2);
+      }
+
+      .cal-grid__spacer-header,
+      .cal-grid__spacer-cell {
+        border-left: 1.5px solid rgba($outline, 0.4);
+      }
+    }
+
+    &__corner {
+      position: sticky;
+      top: 0;
+      left: 0;
+      z-index: 4;
+      background: white;
+      border-right: 1.5px solid rgba($outline, 0.4);
+      border-bottom: 1.5px solid rgba($vinotinto-mid, 0.25);
+    }
+
+    &__day-header {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.15rem;
+      padding: 0.75rem 0.5rem;
+      background: white;
+      border-bottom: 1.5px solid rgba($vinotinto-mid, 0.25);
+      border-left: 1px solid rgba($outline, 0.2);
+      cursor: pointer;
+      transition: background $transition, box-shadow $transition;
+      user-select: none;
+
+      &:hover {
+        background: #faf5f6;
+        z-index: 5;
+        box-shadow:
+          0 0 0 1.5px rgba($vinotinto, 0.3),
+          0 0 16px rgba($vinotinto, 0.12),
+          0 4px 20px rgba($vinotinto, 0.1);
+
+        .cal-grid__day-name {
+          color: $vinotinto;
+        }
+      }
+
+      &:hover:not(.cal-grid__day-header--today) {
+        .cal-grid__day-number {
+          color: $vinotinto;
+        }
+      }
+
+      &--today {
+        .cal-grid__day-number {
+          background: $vinotinto;
+          color: white;
+          border-radius: 50%;
+          box-shadow: 0 2px 8px rgba($vinotinto, 0.4);
+        }
+      }
+    }
+
+    &__day-name {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: $muted;
+      transition: color $transition;
+    }
+
+    &__day-number {
+      font-family: 'Manrope', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: $on-surface;
+      line-height: 1;
+      width: 2rem;
+      height: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color $transition;
+    }
+
+    &__time-label {
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      height: $slot-h;
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-end;
+      padding: 0 0.75rem 0 0;
+      background: white;
+      border-right: 1.5px solid rgba($outline, 0.4);
+
+      span {
+        font-size: 0.65rem;
+        font-weight: 600;
+        color: $muted;
+        transform: translateY(-0.45em);
+        white-space: nowrap;
+      }
+
+      &--half {
+        border-right-style: dashed;
+        border-right-color: rgba($outline, 0.2);
+      }
+    }
+
+    &__cell {
+      height: $slot-h;
+      cursor: crosshair;
+      position: relative;
+      transition: background $transition;
+      backface-visibility: hidden;
+      background-clip: padding-box;
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        box-shadow:
+          inset 0 -1px 0 rgba($outline, 0.95),
+          inset 1px 0 0 rgba($outline, 0.95);
+      }
+
+      &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: rgba($vinotinto, 0.08);
+        opacity: 0;
+        transition: opacity 0.15s ease;
+        box-shadow:
+          0 0 0 1.5px rgba($vinotinto, 0.25),
+          0 0 12px rgba($vinotinto, 0.15),
+          inset 0 0 8px rgba($vinotinto, 0.06);
+        z-index: 1;
+        pointer-events: none;
+      }
+
+      &:hover::after {
+        opacity: 1;
+      }
+
+      &--non-working {
+        cursor: not-allowed;
+
+        &::after {
+          display: none;
+        }
+      }
+
+      &--periodoff {
+        background: none;
+        cursor: default;
+
+        &::after {
+          display: none;
+        }
+      }
+
+      &--dayoff {
+        background: none;
+        cursor: default;
+
+        &::after {
+          display: none;
+        }
+      }
+
+      &--half {
+        &::before {
+          box-shadow: inset 1px 0 0 rgba($outline, 0.95);
+          background:
+            repeating-linear-gradient(to right,
+              rgba($outline, 0.6) 0px,
+              rgba($outline, 0.6) 4px,
+              transparent 4px,
+              transparent 8px) 0 100% / 8px 1px repeat-x;
+        }
+      }
+
+      &--today {
+        background: rgba($vinotinto, 0.02);
+      }
+
+      &--timeblock {
+        background: none;
+        cursor: default;
+      }
+
+      &:has(.cal-grid__segment--non-working),
+      &:has(.cal-grid__segment--timeblock),
+      &:has(.cal-grid__segment--periodoff),
+      &:has(.cal-grid__segment--dayoff) {
+        &::after {
+          display: none !important;
+        }
+      }
+
+      &:has(.cal-grid__segment--free:hover):not(.cal-grid__cell--drag-selected) {
+        &::after {
+          opacity: 0 !important;
+        }
+      }
+
+      &--drag-selected {
+        .cal-grid__segment--free:hover::after {
+          opacity: 0 !important;
+        }
+
+        &::after {
+          opacity: 1 !important;
+          background: rgba($vinotinto, 0.13);
+          box-shadow:
+            inset 2px 0 0 rgba($vinotinto, 0.55),
+            inset -2px 0 0 rgba($vinotinto, 0.55);
+          transition: none !important;
+        }
+
+        &:hover::after {
+          background: rgba($vinotinto, 0.24) !important;
+          box-shadow:
+            inset 2px 0 0 rgba($vinotinto, 1),
+            inset -2px 0 0 rgba($vinotinto, 1) !important;
+          transition: none !important;
+        }
+
+        &.cal-grid__cell--selection-start {
+          &::after {
+            box-shadow:
+              inset 0 1.5px 0 rgba($vinotinto, 0.55),
+              inset 1.5px 0 0 rgba($vinotinto, 0.55),
+              inset -1.5px 0 0 rgba($vinotinto, 0.55);
+          }
+
+          &:hover::after {
+            box-shadow:
+              inset 0 2px 0 rgba($vinotinto, 1),
+              inset 2px 0 0 rgba($vinotinto, 1),
+              inset -2px 0 0 rgba($vinotinto, 1) !important;
+            transition: none !important;
+          }
+        }
+
+        &.cal-grid__cell--selection-end {
+          &::after {
+            box-shadow:
+              inset 1.5px 0 0 rgba($vinotinto, 0.55),
+              inset -1.5px 0 0 rgba($vinotinto, 0.55),
+              inset 0 -1.5px 0 rgba($vinotinto, 0.55);
+          }
+
+          &:hover::after {
+            box-shadow:
+              inset 2px 0 0 rgba($vinotinto, 1),
+              inset -2px 0 0 rgba($vinotinto, 1),
+              inset 0 -2px 0 rgba($vinotinto, 1) !important;
+            transition: none !important;
+          }
+        }
+
+        &.cal-grid__cell--selection-start.cal-grid__cell--selection-end {
+          &::after {
+            box-shadow:
+              inset 0 1.5px 0 rgba($vinotinto, 0.55),
+              inset 1.5px 0 0 rgba($vinotinto, 0.55),
+              inset -1.5px 0 0 rgba($vinotinto, 0.55),
+              inset 0 -1.5px 0 rgba($vinotinto, 0.55);
+          }
+
+          &:hover::after {
+            box-shadow:
+              inset 0 2px 0 rgba($vinotinto, 1),
+              inset 2px 0 0 rgba($vinotinto, 1),
+              inset -2px 0 0 rgba($vinotinto, 1),
+              inset 0 -2px 0 rgba($vinotinto, 1) !important;
+            transition: none !important;
+          }
+        }
+      }
+    }
+
+    &--no-sel-transition {
+      .cal-grid__cell::after {
+        transition: none !important;
+      }
+    }
+
+    &__segment {
+      position: absolute;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+
+      &--free {
+        background: transparent;
+        cursor: crosshair;
+        overflow: visible;
+
+        &::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: rgba($vinotinto, 0.08);
+          opacity: 0;
+          transition: opacity 0.15s ease;
+          box-shadow:
+            0 0 0 1.5px rgba($vinotinto, 0.25),
+            0 0 12px rgba($vinotinto, 0.15),
+            inset 0 0 8px rgba($vinotinto, 0.06);
+          z-index: 1;
+          pointer-events: none;
+        }
+
+        &:hover::after {
+          opacity: 1;
+        }
+      }
+
+      &--non-working {
+        cursor: not-allowed;
+        @include cell_utils.gap-filler(rgb(24, 26, 26));
+
+        &::after {
+          display: none;
+        }
+      }
+
+      &--timeblock {
+        background: rgba(20, 5, 12, 0.94);
+        cursor: default;
+        @include cell_utils.gap-filler(rgba(20, 5, 12, 0.94));
+        @include cell_utils.segment-border(rgba(#b87098, 0.5), $top: false, $bottom: false);
+
+        &.cal-grid__segment--group-start {
+          @include cell_utils.segment-border(rgba(#b87098, 0.5), $top: true, $bottom: false);
+        }
+
+        &.cal-grid__segment--group-end {
+          @include cell_utils.segment-border(rgba(#b87098, 0.5), $top: false, $bottom: true);
+        }
+
+        &.cal-grid__segment--group-start.cal-grid__segment--group-end {
+          @include cell_utils.segment-border(rgba(#b87098, 0.5), $top: true, $bottom: true);
+        }
+
+        .cal-grid__segment-label {
+          color: rgba(#e4b8d0, 0.88);
+          text-shadow: 0 0 12px rgba(#b87098, 0.4);
+          letter-spacing: 0.09em;
+        }
+      }
+
+      &--periodoff {
+        background: rgba(16, 3, 8, 0.94);
+        cursor: default;
+        @include cell_utils.gap-filler(rgba(16, 3, 8, 0.94));
+        @include cell_utils.segment-border(rgba(#b03050, 0.5));
+
+        &.cal-grid__segment--group-start {
+          @include cell_utils.segment-border(rgba(#b03050, 0.5), $top: true);
+        }
+
+        &.cal-grid__segment--group-end {
+          @include cell_utils.segment-border(rgba(#b03050, 0.5), $bottom: true);
+        }
+
+        &.cal-grid__segment--group-start.cal-grid__segment--group-end {
+          @include cell_utils.segment-border(rgba(#b03050, 0.5), $top: true, $bottom: true);
+        }
+
+        .cal-grid__segment-label {
+          color: rgba(#e89aaa, 0.88);
+          text-shadow: 0 0 12px rgba(#b03050, 0.45);
+          letter-spacing: 0.09em;
+        }
+      }
+
+      &--dayoff {
+        background: rgba(18, 6, 10, 0.94);
+        cursor: default;
+        @include cell_utils.gap-filler(rgba(18, 6, 10, 0.94));
+        @include cell_utils.segment-border(rgba(#c8a0b5, 0.5), $top: false, $bottom: false);
+
+        &.cal-grid__segment--group-start {
+          @include cell_utils.segment-border(rgba(#c8a0b5, 0.5), $top: true, $bottom: false);
+        }
+
+        &.cal-grid__segment--group-end {
+          @include cell_utils.segment-border(rgba(#c8a0b5, 0.5), $top: false, $bottom: true);
+        }
+
+        &.cal-grid__segment--group-start.cal-grid__segment--group-end {
+          @include cell_utils.segment-border(rgba(#c8a0b5, 0.5), $top: true, $bottom: true);
+        }
+
+        .cal-grid__segment-label {
+          color: rgba(#f0d0df, 0.88);
+          text-shadow: 0 0 12px rgba(#c8a0b5, 0.4);
+          letter-spacing: 0.09em;
+        }
+      }
+
+      &--timeblock,
+      &--periodoff,
+      &--dayoff {
+        will-change: background, border-color;
+        transition:
+          background 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+          border-color 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      &--hovered {
+        transition: background 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+
+        &.cal-grid__segment--timeblock {
+          background: #38102a;
+          @include cell_utils.gap-filler-hover(#38102a);
+          @include cell_utils.segment-border-hover(rgba(#d094b8, 0.9));
+
+          &.cal-grid__segment--group-start {
+            @include cell_utils.segment-border-hover(rgba(#d094b8, 0.9), $top: true);
+          }
+
+          &.cal-grid__segment--group-end {
+            @include cell_utils.segment-border-hover(rgba(#d094b8, 0.9), $bottom: true);
+          }
+
+          &.cal-grid__segment--group-start.cal-grid__segment--group-end {
+            @include cell_utils.segment-border-hover(rgba(#d094b8, 0.9), $top: true, $bottom: true);
+          }
+
+          .cal-grid__segment-label {
+            color: #fce8f4;
+            text-shadow:
+              0 0 2px #f0c8dc,
+              0 0 6px #e8b8d0,
+              0 0 14px rgba(#d094b8, 0.9),
+              0 0 30px rgba(#b87098, 0.7),
+              0 0 60px rgba(#9b5070, 0.4);
+          }
+        }
+
+        &.cal-grid__segment--periodoff {
+          background: #280810;
+          @include cell_utils.gap-filler-hover(#280810);
+          @include cell_utils.segment-border-hover(rgba(#cc4865, 0.9));
+
+          &.cal-grid__segment--group-start {
+            @include cell_utils.segment-border-hover(rgba(#cc4865, 0.9), $top: true);
+          }
+
+          &.cal-grid__segment--group-end {
+            @include cell_utils.segment-border-hover(rgba(#cc4865, 0.9), $bottom: true);
+          }
+
+          &.cal-grid__segment--group-start.cal-grid__segment--group-end {
+            @include cell_utils.segment-border-hover(rgba(#cc4865, 0.9), $top: true, $bottom: true);
+          }
+
+          .cal-grid__segment-label {
+            color: #f8e0e5;
+            text-shadow:
+              0 0 2px #f0a8b8,
+              0 0 6px #e898a8,
+              0 0 14px rgba(#cc4865, 0.9),
+              0 0 30px rgba(#b03050, 0.7),
+              0 0 60px rgba(#8b1a35, 0.4);
+          }
+        }
+
+        &.cal-grid__segment--dayoff {
+          background: #301020;
+          @include cell_utils.gap-filler-hover(#301020);
+          @include cell_utils.segment-border-hover(rgba(#e0b8cc, 0.9));
+
+          &.cal-grid__segment--group-start {
+            @include cell_utils.segment-border-hover(rgba(#e0b8cc, 0.9), $top: true);
+          }
+
+          &.cal-grid__segment--group-end {
+            @include cell_utils.segment-border-hover(rgba(#e0b8cc, 0.9), $bottom: true);
+          }
+
+          &.cal-grid__segment--group-start.cal-grid__segment--group-end {
+            @include cell_utils.segment-border-hover(rgba(#e0b8cc, 0.9), $top: true, $bottom: true);
+          }
+
+          .cal-grid__segment-label {
+            color: #fce8ef;
+            text-shadow:
+              0 0 2px #f0c4d4,
+              0 0 6px #e8b4c8,
+              0 0 14px rgba(#e0b8cc, 0.9),
+              0 0 30px rgba(#c8a0b5, 0.7),
+              0 0 60px rgba(#b87098, 0.4);
+          }
+        }
+      }
+    }
+
+    &__segment-label {
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 1;
+      padding: 0 0.25rem;
+
+      &--continuation {
+        opacity: 0.45;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+
+        .cal-grid__segment-label__dot {
+          margin-right: 0.2rem;
+          opacity: 0.7;
+        }
+      }
+    }
+
+    &__boundary-handle {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 14px;
+      transform: translateY(-50%);
+      padding: 0;
+      margin: 0;
+      background: transparent;
+      border: none;
+      cursor: ns-resize;
+      z-index: 2;
+      outline: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: visible;
+      will-change: transform;
+      backface-visibility: hidden;
+
+      &::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        height: 4px;
+        transform: translateY(-50%);
+        border-radius: 2px;
+        background: rgba(#c06888, 0.95);
+        box-shadow:
+          0 0 6px 1px rgba(#c06888, 0.5),
+          0 0 14px 3px rgba(#c06888, 0.22);
+        transition: background 0.18s ease, box-shadow 0.18s ease;
+      }
+
+      &__icon {
+        position: relative;
+        display: inline-block;
+        pointer-events: none;
+        color: rgba(#c06888, 0.85);
+        transition: color 0.18s ease, filter 0.18s ease;
+        will-change: transform;
+        backface-visibility: hidden;
+      }
+
+      &--start .cal-grid__boundary-handle__icon {
+        translate: 0 -60%;
+        color: rgba(#c06888, 0.85);
+        animation: cal-float-start 2s ease-in-out infinite;
+      }
+
+      &--end .cal-grid__boundary-handle__icon {
+        translate: 0 60%;
+        color: rgba(#c06888, 0.85);
+        animation: cal-float-end 2s ease-in-out infinite;
+      }
+
+      &:hover,
+      &:focus-visible,
+      &--dragging {
+        .cal-grid__boundary-handle__icon {
+          color: #200818;
+          filter:
+            drop-shadow(0 0 6px rgba(#c06888, 1)) drop-shadow(0 0 14px rgba(#c06888, 0.8)) drop-shadow(0 0 28px rgba(#c06888, 0.5));
+        }
+
+        &::after {
+          background: #702040;
+          box-shadow:
+            0 0 8px 2px rgba(#c06888, 0.82),
+            0 0 22px 5px rgba(#c06888, 0.45);
+        }
+      }
+    }
+
+    &__cell-sh-sentinel {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 1px;
+      pointer-events: none;
+      z-index: 0;
+
+      &--start {
+        top: 0;
+        bottom: auto;
+      }
+
+      &--end {
+        top: auto;
+        bottom: 0;
+      }
+    }
+  }
+
+  .cal-grid__day-status {
+    font-size: 0.52rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    padding: 0.15rem 0.35rem;
+    border-radius: 0.3rem;
+    line-height: 1.3;
+    margin-top: auto;
+    transition: opacity $transition;
+
+    &--periodoff {
+      background: rgba(#b03050, 0.14);
+      color: #c0445a;
+      border: 1px solid rgba(#b03050, 0.55);
+      text-shadow: none;
+    }
+
+    &--dayoff {
+      background: rgba(#c8a0b5, 0.14);
+      color: #b87098;
+      border: 1px solid rgba(#c8a0b5, 0.55);
+      text-shadow: none;
+    }
+  }
+}
