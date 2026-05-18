@@ -47,6 +47,14 @@ export const validateTimeRange = (data: {
     endTime: string;
 }): boolean => data.startTime < data.endTime;
 
+/**
+ * Valida que startDate <= endDate (ambos obligatorios)
+ */
+export const validateDateRange = (data: {
+    startDate: string;
+    endDate: string;
+}): boolean => data.startDate < data.endDate;
+
 // ============================================================
 // * UTILIDADES: Helpers reutilizables
 // ============================================================

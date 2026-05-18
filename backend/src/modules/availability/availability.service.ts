@@ -5,6 +5,7 @@ import {
     BlockedTime,
     CreateBlockedTimeData,
     CreateDayOffInput,
+    CreatePeriodOffInput,
     CreateWorkingHoursInput,
     WorkingHourInput,
 } from './availability.types.js';
@@ -16,6 +17,7 @@ import {
 } from '../../shared/errors/domain.error.js';
 import {
     mapToCreateDayOffData,
+    mapToCreatePeriodOffData,
     mapToCreateWorkingHoursData,
 } from './availability.mapper.js';
 import { BlockedTimeOverlapValidator } from './blocked-time-overlap.validator.js';
@@ -24,6 +26,7 @@ import { AuthContext } from '../../shared/utils/request-parser.util.js';
 export interface IAvailabilityService {
     addWorkingHours(input: CreateWorkingHoursInput): Promise<void>;
     addDayOff(input: CreateDayOffInput): Promise<void>;
+    addPeriodOff(input: CreatePeriodOffInput): Promise<void>;
     delete(id: number, auth?: AuthContext): Promise<void>;
 }
 
@@ -48,10 +51,19 @@ export class AvailabilityService implements IAvailabilityService {
 
     async addDayOff(input: CreateDayOffInput): Promise<void> {
         await this.ensureWorkerExists(input.workerId);
-        this.validateDayOffDate(input.date);
+        this.checkFutureDate(input.date);
         const dayOff = mapToCreateDayOffData(input);
         await this.checkOverlapping(dayOff);
         await this.availabilityRepo.createBlockedTime(dayOff);
+    }
+
+    async addPeriodOff(input: CreatePeriodOffInput): Promise<void> {
+        await this.ensureWorkerExists(input.workerId);
+        this.checkFutureDate(input.startDate);
+        this.checkFutureDate(input.endDate);
+        const periodOff = mapToCreatePeriodOffData(input);
+        await this.checkOverlapping(periodOff);
+        await this.availabilityRepo.createBlockedTime(periodOff);
     }
 
     async delete(id: number, auth?: AuthContext): Promise<void> {
@@ -88,7 +100,7 @@ export class AvailabilityService implements IAvailabilityService {
         }
     }
 
-    private validateDayOffDate(date: string): void {
+    private checkFutureDate(date: string): void {
         const dayOffDate = Temporal.PlainDate.from(date);
         const today = Temporal.Now.plainDateISO();
         if (Temporal.PlainDate.compare(dayOffDate, today) < 0)

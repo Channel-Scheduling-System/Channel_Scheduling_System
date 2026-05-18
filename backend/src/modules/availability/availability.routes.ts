@@ -24,6 +24,15 @@ availabilityRouter.post(
     availabilityController.addDayOff,
 );
 
+availabilityRouter.post(
+    '/:id/period-off',
+    authMiddleware,
+    requireRole('WORKER'),
+    availabilityValidator.id,
+    availabilityValidator.createPeriodOff,
+    availabilityController.addPeriodOff,
+);
+
 availabilityRouter.delete(
     '/:id',
     authMiddleware,
