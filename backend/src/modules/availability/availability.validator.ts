@@ -47,6 +47,35 @@ export const createWorkHourInput = z
     })
     .strict();
 
+export const createSpecificTimeOffInput = z
+    .object({
+        type: z.literal('SPECIFIC'),
+        date: dateSchema,
+        startTime: timeSchema,
+        endTime: timeSchema,
+        reason: z.string().max(200).optional(),
+    })
+    .refine(validateTimeRange, {
+        message: 'La hora de inicio debe ser menor a la hora de fin',
+    });
+
+export const createRecurringTimeOffInput = z
+    .object({
+        type: z.literal('RECURRING'),
+        dayOfWeek: dayOfWeekEnum,
+        startTime: timeSchema,
+        endTime: timeSchema,
+        reason: z.string().max(200).optional(),
+    })
+    .refine(validateTimeRange, {
+        message: 'La hora de inicio debe ser menor a la hora de fin',
+    });
+
+export const createTimeOffInput = z.discriminatedUnion('type', [
+    createSpecificTimeOffInput,
+    createRecurringTimeOffInput,
+]);
+
 export const createDayOffInput = z.object({
     date: dateSchema,
     reason: z.string().max(200).optional(),
@@ -73,6 +102,7 @@ export const createPeriodOffInput = z
 export const availabilityValidator = {
     id: validateParamsDTO(paramId),
     createWorkHour: validateBodyDTO(createWorkHourInput),
+    createTimeOff: validateBodyDTO(createTimeOffInput),
     createDayOff: validateBodyDTO(createDayOffInput),
     createPeriodOff: validateBodyDTO(createPeriodOffInput),
 };

@@ -8,6 +8,7 @@ import {
     dayOfWeek,
     CreateBlockedTimeData,
     CreateDayOffInput,
+    CreateTimeOffInput,
     CreatePeriodOffInput,
 } from './availability.types.js';
 
@@ -62,6 +63,32 @@ export function mapToCreateDayOffData(
         startDate: isoDateToDateTime(input.date),
         reason: input.reason,
     };
+}
+
+export function mapToCreateTimeOffData(
+    input: CreateTimeOffInput,
+): CreateBlockedTimeData {
+    if (input.type === 'RECURRING') {
+        return {
+            workerId: input.workerId,
+            type: 'HOUR',
+            startDate: '1900-01-01T00:00:00Z', // Placeholder con formato DateTime
+            startTime: isoTimeToDateTime(input.startTime),
+            endTime: isoTimeToDateTime(input.endTime),
+            dayOfWeek: dayOfWeekToNumber[input.dayOfWeek],
+            reason: input.reason,
+        };
+    } else {
+        // SPECIFIC
+        return {
+            workerId: input.workerId,
+            type: 'HOUR',
+            startDate: isoDateToDateTime(input.date),
+            startTime: isoTimeToDateTime(input.startTime),
+            endTime: isoTimeToDateTime(input.endTime),
+            reason: input.reason,
+        };
+    }
 }
 
 export function mapToCreatePeriodOffData(

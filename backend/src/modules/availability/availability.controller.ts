@@ -24,6 +24,18 @@ export class AvailabilityController {
         }
     };
 
+    addTimeOff = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const workerId = req.params.id as unknown as number;
+            await this.availabilityService.addTimeOff({ workerId, ...req.body });
+            return res.status(201).json({
+                message: 'Tiempo bloqueado correctamente',
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
     addDayOff = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const workerId = req.params.id as unknown as number;
@@ -39,7 +51,10 @@ export class AvailabilityController {
     addPeriodOff = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const workerId = req.params.id as unknown as number;
-            await this.availabilityService.addPeriodOff({ workerId, ...req.body });
+            await this.availabilityService.addPeriodOff({
+                workerId,
+                ...req.body,
+            });
             return res.status(201).json({
                 message: 'Periodo bloqueado correctamente',
             });
