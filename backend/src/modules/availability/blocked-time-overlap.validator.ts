@@ -1,80 +1,92 @@
-import { BlockedTime, CreateBlockedTimeData } from './availability.types.js';
+import { dateTimeToIsoTime } from '../../shared/utils/iso-to-datetime.util.js';
+import { dayOfWeekToNumber } from './availability.mapper.js';
+import {
+    BlockedTime,
+    CreateBlockedTimeData,
+    CreateRecurringTimeOffInput,
+} from './availability.types.js';
 
 /**
  * Valida solapamientos entre BlockedTimes
+ * Modelo FLEXIBLE: RECURRING coexiste con DAY/PERIOD (excepciones), pero conflicta con HOUR RECURRING
  */
 export class BlockedTimeOverlapValidator {
-    /**
-     * Verifica si dos BlockedTimes se solapan
-     */
     overlaps(
-        newBlock: CreateBlockedTimeData,
-        existingBlock: BlockedTime,
+        input: CreateBlockedTimeData,
+        blockedTimes: BlockedTime[],
     ): boolean {
-        const newStart = new Date(newBlock.startDate);
-        const newEnd = newBlock.endDate ? new Date(newBlock.endDate) : newStart;
-        const exiStart = existingBlock.startDate;
-        const exiEnd = existingBlock.endDate || exiStart;
+        for (const block of blockedTimes) {
+            if (!this.checkDatesOverlap(input, block)) continue;
 
-        // Si no se solapan fechas, no hay conflicto
-        if (!this.checkDatesOverlap(newStart, newEnd, exiStart, exiEnd))
-            return false;
+            if (input.type === 'HOUR') {
+                if (this.checkHourSpecOverlap(input, block)) return true;
+                continue;
+            }
 
-        // Resolver solapamiento según los tipos
-        return this.resolveOverlapByType(
-            newBlock,
-            existingBlock,
-            newStart,
-            exiStart,
+            if (input.type === 'DAY' || input.type === 'PERIOD')
+                return !this.isRecurringHour(block);
+        }
+        return false;
+    }
+
+    overlapsRecurring(
+        input: CreateRecurringTimeOffInput,
+        blockedTimes: BlockedTime[],
+    ): boolean {
+        const inputDow = dayOfWeekToNumber[input.dayOfWeek];
+
+        for (const block of blockedTimes) {
+            if (block.type !== 'HOUR') continue;
+            if (!this.isRecurringHour(block)) continue;
+            if (block.dayOfWeek !== inputDow) continue;
+
+            const { startTime, endTime } = this.getBlockTimeRange(block);
+            if (
+                this.checkHoursOverlap(
+                    input.startTime,
+                    input.endTime,
+                    startTime,
+                    endTime,
+                )
+            ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private checkDatesOverlap(
+        date1: CreateBlockedTimeData,
+        date2: BlockedTime,
+    ): boolean {
+        const start1 = new Date(date1.startDate);
+        const end1 = date1.endDate ? new Date(date1.endDate) : start1;
+        return (
+            start1 <= (date2.endDate || date2.startDate) &&
+            end1 >= date2.startDate
         );
     }
 
-    /**
-     * Resuelve si hay solapamiento según la combinación de tipos
-     */
-    private resolveOverlapByType(
-        newBlock: CreateBlockedTimeData,
-        existingBlock: BlockedTime,
-        newStart: Date,
-        exiStart: Date,
+    private checkHourSpecOverlap(
+        input: CreateBlockedTimeData,
+        exiBlock: BlockedTime,
     ): boolean {
-        if (newBlock.type === 'HOUR' && existingBlock.type === 'HOUR') {
-            return this.checkHourVsHour(newBlock, existingBlock, newStart, exiStart);
-        }
-        // DAY y PERIOD siempre solapan si las fechas se solapan
-        return true;
-    }
+        if (this.isRecurringHour(exiBlock)) return false;
+        if (exiBlock.type === 'DAY' || exiBlock.type === 'PERIOD') return true;
 
-    /**
-     * Valida solapamiento entre dos HOUR (debe ser mismo día + horas se solapan)
-     */
-    private checkHourVsHour(
-        newBlock: CreateBlockedTimeData,
-        existingBlock: BlockedTime,
-        newStart: Date,
-        exiStart: Date,
-    ): boolean {
-        const sameDay = newStart.toDateString() === exiStart.toDateString();
+        const sameDay =
+            new Date(input.startDate).toDateString() ===
+            exiBlock.startDate.toDateString();
         if (!sameDay) return false;
 
-        return this.checkHoursOverlap(
-            newBlock.startTime || '00:00',
-            newBlock.endTime || '23:59',
-            this.timeToString(existingBlock.startTime),
-            this.timeToString(existingBlock.endTime),
-        );
+        const { startTime: exiStart, endTime: exiEnd } =
+            this.getBlockTimeRange(exiBlock);
+        const inputStart = dateTimeToIsoTime(input.startTime) || '00:00';
+        const inputEnd = dateTimeToIsoTime(input.endTime) || '23:59';
+
+        return this.checkHoursOverlap(inputStart, inputEnd, exiStart, exiEnd);
     }
 
-    /**
-     * Verifica si dos rangos de fechas se solapan
-     */
-    private checkDatesOverlap(s1: Date, e1: Date, s2: Date, e2: Date): boolean {
-        return s1 <= e2 && e1 >= s2;
-    }
-
-    /**
-     * Verifica si dos rangos horarios (HH:MM) se solapan
-     */
     private checkHoursOverlap(
         st1: string,
         et1: string,
@@ -84,13 +96,23 @@ export class BlockedTimeOverlapValidator {
         return st1 < et2 && et1 > st2;
     }
 
-    /**
-     * Convierte un Date (tiempo) a string HH:MM, o devuelve default si es null
-     */
+    private isRecurringHour(block: BlockedTime): boolean {
+        return block.type === 'HOUR' && block.dayOfWeek !== null;
+    }
+
+    private getBlockTimeRange(block: BlockedTime): {
+        startTime: string;
+        endTime: string;
+    } {
+        return {
+            startTime: this.timeToString(block.startTime),
+            endTime: this.timeToString(block.endTime),
+        };
+    }
+
     private timeToString(time: Date | null): string {
         if (!time) return '00:00';
-        const hours = String(time.getHours()).padStart(2, '0');
-        const minutes = String(time.getMinutes()).padStart(2, '0');
-        return `${hours}:${minutes}`;
+        const match = time.toISOString().match(/T(\d{2}):(\d{2})/);
+        return match ? `${match[1]}:${match[2]}` : '00:00';
     }
 }

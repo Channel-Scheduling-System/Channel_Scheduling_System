@@ -151,6 +151,7 @@ model BlockedTime {
   endDate   DateTime?    @db.Date
   startTime DateTime?    @db.Time()
   endTime   DateTime?    @db.Time()
+  dayOfWeek Int?         @db.UnsignedTinyInt
   reason    String?      @db.VarChar(200)
   worker    User         @relation(fields: [workerId], references: [id], onDelete: Cascade)
   workerId  Int

@@ -29,6 +29,7 @@ export interface BlockedTime {
     endDate: Date | null;
     startTime: Date | null;
     endTime: Date | null;
+    dayOfWeek: number | null;
     reason: string | null;
 }
 
@@ -49,6 +50,7 @@ export interface CreateBlockedTimeData {
     endDate?: string;
     startTime?: string;
     endTime?: string;
+    dayOfWeek?: number;
     reason?: string;
 }
 
@@ -65,6 +67,28 @@ export interface CreateWorkingHoursInput {
     workerId: number;
     workingHours: WorkingHourInput[];
 }
+
+export type CreateRecurringTimeOffInput = {
+    workerId: number;
+    type: 'RECURRING';
+    dayOfWeek: dayOfWeek;
+    startTime: string;
+    endTime: string;
+    reason?: string;
+};
+
+export type CreateSpecificTimeOffInput = {
+    workerId: number;
+    type: 'SPECIFIC';
+    date: string;
+    startTime: string;
+    endTime: string;
+    reason?: string;
+};
+
+export type CreateTimeOffInput =
+    | CreateRecurringTimeOffInput
+    | CreateSpecificTimeOffInput;
 
 export interface CreateDayOffInput {
     workerId: number;
@@ -91,3 +115,7 @@ export interface WorkingHourResponse {
 // ============================================================
 // * FILTERS
 // ============================================================
+export interface BlockedTimeFilter {
+    workerId: number;
+    type?: TimeInterval;
+}

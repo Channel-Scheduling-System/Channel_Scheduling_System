@@ -16,6 +16,15 @@ availabilityRouter.put(
 );
 
 availabilityRouter.post(
+    '/:id/time-off',
+    authMiddleware,
+    requireRole('WORKER'),
+    availabilityValidator.id,
+    availabilityValidator.createTimeOff,
+    availabilityController.addTimeOff,
+);
+
+availabilityRouter.post(
     '/:id/day-off',
     authMiddleware,
     requireRole('WORKER'),

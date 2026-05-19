@@ -6,6 +6,8 @@ import {
     CreateBlockedTimeData,
     CreateDayOffInput,
     CreatePeriodOffInput,
+    CreateRecurringTimeOffInput,
+    CreateTimeOffInput,
     CreateWorkingHoursInput,
     WorkingHourInput,
 } from './availability.types.js';
@@ -18,6 +20,7 @@ import {
 import {
     mapToCreateDayOffData,
     mapToCreatePeriodOffData,
+    mapToCreateTimeOffData,
     mapToCreateWorkingHoursData,
 } from './availability.mapper.js';
 import { BlockedTimeOverlapValidator } from './blocked-time-overlap.validator.js';
@@ -25,6 +28,7 @@ import { AuthContext } from '../../shared/utils/request-parser.util.js';
 
 export interface IAvailabilityService {
     addWorkingHours(input: CreateWorkingHoursInput): Promise<void>;
+    addTimeOff(input: CreateTimeOffInput): Promise<void>;
     addDayOff(input: CreateDayOffInput): Promise<void>;
     addPeriodOff(input: CreatePeriodOffInput): Promise<void>;
     delete(id: number, auth?: AuthContext): Promise<void>;
@@ -47,6 +51,20 @@ export class AvailabilityService implements IAvailabilityService {
         );
         const workingHoursData = mapToCreateWorkingHoursData(input);
         await this.availabilityRepo.createWorkingHourBulk(workingHoursData);
+    }
+
+    async addTimeOff(input: CreateTimeOffInput): Promise<void> {
+        await this.ensureWorkerExists(input.workerId);
+        const timeOff = mapToCreateTimeOffData(input);
+
+        if (input.type === 'RECURRING') {
+            await this.checkOverlappingRecurring(input);
+        } else {
+            this.checkFutureDate(input.date);
+            await this.checkOverlapping(timeOff);
+        }
+
+        await this.availabilityRepo.createBlockedTime(timeOff);
     }
 
     async addDayOff(input: CreateDayOffInput): Promise<void> {
@@ -110,17 +128,22 @@ export class AvailabilityService implements IAvailabilityService {
     private async checkOverlapping(
         block: CreateBlockedTimeData,
     ): Promise<void> {
-        const blockedTimes =
-            await this.availabilityRepo.findAllBlockedTimesByWorkerId(
-                block.workerId,
-            );
+        const blocks = await this.availabilityRepo.findAllBlockedTimes({
+            workerId: block.workerId,
+        });
+        if (this.overlapValidator.overlaps(block, blocks)) {
+            throw new ConflictError(AVAILABILITY_ERRORS.OVERLAPPING_DAY_OFF);
+        }
+    }
 
-        for (const blockedTime of blockedTimes) {
-            if (this.overlapValidator.overlaps(block, blockedTime)) {
-                throw new ConflictError(
-                    AVAILABILITY_ERRORS.OVERLAPPING_DAY_OFF,
-                );
-            }
+    private async checkOverlappingRecurring(
+        block: CreateRecurringTimeOffInput,
+    ): Promise<void> {
+        const blocks = await this.availabilityRepo.findAllBlockedTimes({
+            workerId: block.workerId,
+        });
+        if (this.overlapValidator.overlapsRecurring(block, blocks)) {
+            throw new ConflictError(AVAILABILITY_ERRORS.OVERLAPPING_DAY_OFF);
         }
     }
 

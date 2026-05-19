@@ -1,6 +1,7 @@
 import prisma from '../../config/prisma.js';
 import { BlockedTime } from '@prisma/client.js';
 import {
+    BlockedTimeFilter,
     CreateBlockedTimeData,
     CreateWorkingHourData,
 } from './availability.types.js';
@@ -10,7 +11,7 @@ export interface IAvailabilityRepository {
     deleteWorkingHoursByWorkerId(workerId: number): Promise<void>;
     createBlockedTime(data: CreateBlockedTimeData): Promise<void>;
     findBlockedTimeById(id: number): Promise<BlockedTime | null>;
-    findAllBlockedTimesByWorkerId(workerId: number): Promise<BlockedTime[]>;
+    findAllBlockedTimes(filters: BlockedTimeFilter): Promise<BlockedTime[]>;
     deleteBlockedTime(id: number): Promise<void>;
 }
 
@@ -33,11 +34,11 @@ export class AvailabilityRepository implements IAvailabilityRepository {
         });
     }
 
-    async findAllBlockedTimesByWorkerId(
-        workerId: number,
+    async findAllBlockedTimes(
+        filters: BlockedTimeFilter,
     ): Promise<BlockedTime[]> {
         return await prisma.blockedTime.findMany({
-            where: { workerId },
+            where: { ...filters },
             orderBy: { startDate: 'asc' },
         });
     }
