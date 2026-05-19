@@ -1,0 +1,119 @@
+<div class="wh-modal" (click)="$event.stopPropagation()">
+    <div class="wh-modal__inner">
+        <div class="wh-modal__scroll">
+
+            <!-- ── Header ──────────────────────────────────────────────────────── -->
+            <div class="wh-modal__header">
+                <div class="wh-modal__header-left">
+                    <span class="material-symbols-outlined wh-modal__header-icon" translate="no">
+                        schedule
+                    </span>
+                    <div>
+                        <h2 class="wh-modal__title">Horario base</h2>
+                        <p class="wh-modal__subtitle">Configura los días y horarios de atención</p>
+                    </div>
+                </div>
+                <button class="wh-modal__close" type="button" (click)="onCancel()" title="Cerrar">
+                    <span class="material-symbols-outlined" translate="no">close</span>
+                </button>
+            </div>
+
+            <div class="wh-modal__divider"></div>
+
+            <!-- ── Column labels ───────────────────────────────────────────────── -->
+            <div class="wh-col-labels" aria-hidden="true">
+                <span class="wh-col-labels__day">Día</span>
+                <span class="wh-col-labels__start">Inicio</span>
+                <span class="wh-col-labels__end">Fin</span>
+                <span class="wh-col-labels__toggle">Activo</span>
+            </div>
+
+            <!-- ── Day rows ────────────────────────────────────────────────────── -->
+            <div class="wh-modal__body">
+                <div class="wh-row" *ngFor="let row of dayRows; let i = index" [class.wh-row--active]="row.enabled">
+
+                    <!-- Day name -->
+                    <span class="wh-row__label" [class.wh-row__label--active]="row.enabled">
+                        {{ row.label }}
+                    </span>
+
+                    <!--
+            Time fields — ALWAYS in the DOM.
+            Toggled via visibility/opacity/pointer-events so row height never changes.
+          -->
+                    <div class="wh-row__fields" [class.wh-row__fields--hidden]="!row.enabled" [formGroup]="row.group">
+
+                        <!-- Start time -->
+                        <div class="wh-row__field-col">
+                            <div class="wh-row__input-wrap"
+                                [class.wh-row__input-wrap--error]="!!getTimeError(row, 'startTime')"
+                                style="cursor:pointer" (click)="row.enabled && openPicker(i, 'startTime', $event)">
+                                <span class="material-symbols-outlined wh-row__input-icon"
+                                    translate="no">schedule</span>
+                                <input class="wh-row__time-input" title="Seleccionar hora" type="text" readonly
+                                    [value]="display12h(row.group.get('startTime')?.value)" style="cursor:pointer"
+                                    [tabindex]="row.enabled ? 0 : -1">
+                                <input type="hidden" formControlName="startTime">
+                            </div>
+                            <!-- Absolute-positioned error — does NOT affect row height -->
+                            <span class="wh-row__field-error" *ngIf="getTimeError(row, 'startTime')">
+                                <span class="material-symbols-outlined" translate="no">error</span>
+                                {{ getTimeError(row, 'startTime') }}
+                            </span>
+                        </div>
+
+                        <span class="wh-row__sep" aria-hidden="true">—</span>
+
+                        <!-- End time -->
+                        <div class="wh-row__field-col">
+                            <div class="wh-row__input-wrap" [class.wh-row__input-wrap--error]="
+  !!getTimeError(row, 'endTime') || !!getCrossError(row)" style="cursor:pointer"
+                                (click)="row.enabled && openPicker(i, 'endTime', $event)">
+                                <span class="material-symbols-outlined wh-row__input-icon" translate="no">timer</span>
+                                <input class="wh-row__time-input" title="Seleccionar hora" type="text" readonly
+                                    [value]="display12h(row.group.get('endTime')?.value)" style="cursor:pointer"
+                                    [tabindex]="row.enabled ? 0 : -1">
+                                <input type="hidden" formControlName="endTime">
+                            </div>
+                            <span class="wh-row__field-error"
+                                *ngIf="getTimeError(row, 'endTime') || getCrossError(row)">
+                                <span class="material-symbols-outlined" translate="no">error</span>
+                                {{ getTimeError(row, 'endTime') || getCrossError(row) }}
+                            </span>
+                        </div>
+
+                    </div>
+
+                    <span class="wh-row__unavailable" [class.wh-row__unavailable--visible]="!row.enabled">
+                        No disponible
+                    </span>
+
+                    <!-- Toggle -->
+                    <button class="wh-row__toggle" [class.wh-row__toggle--on]="row.enabled" type="button"
+                        (click)="toggleDay(row)" [title]="row.enabled ? 'Quitar día' : 'Incluir día'"
+                        [attr.aria-label]="(row.enabled ? 'Inhabilitar ' : 'Habilitar ') + row.label">
+                        <span class="material-symbols-outlined" translate="no">
+                            {{ row.enabled ? 'toggle_on' : 'toggle_off' }}
+                        </span>
+                    </button>
+
+                </div>
+            </div>
+
+            <div class="wh-modal__divider"></div>
+
+            <!-- ── Footer ──────────────────────────────────────────────────────── -->
+            <div class="wh-modal__footer">
+                <button class="wh-modal__cancel" type="button" (click)="onCancel()">
+                    Cancelar
+                </button>
+                <button class="wh-modal__submit" type="button" (click)="onSubmit()" [disabled]="isSubmitting"
+                    [class.wh-modal__submit--loading]="isSubmitting">
+                    <span class="material-symbols-outlined" translate="no">auto_awesome</span>
+                    <span>{{ isSubmitting ? 'Guardando...' : 'Guardar horario' }}</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
