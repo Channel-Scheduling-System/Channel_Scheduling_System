@@ -13,6 +13,7 @@ export const API_ENDPOINTS = {
     RECOVERY_RESET_PASSWORD: `${environment.apiUrl}/auth/password-reset/reset`
   },
   CALENDAR: {
+    UPDATE_WORKING_HOURS: (id: number) =>`${environment.apiUrl}/availability/${id}/working-hours`,
     AVAILABILITY_CONFIG: (id: number) => `${environment.apiUrl}/availability/${id}/config`,
   },
   SERVICES: {

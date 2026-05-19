@@ -47,7 +47,7 @@
 
           <div #weekGrid class="cal-grid cal-grid--week" appCalendarGridWeek [currentDate]="currentDate"
             [visibleDays]="visibleDays" [timeSlots]="timeSlots" [availabilityData]="availabilityData"
-            (slotClick)="onSlotClick($event.day, $event.slot)" (dayHeaderClick)="onDayHeaderClick($event)"
+            (slotClick)="onSlotClick($event.day, $event.slot)" (boundaryChange)="onBoundaryChange($event)" (dayHeaderClick)="onDayHeaderClick($event)"
             (selectionComplete)="onSelectionComplete($event)"></div>
 
 
@@ -58,7 +58,7 @@
 
           <div #dayGrid class="cal-grid cal-grid--day" appCalendarGridDay [currentDate]="currentDate"
             [timeSlots]="timeSlots" [availabilityData]="availabilityData"
-            (slotClick)="onSlotClick($event.day, $event.slot)" (dayHeaderClick)="onDayHeaderClick($event)"
+            (slotClick)="onSlotClick($event.day, $event.slot)" (boundaryChange)="onBoundaryChange($event)" (dayHeaderClick)="onDayHeaderClick($event)"
             (selectionComplete)="onSelectionComplete($event)">
           </div>
 

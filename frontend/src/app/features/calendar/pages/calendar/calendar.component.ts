@@ -14,6 +14,7 @@ import {
   addWeeks,
   endOfWeek,
   format,
+  getDay,
   isSameDay,
   startOfMonth,
   startOfWeek,
@@ -25,6 +26,7 @@ import { AvailabilityService } from '../../services/availability.service';
 import type {
   AvailabilityConfigData,
   AvailabilityConfigResponse,
+  WorkingHour,
 } from '../../models/responses/availability-response.model';
 import type { CalendarView } from '../../types/calendar-view.types';
 import { SessionService } from '../../../../core/services/session.service';
@@ -46,6 +48,12 @@ import { CalendarScrollHintComponent } from '../../components/calendar-scroll-hi
 import { CalendarFooterComponent } from '../../components/calendar-footer/calendar-footer.component';
 import { AvailabilityHierarchyAdapter } from '../../adapters/availability-hierachy.adapter';
 import { formatTimeTo12Hour } from '../../utils/time.util';
+import { Overlay } from '@angular/cdk/overlay';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { WorkingHoursModalComponent, WorkingHoursModalData } from '../../components/working-hours/working-hours-modal.component';
+import { UpdateWorkingHoursRequest } from '../../models/requests/update-working-hours-request.model';
+import { UpdateWorkingHoursResponse } from '../../models/responses/update-working-hours-response.model';
+import { DAY_INDEX_TO_WEEKDAY } from '../../constants/availability.constants';
 
 @Component({
   selector: 'app-calendar',
@@ -83,11 +91,13 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
   private readonly tooltipSvc = inject(CalendarTooltipService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly selectionMenuSvc = inject(CalendarSelectionMenuService);
-
+  private readonly dialog = inject(MatDialog);
+  private readonly overlay = inject(Overlay);
+  private allWorkingHours: WorkingHour[] = [];
 
   @ViewChild('gridWrap') private gridWrap!: ElementRef<HTMLElement>;
-  @ViewChild('weekGrid') private weekGrid?: ElementRef<HTMLElement>;
-  @ViewChild('dayGrid') private dayGrid?: ElementRef<HTMLElement>;
+  @ViewChild(CalendarGridWeekComponent) private weekGridComp?: CalendarGridWeekComponent;
+  @ViewChild(CalendarGridDayComponent) private dayGridComp?: CalendarGridDayComponent;
 
 
   protected get activeGridEl(): HTMLElement | null {
@@ -195,6 +205,17 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
   private handleAvailabilitySuccess(response: AvailabilityConfigResponse): void {
     this.isLoading = false;
     this.availabilityData = response.data;
+
+    const incoming = response.data.workingHours ?? [];
+    if (incoming.length > 0) {
+      const merged = new Map<string, WorkingHour>(
+        this.allWorkingHours.map(wh => [wh.weekday, wh]),
+      );
+      for (const wh of incoming) {
+        merged.set(wh.weekday, wh);
+      }
+      this.allWorkingHours = [...merged.values()];
+    }
     this.calendarCellService.configure(this.availabilityData, this.timeSlots);
   }
 
@@ -205,8 +226,6 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
       AlertType.ERROR,
     );
   }
-
-
 
   protected get dateRangeLabel(): string {
     if (this.currentView === 'day') {
@@ -302,22 +321,83 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
 
   protected onWeekdayHeaderContextMenu(payload: { day: Date; x: number; y: number }): void {
     const label = format(payload.day, 'EEEE', { locale: es });
+    const isWorking = this.calendarCellService.isWorkingDay(payload.day);
+
     this.selectionMenuSvc.show(payload.x, payload.y, 'calendar_today', label, [
       {
-        icon: 'work_off',
-        label: 'Definir como día fuera de la jornada',
-        handler: () => this.openDayOffConfig(payload.day),
+        icon: isWorking ? 'work_off' : 'work',
+        label: isWorking
+          ? 'Definir como día fuera de la jornada'
+          : 'Definir como día dentro de la jornada',
+        handler: () => isWorking
+          ? this.removeFromWorkingDays(payload.day)
+          : this.addToWorkingDays(payload.day),
       },
     ]);
   }
 
+  private removeFromWorkingDays(day: Date): void {
+    const workerId = this.sessionService.getSession()?.id;
+    if (!workerId) return;
+
+    const weekday = DAY_INDEX_TO_WEEKDAY[getDay(day)];
+
+    const workingHours = this.allWorkingHours
+      .filter(wh => wh.weekday !== weekday)
+      .map(wh => ({ dayOfWeek: wh.weekday as any, startTime: wh.start, endTime: wh.end }));
+
+    this.availabilityService.updateWorkingHours(workerId, { workingHours }).subscribe({
+      next: (r) => {
+        // Actualiza el cache local de inmediato, sin esperar al reload
+        this.allWorkingHours = this.allWorkingHours.filter(wh => wh.weekday !== weekday);
+        this.messageService.showMessage(r.message, AlertType.SUCCESS);
+        this.loadAvailabilityConfig();
+      },
+      error: (e: ErrorResponse) =>
+        this.messageService.showMessage(e.message ?? 'Error al actualizar la jornada', AlertType.ERROR),
+    });
+  }
+
+  private addToWorkingDays(day: Date): void {
+    const workerId = this.sessionService.getSession()?.id;
+    if (!workerId) return;
+
+    const weekday = DAY_INDEX_TO_WEEKDAY[getDay(day)];
+    const newEntry: WorkingHour = { weekday: weekday as any, start: '08:00', end: '18:00' };
+
+    // Filtra primero por si acaso ya existía ese día (evita duplicados)
+    const workingHours = [
+      ...this.allWorkingHours.filter(wh => wh.weekday !== weekday),
+      newEntry,
+    ].map(wh => ({ dayOfWeek: wh.weekday as any, startTime: wh.start, endTime: wh.end }));
+
+    this.availabilityService.updateWorkingHours(workerId, { workingHours }).subscribe({
+      next: (r) => {
+        this.allWorkingHours = [
+          ...this.allWorkingHours.filter(wh => wh.weekday !== weekday),
+          newEntry,
+        ];
+        this.messageService.showMessage(r.message, AlertType.SUCCESS);
+        this.loadAvailabilityConfig();
+      },
+      error: (e: ErrorResponse) =>
+        this.messageService.showMessage(e.message ?? 'Error al actualizar la jornada', AlertType.ERROR),
+    });
+  }
+
   protected onDayHeaderClick(payload: { day: Date; x: number; y: number }): void {
     const label = format(payload.day, "EEEE d 'de' MMMM", { locale: es });
+    const isWorking = this.calendarCellService.isWorkingDay(payload.day);
+
     this.selectionMenuSvc.show(payload.x, payload.y, 'calendar_today', label, [
       {
-        icon: 'work_off',
-        label: 'Definir como día fuera de la jornada',
-        handler: () => this.openDayOffConfig(payload.day),
+        icon: isWorking ? 'work_off' : 'work',
+        label: isWorking
+          ? 'Definir como día fuera de la jornada'
+          : 'Definir como día dentro de la jornada',
+        handler: () => isWorking
+          ? this.removeFromWorkingDays(payload.day)
+          : this.addToWorkingDays(payload.day),
       },
       {
         icon: 'event_busy',
@@ -353,7 +433,57 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
     this.selectionMenuSvc.show(sel.x, sel.y, 'calendar_today', label, actions);
   }
 
-  protected openWorkingHoursConfig(): void { }
+  protected openWorkingHoursConfig(): void {
+    if (!this.availabilityData) return;
+
+    const dialogData: WorkingHoursModalData = {
+      availabilityData: this.availabilityData,
+      onSubmit: (request: UpdateWorkingHoursRequest) =>
+        this.onWorkingHoursSubmit(request, dialogRef),
+    };
+
+    const dialogRef = this.dialog.open(WorkingHoursModalComponent, {
+      width: 'auto',
+      maxWidth: '90vw',
+      panelClass: 'service-dialog-panel',
+      backdropClass: 'service-dialog-backdrop',
+      disableClose: false,
+      autoFocus: true,
+      scrollStrategy: this.overlay.scrollStrategies.block(),
+      data: dialogData,
+    });
+  }
+
+  private onWorkingHoursSubmit(
+    request: UpdateWorkingHoursRequest,
+    dialogRef?: MatDialogRef<WorkingHoursModalComponent>,
+  ): void {
+    const workerId = this.sessionService.getSession()?.id;
+    if (!workerId) return;
+
+    this.availabilityService.updateWorkingHours(workerId, request).subscribe({
+      next: (r) => this.handleWorkingHoursSuccess(r, dialogRef),
+      error: (e: ErrorResponse) => this.handleWorkingHoursError(e, dialogRef),
+    });
+  }
+
+  private handleWorkingHoursSuccess(
+    response: UpdateWorkingHoursResponse,
+    dialogRef?: MatDialogRef<WorkingHoursModalComponent>
+  ): void {
+    if (dialogRef) dialogRef.componentInstance.setSubmitting(false);
+    this.messageService.showMessage(response.message, AlertType.SUCCESS);
+    this.loadAvailabilityConfig();
+  }
+
+  private handleWorkingHoursError(
+    error: ErrorResponse,
+    dialogRef?: MatDialogRef<WorkingHoursModalComponent>,
+  ): void {
+    if (dialogRef) dialogRef.componentInstance.setSubmitting(false);
+    this.messageService.showMessage(error.message, AlertType.ERROR);
+    this.loadAvailabilityConfig();
+  }
   protected openDayOffConfig(day?: Date): void { }
   protected openTimeOffConfig(context?: { day: Date; startSlot?: TimeSlot; endSlot?: TimeSlot }): void { }
   protected openPeriodOffConfig(day?: Date): void { }
@@ -361,4 +491,52 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
   protected onSlotClick(day: Date, slot: TimeSlot): void { }
   protected onMonthDayClick(day: Date): void { }
   protected onMonthDayPointerDown(day: Date): void { }
+
+  protected onBoundaryChange(
+    payload: { day: Date; type: 'start' | 'end'; newSlot: TimeSlot; originalSlot: TimeSlot },
+  ): void {
+    if (!this.availabilityData?.workingHours?.length) return;
+
+    const request = this.buildBoundaryRequest(payload);
+    if (!request) return;
+
+    const workerId = this.sessionService.getSession()?.id;
+    if (!workerId) return;
+
+    this.availabilityService.updateWorkingHours(workerId, request).subscribe({
+      next: (r) => {
+        this.messageService.showMessage(r.message, AlertType.SUCCESS);
+        this.loadAvailabilityConfig();
+      },
+      error: (e: ErrorResponse) => {
+        this.messageService.showMessage(e.message ?? 'Error al actualizar la jornada', AlertType.ERROR);
+        (this.weekGridComp ?? this.dayGridComp)?.revertBoundaryChange(payload.day, payload.type);
+      },
+    });
+  }
+
+  private buildBoundaryRequest(
+    payload: { day: Date; type: 'start' | 'end'; newSlot: TimeSlot },
+  ): UpdateWorkingHoursRequest | null {
+    const weekday = DAY_INDEX_TO_WEEKDAY[getDay(payload.day)];
+
+    const newMin = payload.type === 'start'
+      ? payload.newSlot.hour * 60 + payload.newSlot.minute + 30
+      : payload.newSlot.hour * 60 + payload.newSlot.minute;
+
+    const newTimeStr =
+      `${String(Math.floor(newMin / 60)).padStart(2, '0')}:${String(newMin % 60).padStart(2, '0')}`;
+
+    // Verifica que el día exista en el cache completo
+    if (!this.allWorkingHours.some(wh => wh.weekday === weekday)) return null;
+
+    // Mapea TODOS los días, modificando solo el objetivo
+    const workingHours = this.allWorkingHours.map(wh => ({
+      dayOfWeek: wh.weekday as any,
+      startTime: wh.weekday === weekday && payload.type === 'start' ? newTimeStr : wh.start,
+      endTime: wh.weekday === weekday && payload.type === 'end' ? newTimeStr : wh.end,
+    }));
+
+    return { workingHours };
+  }
 }
