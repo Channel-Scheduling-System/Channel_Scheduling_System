@@ -1,155 +1,192 @@
 /// <reference types="jest" />
 
-import {
-    CreateServiceDTO,
-    UpdateServiceDTO,
-    ServiceFiltersSchema,
-} from '../../../src/modules/services/service.validator';
+import { serviceValidator } from '../../../src/modules/services/service.validator';
+import { ValidationDTOError } from '../../../src/shared/errors/validation.error';
 
 describe('Service DTO validators', () => {
-    it('should validate a correct CreateServiceDTO payload', () => {
-        const result = CreateServiceDTO.safeParse({
-            workerId: 1,
-            name: 'Corte de cabello',
-            description: 'Servicio de corte de cabello profesional',
-            color: '#FF5733',
-            price: 50000,
-            duration: 30,
+    const runMiddleware = async (
+        middleware: (req: any, res: any, next: jest.Mock) => void | Promise<void>,
+        req: Record<string, any>,
+    ) => {
+        const res = {} as any;
+        const next = jest.fn();
+
+        await middleware(req, res, next);
+
+        return { req, res, next };
+    };
+
+    it('should accept a correct create payload', async () => {
+        const { next } = await runMiddleware(serviceValidator.create, {
+            body: {
+                workerId: 1,
+                name: 'Corte de cabello',
+                description: 'Servicio de corte de cabello profesional',
+                color: '#FF5733',
+                price: 50000,
+                duration: 30,
+            },
         });
 
-        expect(result.success).toBe(true);
+        expect(next).toHaveBeenCalledWith();
     });
 
-    it('should reject CreateServiceDTO with invalid color format', () => {
-        const result = CreateServiceDTO.safeParse({
-            workerId: 1,
-            name: 'Corte de cabello',
-            description: 'Servicio de corte de cabello profesional',
-            color: 'FF5733', // Missing # symbol
-            price: 50000,
-            duration: 30,
+    it('should reject create payloads with invalid color format', async () => {
+        const { next } = await runMiddleware(serviceValidator.create, {
+            body: {
+                workerId: 1,
+                name: 'Corte de cabello',
+                description: 'Servicio de corte de cabello profesional',
+                color: 'FF5733',
+                price: 50000,
+                duration: 30,
+            },
         });
 
-        expect(result.success).toBe(false);
+        expect(next).toHaveBeenCalledWith(expect.any(ValidationDTOError));
     });
 
-    it('should reject CreateServiceDTO with invalid price', () => {
-        const result = CreateServiceDTO.safeParse({
-            workerId: 1,
-            name: 'Corte de cabello',
-            description: 'Servicio de corte de cabello profesional',
-            color: '#FF5733',
-            price: -5000, // Negative price
-            duration: 30,
+    it('should reject create payloads with invalid price', async () => {
+        const { next } = await runMiddleware(serviceValidator.create, {
+            body: {
+                workerId: 1,
+                name: 'Corte de cabello',
+                description: 'Servicio de corte de cabello profesional',
+                color: '#FF5733',
+                price: -5000,
+                duration: 30,
+            },
         });
 
-        expect(result.success).toBe(false);
+        expect(next).toHaveBeenCalledWith(expect.any(ValidationDTOError));
     });
 
-    it('should reject CreateServiceDTO with invalid duration', () => {
-        const result = CreateServiceDTO.safeParse({
-            workerId: 1,
-            name: 'Corte de cabello',
-            description: 'Servicio de corte de cabello profesional',
-            color: '#FF5733',
-            price: 50000,
-            duration: 2, // Duration too short (minimum 5)
+    it('should reject create payloads with invalid duration', async () => {
+        const { next } = await runMiddleware(serviceValidator.create, {
+            body: {
+                workerId: 1,
+                name: 'Corte de cabello',
+                description: 'Servicio de corte de cabello profesional',
+                color: '#FF5733',
+                price: 50000,
+                duration: 2,
+            },
         });
 
-        expect(result.success).toBe(false);
+        expect(next).toHaveBeenCalledWith(expect.any(ValidationDTOError));
     });
 
-    it('should reject CreateServiceDTO with short name', () => {
-        const result = CreateServiceDTO.safeParse({
-            workerId: 1,
-            name: 'ab', // Too short (minimum 3)
-            description: 'Servicio de corte de cabello profesional',
-            color: '#FF5733',
-            price: 50000,
-            duration: 30,
+    it('should reject create payloads with short name', async () => {
+        const { next } = await runMiddleware(serviceValidator.create, {
+            body: {
+                workerId: 1,
+                name: 'ab',
+                description: 'Servicio de corte de cabello profesional',
+                color: '#FF5733',
+                price: 50000,
+                duration: 30,
+            },
         });
 
-        expect(result.success).toBe(false);
+        expect(next).toHaveBeenCalledWith(expect.any(ValidationDTOError));
     });
 
-    it('should reject CreateServiceDTO with short description', () => {
-        const result = CreateServiceDTO.safeParse({
-            workerId: 1,
-            name: 'Corte',
-            description: 'Corte', // Too short (minimum 10)
-            color: '#FF5733',
-            price: 50000,
-            duration: 30,
+    it('should reject create payloads with short description', async () => {
+        const { next } = await runMiddleware(serviceValidator.create, {
+            body: {
+                workerId: 1,
+                name: 'Corte',
+                description: 'Corte',
+                color: '#FF5733',
+                price: 50000,
+                duration: 30,
+            },
         });
 
-        expect(result.success).toBe(false);
+        expect(next).toHaveBeenCalledWith(expect.any(ValidationDTOError));
     });
 
-    it('should validate UpdateServiceDTO with partial fields', () => {
-        const result = UpdateServiceDTO.safeParse({
-            id: 1,
-            name: 'Nuevo nombre de servicio',
-            price: 75000,
+    it('should accept a partial update payload', async () => {
+        const { next } = await runMiddleware(serviceValidator.update, {
+            body: {
+                id: 1,
+                name: 'Nuevo nombre de servicio',
+                price: 75000,
+            },
         });
 
-        expect(result.success).toBe(true);
+        expect(next).toHaveBeenCalledWith();
     });
 
-    it('should reject UpdateServiceDTO with workerId (read-only field)', () => {
-        const result = UpdateServiceDTO.safeParse({
-            id: 1,
-            name: 'Nuevo nombre',
-            workerId: 2, // Should not be allowed
+    it('should reject update payloads with workerId', async () => {
+        const { next } = await runMiddleware(serviceValidator.update, {
+            body: {
+                id: 1,
+                name: 'Nuevo nombre',
+                workerId: 2,
+            },
         });
 
-        expect(result.success).toBe(false);
+        expect(next).toHaveBeenCalledWith(expect.any(ValidationDTOError));
     });
 
-    it('should validate ServiceFiltersSchema with workerId', () => {
-        const result = ServiceFiltersSchema.safeParse({
-            workerId: 1,
+    it('should accept workerId query filters', async () => {
+        const { next, req } = await runMiddleware(serviceValidator.filters, {
+            query: {
+                workerId: 1,
+            },
         });
 
-        expect(result.success).toBe(true);
+        expect(req.query.workerId).toBe(1);
+        expect(next).toHaveBeenCalledWith();
     });
 
-    it('should validate ServiceFiltersSchema with coerced string workerId', () => {
-        const result = ServiceFiltersSchema.safeParse({
-            workerId: '5',
+    it('should coerce string workerId in query filters', async () => {
+        const { next, req } = await runMiddleware(serviceValidator.filters, {
+            query: {
+                workerId: '5',
+            },
         });
 
-        expect(result.success).toBe(true);
+        expect(req.query.workerId).toBe(5);
+        expect(next).toHaveBeenCalledWith();
     });
 
-    it('should validate ServiceFiltersSchema with no filters', () => {
-        const result = ServiceFiltersSchema.safeParse({});
-
-        expect(result.success).toBe(true);
-    });
-
-    it('should reject CreateServiceDTO with invalid name characters', () => {
-        const result = CreateServiceDTO.safeParse({
-            workerId: 1,
-            name: 'Corte@especial', // Invalid characters
-            description: 'Servicio de corte de cabello profesional',
-            color: '#FF5733',
-            price: 50000,
-            duration: 30,
+    it('should accept empty query filters', async () => {
+        const { next } = await runMiddleware(serviceValidator.filters, {
+            query: {},
         });
 
-        expect(result.success).toBe(false);
+        expect(next).toHaveBeenCalledWith();
     });
 
-    it('should validate CreateServiceDTO with 3-character hex color', () => {
-        const result = CreateServiceDTO.safeParse({
-            workerId: 1,
-            name: 'Servicio',
-            description: 'Servicio de corte de cabello profesional',
-            color: '#FFF', // Valid 3-character hex
-            price: 50000,
-            duration: 30,
+    it('should reject create payloads with invalid name characters', async () => {
+        const { next } = await runMiddleware(serviceValidator.create, {
+            body: {
+                workerId: 1,
+                name: 'Corte@especial',
+                description: 'Servicio de corte de cabello profesional',
+                color: '#FF5733',
+                price: 50000,
+                duration: 30,
+            },
         });
 
-        expect(result.success).toBe(true);
+        expect(next).toHaveBeenCalledWith(expect.any(ValidationDTOError));
+    });
+
+    it('should accept a 3 character hex color', async () => {
+        const { next } = await runMiddleware(serviceValidator.create, {
+            body: {
+                workerId: 1,
+                name: 'Servicio',
+                description: 'Servicio de corte de cabello profesional',
+                color: '#FFF',
+                price: 50000,
+                duration: 30,
+            },
+        });
+
+        expect(next).toHaveBeenCalledWith();
     });
 });
