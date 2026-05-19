@@ -1,0 +1,77 @@
+<div class="tp-card" (click)="$event.stopPropagation()">
+
+  <div class="tp-header">
+    <span class="material-symbols-outlined tp-header__icon" translate="no">schedule</span>
+    <div class="tp-header__text">
+      <span class="tp-header__label">{{ label }}</span>
+      <span class="tp-header__display">{{ displayValue }}</span>
+    </div>
+  </div>
+
+  <div class="tp-body">
+
+    <div class="tp-col">
+      <span class="tp-col__label">Hora</span>
+      <div class="tp-grid tp-grid--hours">
+        <button
+          *ngFor="let h of HOURS"
+          type="button"
+          class="tp-cell"
+          [class.tp-cell--active]="hour === h"
+          (click)="pickHour(h)">
+          {{ h }}
+        </button>
+      </div>
+    </div>
+
+    <div class="tp-vdiv"></div>
+
+    <div class="tp-col">
+      <span class="tp-col__label">Min</span>
+      <div class="tp-grid tp-grid--minutes">
+        <button
+          *ngFor="let m of MINUTES"
+          type="button"
+          class="tp-cell"
+          [class.tp-cell--active]="minute === m"
+          (click)="pickMinute(m)">
+          {{ m | number:'2.0' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="tp-vdiv"></div>
+
+    <div class="tp-col tp-col--period">
+      <span class="tp-col__label">Período</span>
+      <div class="tp-period">
+        <button
+          type="button"
+          class="tp-period__btn"
+          [class.tp-period__btn--active]="period === 'AM'"
+          (click)="pickPeriod('AM')">
+          AM
+        </button>
+        <button
+          type="button"
+          class="tp-period__btn"
+          [class.tp-period__btn--active]="period === 'PM'"
+          (click)="pickPeriod('PM')">
+          PM
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="tp-footer">
+    <button type="button" class="tp-footer__cancel" (click)="onCancel()">
+      Cancelar
+    </button>
+    <button type="button" class="tp-footer__confirm" (click)="onConfirm()">
+      <span class="material-symbols-outlined" translate="no">check</span>
+      Listo
+    </button>
+  </div>
+
+</div>

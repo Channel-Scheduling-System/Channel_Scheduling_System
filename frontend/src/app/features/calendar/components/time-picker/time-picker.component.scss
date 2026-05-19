@@ -1,0 +1,302 @@
+
+$wine:      #8e1b2e;
+$wine-deep: #4a0010;
+$pink-bar:  rgba(244, 184, 200, 0.88);
+$ink:       #1a0005;
+$t:         0.15s ease;
+
+
+@keyframes tpCardIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+@keyframes tpCellPop {
+  0%   { transform: scale(1);    }
+  45%  { transform: scale(1.18); }
+  100% { transform: scale(1);    }
+}
+
+
+:host {
+  display: block;
+}
+
+.tp-card {
+  width: 19.5rem;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid rgba($wine, 0.14);
+  box-shadow:
+    0 0 0 1px rgba($wine, 0.08),
+    0 8px 32px rgba($ink, 0.14),
+    0 20px 60px rgba($ink, 0.1),
+    0 0 24px rgba($wine, 0.08);
+  animation: tpCardIn 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+
+.tp-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.15rem 0.95rem;
+  background: linear-gradient(135deg, $wine-deep 0%, $wine 55%, darken($wine, 5%) 100%);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 15%; right: 15%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, $pink-bar, transparent);
+    pointer-events: none;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 70% 50%, rgba(#f4b8c8, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+}
+
+.tp-header__icon {
+  font-size: 1.25rem !important;
+  line-height: 1     !important;
+  color: rgba(#f4b8c8, 0.75);
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.tp-header__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  z-index: 1;
+}
+
+.tp-header__label {
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(#f4b8c8, 0.6);
+}
+
+.tp-header__display {
+  font-family: 'Manrope', monospace;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  text-shadow: 0 0 22px rgba(#f4b8c8, 0.35);
+  line-height: 1;
+}
+
+
+.tp-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  padding: 0.9rem 0.75rem 0.65rem;
+  background: #fdfbfc;
+}
+
+.tp-vdiv {
+  width: 1px;
+  align-self: stretch;
+  margin: 0 0.45rem;
+  background: linear-gradient(to bottom,
+    transparent,
+    rgba($wine, 0.12) 20%,
+    rgba($wine, 0.12) 80%,
+    transparent);
+}
+
+
+.tp-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+
+  &--period {
+    flex: 0 0 auto;
+    min-width: 3.4rem;
+  }
+}
+
+.tp-col__label {
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.54rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: rgba($wine, 0.4);
+  text-align: center;
+}
+
+
+.tp-grid {
+  display: grid;
+  gap: 0.22rem;
+
+  &--hours   { grid-template-columns: repeat(3, 1fr); }
+  &--minutes { grid-template-columns: repeat(2, 1fr); }
+}
+
+.tp-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.8rem;
+  border-radius: 0.42rem;
+  border: 1px solid transparent;
+  background: transparent;
+  font-family: 'Manrope', monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: rgba($ink, 0.55);
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition:
+    background $t,
+    border-color $t,
+    color $t,
+    box-shadow $t,
+    transform 0.14s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  &:hover:not(&--active) {
+    background:   rgba($wine, 0.07);
+    border-color: rgba($wine, 0.16);
+    color:        $wine;
+    transform:    scale(1.06);
+  }
+
+  &--active {
+    background:   $wine;
+    border-color: darken($wine, 8%);
+    color:        #ffffff;
+    font-weight:  800;
+    box-shadow:   0 2px 10px rgba($wine, 0.38);
+    animation:    tpCellPop 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+}
+
+
+.tp-period {
+  display: flex;
+  flex-direction: column;
+  gap: 0.38rem;
+  margin-top: 0.08rem;
+}
+
+.tp-period__btn {
+  height: 2.15rem;
+  width: 100%;
+  border-radius: 0.52rem;
+  border: 1.5px solid rgba($wine, 0.18);
+  background: transparent;
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: rgba($ink, 0.38);
+  cursor: pointer;
+  transition:
+    background $t,
+    border-color $t,
+    color $t,
+    box-shadow $t,
+    transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  &:hover:not(&--active) {
+    background:   rgba($wine, 0.07);
+    border-color: rgba($wine, 0.35);
+    color:        $wine;
+    transform:    scale(1.04);
+  }
+
+  &--active {
+    background:   $wine-deep;
+    border-color: $wine;
+    color:        #ffffff;
+    font-weight:  900;
+    box-shadow:   0 2px 12px rgba($wine, 0.35);
+  }
+}
+
+
+.tp-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem 0.75rem;
+  background: #fdfbfc;
+  border-top: 1px solid rgba($wine, 0.07);
+}
+
+.tp-footer__cancel {
+  flex: 0 0 auto;
+  padding: 0.45rem 0.85rem;
+  border: none;
+  background: transparent;
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: rgba($ink, 0.32);
+  cursor: pointer;
+  border-radius: 0.42rem;
+  transition: color $t, background $t;
+
+  &:hover {
+    color:      $wine;
+    background: rgba($wine, 0.06);
+  }
+}
+
+.tp-footer__confirm {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.55rem;
+  border: none;
+  background: linear-gradient(135deg, $wine 0%, darken($wine, 6%) 100%);
+  color: #ffffff;
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 3px 14px rgba($wine, 0.32);
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  .material-symbols-outlined {
+    font-size: 0.9rem !important;
+    line-height: 1    !important;
+  }
+
+  &:hover {
+    background: linear-gradient(135deg, darken($wine, 4%) 0%, $wine-deep 100%);
+    box-shadow: 0 5px 20px rgba($wine, 0.48);
+    transform:  translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.97);
+  }
+}
