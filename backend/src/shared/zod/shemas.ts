@@ -60,8 +60,12 @@ export const validateDateRange = (data: {
 // ============================================================
 // Función zod para validar un valor que puede ser un solo elemento o un array de elementos
 export const oneOrMany = <T extends z.ZodTypeAny>(schema: T) =>
-    z.preprocess(
-        (val) =>
-            val === undefined ? undefined : Array.isArray(val) ? val : [val],
-        z.array(schema).optional(),
-    );
+    z.preprocess((val) => {
+        if (val === undefined) return undefined;
+        const values = Array.isArray(val) ? val : [val];
+        return values.flatMap((item) =>
+            typeof item === 'string'
+                ? item.split(',').map((v) => v.trim())
+                : item,
+        );
+    }, z.array(schema).optional());

@@ -1,10 +1,10 @@
-import { dateTimeToIsoTime } from '../../shared/utils/iso-to-datetime.util.js';
-import { dayOfWeekToNumber } from './availability.mapper.js';
+import { dateTimeToIsoTime } from '../../../shared/utils/iso-to-datetime.util.js';
+import { dayOfWeekToNumber } from '../availability.mapper.js';
 import {
     BlockedTime,
     CreateBlockedTimeData,
     CreateRecurringTimeOffInput,
-} from './availability.types.js';
+} from '../availability.types.js';
 
 /**
  * Valida solapamientos entre BlockedTimes
@@ -81,8 +81,8 @@ export class BlockedTimeOverlapValidator {
 
         const { startTime: exiStart, endTime: exiEnd } =
             this.getBlockTimeRange(exiBlock);
-        const inputStart = dateTimeToIsoTime(input.startTime) || '00:00';
-        const inputEnd = dateTimeToIsoTime(input.endTime) || '23:59';
+        const inputStart = dateTimeToIsoTime(input.startTime);
+        const inputEnd = dateTimeToIsoTime(input.endTime);
 
         return this.checkHoursOverlap(inputStart, inputEnd, exiStart, exiEnd);
     }

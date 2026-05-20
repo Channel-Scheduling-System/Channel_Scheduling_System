@@ -1,4 +1,6 @@
 import {
+    dateTimeToIsoDate,
+    dateTimeToIsoTime,
     isoDateToDateTime,
     isoTimeToDateTime,
 } from '../../shared/utils/iso-to-datetime.util.js';
@@ -10,7 +12,16 @@ import {
     CreateDayOffInput,
     CreateTimeOffInput,
     CreatePeriodOffInput,
+    WorkingHourResponse,
+    WorkingHour,
+    BlockedTime,
+    DayOffResponse,
+    PeriodOffResponse,
+    RecurringTimeOffResponse,
+    SpecificTimeOffResponse,
+    AvailabilityWorkerFilter,
 } from './availability.types.js';
+import { availabilityWorkerFilters } from './availability.validator.js';
 
 // Mapeo entre strings (API) y números (BD)
 export const dayOfWeekToNumber: Record<dayOfWeek, number> = {
@@ -100,5 +111,79 @@ export function mapToCreatePeriodOffData(
         startDate: isoDateToDateTime(input.startDate),
         endDate: isoDateToDateTime(input.endDate),
         reason: input.reason,
+    };
+}
+
+export function mapToWorkingHourResponse(wh: WorkingHour): WorkingHourResponse {
+    return {
+        dayOfWeek: numberToDayOfWeek[wh.dayOfWeek],
+        startTime: dateTimeToIsoTime(wh.startTime.toISOString()),
+        endTime: dateTimeToIsoTime(wh.endTime.toISOString()),
+    };
+}
+
+export function mapToRecurringTimeOffResponse(
+    block: BlockedTime,
+): RecurringTimeOffResponse {
+    return {
+        id: block.id,
+        dayOfWeek: block.dayOfWeek
+            ? numberToDayOfWeek[block.dayOfWeek]
+            : dayOfWeek.MONDAY,
+        startTime: block.startTime
+            ? dateTimeToIsoTime(block.startTime.toISOString())
+            : '00:00:00',
+        endTime: block.endTime
+            ? dateTimeToIsoTime(block.endTime.toISOString())
+            : '00:00:00',
+        reason: block.reason || undefined,
+    };
+}
+
+export function mapToSpecificTimeOffResponse(
+    block: BlockedTime,
+): SpecificTimeOffResponse {
+    return {
+        id: block.id,
+        date: dateTimeToIsoDate(block.startDate.toISOString()),
+        startTime: block.startTime
+            ? dateTimeToIsoTime(block.startTime.toISOString())
+            : '00:00:00',
+        endTime: block.endTime
+            ? dateTimeToIsoTime(block.endTime.toISOString())
+            : '00:00:00',
+        reason: block.reason || undefined,
+    };
+}
+
+export function mapToDaysOffResponse(block: BlockedTime): DayOffResponse {
+    return {
+        id: block.id,
+        date: dateTimeToIsoDate(block.startDate.toISOString()),
+        reason: block.reason || undefined,
+    };
+}
+
+export function mapToPeriodOffResponse(block: BlockedTime): PeriodOffResponse {
+    return {
+        id: block.id,
+        startDate: dateTimeToIsoDate(block.startDate.toISOString()),
+        endDate: block.endDate
+            ? dateTimeToIsoDate(block.endDate.toISOString())
+            : '',
+        reason: block.reason || undefined,
+    };
+}
+
+export function mapToAvailabilityWorkerFilter(
+    workerId: number,
+    filters: Partial<Omit<AvailabilityWorkerFilter, 'workerId'>> = {},
+): AvailabilityWorkerFilter {
+    const parseFilters = availabilityWorkerFilters.parse(filters);
+    return {
+        workerId,
+        include: parseFilters.include,
+        view: parseFilters.view,
+        date: parseFilters.date,
     };
 }

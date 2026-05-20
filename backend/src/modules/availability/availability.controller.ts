@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { IAvailabilityService } from './availability.service.js';
 import { extractRequestContextWithId } from '../../shared/utils/request-parser.util.js';
+import { mapToAvailabilityWorkerFilter } from './availability.mapper.js';
 
 export class AvailabilityController {
     constructor(private readonly availabilityService: IAvailabilityService) {}
@@ -27,7 +28,10 @@ export class AvailabilityController {
     addTimeOff = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const workerId = req.params.id as unknown as number;
-            await this.availabilityService.addTimeOff({ workerId, ...req.body });
+            await this.availabilityService.addTimeOff({
+                workerId,
+                ...req.body,
+            });
             return res.status(201).json({
                 message: 'Tiempo bloqueado correctamente',
             });
@@ -57,6 +61,27 @@ export class AvailabilityController {
             });
             return res.status(201).json({
                 message: 'Periodo bloqueado correctamente',
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    getFullAvailability = async (
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ) => {
+        try {
+            const { id, authId, authRole } = extractRequestContextWithId(req);
+            const filters = mapToAvailabilityWorkerFilter(id, req.query);
+            const data = await this.availabilityService.getFullAvailability(
+                filters,
+                { id: authId, role: authRole },
+            );
+            return res.status(200).json({
+                message: 'Disponibilidad recuperada correctamente',
+                data,
             });
         } catch (error) {
             next(error);

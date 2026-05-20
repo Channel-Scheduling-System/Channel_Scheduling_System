@@ -9,6 +9,12 @@ export enum dayOfWeek {
 }
 
 export type TimeInterval = 'HOUR' | 'DAY' | 'PERIOD';
+export type ViewType = 'DAY' | 'WEEK' | 'MONTH';
+export type AvailabilityType =
+    | 'workingHours'
+    | 'timesOff'
+    | 'daysOff'
+    | 'periodsOff';
 
 // ============================================================
 // * ENTITIES
@@ -17,8 +23,8 @@ export interface WorkingHour {
     id: number;
     workerId: number;
     dayOfWeek: number;
-    startTime: Temporal.PlainTime;
-    endTime: Temporal.PlainTime;
+    startTime: Date;
+    endTime: Date;
 }
 
 export interface BlockedTime {
@@ -112,10 +118,79 @@ export interface WorkingHourResponse {
     endTime: string; // ISO time string
 }
 
+export interface RecurringTimeOffResponse {
+    id: number;
+    dayOfWeek: dayOfWeek;
+    startTime: string; // ISO time string
+    endTime: string; // ISO time string
+    reason?: string;
+}
+
+export interface SpecificTimeOffResponse {
+    id: number;
+    date: string; // ISO date string
+    startTime: string; // ISO time string
+    endTime: string; // ISO time string
+    reason?: string;
+}
+
+export interface DayOffResponse {
+    id: number;
+    date: string; // ISO date string
+    reason?: string;
+}
+
+export interface PeriodOffResponse {
+    id: number;
+    startDate: string; // ISO date string
+    endDate: string; // ISO date string
+    reason?: string;
+}
+
+// Response for workers
+// Note: Only includes fields matching the 'include' filter from AvailabilityWorkerFilter
+export interface AvailabilityWorkerResponse {
+    workingHours?: WorkingHourResponse[];
+    timeOffs?: {
+        recurring: RecurringTimeOffResponse[];
+        specific: SpecificTimeOffResponse[];
+    };
+    dayOffs?: DayOffResponse[];
+    periodOffs?: PeriodOffResponse[];
+}
+
 // ============================================================
 // * FILTERS
 // ============================================================
+export interface DateRange {
+    startDate: string; // ISO date string
+    endDate: string; // ISO date string
+}
+
+export interface WorkingHourFilter {
+    workerId: number;
+    dayOfWeek?: number;
+}
+
 export interface BlockedTimeFilter {
     workerId: number;
     type?: TimeInterval;
+    startDate?: string; // ISO date string
+    endDate?: string; // ISO date string
+}
+
+export interface HourBlockedTimeFilter {
+    workerId: number;
+    type?: 'RECURRING' | 'SPECIFIC';
+    dayOfWeek?: number;
+    startDate?: string; // ISO date string
+    endDate?: string; // ISO date string
+}
+
+// Filters for worker availability query
+export interface AvailabilityWorkerFilter {
+    workerId: number;
+    include?: AvailabilityType[];
+    view?: ViewType;
+    date?: string; // ISO date string
 }
