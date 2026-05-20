@@ -26,12 +26,9 @@ export function dateTimeToIsoDate(dateTime: string): string {
  * Ejemplo: "1900-01-01T14:30:00Z" → "14:30"
  * Extrae directamente del string sin Date object para evitar problemas de zona horaria.
  */
-export function dateTimeToIsoTime(
-    dateTime: string | null | undefined,
-): string | null {
-    if (!dateTime) return null;
+export function dateTimeToIsoTime(dateTime: string | null | undefined): string {
+    if (!dateTime) return '00:00';
     if (/^\d{2}:\d{2}$/.test(dateTime)) return dateTime;
     const match = dateTime.match(/T(\d{2}):(\d{2})/);
-    if (match) return `${match[1]}:${match[2]}`;
-    return null;
+    return match ? `${match[1]}:${match[2]}` : '00:00';
 }

@@ -1,6 +1,7 @@
 import {
     validateBodyDTO,
     validateParamsDTO,
+    validateQueryDTO,
 } from '../../shared/middlewares/validateDTO.middleware.js';
 import {
     id,
@@ -10,6 +11,7 @@ import {
     validateTimeRange,
     validateDateRange,
     paramId,
+    oneOrMany,
 } from '../../shared/zod/shemas.js';
 import { dayOfWeek } from './availability.types.js';
 import { z } from 'zod';
@@ -19,7 +21,14 @@ import { z } from 'zod';
 // ============================================================
 export const dayOfWeekEnum = z.enum(dayOfWeek);
 
-export const timeIntervalEnum = z.enum(['HOUR', 'DAY', 'PERIOD']);
+export const viewTypeEnum = z.enum(['DAY', 'WEEK', 'MONTH']);
+
+export const availabilityTypeEnum = z.enum([
+    'workingHours',
+    'timesOff',
+    'daysOff',
+    'periodsOff',
+]);
 
 export const workingHourSchema = z.object({
     id: id,
@@ -94,7 +103,11 @@ export const createPeriodOffInput = z
 // ============================================================
 // * FILTER SCHEMAS
 // ============================================================
-
+export const availabilityWorkerFilters = z.object({
+    include: oneOrMany(availabilityTypeEnum),
+    view: viewTypeEnum.optional(),
+    date: dateSchema.optional(),
+});
 
 // ============================================================
 // * CENTRALIZED VALIDATORS
@@ -105,4 +118,5 @@ export const availabilityValidator = {
     createTimeOff: validateBodyDTO(createTimeOffInput),
     createDayOff: validateBodyDTO(createDayOffInput),
     createPeriodOff: validateBodyDTO(createPeriodOffInput),
+    workerFilters: validateQueryDTO(availabilityWorkerFilters),
 };
