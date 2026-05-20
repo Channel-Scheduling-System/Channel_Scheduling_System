@@ -77,7 +77,7 @@ export class WorkingHoursModalComponent implements OnInit, OnDestroy {
 
     private buildRows(): void {
         const hourMap = new Map(
-            (this.data.availabilityData?.workingHours ?? []).map(wh => [wh.weekday, wh]),
+            (this.data.availabilityData?.workingHours ?? []).map(wh => [wh.dayOfWeek, wh]),
         );
 
         this.dayRows = WEEKDAY_ORDER.map(weekday => {
@@ -86,7 +86,7 @@ export class WorkingHoursModalComponent implements OnInit, OnDestroy {
                 weekday,
                 label: WEEKDAY_LABELS[weekday],
                 enabled: !!existing,
-                group: this.createDayFormGroup(existing?.start, existing?.end)
+                group: this.createDayFormGroup(existing?.startTime, existing?.endTime)
             };
         });
     }
