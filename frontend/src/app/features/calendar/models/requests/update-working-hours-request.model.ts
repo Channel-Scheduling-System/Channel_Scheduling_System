@@ -1,14 +1,6 @@
 import { z } from 'zod';
-export const DayOfWeek = z.enum([
-  'MONDAY',
-  'TUESDAY',
-  'WEDNESDAY',
-  'THURSDAY',
-  'FRIDAY',
-  'SATURDAY',
-  'SUNDAY',
-]);
-export type DayOfWeek = z.infer<typeof DayOfWeek>;
+import { DayOfWeek } from '../dates.model';
+
 export const workingHourSchema = z
   .object({
     dayOfWeek: DayOfWeek,

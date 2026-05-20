@@ -1,9 +1,7 @@
 import { z } from 'zod';
 import { SuccessResponseWithDataSchema } from '../../../../shared/models/api/success-response.schema';
+import { DayOfWeek } from '../dates.model';
 
-const Weekday = z.enum([
-  'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'
-]);
 
 const TimeString = z
   .string()
@@ -14,9 +12,9 @@ const DateString = z
   .regex(/^\d{4}-\d{2}-\d{2}$/, 'Debe tener formato YYYY-MM-DD');
 
 export const workingHourSchema = z.object({
-  weekday: Weekday,
-  start: TimeString,
-  end: TimeString,
+  dayOfWeek: DayOfWeek,
+  startTime: TimeString,
+  endTime: TimeString,
 });
 
 export const dayOffSchema = z.object({
@@ -27,17 +25,17 @@ export const dayOffSchema = z.object({
 
 export const recurringTimeOffSchema = z.object({
   id: z.number().int().positive(),
-  weekday: Weekday,
-  start: TimeString,
-  end: TimeString,
+  dayOfWeek: DayOfWeek,
+  startTime: TimeString,
+  endTime: TimeString,
   reason: z.string().optional(),
 });
 
 export const specificTimeOffSchema = z.object({
   id: z.number().int().positive(),
   date: DateString,
-  start: TimeString,
-  end: TimeString,
+  startTime: TimeString,
+  endTime: TimeString,
   reason: z.string().optional(),
 });
 
@@ -55,8 +53,8 @@ export const periodOffSchema = z.object({
 
 const availabilityConfigDataSchema = z.object({
   workingHours: z.array(workingHourSchema).optional(),
-  daysOff: z.array(dayOffSchema).optional(),
-  timesOff: timeOffSchema.optional(),
+  daysOffs: z.array(dayOffSchema).optional(),
+  timeOffs: timeOffSchema.optional(),
   periodsOff: z.array(periodOffSchema).optional(),
 });
 
@@ -72,4 +70,3 @@ export type RecurringTimeOff = z.infer<typeof recurringTimeOffSchema>;
 export type SpecificTimeOff = z.infer<typeof specificTimeOffSchema>;
 export type TimesOff = z.infer<typeof timeOffSchema>;
 export type PeriodOff = z.infer<typeof periodOffSchema>;
-export type Weekday = z.infer<typeof Weekday>;
