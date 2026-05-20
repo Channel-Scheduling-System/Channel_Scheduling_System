@@ -209,10 +209,10 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
     const incoming = response.data.workingHours ?? [];
     if (incoming.length > 0) {
       const merged = new Map<string, WorkingHour>(
-        this.allWorkingHours.map(wh => [wh.weekday, wh]),
+        this.allWorkingHours.map(wh => [wh.dayOfWeek, wh]),
       );
       for (const wh of incoming) {
-        merged.set(wh.weekday, wh);
+        merged.set(wh.dayOfWeek, wh);
       }
       this.allWorkingHours = [...merged.values()];
     }
@@ -343,13 +343,13 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
     const weekday = DAY_INDEX_TO_WEEKDAY[getDay(day)];
 
     const workingHours = this.allWorkingHours
-      .filter(wh => wh.weekday !== weekday)
-      .map(wh => ({ dayOfWeek: wh.weekday as any, startTime: wh.start, endTime: wh.end }));
+      .filter(wh => wh.dayOfWeek !== weekday)
+      .map(wh => ({ dayOfWeek: wh.dayOfWeek as any, startTime: wh.startTime, endTime: wh.endTime }));
 
     this.availabilityService.updateWorkingHours(workerId, { workingHours }).subscribe({
       next: (r) => {
         // Actualiza el cache local de inmediato, sin esperar al reload
-        this.allWorkingHours = this.allWorkingHours.filter(wh => wh.weekday !== weekday);
+        this.allWorkingHours = this.allWorkingHours.filter(wh => wh.dayOfWeek !== weekday);
         this.messageService.showMessage(r.message, AlertType.SUCCESS);
         this.loadAvailabilityConfig();
       },
@@ -363,18 +363,18 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
     if (!workerId) return;
 
     const weekday = DAY_INDEX_TO_WEEKDAY[getDay(day)];
-    const newEntry: WorkingHour = { weekday: weekday as any, start: '08:00', end: '18:00' };
+    const newEntry: WorkingHour = { dayOfWeek: weekday as any, startTime: '08:00', endTime: '18:00' };
 
     // Filtra primero por si acaso ya existía ese día (evita duplicados)
     const workingHours = [
-      ...this.allWorkingHours.filter(wh => wh.weekday !== weekday),
+      ...this.allWorkingHours.filter(wh => wh.dayOfWeek !== weekday),
       newEntry,
-    ].map(wh => ({ dayOfWeek: wh.weekday as any, startTime: wh.start, endTime: wh.end }));
+    ].map(wh => ({ dayOfWeek: wh.dayOfWeek as any, startTime: wh.startTime, endTime: wh.endTime }));
 
     this.availabilityService.updateWorkingHours(workerId, { workingHours }).subscribe({
       next: (r) => {
         this.allWorkingHours = [
-          ...this.allWorkingHours.filter(wh => wh.weekday !== weekday),
+          ...this.allWorkingHours.filter(wh => wh.dayOfWeek !== weekday),
           newEntry,
         ];
         this.messageService.showMessage(r.message, AlertType.SUCCESS);
@@ -528,13 +528,13 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
       `${String(Math.floor(newMin / 60)).padStart(2, '0')}:${String(newMin % 60).padStart(2, '0')}`;
 
     // Verifica que el día exista en el cache completo
-    if (!this.allWorkingHours.some(wh => wh.weekday === weekday)) return null;
+    if (!this.allWorkingHours.some(wh => wh.dayOfWeek === weekday)) return null;
 
     // Mapea TODOS los días, modificando solo el objetivo
     const workingHours = this.allWorkingHours.map(wh => ({
-      dayOfWeek: wh.weekday as any,
-      startTime: wh.weekday === weekday && payload.type === 'start' ? newTimeStr : wh.start,
-      endTime: wh.weekday === weekday && payload.type === 'end' ? newTimeStr : wh.end,
+      dayOfWeek: wh.dayOfWeek as any,
+      startTime: wh.dayOfWeek === weekday && payload.type === 'start' ? newTimeStr : wh.startTime,
+      endTime: wh.dayOfWeek === weekday && payload.type === 'end' ? newTimeStr : wh.endTime,
     }));
 
     return { workingHours };

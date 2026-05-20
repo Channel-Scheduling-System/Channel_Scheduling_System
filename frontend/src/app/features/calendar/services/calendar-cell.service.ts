@@ -53,9 +53,9 @@ export class CalendarCellService {
     this.resolvedBlocksCache.clear();
 
     for (const wh of workingHours) {
-      this.workingHoursMap.set(wh.weekday, {
-        startMin: timeStringToMinutes(wh.start),
-        endMin: timeStringToMinutes(wh.end),
+      this.workingHoursMap.set(wh.dayOfWeek, {
+        startMin: timeStringToMinutes(wh.startTime),
+        endMin: timeStringToMinutes(wh.endTime),
       });
     }
   }
@@ -76,7 +76,7 @@ export class CalendarCellService {
   }
 
   public getDayOffReason(day: Date): string | null {
-    if (!this.availabilityData?.daysOff?.length) return null;
+    if (!this.availabilityData?.daysOffs?.length) return null;
     const entry = this.findDayOffEntry(day);
     return entry ? (entry.reason?.trim() || DEFAULT_REASONS.dayoff) : null;
   }
@@ -283,15 +283,15 @@ export class CalendarCellService {
 
   private tooltipForTimeoff(id: number): TooltipData | null {
     const block = [
-      ...(this.availabilityData?.timesOff?.recurring ?? []),
-      ...(this.availabilityData?.timesOff?.specific ?? []),
+      ...(this.availabilityData?.timeOffs?.recurring ?? []),
+      ...(this.availabilityData?.timeOffs?.specific ?? []),
     ].find(t => t.id === id);
     if (!block) return null;
     return {
       type: 'timeoff',
       reason: block.reason?.trim() || DEFAULT_REASONS.timeoff,
-      startTime: block.start,
-      endTime: block.end,
+      startTime: block.startTime,
+      endTime: block.endTime,
     };
   }
 
@@ -307,7 +307,7 @@ export class CalendarCellService {
   }
 
   private tooltipForDayoff(id: number): TooltipData | null {
-    const entry = this.availabilityData?.daysOff?.find(d => d.id === id);
+    const entry = this.availabilityData?.daysOffs?.find(d => d.id === id);
     if (!entry) return null;
     return {
       type: 'dayoff',
@@ -327,18 +327,18 @@ export class CalendarCellService {
 
   private findDayOffEntry(day: Date) {
     const dateStr = format(day, 'yyyy-MM-dd');
-    return this.availabilityData?.daysOff?.find(d => d.date === dateStr);
+    return this.availabilityData?.daysOffs?.find(d => d.date === dateStr);
   }
 
   private collectTimeBlockEntries(day: Date): TimeBlockEntry[] {
-    const timesOff = this.availabilityData?.timesOff;
+    const timesOff = this.availabilityData?.timeOffs;
     if (!timesOff) return [];
     const weekday = DAY_INDEX_TO_WEEKDAY[getDay(day)];
     const dateStr = format(day, 'yyyy-MM-dd');
     return [
-      ...(timesOff.recurring ?? []).filter(t => t.weekday === weekday),
+      ...(timesOff.recurring ?? []).filter(t => t.dayOfWeek === weekday),
       ...(timesOff.specific ?? []).filter(t => t.date === dateStr),
-    ].map(t => ({ s: timeStringToMinutes(t.start), e: timeStringToMinutes(t.end), reason: t.reason }));
+    ].map(t => ({ s: timeStringToMinutes(t.startTime), e: timeStringToMinutes(t.endTime), reason: t.reason }));
   }
 
   private getMatchingTimeBlockEntries(day: Date, slot: TimeSlot): TimeBlockEntry[] {
@@ -352,16 +352,16 @@ export class CalendarCellService {
     if (this.resolvedBlocksCache.has(dayKey)) return this.resolvedBlocksCache.get(dayKey)!;
 
     const weekday = DAY_INDEX_TO_WEEKDAY[getDay(day)];
-    const timesOff = this.availabilityData?.timesOff;
+    const timesOff = this.availabilityData?.timeOffs;
     const range = this.workingHoursMap.get(weekday);
 
     const specifics = (timesOff?.specific ?? [])
       .filter(t => t.date === dayKey)
-      .map(t => ({ id: t.id, startMin: timeStringToMinutes(t.start), endMin: timeStringToMinutes(t.end), reason: t.reason, kind: 'specific' as const }));
+      .map(t => ({ id: t.id, startMin: timeStringToMinutes(t.startTime), endMin: timeStringToMinutes(t.endTime), reason: t.reason, kind: 'specific' as const }));
 
     const recurrings = (timesOff?.recurring ?? [])
-      .filter(t => t.weekday === weekday)
-      .map(t => ({ id: t.id, startMin: timeStringToMinutes(t.start), endMin: timeStringToMinutes(t.end), reason: t.reason, kind: 'recurring' as const }));
+      .filter(t => t.dayOfWeek === weekday)
+      .map(t => ({ id: t.id, startMin: timeStringToMinutes(t.startTime), endMin: timeStringToMinutes(t.endTime), reason: t.reason, kind: 'recurring' as const }));
 
     const result = this.adapter.resolveTimeBlocks(
       specifics,
