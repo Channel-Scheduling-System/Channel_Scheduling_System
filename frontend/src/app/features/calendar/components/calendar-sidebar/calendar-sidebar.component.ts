@@ -12,7 +12,7 @@ export class CalendarSidebarComponent {
 
   @Output() public openWorkingHoursConfig = new EventEmitter<void>();
   @Output() public openDayOffConfig = new EventEmitter<void>();
-  @Output() public openTimeBlockConfig = new EventEmitter<void>();
+  @Output() public openTimeOffConfig = new EventEmitter<void>();
   @Output() public openPeriodOffConfig = new EventEmitter<void>();
   @Output() public toggleDeleteMode = new EventEmitter<void>();
 
@@ -24,8 +24,8 @@ export class CalendarSidebarComponent {
     this.openDayOffConfig.emit();
   }
 
-  protected onOpenTimeBlockConfig(): void {
-    this.openTimeBlockConfig.emit();
+  protected onOpenTimeOffConfig(): void {
+    this.openTimeOffConfig.emit();
   }
 
   protected onOpenPeriodOffConfig(): void {
