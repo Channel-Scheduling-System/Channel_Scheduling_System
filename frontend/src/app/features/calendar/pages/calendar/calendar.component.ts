@@ -54,6 +54,9 @@ import { WorkingHoursModalComponent, WorkingHoursModalData } from '../../compone
 import { UpdateWorkingHoursRequest } from '../../models/requests/update-working-hours-request.model';
 import { UpdateWorkingHoursResponse } from '../../models/responses/update-working-hours-response.model';
 import { DAY_INDEX_TO_WEEKDAY } from '../../constants/availability.constants';
+import { TimeBlockModalComponent, TimeBlockModalData } from '../../components/time-block/time-block-modal.component';
+import { SetTimeBlockRequest } from '../../models/requests/set-time-off-request.model';
+import { SetTimeBlockResponse } from '../../models/responses/set-time-off-response.model';
 
 @Component({
   selector: 'app-calendar',
@@ -348,7 +351,7 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
 
     this.availabilityService.updateWorkingHours(workerId, { workingHours }).subscribe({
       next: (r) => {
-        // Actualiza el cache local de inmediato, sin esperar al reload
+
         this.allWorkingHours = this.allWorkingHours.filter(wh => wh.dayOfWeek !== weekday);
         this.messageService.showMessage(r.message, AlertType.SUCCESS);
         this.loadAvailabilityConfig();
@@ -365,7 +368,7 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
     const weekday = DAY_INDEX_TO_WEEKDAY[getDay(day)];
     const newEntry: WorkingHour = { dayOfWeek: weekday as any, startTime: '08:00', endTime: '18:00' };
 
-    // Filtra primero por si acaso ya existía ese día (evita duplicados)
+
     const workingHours = [
       ...this.allWorkingHours.filter(wh => wh.dayOfWeek !== weekday),
       newEntry,
@@ -485,7 +488,62 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
     this.loadAvailabilityConfig();
   }
   protected openDayOffConfig(day?: Date): void { }
-  protected openTimeOffConfig(context?: { day: Date; startSlot?: TimeSlot; endSlot?: TimeSlot }): void { }
+  protected openTimeOffConfig(
+    context?: { day: Date; startSlot?: TimeSlot; endSlot?: TimeSlot },
+  ): void {
+    const dialogData: TimeBlockModalData = {
+      day: context?.day,
+      startSlot: context?.startSlot,
+      endSlot: context?.endSlot,
+      onSubmit: (request: SetTimeBlockRequest) =>
+        this.onTimeBlockSubmit(request, dialogRef),
+    };
+
+    const dialogRef = this.dialog.open(TimeBlockModalComponent, {
+      width: 'auto',
+      maxWidth: '90vw',
+      panelClass: 'service-dialog-panel',
+      backdropClass: 'service-dialog-backdrop',
+      disableClose: false,
+      autoFocus: true,
+      scrollStrategy: this.overlay.scrollStrategies.block(),
+      data: dialogData,
+    });
+  }
+
+  private onTimeBlockSubmit(
+    request: SetTimeBlockRequest,
+    dialogRef?: MatDialogRef<TimeBlockModalComponent>,
+  ): void {
+    const workerId = this.sessionService.getSession()?.id;
+    if (!workerId) return;
+
+    this.availabilityService.setTimeBlock(workerId, request).subscribe({
+      next: (r) => this.handleTimeBlockSuccess(r, dialogRef),
+      error: (e: ErrorResponse) => this.handleTimeBlockError(e, dialogRef),
+    });
+  }
+
+  private handleTimeBlockSuccess(
+    response: SetTimeBlockResponse,
+    dialogRef?: MatDialogRef<TimeBlockModalComponent>,
+  ): void {
+    dialogRef?.componentInstance.setSubmitting(false);
+    dialogRef?.close();
+    this.messageService.showMessage(response.message, AlertType.SUCCESS);
+    this.loadAvailabilityConfig();
+  }
+
+  private handleTimeBlockError(
+    error: ErrorResponse,
+    dialogRef?: MatDialogRef<TimeBlockModalComponent>,
+  ): void {
+    dialogRef?.componentInstance.setSubmitting(false);
+    this.messageService.showMessage(
+      error.message ?? 'Error al crear el bloqueo',
+      AlertType.ERROR,
+    );
+  }
   protected openPeriodOffConfig(day?: Date): void { }
   protected toggleDeleteMode(): void { this.isDeleteMode = !this.isDeleteMode; }
   protected onSlotClick(day: Date, slot: TimeSlot): void { }
@@ -527,10 +585,10 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
     const newTimeStr =
       `${String(Math.floor(newMin / 60)).padStart(2, '0')}:${String(newMin % 60).padStart(2, '0')}`;
 
-    // Verifica que el día exista en el cache completo
+
     if (!this.allWorkingHours.some(wh => wh.dayOfWeek === weekday)) return null;
 
-    // Mapea TODOS los días, modificando solo el objetivo
+
     const workingHours = this.allWorkingHours.map(wh => ({
       dayOfWeek: wh.dayOfWeek as any,
       startTime: wh.dayOfWeek === weekday && payload.type === 'start' ? newTimeStr : wh.startTime,

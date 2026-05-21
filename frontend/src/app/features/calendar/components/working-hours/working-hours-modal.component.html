@@ -2,7 +2,6 @@
     <div class="wh-modal__inner">
         <div class="wh-modal__scroll">
 
-            <!-- ── Header ──────────────────────────────────────────────────────── -->
             <div class="wh-modal__header">
                 <div class="wh-modal__header-left">
                     <span class="material-symbols-outlined wh-modal__header-icon" translate="no">
@@ -20,7 +19,6 @@
 
             <div class="wh-modal__divider"></div>
 
-            <!-- ── Column labels ───────────────────────────────────────────────── -->
             <div class="wh-col-labels" aria-hidden="true">
                 <span class="wh-col-labels__day">Día</span>
                 <span class="wh-col-labels__start">Inicio</span>
@@ -28,22 +26,15 @@
                 <span class="wh-col-labels__toggle">Activo</span>
             </div>
 
-            <!-- ── Day rows ────────────────────────────────────────────────────── -->
             <div class="wh-modal__body">
                 <div class="wh-row" *ngFor="let row of dayRows; let i = index" [class.wh-row--active]="row.enabled">
 
-                    <!-- Day name -->
                     <span class="wh-row__label" [class.wh-row__label--active]="row.enabled">
                         {{ row.label }}
                     </span>
 
-                    <!--
-            Time fields — ALWAYS in the DOM.
-            Toggled via visibility/opacity/pointer-events so row height never changes.
-          -->
                     <div class="wh-row__fields" [class.wh-row__fields--hidden]="!row.enabled" [formGroup]="row.group">
 
-                        <!-- Start time -->
                         <div class="wh-row__field-col">
                             <div class="wh-row__input-wrap"
                                 [class.wh-row__input-wrap--error]="!!getTimeError(row, 'startTime')"
@@ -55,7 +46,7 @@
                                     [tabindex]="row.enabled ? 0 : -1">
                                 <input type="hidden" formControlName="startTime">
                             </div>
-                            <!-- Absolute-positioned error — does NOT affect row height -->
+                            
                             <span class="wh-row__field-error" *ngIf="getTimeError(row, 'startTime')">
                                 <span class="material-symbols-outlined" translate="no">error</span>
                                 {{ getTimeError(row, 'startTime') }}
@@ -64,7 +55,6 @@
 
                         <span class="wh-row__sep" aria-hidden="true">—</span>
 
-                        <!-- End time -->
                         <div class="wh-row__field-col">
                             <div class="wh-row__input-wrap" [class.wh-row__input-wrap--error]="
   !!getTimeError(row, 'endTime') || !!getCrossError(row)" style="cursor:pointer"
@@ -88,7 +78,6 @@
                         No disponible
                     </span>
 
-                    <!-- Toggle -->
                     <button class="wh-row__toggle" [class.wh-row__toggle--on]="row.enabled" type="button"
                         (click)="toggleDay(row)" [title]="row.enabled ? 'Quitar día' : 'Incluir día'"
                         [attr.aria-label]="(row.enabled ? 'Inhabilitar ' : 'Habilitar ') + row.label">
@@ -102,7 +91,6 @@
 
             <div class="wh-modal__divider"></div>
 
-            <!-- ── Footer ──────────────────────────────────────────────────────── -->
             <div class="wh-modal__footer">
                 <button class="wh-modal__cancel" type="button" (click)="onCancel()">
                     Cancelar

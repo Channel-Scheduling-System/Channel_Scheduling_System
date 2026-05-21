@@ -14,6 +14,7 @@ export const API_ENDPOINTS = {
   },
   CALENDAR: {
     UPDATE_WORKING_HOURS: (id: number) =>`${environment.apiUrl}/availability/${id}/working-hours`,
+    SET_TIME_OFF: (id: number) => `${environment.apiUrl}/availability/${id}/time-off`,
     AVAILABILITY_CONFIG: (id: number) => `${environment.apiUrl}/availability/${id}/config`,
   },
   SERVICES: {
