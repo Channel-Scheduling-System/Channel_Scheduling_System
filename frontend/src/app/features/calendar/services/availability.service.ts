@@ -10,6 +10,8 @@ import { HttpClient } from "@angular/common/http";
 import { IAvailabilityService } from "../interfaces/availability-service.interface";
 import { UpdateWorkingHoursRequest } from "../models/requests/update-working-hours-request.model";
 import { UpdateWorkingHoursResponse, UpdateWorkingHoursResponseSchema } from "../models/responses/update-working-hours-response.model";
+import { SetTimeBlockRequest } from "../models/requests/set-time-off-request.model";
+import { SetTimeBlockResponse, SetTimeBlockResponseSchema } from "../models/responses/set-time-off-response.model";
 
 @Injectable({ providedIn: 'root' })
 export class AvailabilityService implements IAvailabilityService {
@@ -18,12 +20,23 @@ export class AvailabilityService implements IAvailabilityService {
         private http: HttpClient,
         private responseHandler: ResponseHandler
     ) { }
+    
     public updateWorkingHours(workerId: number, request: UpdateWorkingHoursRequest): Observable<UpdateWorkingHoursResponse> {
         return this.http
             .put(API_ENDPOINTS.CALENDAR.UPDATE_WORKING_HOURS(workerId), request)
             .pipe(
                 map(response =>
                     this.responseHandler.handleSuccess(response, UpdateWorkingHoursResponseSchema)
+                )
+            );
+    }
+
+    public setTimeBlock(workerId: number, request: SetTimeBlockRequest): Observable<SetTimeBlockResponse> {
+        return this.http
+            .post(API_ENDPOINTS.CALENDAR.SET_TIME_OFF(workerId), request)
+            .pipe(
+                map(response =>
+                    this.responseHandler.handleSuccess(response, SetTimeBlockResponseSchema)
                 )
             );
     }
