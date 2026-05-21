@@ -7,10 +7,6 @@ const toMinutes = (t: string): number => {
   return h * 60 + m;
 };
 
-/**
- * Control-level: validates HH:mm format (00:00–23:59).
- * Empty/null values pass — pair with Validators.required separately.
- */
 export function timeFormatValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const value = (control.value ?? '').toString().trim();
@@ -21,11 +17,6 @@ export function timeFormatValidator(): ValidatorFn {
   };
 }
 
-/**
- * Group-level: endTime must be strictly greater than startTime.
- * Skips validation when either value is not valid HH:mm.
- * Attach to the FormGroup (not to individual controls).
- */
 export function endAfterStartGroupValidator(): ValidatorFn {
   return (group: AbstractControl): ValidationErrors | null => {
     const start = (group.get('startTime')?.value ?? '').toString().trim();
