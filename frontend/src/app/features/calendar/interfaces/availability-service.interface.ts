@@ -3,11 +3,14 @@ import { AvailabilityConfigParamsRequest } from "../models/requests/availability
 import { AvailabilityConfigResponse } from "../models/responses/availability-response.model";
 import { UpdateWorkingHoursResponse } from "../models/responses/update-working-hours-response.model";
 import { UpdateWorkingHoursRequest } from "../models/requests/update-working-hours-request.model";
-import { SetTimeBlockResponse } from "../models/responses/set-time-off-response.model";
-import { SetTimeBlockRequest } from "../models/requests/set-time-off-request.model";
+import { SetTimeOffResponse } from "../models/responses/set-time-off-response.model";
+import { SetTimeOffRequest } from "../models/requests/set-time-off-request.model";
+import { SetDayOffRequest } from "../models/requests/set-day-off-request.model";
+import { SetDayOffResponse } from "../models/responses/set-day-off-response.model";
 
 export interface IAvailabilityService {
     updateWorkingHours(workerId: number, request: UpdateWorkingHoursRequest): Observable<UpdateWorkingHoursResponse>;
-    setTimeBlock(workerId: number, request: SetTimeBlockRequest): Observable<SetTimeBlockResponse>;
+    setDayOff(workerId: number, request: SetDayOffRequest): Observable<SetDayOffResponse>;
+    setTimeOff(workerId: number, request: SetTimeOffRequest): Observable<SetTimeOffResponse>;
     getAvailabilityConfig(workerId: number, params: AvailabilityConfigParamsRequest): Observable<AvailabilityConfigResponse>;
 }

@@ -1,0 +1,109 @@
+<div class="do-modal" (click)="$event.stopPropagation()">
+  <div class="do-modal__inner">
+    <div class="do-modal__scroll">
+
+      <!-- Header -->
+      <div class="do-modal__header">
+        <div class="do-modal__header-left">
+          <span class="material-symbols-outlined do-modal__header-icon" translate="no">
+            work_off
+          </span>
+          <div>
+            <h2 class="do-modal__title">Día libre</h2>
+            <p class="do-modal__subtitle">Define un día fuera de tu jornada de trabajo</p>
+          </div>
+        </div>
+        <button class="do-modal__close" type="button" (click)="onCancel()" title="Cerrar">
+          <span class="material-symbols-outlined" translate="no">close</span>
+        </button>
+      </div>
+
+      <div class="do-modal__divider"></div>
+
+      <div class="do-modal__body" [formGroup]="form">
+
+        <!-- 1. Fecha -->
+        <div class="do-field-group">
+          <label class="do-label">Fecha</label>
+          <div
+            class="do-input-wrap"
+            [class.do-input-wrap--error]="!!getFieldError('date')">
+            <span class="material-symbols-outlined do-input-wrap__icon" translate="no">
+              calendar_today
+            </span>
+            <input
+              class="do-input do-input--date"
+              type="date"
+              formControlName="date">
+            <button
+              type="button"
+              class="do-input-wrap__picker-btn"
+              title="Seleccionar fecha"
+              (click)="openDatePicker($event)">
+              <span class="material-symbols-outlined" translate="no">event</span>
+            </button>
+          </div>
+          <span class="do-field-error" *ngIf="getFieldError('date')">
+            <span class="material-symbols-outlined" translate="no">error</span>
+            {{ getFieldError('date') }}
+          </span>
+        </div>
+
+        <!-- 2. Motivo -->
+        <div class="do-field-group">
+          <label class="do-label">
+            Motivo
+            <span class="do-label__optional">(Opcional)</span>
+          </label>
+          <div
+            class="do-input-wrap do-input-wrap--textarea"
+            [class.do-input-wrap--error]="!!getFieldError('reason')">
+            <span
+              class="material-symbols-outlined do-input-wrap__icon do-input-wrap__icon--top"
+              translate="no">
+              notes
+            </span>
+            <textarea
+              class="do-textarea"
+              formControlName="reason"
+              placeholder="Describe el motivo del día libre..."
+              rows="3"
+              maxlength="200">
+            </textarea>
+          </div>
+          <div class="do-field-bottom">
+            <span class="do-field-error" *ngIf="getFieldError('reason')">
+              <span class="material-symbols-outlined" translate="no">error</span>
+              {{ getFieldError('reason') }}
+            </span>
+            <span
+              class="do-char-count"
+              [class.do-char-count--warn]="reasonLength > 180">
+              {{ reasonLength }}/200
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="do-modal__divider"></div>
+
+      <!-- Footer -->
+      <div class="do-modal__footer">
+        <button class="do-modal__cancel" type="button" (click)="onCancel()">
+          Cancelar
+        </button>
+        <button
+          class="do-modal__submit"
+          type="button"
+          (click)="onSubmit()"
+          [disabled]="isSubmitting"
+          [class.do-modal__submit--loading]="isSubmitting">
+          <span class="material-symbols-outlined" translate="no">work_off</span>
+          <span>{{ isSubmitting ? 'Guardando...' : 'Añadir día libre' }}</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

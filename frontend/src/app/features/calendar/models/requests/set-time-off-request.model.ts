@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { DayOfWeek } from '../dates.model';
 
 
-const baseTimeBlock = {
+const baseTimeOff = {
   startTime: z
     .string()
     .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato de hora de inicio inválido (HH:mm)'),
@@ -16,13 +16,13 @@ const baseTimeBlock = {
 };
 
 
-export const SetTimeBlockSchema = z
+export const SetTimeOffSchema = z
   .discriminatedUnion('type', [
     
     z.object({
       type: z.literal('RECURRING'),
       dayOfWeek: DayOfWeek,
-      ...baseTimeBlock,
+      ...baseTimeOff,
     }),
     
     z.object({
@@ -30,7 +30,7 @@ export const SetTimeBlockSchema = z
       date: z
         .string()
         .regex(/^\d{4}-\d{2}-\d{2}$/, 'Formato de fecha inválido (AAAA-MM-DD)'),
-      ...baseTimeBlock,
+      ...baseTimeOff,
     }),
   ])
   
@@ -49,4 +49,4 @@ export const SetTimeBlockSchema = z
   );
 
 
-export type SetTimeBlockRequest = z.infer<typeof SetTimeBlockSchema>;
+export type SetTimeOffRequest = z.infer<typeof SetTimeOffSchema>;
