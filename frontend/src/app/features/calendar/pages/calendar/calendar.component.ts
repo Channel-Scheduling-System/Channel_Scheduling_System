@@ -54,9 +54,12 @@ import { WorkingHoursModalComponent, WorkingHoursModalData } from '../../compone
 import { UpdateWorkingHoursRequest } from '../../models/requests/update-working-hours-request.model';
 import { UpdateWorkingHoursResponse } from '../../models/responses/update-working-hours-response.model';
 import { DAY_INDEX_TO_WEEKDAY } from '../../constants/availability.constants';
-import { TimeBlockModalComponent, TimeBlockModalData } from '../../components/time-block/time-block-modal.component';
-import { SetTimeBlockRequest } from '../../models/requests/set-time-off-request.model';
-import { SetTimeBlockResponse } from '../../models/responses/set-time-off-response.model';
+import { TimeOffModalComponent, TimeOffModalData } from '../../components/time-off/time-off-modal.component';
+import { SetTimeOffRequest } from '../../models/requests/set-time-off-request.model';
+import { SetTimeOffResponse } from '../../models/responses/set-time-off-response.model';
+import { DayOffModalComponent, DayOffModalData } from '../../components/day-off/day-off-modal.component';
+import { SetDayOffResponse } from '../../models/responses/set-day-off-response.model';
+import { SetDayOffRequest } from '../../models/requests/set-day-off-request.model';
 
 @Component({
   selector: 'app-calendar',
@@ -405,7 +408,7 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
       {
         icon: 'event_busy',
         label: 'Definir como día libre',
-        handler: () => this.openTimeOffConfig({ day: payload.day }),
+        handler: () => this.openDayOffConfig(payload.day),
       },
       {
         icon: 'date_range',
@@ -426,7 +429,7 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
     const actions = isSingle
       ? [{
         icon: 'event_busy', label: 'Definir nuevo día libre',
-        handler: () => this.openTimeOffConfig({ day: sel.startDay })
+        handler: () => this.openDayOffConfig(sel.startDay)
       }]
       : [{
         icon: 'date_range', label: 'Definir nuevo período libre',
@@ -487,19 +490,14 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
     this.messageService.showMessage(error.message, AlertType.ERROR);
     this.loadAvailabilityConfig();
   }
-  protected openDayOffConfig(day?: Date): void { }
-  protected openTimeOffConfig(
-    context?: { day: Date; startSlot?: TimeSlot; endSlot?: TimeSlot },
-  ): void {
-    const dialogData: TimeBlockModalData = {
-      day: context?.day,
-      startSlot: context?.startSlot,
-      endSlot: context?.endSlot,
-      onSubmit: (request: SetTimeBlockRequest) =>
-        this.onTimeBlockSubmit(request, dialogRef),
+  protected openDayOffConfig(day?: Date): void {
+    const dialogData: DayOffModalData = {
+      day,
+      onSubmit: (request: SetDayOffRequest) =>
+        this.onDayOffSubmit(request, dialogRef),
     };
 
-    const dialogRef = this.dialog.open(TimeBlockModalComponent, {
+    const dialogRef = this.dialog.open(DayOffModalComponent, {
       width: 'auto',
       maxWidth: '90vw',
       panelClass: 'service-dialog-panel',
@@ -511,22 +509,22 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
     });
   }
 
-  private onTimeBlockSubmit(
-    request: SetTimeBlockRequest,
-    dialogRef?: MatDialogRef<TimeBlockModalComponent>,
+  private onDayOffSubmit(
+    request: SetDayOffRequest,
+    dialogRef?: MatDialogRef<DayOffModalComponent>,
   ): void {
     const workerId = this.sessionService.getSession()?.id;
     if (!workerId) return;
 
-    this.availabilityService.setTimeBlock(workerId, request).subscribe({
-      next: (r) => this.handleTimeBlockSuccess(r, dialogRef),
-      error: (e: ErrorResponse) => this.handleTimeBlockError(e, dialogRef),
+    this.availabilityService.setDayOff(workerId, request).subscribe({
+      next: (r) => this.handleDayOffSuccess(r, dialogRef),
+      error: (e: ErrorResponse) => this.handleDayOffError(e, dialogRef),
     });
   }
 
-  private handleTimeBlockSuccess(
-    response: SetTimeBlockResponse,
-    dialogRef?: MatDialogRef<TimeBlockModalComponent>,
+  private handleDayOffSuccess(
+    response: SetDayOffResponse,
+    dialogRef?: MatDialogRef<DayOffModalComponent>,
   ): void {
     dialogRef?.componentInstance.setSubmitting(false);
     dialogRef?.close();
@@ -534,9 +532,65 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
     this.loadAvailabilityConfig();
   }
 
-  private handleTimeBlockError(
+  private handleDayOffError(
     error: ErrorResponse,
-    dialogRef?: MatDialogRef<TimeBlockModalComponent>,
+    dialogRef?: MatDialogRef<DayOffModalComponent>,
+  ): void {
+    dialogRef?.componentInstance.setSubmitting(false);
+    this.messageService.showMessage(
+      error.message ?? 'Error al registrar el día libre',
+      AlertType.ERROR,
+    );
+  }
+  protected openTimeOffConfig(
+    context?: { day: Date; startSlot?: TimeSlot; endSlot?: TimeSlot },
+  ): void {
+    const dialogData: TimeOffModalData = {
+      day: context?.day,
+      startSlot: context?.startSlot,
+      endSlot: context?.endSlot,
+      onSubmit: (request: SetTimeOffRequest) =>
+        this.onTimeOffSubmit(request, dialogRef),
+    };
+
+    const dialogRef = this.dialog.open(TimeOffModalComponent, {
+      width: 'auto',
+      maxWidth: '90vw',
+      panelClass: 'service-dialog-panel',
+      backdropClass: 'service-dialog-backdrop',
+      disableClose: false,
+      autoFocus: true,
+      scrollStrategy: this.overlay.scrollStrategies.block(),
+      data: dialogData,
+    });
+  }
+
+  private onTimeOffSubmit(
+    request: SetTimeOffRequest,
+    dialogRef?: MatDialogRef<TimeOffModalComponent>,
+  ): void {
+    const workerId = this.sessionService.getSession()?.id;
+    if (!workerId) return;
+
+    this.availabilityService.setTimeOff(workerId, request).subscribe({
+      next: (r) => this.handleTimeOffSuccess(r, dialogRef),
+      error: (e: ErrorResponse) => this.handleTimeOffError(e, dialogRef),
+    });
+  }
+
+  private handleTimeOffSuccess(
+    response: SetTimeOffResponse,
+    dialogRef?: MatDialogRef<TimeOffModalComponent>,
+  ): void {
+    dialogRef?.componentInstance.setSubmitting(false);
+    dialogRef?.close();
+    this.messageService.showMessage(response.message, AlertType.SUCCESS);
+    this.loadAvailabilityConfig();
+  }
+
+  private handleTimeOffError(
+    error: ErrorResponse,
+    dialogRef?: MatDialogRef<TimeOffModalComponent>,
   ): void {
     dialogRef?.componentInstance.setSubmitting(false);
     this.messageService.showMessage(
