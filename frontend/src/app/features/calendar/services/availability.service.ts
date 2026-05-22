@@ -14,6 +14,8 @@ import { SetTimeOffRequest } from "../models/requests/set-time-off-request.model
 import { SetTimeOffResponse, SetTimeOffResponseSchema } from "../models/responses/set-time-off-response.model";
 import { SetDayOffRequest } from "../models/requests/set-day-off-request.model";
 import { SetDayOffResponse, SetDayOffResponseSchema } from "../models/responses/set-day-off-response.model";
+import { SetPeriodOffRequest } from "../models/requests/set-period-off-request.model";
+import { SetPeriodOffResponse, SetPeriodOffResponseSchema } from "../models/responses/set-period-off-response.model";
 
 @Injectable({ providedIn: 'root' })
 export class AvailabilityService implements IAvailabilityService {
@@ -49,6 +51,16 @@ export class AvailabilityService implements IAvailabilityService {
             .pipe(
                 map(response =>
                     this.responseHandler.handleSuccess(response, SetTimeOffResponseSchema)
+                )
+            );
+    }
+
+    public setPeriodOff(workerId: number, request: SetPeriodOffRequest): Observable<SetPeriodOffResponse> {
+        return this.http
+            .post(API_ENDPOINTS.CALENDAR.SET_PERIOD_OFF(workerId), request)
+            .pipe(
+                map(response =>
+                    this.responseHandler.handleSuccess(response, SetPeriodOffResponseSchema)
                 )
             );
     }

@@ -638,7 +638,10 @@ $week-min-w: calc(#{$time-col} + 7 * #{$week-day-min});
       pointer-events: none;
       white-space: nowrap;
       z-index: 1;
-      padding: 0 0.25rem;
+      padding: 30px;
+      margin: -30px;
+      overflow: hidden;
+      text-overflow: ellipsis;
 
       &--continuation {
         opacity: 0.45;

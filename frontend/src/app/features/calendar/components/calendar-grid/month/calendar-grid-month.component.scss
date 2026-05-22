@@ -402,7 +402,8 @@
         display: -webkit-box;
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;
-
+        padding-left: 4px;
+        margin-left: -4px;
         overflow: hidden;
         text-overflow: ellipsis;
         word-break: break-word;
