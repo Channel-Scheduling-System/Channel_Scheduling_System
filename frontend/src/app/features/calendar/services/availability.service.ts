@@ -10,8 +10,10 @@ import { HttpClient } from "@angular/common/http";
 import { IAvailabilityService } from "../interfaces/availability-service.interface";
 import { UpdateWorkingHoursRequest } from "../models/requests/update-working-hours-request.model";
 import { UpdateWorkingHoursResponse, UpdateWorkingHoursResponseSchema } from "../models/responses/update-working-hours-response.model";
-import { SetTimeBlockRequest } from "../models/requests/set-time-off-request.model";
-import { SetTimeBlockResponse, SetTimeBlockResponseSchema } from "../models/responses/set-time-off-response.model";
+import { SetTimeOffRequest } from "../models/requests/set-time-off-request.model";
+import { SetTimeOffResponse, SetTimeOffResponseSchema } from "../models/responses/set-time-off-response.model";
+import { SetDayOffRequest } from "../models/requests/set-day-off-request.model";
+import { SetDayOffResponse, SetDayOffResponseSchema } from "../models/responses/set-day-off-response.model";
 
 @Injectable({ providedIn: 'root' })
 export class AvailabilityService implements IAvailabilityService {
@@ -31,12 +33,22 @@ export class AvailabilityService implements IAvailabilityService {
             );
     }
 
-    public setTimeBlock(workerId: number, request: SetTimeBlockRequest): Observable<SetTimeBlockResponse> {
+    public setDayOff(workerId: number, request: SetDayOffRequest): Observable<SetDayOffResponse> {
+        return this.http
+            .post(API_ENDPOINTS.CALENDAR.SET_DAY_OFF(workerId), request)
+            .pipe(
+                map(response =>
+                    this.responseHandler.handleSuccess(response, SetDayOffResponseSchema)
+                )
+            );
+    }
+
+    public setTimeOff(workerId: number, request: SetTimeOffRequest): Observable<SetTimeOffResponse> {
         return this.http
             .post(API_ENDPOINTS.CALENDAR.SET_TIME_OFF(workerId), request)
             .pipe(
                 map(response =>
-                    this.responseHandler.handleSuccess(response, SetTimeBlockResponseSchema)
+                    this.responseHandler.handleSuccess(response, SetTimeOffResponseSchema)
                 )
             );
     }
