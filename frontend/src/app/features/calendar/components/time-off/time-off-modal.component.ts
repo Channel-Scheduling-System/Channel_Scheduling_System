@@ -15,15 +15,15 @@ import { ComponentPortal } from '@angular/cdk/portal';
 import { formatTimeTo12Hour } from '../../utils/time.util';
 import { timeFormatValidator, endAfterStartGroupValidator } from '../../validators/working-hours.validators';
 import { TIME_PICKER_SEED, TimePickerComponent } from '../time-picker/time-picker.component';
-import type { SetTimeBlockRequest } from '../../models/requests/set-time-off-request.model';
+import type { SetTimeOffRequest } from '../../models/requests/set-time-off-request.model';
 import type { TimeSlot } from '../../interfaces/time-slot.interface';
 import { DatePickerComponent, DATE_PICKER_SEED } from '../date-picker/date-picker.component';
 
-export interface TimeBlockModalData {
+export interface TimeOffModalData {
   day?: Date;
   startSlot?: TimeSlot;
   endSlot?: TimeSlot;
-  onSubmit: (request: SetTimeBlockRequest) => void;
+  onSubmit: (request: SetTimeOffRequest) => void;
 }
 
 type BlockType = 'RECURRING' | 'SPECIFIC';
@@ -39,13 +39,13 @@ const WEEKDAY_OPTIONS = [
 ];
 
 @Component({
-  selector: 'app-time-block-modal',
+  selector: 'app-time-off-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TimePickerComponent, DatePickerComponent],
-  templateUrl: './time-block-modal.component.html',
-  styleUrls: ['./time-block-modal.component.scss'],
+  imports: [CommonModule, ReactiveFormsModule],
+  templateUrl: './time-off-modal.component.html',
+  styleUrls: ['./time-off-modal.component.scss'],
 })
-export class TimeBlockModalComponent implements OnInit, OnDestroy {
+export class TimeOffModalComponent implements OnInit, OnDestroy {
 
   protected form!: FormGroup;
   protected isSubmitting = false;
@@ -60,9 +60,9 @@ export class TimeBlockModalComponent implements OnInit, OnDestroy {
 
   public constructor(
     private readonly fb: FormBuilder,
-    private readonly dialogRef: MatDialogRef<TimeBlockModalComponent>,
+    private readonly dialogRef: MatDialogRef<TimeOffModalComponent>,
     private readonly overlay: Overlay,
-    @Inject(MAT_DIALOG_DATA) public readonly data: TimeBlockModalData,
+    @Inject(MAT_DIALOG_DATA) public readonly data: TimeOffModalData,
   ) { }
 
   public ngOnInit(): void {
@@ -261,7 +261,7 @@ export class TimeBlockModalComponent implements OnInit, OnDestroy {
     this.data.onSubmit(this.buildRequest());
   }
 
-  private buildRequest(): SetTimeBlockRequest {
+  private buildRequest(): SetTimeOffRequest {
     const v = this.form.value as Record<string, string>;
     const base = {
       startTime: v['startTime'],

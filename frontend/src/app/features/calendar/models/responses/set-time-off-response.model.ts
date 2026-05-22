@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { BaseSuccessResponseSchema} from '../../../../shared/models/api/success-response.schema';
 
-export const SetTimeBlockResponseSchema = BaseSuccessResponseSchema;
+export const SetTimeOffResponseSchema = BaseSuccessResponseSchema;
 
-export type SetTimeBlockResponse = z.infer<typeof SetTimeBlockResponseSchema>;
+export type SetTimeOffResponse = z.infer<typeof SetTimeOffResponseSchema>;
