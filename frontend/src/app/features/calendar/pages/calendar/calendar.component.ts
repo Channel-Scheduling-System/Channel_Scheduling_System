@@ -60,6 +60,9 @@ import { SetTimeOffResponse } from '../../models/responses/set-time-off-response
 import { DayOffModalComponent, DayOffModalData } from '../../components/day-off/day-off-modal.component';
 import { SetDayOffResponse } from '../../models/responses/set-day-off-response.model';
 import { SetDayOffRequest } from '../../models/requests/set-day-off-request.model';
+import { PeriodOffModalComponent, PeriodOffModalData } from '../../components/period-off/period-off-modal.component';
+import { SetPeriodOffResponse } from '../../models/responses/set-period-off-response.model';
+import { SetPeriodOffRequest } from '../../models/requests/set-period-off-request.model';
 
 @Component({
   selector: 'app-calendar',
@@ -433,7 +436,7 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
       }]
       : [{
         icon: 'date_range', label: 'Definir nuevo período libre',
-        handler: () => this.openPeriodOffConfig(sel.startDay)
+        handler: () => this.openPeriodOffConfig(sel.startDay, sel.endDay)
       }];
 
     this.selectionMenuSvc.show(sel.x, sel.y, 'calendar_today', label, actions);
@@ -598,7 +601,57 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
       AlertType.ERROR,
     );
   }
-  protected openPeriodOffConfig(day?: Date): void { }
+  protected openPeriodOffConfig(startDay?: Date, endDay?: Date): void {
+    const dialogData: PeriodOffModalData = {
+      startDay: startDay,
+      endDay: endDay,
+      onSubmit: (request: SetPeriodOffRequest) =>
+        this.onPeriodOffSubmit(request, dialogRef),
+    };
+    const dialogRef = this.dialog.open(PeriodOffModalComponent, {
+      width: 'auto',
+      maxWidth: '90vw',
+      panelClass: 'service-dialog-panel',
+      backdropClass: 'service-dialog-backdrop',
+      disableClose: false,
+      autoFocus: true,
+      scrollStrategy: this.overlay.scrollStrategies.block(),
+      data: dialogData,
+    });
+  }
+
+  private onPeriodOffSubmit(
+    request: SetPeriodOffRequest,
+    dialogRef?: MatDialogRef<PeriodOffModalComponent>,
+  ): void {
+    const workerId = this.sessionService.getSession()?.id;
+    if (!workerId) return;
+    this.availabilityService.setPeriodOff(workerId, request).subscribe({
+      next: (r) => this.handlePeriodOffSuccess(r, dialogRef),
+      error: (e: ErrorResponse) => this.handlePeriodOffError(e, dialogRef),
+    });
+  }
+
+  private handlePeriodOffSuccess(
+    response: SetPeriodOffResponse,
+    dialogRef?: MatDialogRef<PeriodOffModalComponent>,
+  ): void {
+    dialogRef?.componentInstance.setSubmitting(false);
+    dialogRef?.close();
+    this.messageService.showMessage(response.message, AlertType.SUCCESS);
+    this.loadAvailabilityConfig();
+  }
+
+  private handlePeriodOffError(
+    error: ErrorResponse,
+    dialogRef?: MatDialogRef<PeriodOffModalComponent>,
+  ): void {
+    dialogRef?.componentInstance.setSubmitting(false);
+    this.messageService.showMessage(
+      error.message ?? 'Error al registrar el período libre',
+      AlertType.ERROR,
+    );
+  }
   protected toggleDeleteMode(): void { this.isDeleteMode = !this.isDeleteMode; }
   protected onSlotClick(day: Date, slot: TimeSlot): void { }
   protected onMonthDayClick(day: Date): void { }
