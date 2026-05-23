@@ -16,6 +16,7 @@ import { SetDayOffRequest } from "../models/requests/set-day-off-request.model";
 import { SetDayOffResponse, SetDayOffResponseSchema } from "../models/responses/set-day-off-response.model";
 import { SetPeriodOffRequest } from "../models/requests/set-period-off-request.model";
 import { SetPeriodOffResponse, SetPeriodOffResponseSchema } from "../models/responses/set-period-off-response.model";
+import { DeleteBlockResponse, DeleteBlockResponseSchema } from "../models/responses/delete-block-response.model";
 
 @Injectable({ providedIn: 'root' })
 export class AvailabilityService implements IAvailabilityService {
@@ -75,6 +76,17 @@ export class AvailabilityService implements IAvailabilityService {
             .pipe(
                 map(response =>
                     this.responseHandler.handleSuccess(response, availabilityConfigResponseSchema)
+                )
+            );
+    }
+
+    
+    deleteBlock(blockId: number): Observable<DeleteBlockResponse> {
+        return this.http
+            .delete(API_ENDPOINTS.CALENDAR.DELETE_BLOCK(blockId))
+            .pipe(
+                map(response =>
+                    this.responseHandler.handleSuccess(response, DeleteBlockResponseSchema)
                 )
             );
     }
