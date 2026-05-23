@@ -1,3 +1,4 @@
+import { id } from 'date-fns/locale';
 import { environment } from '../../../environments/environment';
 
 export const API_ENDPOINTS = {
@@ -18,6 +19,7 @@ export const API_ENDPOINTS = {
     SET_DAY_OFF: (id: number) => `${environment.apiUrl}/availability/${id}/day-off`,
     SET_PERIOD_OFF: (id: number) => `${environment.apiUrl}/availability/${id}/period-off`,
     AVAILABILITY_CONFIG: (id: number) => `${environment.apiUrl}/availability/${id}/config`,
+    DELETE_BLOCK: (id: number) => `${environment.apiUrl}/availability/${id}`,
   },
   SERVICES: {
     LIST: `${environment.apiUrl}/services`,
