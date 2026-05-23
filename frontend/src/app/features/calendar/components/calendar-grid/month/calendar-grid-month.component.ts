@@ -18,6 +18,9 @@ export class CalendarGridMonthComponent {
   @Input() public weekDayNames: string[] = [];
   @Input() public availabilityData: AvailabilityConfigData | null = null;
 
+  @Input() public deleteMode = false;
+  @Output() public deleteEntity = new EventEmitter<number>();
+
   @Output() weekdayHeaderContextMenu = new EventEmitter<{ day: Date; x: number; y: number }>();
   @Output() monthDayContextMenu = new EventEmitter<{ day: Date; x: number; y: number }>();
   @Output() public monthDayClick = new EventEmitter<Date>();
@@ -39,7 +42,7 @@ export class CalendarGridMonthComponent {
   private didDrag = false;
   private readonly tooltipSvc = inject(CalendarTooltipService);
 
-  public constructor(public readonly cellService: CalendarCellService) {}
+  public constructor(public readonly cellService: CalendarCellService) { }
 
   @HostListener('document:mouseup', ['$event'])
   protected onDocumentMouseUp(event: MouseEvent): void {
@@ -61,6 +64,13 @@ export class CalendarGridMonthComponent {
 
   protected onCellMouseDown(event: MouseEvent, day: Date, index: number): void {
     if (event.button !== 0) return;
+
+    if (this.deleteMode) {
+        const group = this.cellService.getMonthDayGroup(day);
+        if (group) this.deleteEntity.emit(group.id);
+        return;
+    }
+    
     if (!this.isCellFree(day)) return;
     event.preventDefault();
 

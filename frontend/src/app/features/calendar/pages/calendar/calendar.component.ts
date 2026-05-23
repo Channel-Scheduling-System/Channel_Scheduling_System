@@ -63,6 +63,7 @@ import { SetDayOffRequest } from '../../models/requests/set-day-off-request.mode
 import { PeriodOffModalComponent, PeriodOffModalData } from '../../components/period-off/period-off-modal.component';
 import { SetPeriodOffResponse } from '../../models/responses/set-period-off-response.model';
 import { SetPeriodOffRequest } from '../../models/requests/set-period-off-request.model';
+import { DeleteBlockResponse } from '../../models/responses/delete-block-response.model';
 
 @Component({
   selector: 'app-calendar',
@@ -652,8 +653,33 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
       AlertType.ERROR,
     );
   }
+
+  protected onDeleteEntity(id: number): void {
+    console.log('Delete entity with id:', id);
+    const workerId = this.sessionService.getSession()?.id;
+    if (!workerId) return;
+
+    this.availabilityService.deleteBlock(id).subscribe({
+      next: (r) => this.handleDeleteBlockSuccess(r),
+      error: (e: ErrorResponse) => this.handleDeleteBlockError(e),
+    });
+  }
+
+  private handleDeleteBlockSuccess(response: DeleteBlockResponse): void {
+    this.messageService.showMessage(response.message, AlertType.SUCCESS);
+    this.loadAvailabilityConfig();
+  }
+
+  private handleDeleteBlockError(error: ErrorResponse): void {
+    this.messageService.showMessage(
+      error.message ?? 'Error al eliminar el bloqueo',
+      AlertType.ERROR,
+    );
+  }
   protected toggleDeleteMode(): void { this.isDeleteMode = !this.isDeleteMode; }
-  protected onSlotClick(day: Date, slot: TimeSlot): void { }
+  protected onSlotClick(day: Date, slot: TimeSlot): void {
+    console.log('Slot clicked:', day, slot);
+  }
   protected onMonthDayClick(day: Date): void { }
   protected onMonthDayPointerDown(day: Date): void { }
 
