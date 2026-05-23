@@ -12,38 +12,41 @@ import { CalendarTooltipService } from '../../../ui/calendar-tooltip.service';
 
 @Directive()
 export abstract class CalendarGridBase {
-  
+
   @Input() public currentDate: Date = new Date();
   @Input() public timeSlots: TimeSlot[] = [];
   @Input() public availabilityData: AvailabilityConfigData | null = null;
-  
-  @Output() public slotClick        = new EventEmitter<{ day: Date; slot: TimeSlot }>();
-  @Output() public dayHeaderClick   = new EventEmitter<{ day: Date; x: number; y: number }>();
+
+  @Input() public deleteMode = false;
+  @Output() public deleteEntity = new EventEmitter<number>();
+
+  @Output() public slotClick = new EventEmitter<{ day: Date; slot: TimeSlot }>();
+  @Output() public dayHeaderClick = new EventEmitter<{ day: Date; x: number; y: number }>();
   @Output() public headerHeightChange = new EventEmitter<number>();
   @Output() public selectionComplete = new EventEmitter<{ day: Date; startSlot: TimeSlot; endSlot: TimeSlot; x: number; y: number }>();
-  @Output() public boundaryChange   = new EventEmitter<{ day: Date; type: 'start' | 'end'; newSlot: TimeSlot; originalSlot: TimeSlot }>();
+  @Output() public boundaryChange = new EventEmitter<{ day: Date; type: 'start' | 'end'; newSlot: TimeSlot; originalSlot: TimeSlot }>();
 
-  public  readonly cellService  = inject(CalendarCellService);
+  public readonly cellService = inject(CalendarCellService);
   protected readonly tooltipSvc = inject(CalendarTooltipService);
-  
-  protected isDragging   = false;
+
+  protected isDragging = false;
   protected dragDay: Date | null = null;
   protected dragStartIdx = -1;
-  protected dragEndIdx   = -1;
-  protected dragMinIdx   = -1;
-  protected dragMaxIdx   = -1;
+  protected dragEndIdx = -1;
+  protected dragMinIdx = -1;
+  protected dragMaxIdx = -1;
   protected hasSelection = false;
-  private   didDrag      = false;
+  private didDrag = false;
 
   @HostBinding('class.cal-grid--no-sel-transition')
   protected isDeselecting = false;
-  
+
   protected boundaryDrag: BoundaryDragState | null = null;
   private _boundaryMoved = false;
   private readonly _boundaryMoveFn = (e: MouseEvent) => this._onBoundaryMouseMove(e);
-  private readonly _boundaryUpFn   = (e: MouseEvent) => this._onBoundaryMouseUp(e);
+  private readonly _boundaryUpFn = (e: MouseEvent) => this._onBoundaryMouseUp(e);
   private readonly _boundaryOverrides = new Map<string, number>();
-  
+
   protected hoveredGroupId: string | null = null;
 
   public ngOnChanges(changes: SimpleChanges): void {
@@ -65,7 +68,7 @@ export abstract class CalendarGridBase {
     this.selectionComplete.emit({
       day: this.dragDay,
       startSlot: this.timeSlots[this.dragStartIdx],
-      endSlot:   this.timeSlots[this.dragEndIdx],
+      endSlot: this.timeSlots[this.dragEndIdx],
       x: event.clientX,
       y: event.clientY,
     });
@@ -77,13 +80,13 @@ export abstract class CalendarGridBase {
     this._triggerDeselect();
 
     this.hasSelection = false;
-    this.isDragging   = true;
-    this.didDrag      = false;
-    this.dragDay      = day;
+    this.isDragging = true;
+    this.didDrag = false;
+    this.dragDay = day;
 
     const startIdx = this._slotIndex(slot);
     this.dragStartIdx = startIdx;
-    this.dragEndIdx   = startIdx;
+    this.dragEndIdx = startIdx;
     [this.dragMinIdx, this.dragMaxIdx] = this._calcDragBounds(day, startIdx);
   }
 
@@ -102,7 +105,7 @@ export abstract class CalendarGridBase {
     this.selectionComplete.emit({
       day: this.dragDay,
       startSlot: this.timeSlots[this.dragStartIdx],
-      endSlot:   this.timeSlots[this.dragEndIdx],
+      endSlot: this.timeSlots[this.dragEndIdx],
       x: event.clientX,
       y: event.clientY,
     });
@@ -135,10 +138,10 @@ export abstract class CalendarGridBase {
 
   private _isCellFree(day: Date, slot: TimeSlot): boolean {
     if (!this.availabilityData) return true;
-    if (this.cellService.isInPeriodOff(day))           return false;
-    if (this.cellService.isDayOff(day))                return false;
-    if (this.cellService.isCellFullyNonWorking(day, slot))   return false;
-    if (this.cellService.isCellFullyInTimeBlock(day, slot))  return false;
+    if (this.cellService.isInPeriodOff(day)) return false;
+    if (this.cellService.isDayOff(day)) return false;
+    if (this.cellService.isCellFullyNonWorking(day, slot)) return false;
+    if (this.cellService.isCellFullyInTimeBlock(day, slot)) return false;
     return this.cellService.getCellSegments(day, slot).every(s => s.type === 'free');
   }
 
@@ -179,6 +182,14 @@ export abstract class CalendarGridBase {
 
   protected onSegmentClick(day: Date, seg: CellSegment): void {
     if (this.didDrag) { this.didDrag = false; return; }
+
+    if (this.deleteMode) {
+      if (seg.group && this._isTrackableType(seg)) {
+        this.deleteEntity.emit(seg.group.id);
+      }
+      return;
+    }
+
     if (seg.type !== 'free') return;
     this.slotClick.emit({ day, slot: this._segmentToSlot(seg) });
   }
@@ -238,14 +249,14 @@ export abstract class CalendarGridBase {
   }
 
   private _getBoundaryPct(day: Date, slot: TimeSlot, type: 'start' | 'end'): number | null {
-    
+
     if (this._boundaryMoved && this.boundaryDrag?.type === type && isSameDay(day, this.boundaryDrag.day)) {
       const s = this.timeSlots[this.boundaryDrag.currentSlotIndex];
       return (s?.hour === slot.hour && s?.minute === slot.minute)
         ? (type === 'start' ? 100 : 0)
         : null;
     }
-    
+
     const overrideIdx = this._boundaryOverrides.get(this._boundaryKey(day, type));
     if (overrideIdx !== undefined) {
       const s = this.timeSlots[overrideIdx];
@@ -253,7 +264,7 @@ export abstract class CalendarGridBase {
         ? (type === 'start' ? 100 : 0)
         : null;
     }
-    
+
     const edge = type === 'start' ? 'isUpperBoundaryEdge' : 'isLowerBoundaryEdge';
     const seg = this.cellService.getCellSegments(day, slot).find(s => s[edge]);
     if (!seg) return null;
@@ -269,7 +280,7 @@ export abstract class CalendarGridBase {
     if (!cellEl) return;
 
     const overrideIdx = this._boundaryOverrides.get(this._boundaryKey(day, type));
-    const slotIndex   = overrideIdx ?? this._findBoundarySlotIndex(day, type);
+    const slotIndex = overrideIdx ?? this._findBoundarySlotIndex(day, type);
     if (slotIndex === -1) return;
 
     const pct = this._calcInitialBoundaryPct(day, slotIndex, type, overrideIdx);
@@ -278,16 +289,16 @@ export abstract class CalendarGridBase {
     this.boundaryDrag = {
       type, day,
       originalSlotIndex: slotIndex,
-      baseSlotIndex:     slotIndex,
-      currentSlotIndex:  slotIndex,
-      snapDone:          pct === 0,
-      initialOffsetPct:  pct,
-      startY:            event.clientY,
-      cellHeightPx:      cellEl.getBoundingClientRect().height,
+      baseSlotIndex: slotIndex,
+      currentSlotIndex: slotIndex,
+      snapDone: pct === 0,
+      initialOffsetPct: pct,
+      startY: event.clientY,
+      cellHeightPx: cellEl.getBoundingClientRect().height,
     };
 
     document.addEventListener('mousemove', this._boundaryMoveFn);
-    document.addEventListener('mouseup',   this._boundaryUpFn, { once: true });
+    document.addEventListener('mouseup', this._boundaryUpFn, { once: true });
   }
 
   private _calcInitialBoundaryPct(
@@ -308,24 +319,24 @@ export abstract class CalendarGridBase {
     if (Math.abs(deltaY) < 3 && !this._boundaryMoved) return;
 
     if (!drag.snapDone) {
-      drag.baseSlotIndex    = this._calcSnapBase(drag, deltaY < 0);
+      drag.baseSlotIndex = this._calcSnapBase(drag, deltaY < 0);
       drag.currentSlotIndex = drag.baseSlotIndex;
-      drag.snapDone         = true;
-      drag.startY           = event.clientY;
-      this._boundaryMoved   = true;
+      drag.snapDone = true;
+      drag.startY = event.clientY;
+      this._boundaryMoved = true;
       return;
     }
 
     const slotDelta = this._deltaToSlots(deltaY, drag.cellHeightPx);
     const targetIdx = Math.max(0, Math.min(this.timeSlots.length - 1, drag.baseSlotIndex + slotDelta));
-    const validIdx  = this._findLastValidBoundaryIndex(drag.day, drag.type, drag.baseSlotIndex, targetIdx);
+    const validIdx = this._findLastValidBoundaryIndex(drag.day, drag.type, drag.baseSlotIndex, targetIdx);
 
     const blocked = validIdx === drag.currentSlotIndex && targetIdx !== validIdx && slotDelta !== 0;
     document.body.classList.toggle('cal-boundary-dragging-blocked', blocked);
 
     if (validIdx !== drag.currentSlotIndex) {
       drag.currentSlotIndex = validIdx;
-      this._boundaryMoved   = true;
+      this._boundaryMoved = true;
     }
   }
 
@@ -357,9 +368,9 @@ export abstract class CalendarGridBase {
 
     this._boundaryOverrides.set(this._boundaryKey(drag.day, drag.type), drag.currentSlotIndex);
     this.boundaryChange.emit({
-      day:          drag.day,
-      type:         drag.type,
-      newSlot:      this.timeSlots[drag.currentSlotIndex],
+      day: drag.day,
+      type: drag.type,
+      newSlot: this.timeSlots[drag.currentSlotIndex],
       originalSlot: this.timeSlots[drag.originalSlotIndex],
     });
   }
@@ -375,7 +386,7 @@ export abstract class CalendarGridBase {
     for (let i = baseIdx + dir; dir > 0 ? i <= targetIdx : i >= targetIdx; i += dir) {
       if (!this.timeSlots[i]) break;
       if (type === 'start' && counterIdx !== -1 && i >= counterIdx) break;
-      if (type === 'end'   && counterIdx !== -1 && i <= counterIdx) break;
+      if (type === 'end' && counterIdx !== -1 && i <= counterIdx) break;
       lastValid = i;
     }
     return lastValid;
@@ -420,11 +431,11 @@ export abstract class CalendarGridBase {
     return seg.type === 'timeoff' || seg.type === 'periodoff' || seg.type === 'dayoff';
   }
 
-  protected isDayToday(day: Date): boolean     { return isToday(day); }
-  protected isSelectedDay(day: Date): boolean  { return isSameDay(day, this.currentDate); }
+  protected isDayToday(day: Date): boolean { return isToday(day); }
+  protected isSelectedDay(day: Date): boolean { return isSameDay(day, this.currentDate); }
   protected formatDayNumber(day: Date): string { return format(day, 'd'); }
-  protected formatDayName(day: Date): string   { return format(day, 'EEE', { locale: es }); }
-  protected trackByDay(_: number, day: Date): string  { return day.toISOString(); }
+  protected formatDayName(day: Date): string { return format(day, 'EEE', { locale: es }); }
+  protected trackByDay(_: number, day: Date): string { return day.toISOString(); }
   protected trackBySlot(_: number, s: TimeSlot): string { return `${s.hour}:${s.minute}`; }
 
   private _slotIndex(slot: TimeSlot): number {
@@ -437,7 +448,7 @@ export abstract class CalendarGridBase {
   }
 
   private _segmentToSlot(seg: CellSegment): TimeSlot {
-    const hour   = Math.floor(seg.startMin / 60);
+    const hour = Math.floor(seg.startMin / 60);
     const minute = seg.startMin % 60;
     return { hour, minute, label: `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}` };
   }
