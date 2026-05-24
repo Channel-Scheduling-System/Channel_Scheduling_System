@@ -1,10 +1,10 @@
 import prisma from '../../config/prisma.js';
-import { BlockedTime, Prisma, WorkingHour } from '@prisma/client.js';
+import { BlockedTime, WorkingHour } from '@prisma/client.js';
 import {
     BlockedTimeFilter,
+    BlockedTimeByDateFilter,
     CreateBlockedTimeData,
     CreateWorkingHourData,
-    HourBlockedTimeFilter,
     WorkingHourFilter,
 } from './availability.types.js';
 
@@ -13,10 +13,16 @@ export interface IAvailabilityRepository {
     createBlockedTime(data: CreateBlockedTimeData): Promise<void>;
     deleteWorkingHoursByWorkerId(workerId: number): Promise<void>;
     deleteBlockedTime(id: number): Promise<void>;
-    findBlockedTimeById(id: number): Promise<BlockedTime | null>;
     findWorkingHours(filter: WorkingHourFilter): Promise<WorkingHour[]>;
-    findBlockedTimes(filter: BlockedTimeFilter): Promise<BlockedTime[]>;
-    findHourBlockedTimes(filter: HourBlockedTimeFilter): Promise<BlockedTime[]>;
+    findBlockedTimeById(id: number): Promise<BlockedTime | null>;
+    findBlockedTimesByWorkerId(workerId: number): Promise<BlockedTime[]>;
+    findRecurringTimeOffs(filter: BlockedTimeFilter): Promise<BlockedTime[]>;
+    findSpecificTimeOffs(filter: BlockedTimeFilter): Promise<BlockedTime[]>;
+    findDayOffs(filter: BlockedTimeFilter): Promise<BlockedTime[]>;
+    findPeriodOffs(filter: BlockedTimeFilter): Promise<BlockedTime[]>;
+    findBlockedTimesByDate(
+        filter: BlockedTimeByDateFilter,
+    ): Promise<BlockedTime[]>;
 }
 
 export class AvailabilityRepository implements IAvailabilityRepository {
@@ -36,12 +42,6 @@ export class AvailabilityRepository implements IAvailabilityRepository {
         await prisma.blockedTime.delete({ where: { id } });
     }
 
-    async findBlockedTimeById(id: number): Promise<BlockedTime | null> {
-        return await prisma.blockedTime.findUnique({
-            where: { id },
-        });
-    }
-
     async findWorkingHours(filter: WorkingHourFilter): Promise<WorkingHour[]> {
         return await prisma.workingHour.findMany({
             where: { ...filter },
@@ -49,79 +49,132 @@ export class AvailabilityRepository implements IAvailabilityRepository {
         });
     }
 
-    async findBlockedTimes(filter: BlockedTimeFilter): Promise<BlockedTime[]> {
-        const where = this.buildBlockedTimeWhere(filter);
+    async findBlockedTimeById(id: number): Promise<BlockedTime | null> {
+        return await prisma.blockedTime.findUnique({
+            where: { id },
+        });
+    }
+
+    async findBlockedTimesByWorkerId(workerId: number): Promise<BlockedTime[]> {
         return await prisma.blockedTime.findMany({
-            where,
+            where: { workerId },
             orderBy: { startDate: 'asc' },
         });
     }
 
-    async findHourBlockedTimes(
-        filter: HourBlockedTimeFilter,
-    ): Promise<BlockedTime[]> {
-        const where = this.buildHourBlockedTimeWhere(filter);
-        return await prisma.blockedTime.findMany({
-            where,
-            orderBy: { startDate: 'asc' },
-        });
-    }
-
-    // ============================================================
-    // * WHERE CLAUSE BUILDERS
-    // ============================================================
-
-    private buildBlockedTimeWhere(
+    async findRecurringTimeOffs(
         filter: BlockedTimeFilter,
-    ): Prisma.BlockedTimeWhereInput {
-        const where: Prisma.BlockedTimeWhereInput = {
-            workerId: filter.workerId,
-        };
-        if (filter.type) where.type = filter.type;
-        if (filter.startDate || filter.endDate) {
-            where.AND = [];
-            if (filter.startDate) {
-                if (filter.type === 'PERIOD')
-                    where.AND.push({
-                        endDate: { gte: new Date(filter.startDate) },
-                    });
-                else
-                    where.AND.push({
-                        startDate: { gte: new Date(filter.startDate) },
-                    });
-            }
-            if (filter.endDate) {
-                where.AND.push({
-                    startDate: { lte: new Date(filter.endDate) },
-                });
-            }
-        }
-        return where;
+    ): Promise<BlockedTime[]> {
+        return await prisma.blockedTime.findMany({
+            where: {
+                workerId: filter.workerId,
+                type: 'HOUR',
+                dayOfWeek: filter.dayOfWeek ? filter.dayOfWeek : { not: null },
+            },
+            orderBy: { startDate: 'asc' },
+        });
     }
 
-    private buildHourBlockedTimeWhere(
-        filter: HourBlockedTimeFilter,
-    ): Prisma.BlockedTimeWhereInput {
-        const where: Prisma.BlockedTimeWhereInput = {
-            workerId: filter.workerId,
-            type: 'HOUR',
-        };
-        if (filter.type === 'RECURRING') where.dayOfWeek = { not: null };
-        else if (filter.type === 'SPECIFIC') where.dayOfWeek = null;
-        if (filter.dayOfWeek !== undefined) where.dayOfWeek = filter.dayOfWeek;
-        if (filter.startDate || filter.endDate) {
-            where.AND = [];
-            if (filter.startDate) {
-                where.AND.push({
-                    startDate: { gte: new Date(filter.startDate) },
-                });
-            }
-            if (filter.endDate) {
-                where.AND.push({
-                    startDate: { lte: new Date(filter.endDate) },
-                });
-            }
-        }
-        return where;
+    async findSpecificTimeOffs(
+        filter: BlockedTimeFilter,
+    ): Promise<BlockedTime[]> {
+        return await prisma.blockedTime.findMany({
+            where: {
+                workerId: filter.workerId,
+                type: 'HOUR',
+                dayOfWeek: null,
+                AND: [
+                    {
+                        startDate: filter.startDate
+                            ? { gte: new Date(filter.startDate) }
+                            : undefined,
+                    },
+                    {
+                        startDate: filter.endDate
+                            ? { lte: new Date(filter.endDate) }
+                            : undefined,
+                    },
+                ],
+            },
+            orderBy: { startDate: 'asc' },
+        });
+    }
+
+    async findDayOffs(filter: BlockedTimeFilter): Promise<BlockedTime[]> {
+        return await prisma.blockedTime.findMany({
+            where: {
+                workerId: filter.workerId,
+                type: 'DAY',
+                AND: [
+                    {
+                        startDate: filter.startDate
+                            ? { gte: new Date(filter.startDate) }
+                            : undefined,
+                    },
+                    {
+                        startDate: filter.endDate
+                            ? { lte: new Date(filter.endDate) }
+                            : undefined,
+                    },
+                ],
+            },
+            orderBy: { startDate: 'asc' },
+        });
+    }
+
+    async findPeriodOffs(filter: BlockedTimeFilter): Promise<BlockedTime[]> {
+        return await prisma.blockedTime.findMany({
+            where: {
+                workerId: filter.workerId,
+                type: 'PERIOD',
+                AND: [
+                    {
+                        startDate: filter.endDate
+                            ? { lte: new Date(filter.endDate) }
+                            : undefined,
+                    },
+                    {
+                        endDate: filter.startDate
+                            ? { gte: new Date(filter.startDate) }
+                            : undefined,
+                    },
+                ],
+            },
+            orderBy: { startDate: 'asc' },
+        });
+    }
+
+    async findBlockedTimesByDate(
+        filter: BlockedTimeByDateFilter,
+    ): Promise<BlockedTime[]> {
+        const dateObj = new Date(filter.date);
+        return await prisma.blockedTime.findMany({
+            where: {
+                workerId: filter.workerId,
+                OR: [
+                    {
+                        type: 'DAY',
+                        startDate: dateObj,
+                    },
+                    {
+                        type: 'PERIOD',
+                        AND: [
+                            { startDate: { lte: dateObj } },
+                            { endDate: { gte: dateObj } },
+                        ],
+                    },
+                    {
+                        type: 'HOUR',
+                        dayOfWeek: null,
+                        startDate: dateObj,
+                    },
+                    {
+                        type: 'HOUR',
+                        dayOfWeek: filter.dayOfWeek,
+                    },
+                ],
+            },
+            orderBy: { startDate: 'asc' },
+        });
     }
 }

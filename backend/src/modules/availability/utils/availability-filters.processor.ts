@@ -4,6 +4,9 @@ import {
     AvailabilityWorkerResponse,
     DateRange,
     ViewType,
+    AvailabilityClientFilter,
+    AvailabilityClientResponse,
+    Slot,
 } from '../availability.types.js';
 import { DateRangeCalculator } from './date-range.calculator.js';
 import {
@@ -12,81 +15,81 @@ import {
     mapToSpecificTimeOffResponse,
     mapToPeriodOffResponse,
     mapToWorkingHourResponse,
+    mapToDayAvailability,
 } from '../availability.mapper.js';
 import { Temporal } from 'temporal-polyfill';
+import { SlotCalculator } from './slot-calculator.js';
+import { DateIterator } from './date-iterator.js';
 
 export class AvailabilityFiltersProcessor {
     private readonly dateRangeCalculator = new DateRangeCalculator();
+    private readonly slotCalculator = new SlotCalculator();
 
     constructor(private readonly availabilityRepo: IAvailabilityRepository) {}
 
-    async process(
+    async processFullAvailability(
         workerId: number,
         filters: AvailabilityWorkerFilter,
     ): Promise<AvailabilityWorkerResponse> {
         const included = Array.isArray(filters.include) ? filters.include : [];
         if (included.length === 0) return {};
         const dateRange = this.calculateDateRange(filters.view, filters.date);
-        return this.buildResponse(workerId, included, dateRange, filters);
+        return this.buildWorkerResponse(workerId, included, dateRange, filters);
     }
 
-    private calculateDateRange(
-        view?: ViewType,
-        date?: string,
-    ): DateRange | undefined {
-        if (!view || !date) return undefined;
-        return this.dateRangeCalculator.calculate(view, date);
-    }
-
-    private async buildResponse(
+    private async buildWorkerResponse(
         workerId: number,
         included: string[],
         dateRange: DateRange | undefined,
         filters: AvailabilityWorkerFilter,
     ): Promise<AvailabilityWorkerResponse> {
         const response: AvailabilityWorkerResponse = {};
-        const gettersMap = {
-            workingHours: () =>
-                this.getWorkingHours(workerId, filters.date, filters.view),
-            daysOff: () => this.getDaysOff(workerId, dateRange),
-            periodsOff: () => this.getPeriodsOff(workerId, dateRange),
-            timesOff: () =>
-                this.getTimesOff(
-                    workerId,
-                    dateRange,
-                    filters.date,
-                    filters.view,
-                ),
-        };
         for (const type of included) {
-            if (type === 'timesOff') {
-                response.timeOffs = await gettersMap.timesOff();
-            } else if (type === 'daysOff') {
-                response.dayOffs = await gettersMap.daysOff();
-            } else if (type === 'periodsOff') {
-                response.periodOffs = await gettersMap.periodsOff();
-            } else if (type === 'workingHours') {
-                response.workingHours = await gettersMap.workingHours();
-            }
+            const data = await this.fetchAvailabilityData(
+                type,
+                workerId,
+                dateRange,
+                filters,
+            );
+            if (data !== undefined)
+                response[type as keyof AvailabilityWorkerResponse] = data;
         }
         return response;
     }
 
-    private async getWorkingHours(
+    private async fetchAvailabilityData(
+        type: string,
         workerId: number,
-        date?: string,
-        view?: string,
-    ) {
-        let data;
-        if (view === 'DAY' && date) {
-            const dayOfWeek = Temporal.PlainDate.from(date).dayOfWeek;
-            data = await this.availabilityRepo.findWorkingHours({
-                workerId,
-                dayOfWeek,
-            });
-        } else {
-            data = await this.availabilityRepo.findWorkingHours({ workerId });
+        dateRange: DateRange | undefined,
+        filters: AvailabilityWorkerFilter,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ): Promise<any> {
+        switch (type) {
+            case 'workingHours':
+                return this.getWorkingHours(
+                    workerId,
+                    filters.date,
+                    filters.view,
+                );
+            case 'timesOff':
+                return this.getTimesOff(
+                    workerId,
+                    dateRange,
+                    filters.date,
+                    filters.view,
+                );
+            case 'daysOff':
+                return this.getDaysOff(workerId, dateRange);
+            case 'periodsOff':
+                return this.getPeriodsOff(workerId, dateRange);
+            default:
+                return undefined;
         }
+    }
+
+    async getWorkingHours(workerId: number, date?: string, view?: string) {
+        const filter = this.buildRecurringFilter(workerId, date, view);
+        const data = await this.availabilityRepo.findWorkingHours(filter);
         return data.map(mapToWorkingHourResponse);
     }
 
@@ -96,8 +99,10 @@ export class AvailabilityFiltersProcessor {
         date?: string,
         view?: string,
     ) {
-        const recurring = await this.getRecurringTimesOff(workerId, date, view);
-        const specific = await this.getSpecificTimesOff(workerId, dateRange);
+        const [recurring, specific] = await Promise.all([
+            this.getRecurringTimesOff(workerId, date, view),
+            this.getSpecificTimesOff(workerId, dateRange),
+        ]);
         return { recurring, specific };
     }
 
@@ -106,27 +111,14 @@ export class AvailabilityFiltersProcessor {
         date?: string,
         view?: string,
     ) {
-        let data;
-        if (view === 'DAY' && date) {
-            const dayOfWeek = Temporal.PlainDate.from(date).dayOfWeek;
-            data = await this.availabilityRepo.findHourBlockedTimes({
-                workerId,
-                type: 'RECURRING',
-                dayOfWeek,
-            });
-        } else {
-            data = await this.availabilityRepo.findHourBlockedTimes({
-                workerId,
-                type: 'RECURRING',
-            });
-        }
+        const filter = this.buildRecurringFilter(workerId, date, view);
+        const data = await this.availabilityRepo.findRecurringTimeOffs(filter);
         return data.map(mapToRecurringTimeOffResponse);
     }
 
     private async getSpecificTimesOff(workerId: number, dateRange?: DateRange) {
-        const data = await this.availabilityRepo.findHourBlockedTimes({
+        const data = await this.availabilityRepo.findSpecificTimeOffs({
             workerId,
-            type: 'SPECIFIC',
             startDate: dateRange?.startDate,
             endDate: dateRange?.endDate,
         });
@@ -134,9 +126,8 @@ export class AvailabilityFiltersProcessor {
     }
 
     private async getDaysOff(workerId: number, dateRange?: DateRange) {
-        const data = await this.availabilityRepo.findBlockedTimes({
+        const data = await this.availabilityRepo.findDayOffs({
             workerId,
-            type: 'DAY',
             startDate: dateRange?.startDate,
             endDate: dateRange?.endDate,
         });
@@ -144,12 +135,77 @@ export class AvailabilityFiltersProcessor {
     }
 
     private async getPeriodsOff(workerId: number, dateRange?: DateRange) {
-        const data = await this.availabilityRepo.findBlockedTimes({
+        const data = await this.availabilityRepo.findPeriodOffs({
             workerId,
-            type: 'PERIOD',
             startDate: dateRange?.startDate,
             endDate: dateRange?.endDate,
         });
         return data.map(mapToPeriodOffResponse);
+    }
+
+    private buildRecurringFilter(
+        workerId: number,
+        date?: string,
+        view?: string,
+    ) {
+        if (view !== 'DAY' || !date) return { workerId };
+        const dayOfWeek = Temporal.PlainDate.from(date).dayOfWeek;
+        return { workerId, dayOfWeek };
+    }
+
+    async processBasicAvailability(
+        workerId: number,
+        filters: AvailabilityClientFilter,
+    ): Promise<AvailabilityClientResponse> {
+        const dateRange = this.calculateDateRange(filters.view, filters.date);
+        if (!dateRange) return [];
+
+        const dates = DateIterator.generate(
+            dateRange.startDate,
+            dateRange.endDate,
+        );
+
+        const dailyAvailabilities = await Promise.all(
+            dates.map(({ date, dayOfWeek }) =>
+                this.buildDayAvailability(workerId, date, dayOfWeek),
+            ),
+        );
+
+        return dailyAvailabilities.filter(
+            (availability) => availability !== null,
+        ) as AvailabilityClientResponse;
+    }
+
+    private async buildDayAvailability(
+        workerId: number,
+        date: string,
+        dayOfWeek: number,
+    ): Promise<ReturnType<typeof mapToDayAvailability> | null> {
+        const workingHours = await this.availabilityRepo.findWorkingHours({
+            workerId,
+            dayOfWeek,
+        });
+        if (workingHours.length === 0) return null;
+
+        const blockedTimes = await this.availabilityRepo.findBlockedTimesByDate(
+            { workerId, date, dayOfWeek },
+        );
+
+        const availableSlots = this.slotCalculator.calculateAvailableSlots(
+            workingHours[0],
+            blockedTimes,
+        );
+        // TODO: Calcular slots ocupados (cuando se implemente módulo de citas)
+        const occupiedSlots: Slot[] = [];
+
+        return mapToDayAvailability(date, availableSlots, occupiedSlots);
+    }
+
+    private calculateDateRange(
+        view?: ViewType,
+        date?: string,
+    ): DateRange | undefined {
+        if (!view || !date) return undefined;
+        return this.dateRangeCalculator.calculate(view, date);
     }
 }

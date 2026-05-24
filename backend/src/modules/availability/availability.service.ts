@@ -1,6 +1,8 @@
 import { IUserService } from '../users/user.service.js';
 import { IAvailabilityRepository } from './availability.repository.js';
 import {
+    AvailabilityClientFilter,
+    AvailabilityClientResponse,
     AvailabilityWorkerFilter,
     AvailabilityWorkerResponse,
     BlockedTime,
@@ -26,6 +28,9 @@ export interface IAvailabilityService {
     addTimeOff(input: CreateTimeOffInput): Promise<void>;
     addDayOff(input: CreateDayOffInput): Promise<void>;
     addPeriodOff(input: CreatePeriodOffInput): Promise<void>;
+    getBasicAvailability(
+        filters: AvailabilityClientFilter,
+    ): Promise<AvailabilityClientResponse>;
     getFullAvailability(
         filters: AvailabilityWorkerFilter,
         auth?: AuthContext,
@@ -92,6 +97,16 @@ export class AvailabilityService implements IAvailabilityService {
         await this.availabilityRepo.createBlockedTime(periodOff);
     }
 
+    async getBasicAvailability(
+        filters: AvailabilityClientFilter,
+    ): Promise<AvailabilityClientResponse> {
+        await this.businessValidator.ensureWorkerExists(filters.workerId);
+        return this.filtersProcessor.processBasicAvailability(
+            filters.workerId,
+            filters,
+        );
+    }
+
     async getFullAvailability(
         filters: AvailabilityWorkerFilter,
         auth?: AuthContext,
@@ -99,8 +114,7 @@ export class AvailabilityService implements IAvailabilityService {
         const workerId = filters.workerId;
         await this.businessValidator.ensureWorkerExists(workerId);
         if (auth) this.businessValidator.validateCanView(workerId, auth);
-
-        return this.filtersProcessor.process(workerId, filters);
+        return this.filtersProcessor.processFullAvailability(workerId, filters);
     }
 
     async delete(id: number, auth?: AuthContext): Promise<void> {

@@ -147,17 +147,33 @@ export interface PeriodOffResponse {
     reason?: string;
 }
 
+// Represents a time slot in the client's availability response
+export interface Slot {
+    start: string; // ISO time string
+    end: string; // ISO time string
+}
+
+// Represents a day's availability in the client's response
+export interface DayAvailability {
+    date: string;
+    available: Slot[];
+    occupied: Slot[];
+}
+
 // Response for workers
 // Note: Only includes fields matching the 'include' filter from AvailabilityWorkerFilter
 export interface AvailabilityWorkerResponse {
     workingHours?: WorkingHourResponse[];
-    timeOffs?: {
+    timesOff?: {
         recurring: RecurringTimeOffResponse[];
         specific: SpecificTimeOffResponse[];
     };
-    dayOffs?: DayOffResponse[];
-    periodOffs?: PeriodOffResponse[];
+    daysOff?: DayOffResponse[];
+    periodsOff?: PeriodOffResponse[];
 }
+
+// Response for clients
+export type AvailabilityClientResponse = DayAvailability[];
 
 // ============================================================
 // * FILTERS
@@ -174,23 +190,28 @@ export interface WorkingHourFilter {
 
 export interface BlockedTimeFilter {
     workerId: number;
-    type?: TimeInterval;
     startDate?: string; // ISO date string
     endDate?: string; // ISO date string
+    dayOfWeek?: number;
 }
 
-export interface HourBlockedTimeFilter {
+export interface BlockedTimeByDateFilter {
     workerId: number;
-    type?: 'RECURRING' | 'SPECIFIC';
-    dayOfWeek?: number;
-    startDate?: string; // ISO date string
-    endDate?: string; // ISO date string
+    date: string; // ISO date string
+    dayOfWeek: number;
 }
 
 // Filters for worker availability query
 export interface AvailabilityWorkerFilter {
     workerId: number;
     include?: AvailabilityType[];
+    view?: ViewType;
+    date?: string; // ISO date string
+}
+
+// Filters for client availability query
+export interface AvailabilityClientFilter {
+    workerId: number;
     view?: ViewType;
     date?: string; // ISO date string
 }

@@ -20,6 +20,9 @@ import {
     RecurringTimeOffResponse,
     SpecificTimeOffResponse,
     AvailabilityWorkerFilter,
+    AvailabilityClientFilter,
+    Slot,
+    DayAvailability,
 } from './availability.types.js';
 import { availabilityWorkerFilters } from './availability.validator.js';
 
@@ -175,6 +178,37 @@ export function mapToPeriodOffResponse(block: BlockedTime): PeriodOffResponse {
     };
 }
 
+export function mapWorkingHourToSlot(workingHour: WorkingHour): Slot {
+    return {
+        start: dateTimeToIsoTime(workingHour.startTime.toISOString()),
+        end: dateTimeToIsoTime(workingHour.endTime.toISOString()),
+    };
+}
+
+export function mapBlockedTimeToSlot(block: BlockedTime): Slot {
+    if (block.type === 'DAY') return { start: '00:00', end: '23:59' };
+    return {
+        start: block.startTime
+            ? dateTimeToIsoTime(block.startTime.toISOString())
+            : '00:00',
+        end: block.endTime
+            ? dateTimeToIsoTime(block.endTime.toISOString())
+            : '23:59',
+    };
+}
+
+export function mapToDayAvailability(
+    date: string,
+    availableSlots: Slot[],
+    occupiedSlots: Slot[],
+): DayAvailability {
+    return {
+        date,
+        available: availableSlots,
+        occupied: occupiedSlots,
+    };
+}
+
 export function mapToAvailabilityWorkerFilter(
     workerId: number,
     filters: Partial<Omit<AvailabilityWorkerFilter, 'workerId'>> = {},
@@ -185,5 +219,16 @@ export function mapToAvailabilityWorkerFilter(
         include: parseFilters.include,
         view: parseFilters.view,
         date: parseFilters.date,
+    };
+}
+
+export function mapToAvailabilityClientFilter(
+    workerId: number,
+    filters: Partial<Omit<AvailabilityWorkerFilter, 'workerId'>>,
+): AvailabilityClientFilter {
+    return {
+        workerId,
+        view: filters.view,
+        date: filters.date,
     };
 }
