@@ -109,6 +109,11 @@ export const availabilityWorkerFilters = z.object({
     date: dateSchema.optional(),
 });
 
+export const availabilityClientFilters = z.object({
+    view: viewTypeEnum.optional(),
+    date: dateSchema.optional(),
+});
+
 // ============================================================
 // * CENTRALIZED VALIDATORS
 // ============================================================
@@ -119,4 +124,5 @@ export const availabilityValidator = {
     createDayOff: validateBodyDTO(createDayOffInput),
     createPeriodOff: validateBodyDTO(createPeriodOffInput),
     workerFilters: validateQueryDTO(availabilityWorkerFilters),
+    clientFilters: validateQueryDTO(availabilityClientFilters),
 };

@@ -50,9 +50,9 @@ export class AvailabilityBusinessValidator {
     }
 
     async checkOverlapping(block: CreateBlockedTimeData): Promise<void> {
-        const blocks = await this.availabilityRepo.findBlockedTimes({
-            workerId: block.workerId,
-        });
+        const blocks = await this.availabilityRepo.findBlockedTimesByWorkerId(
+            block.workerId,
+        );
         if (this.overlapValidator.overlaps(block, blocks)) {
             throw new ConflictError(AVAILABILITY_ERRORS.OVERLAPPING_DAY_OFF);
         }
@@ -61,9 +61,9 @@ export class AvailabilityBusinessValidator {
     async checkOverlappingRecurring(
         block: CreateRecurringTimeOffInput,
     ): Promise<void> {
-        const blocks = await this.availabilityRepo.findBlockedTimes({
-            workerId: block.workerId,
-        });
+        const blocks = await this.availabilityRepo.findBlockedTimesByWorkerId(
+            block.workerId,
+        );
         if (this.overlapValidator.overlapsRecurring(block, blocks)) {
             throw new ConflictError(AVAILABILITY_ERRORS.OVERLAPPING_DAY_OFF);
         }

@@ -1,7 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 import { IAvailabilityService } from './availability.service.js';
 import { extractRequestContextWithId } from '../../shared/utils/request-parser.util.js';
-import { mapToAvailabilityWorkerFilter } from './availability.mapper.js';
+import {
+    mapToAvailabilityClientFilter,
+    mapToAvailabilityWorkerFilter,
+} from './availability.mapper.js';
 
 export class AvailabilityController {
     constructor(private readonly availabilityService: IAvailabilityService) {}
@@ -61,6 +64,25 @@ export class AvailabilityController {
             });
             return res.status(201).json({
                 message: 'Periodo bloqueado correctamente',
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    getBasicAvailability = async (
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ) => {
+        try {
+            const workerId = req.params.id as unknown as number;
+            const filters = mapToAvailabilityClientFilter(workerId, req.query);
+            const data =
+                await this.availabilityService.getBasicAvailability(filters);
+            return res.status(200).json({
+                message: 'Disponibilidad recuperada correctamente',
+                data,
             });
         } catch (error) {
             next(error);

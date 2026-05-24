@@ -43,6 +43,15 @@ availabilityRouter.post(
 );
 
 availabilityRouter.get(
+    '/worker/:id',
+    authMiddleware,
+    requireRole('CLIENT'),
+    availabilityValidator.id,
+    availabilityValidator.clientFilters,
+    availabilityController.getBasicAvailability,
+);
+
+availabilityRouter.get(
     '/:id/config',
     authMiddleware,
     requireRole('WORKER'),
