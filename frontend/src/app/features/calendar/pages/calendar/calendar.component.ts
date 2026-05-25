@@ -50,21 +50,26 @@ import { AvailabilityHierarchyAdapter } from '../../adapters/availability-hierac
 import { formatTimeTo12Hour } from '../../utils/time.util';
 import { Overlay } from '@angular/cdk/overlay';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { WorkingHoursModalComponent, WorkingHoursModalData } from '../../components/working-hours/working-hours-modal.component';
+import { WorkingHoursModalComponent } from '../../components/working-hours-modal/working-hours-modal.component';
 import { UpdateWorkingHoursRequest } from '../../models/requests/update-working-hours-request.model';
 import { UpdateWorkingHoursResponse } from '../../models/responses/update-working-hours-response.model';
 import { DAY_INDEX_TO_WEEKDAY } from '../../constants/availability.constants';
-import { TimeOffModalComponent, TimeOffModalData } from '../../components/time-off/time-off-modal.component';
+import { TimeOffModalComponent } from '../../components/time-off-modal/time-off-modal.component';
 import { SetTimeOffRequest } from '../../models/requests/set-time-off-request.model';
 import { SetTimeOffResponse } from '../../models/responses/set-time-off-response.model';
-import { DayOffModalComponent, DayOffModalData } from '../../components/day-off/day-off-modal.component';
+import { DayOffModalComponent } from '../../components/day-off-modal/day-off-modal.component';
 import { SetDayOffResponse } from '../../models/responses/set-day-off-response.model';
 import { SetDayOffRequest } from '../../models/requests/set-day-off-request.model';
-import { PeriodOffModalComponent, PeriodOffModalData } from '../../components/period-off/period-off-modal.component';
+import { PeriodOffModalComponent } from '../../components/period-off-modal/period-off-modal.component';
+import type {
+  DayOffModalData,
+  PeriodOffModalData,
+  TimeOffModalData,
+  WorkingHoursModalData,
+} from '../../interfaces/calendar-modal-data.interface';
 import { SetPeriodOffResponse } from '../../models/responses/set-period-off-response.model';
 import { SetPeriodOffRequest } from '../../models/requests/set-period-off-request.model';
 import { DeleteBlockResponse } from '../../models/responses/delete-block-response.model';
-
 @Component({
   selector: 'app-calendar',
   standalone: true,
@@ -88,61 +93,42 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
   protected currentDate: Date = new Date();
   protected isDeleteMode = false;
   protected isLoading = false;
-
   protected timeSlots: TimeSlot[] = [];
   protected visibleDays: Date[] = [];
   protected weekDayNames = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
-
   protected availabilityData: AvailabilityConfigData | null = null;
-
-
   protected headerH = 60;
-
   private readonly tooltipSvc = inject(CalendarTooltipService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly selectionMenuSvc = inject(CalendarSelectionMenuService);
   private readonly dialog = inject(MatDialog);
   private readonly overlay = inject(Overlay);
   private allWorkingHours: WorkingHour[] = [];
-
   @ViewChild('gridWrap') private gridWrap!: ElementRef<HTMLElement>;
   @ViewChild(CalendarGridWeekComponent) private weekGridComp?: CalendarGridWeekComponent;
   @ViewChild(CalendarGridDayComponent) private dayGridComp?: CalendarGridDayComponent;
-
-
   protected get activeGridEl(): HTMLElement | null {
     return this.gridWrap?.nativeElement ?? null;
-
-
-
   }
-
   protected get scrollGridContainer(): HTMLElement | null {
     return this.gridWrap?.nativeElement ?? null;
   }
-
   public constructor(
     private availabilityService: AvailabilityService,
     private sessionService: SessionService,
     private messageService: MessageService,
     private calendarCellService: CalendarCellService,
   ) { }
-
   public ngOnInit(): void {
     this.timeSlots = buildTimeSlots();
     this.visibleDays = buildVisibleDays(this.currentDate, this.currentView);
     this.loadAvailabilityConfig();
   }
-
   public ngAfterViewInit(): void {
     this.cdr.detectChanges();
     this.scrollToCurrentTime();
-
     setTimeout(() => this._updateHeaderH());
   }
-
-
-
   protected goToPrev(): void {
     if (this.currentView === 'day') this.currentDate = addDays(this.currentDate, -1);
     else if (this.currentView === 'week') this.currentDate = subWeeks(this.currentDate, 1);
@@ -151,7 +137,6 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
     this.scrollToCurrentTime();
     this.loadAvailabilityConfig();
   }
-
   protected goToNext(): void {
     if (this.currentView === 'day') this.currentDate = addDays(this.currentDate, 1);
     else if (this.currentView === 'week') this.currentDate = addWeeks(this.currentDate, 1);
@@ -160,25 +145,19 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
     this.scrollToCurrentTime();
     this.loadAvailabilityConfig();
   }
-
   protected goToToday(): void {
     this.currentDate = new Date();
     this.visibleDays = buildVisibleDays(this.currentDate, this.currentView);
     this.scrollToCurrentTime();
     this.loadAvailabilityConfig();
   }
-
   protected setView(view: CalendarView): void {
     this.currentView = view;
     this.visibleDays = buildVisibleDays(this.currentDate, this.currentView);
     this.scrollToCurrentTime();
     this.loadAvailabilityConfig();
-
     setTimeout(() => this._updateHeaderH());
   }
-
-
-
   private loadAvailabilityConfig(): void {
     const workerId = this.sessionService.getSession()?.id;
     if (!workerId) {
@@ -189,7 +168,6 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
       return;
     }
     this.isLoading = true;
-
     const view = this.currentView.toUpperCase() as 'DAY' | 'WEEK' | 'MONTH';
     let date: string;
     if (this.currentView === 'week') {
@@ -199,7 +177,6 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
     } else {
       date = format(this.currentDate, 'yyyy-MM-dd');
     }
-
     this.availabilityService
       .getAvailabilityConfig(workerId, {
         include: ['workingHours', 'daysOff', 'timesOff', 'periodsOff'],
@@ -211,11 +188,9 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
         error: (e: ErrorResponse) => this.handleAvailabilityError(e),
       });
   }
-
   private handleAvailabilitySuccess(response: AvailabilityConfigResponse): void {
     this.isLoading = false;
     this.availabilityData = response.data;
-
     const incoming = response.data.workingHours ?? [];
     if (incoming.length > 0) {
       const merged = new Map<string, WorkingHour>(
@@ -228,7 +203,6 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
     }
     this.calendarCellService.configure(this.availabilityData, this.timeSlots);
   }
-
   private handleAvailabilityError(error: ErrorResponse): void {
     this.isLoading = false;
     this.messageService.showMessage(
@@ -236,7 +210,6 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
       AlertType.ERROR,
     );
   }
-
   protected get dateRangeLabel(): string {
     if (this.currentView === 'day') {
       return format(this.currentDate, "d 'de' MMMM yyyy", { locale: es });
@@ -251,7 +224,6 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
     }
     return format(this.currentDate, 'MMMM yyyy', { locale: es });
   }
-
   private _updateHeaderH(): void {
     const header = this.gridWrap?.nativeElement
       ?.querySelector<HTMLElement>('.cal-grid__day-header');
@@ -259,12 +231,10 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
       this.headerH = header.offsetHeight;
     }
   }
-
   private scrollToCurrentTime(): void {
     setTimeout(() => {
       const el = this.gridWrap?.nativeElement;
       if (!el) return;
-
       if (this.currentView === 'month') {
         const todayCell = el.querySelector('.cal-month__day--today') as HTMLElement;
         if (todayCell) {
@@ -274,9 +244,8 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
         }
         return;
       }
-
       const now = new Date();
-      const startHour = 5;
+      const startHour = 0;
       const firstLabel = el.querySelector('.cal-grid__time-label') as HTMLElement;
       const slotHeight = firstLabel ? firstLabel.offsetHeight : 48;
       const slotsFromStart =
@@ -287,28 +256,20 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
       });
     }, 100);
   }
-
-
-
   protected onGridScroll(): void {
     this.tooltipSvc.hide();
   }
-
   protected onSelectionComplete(
     selection: { day: Date; startSlot: TimeSlot; endSlot: TimeSlot; x: number; y: number },
   ): void {
     const startStr = `${selection.startSlot.hour.toString().padStart(2, '0')}:${selection.startSlot.minute.toString().padStart(2, '0')}`;
-
     const endTotalMin = selection.endSlot.hour * 60 + selection.endSlot.minute + 30;
     const endH = Math.floor(endTotalMin / 60);
     const endM = endTotalMin % 60;
     const endStr = `${endH.toString().padStart(2, '0')}:${endM.toString().padStart(2, '0')}`;
-
     const start12h = formatTimeTo12Hour(startStr);
     const end12h = formatTimeTo12Hour(endStr);
-
     const label = `${start12h} — ${end12h}`;
-
     this.selectionMenuSvc.show(selection.x, selection.y, 'edit_calendar', label, [
       {
         icon: 'lock_clock',
@@ -317,7 +278,6 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
       },
     ]);
   }
-
   protected onMonthDayContextMenu(payload: { day: Date; x: number; y: number }): void {
     const label = format(payload.day, "EEEE d 'de' MMMM", { locale: es });
     this.selectionMenuSvc.show(payload.x, payload.y, 'calendar_today', label, [
@@ -328,11 +288,9 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
       },
     ]);
   }
-
   protected onWeekdayHeaderContextMenu(payload: { day: Date; x: number; y: number }): void {
     const label = format(payload.day, 'EEEE', { locale: es });
     const isWorking = this.calendarCellService.isWorkingDay(payload.day);
-
     this.selectionMenuSvc.show(payload.x, payload.y, 'calendar_today', label, [
       {
         icon: isWorking ? 'work_off' : 'work',
@@ -345,20 +303,15 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
       },
     ]);
   }
-
   private removeFromWorkingDays(day: Date): void {
     const workerId = this.sessionService.getSession()?.id;
     if (!workerId) return;
-
     const weekday = DAY_INDEX_TO_WEEKDAY[getDay(day)];
-
     const workingHours = this.allWorkingHours
       .filter(wh => wh.dayOfWeek !== weekday)
       .map(wh => ({ dayOfWeek: wh.dayOfWeek as any, startTime: wh.startTime, endTime: wh.endTime }));
-
     this.availabilityService.updateWorkingHours(workerId, { workingHours }).subscribe({
       next: (r) => {
-
         this.allWorkingHours = this.allWorkingHours.filter(wh => wh.dayOfWeek !== weekday);
         this.messageService.showMessage(r.message, AlertType.SUCCESS);
         this.loadAvailabilityConfig();
@@ -367,20 +320,15 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
         this.messageService.showMessage(e.message ?? 'Error al actualizar la jornada', AlertType.ERROR),
     });
   }
-
   private addToWorkingDays(day: Date): void {
     const workerId = this.sessionService.getSession()?.id;
     if (!workerId) return;
-
     const weekday = DAY_INDEX_TO_WEEKDAY[getDay(day)];
     const newEntry: WorkingHour = { dayOfWeek: weekday as any, startTime: '08:00', endTime: '18:00' };
-
-
     const workingHours = [
       ...this.allWorkingHours.filter(wh => wh.dayOfWeek !== weekday),
       newEntry,
     ].map(wh => ({ dayOfWeek: wh.dayOfWeek as any, startTime: wh.startTime, endTime: wh.endTime }));
-
     this.availabilityService.updateWorkingHours(workerId, { workingHours }).subscribe({
       next: (r) => {
         this.allWorkingHours = [
@@ -394,11 +342,9 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
         this.messageService.showMessage(e.message ?? 'Error al actualizar la jornada', AlertType.ERROR),
     });
   }
-
   protected onDayHeaderClick(payload: { day: Date; x: number; y: number }): void {
     const label = format(payload.day, "EEEE d 'de' MMMM", { locale: es });
     const isWorking = this.calendarCellService.isWorkingDay(payload.day);
-
     this.selectionMenuSvc.show(payload.x, payload.y, 'calendar_today', label, [
       {
         icon: isWorking ? 'work_off' : 'work',
@@ -421,7 +367,6 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
       },
     ]);
   }
-
   protected onMonthSelectionComplete(
     sel: { startDay: Date; endDay: Date; x: number; y: number },
   ): void {
@@ -429,7 +374,6 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
     const label = isSingle
       ? format(sel.startDay, "EEEE d 'de' MMMM", { locale: es })
       : `${format(sel.startDay, 'd MMM', { locale: es })} — ${format(sel.endDay, 'd MMM yyyy', { locale: es })}`;
-
     const actions = isSingle
       ? [{
         icon: 'event_busy', label: 'Definir nuevo día libre',
@@ -439,19 +383,15 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
         icon: 'date_range', label: 'Definir nuevo período libre',
         handler: () => this.openPeriodOffConfig(sel.startDay, sel.endDay)
       }];
-
     this.selectionMenuSvc.show(sel.x, sel.y, 'calendar_today', label, actions);
   }
-
   protected openWorkingHoursConfig(): void {
     if (!this.availabilityData) return;
-
     const dialogData: WorkingHoursModalData = {
       availabilityData: this.availabilityData,
       onSubmit: (request: UpdateWorkingHoursRequest) =>
         this.onWorkingHoursSubmit(request, dialogRef),
     };
-
     const dialogRef = this.dialog.open(WorkingHoursModalComponent, {
       width: 'auto',
       maxWidth: '90vw',
@@ -463,20 +403,17 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
       data: dialogData,
     });
   }
-
   private onWorkingHoursSubmit(
     request: UpdateWorkingHoursRequest,
     dialogRef?: MatDialogRef<WorkingHoursModalComponent>,
   ): void {
     const workerId = this.sessionService.getSession()?.id;
     if (!workerId) return;
-
     this.availabilityService.updateWorkingHours(workerId, request).subscribe({
       next: (r) => this.handleWorkingHoursSuccess(r, dialogRef),
       error: (e: ErrorResponse) => this.handleWorkingHoursError(e, dialogRef),
     });
   }
-
   private handleWorkingHoursSuccess(
     response: UpdateWorkingHoursResponse,
     dialogRef?: MatDialogRef<WorkingHoursModalComponent>
@@ -485,7 +422,6 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
     this.messageService.showMessage(response.message, AlertType.SUCCESS);
     this.loadAvailabilityConfig();
   }
-
   private handleWorkingHoursError(
     error: ErrorResponse,
     dialogRef?: MatDialogRef<WorkingHoursModalComponent>,
@@ -500,7 +436,6 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
       onSubmit: (request: SetDayOffRequest) =>
         this.onDayOffSubmit(request, dialogRef),
     };
-
     const dialogRef = this.dialog.open(DayOffModalComponent, {
       width: 'auto',
       maxWidth: '90vw',
@@ -512,20 +447,17 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
       data: dialogData,
     });
   }
-
   private onDayOffSubmit(
     request: SetDayOffRequest,
     dialogRef?: MatDialogRef<DayOffModalComponent>,
   ): void {
     const workerId = this.sessionService.getSession()?.id;
     if (!workerId) return;
-
     this.availabilityService.setDayOff(workerId, request).subscribe({
       next: (r) => this.handleDayOffSuccess(r, dialogRef),
       error: (e: ErrorResponse) => this.handleDayOffError(e, dialogRef),
     });
   }
-
   private handleDayOffSuccess(
     response: SetDayOffResponse,
     dialogRef?: MatDialogRef<DayOffModalComponent>,
@@ -535,7 +467,6 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
     this.messageService.showMessage(response.message, AlertType.SUCCESS);
     this.loadAvailabilityConfig();
   }
-
   private handleDayOffError(
     error: ErrorResponse,
     dialogRef?: MatDialogRef<DayOffModalComponent>,
@@ -556,7 +487,6 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
       onSubmit: (request: SetTimeOffRequest) =>
         this.onTimeOffSubmit(request, dialogRef),
     };
-
     const dialogRef = this.dialog.open(TimeOffModalComponent, {
       width: 'auto',
       maxWidth: '90vw',
@@ -568,20 +498,17 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
       data: dialogData,
     });
   }
-
   private onTimeOffSubmit(
     request: SetTimeOffRequest,
     dialogRef?: MatDialogRef<TimeOffModalComponent>,
   ): void {
     const workerId = this.sessionService.getSession()?.id;
     if (!workerId) return;
-
     this.availabilityService.setTimeOff(workerId, request).subscribe({
       next: (r) => this.handleTimeOffSuccess(r, dialogRef),
       error: (e: ErrorResponse) => this.handleTimeOffError(e, dialogRef),
     });
   }
-
   private handleTimeOffSuccess(
     response: SetTimeOffResponse,
     dialogRef?: MatDialogRef<TimeOffModalComponent>,
@@ -591,7 +518,6 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
     this.messageService.showMessage(response.message, AlertType.SUCCESS);
     this.loadAvailabilityConfig();
   }
-
   private handleTimeOffError(
     error: ErrorResponse,
     dialogRef?: MatDialogRef<TimeOffModalComponent>,
@@ -620,7 +546,6 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
       data: dialogData,
     });
   }
-
   private onPeriodOffSubmit(
     request: SetPeriodOffRequest,
     dialogRef?: MatDialogRef<PeriodOffModalComponent>,
@@ -632,7 +557,6 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
       error: (e: ErrorResponse) => this.handlePeriodOffError(e, dialogRef),
     });
   }
-
   private handlePeriodOffSuccess(
     response: SetPeriodOffResponse,
     dialogRef?: MatDialogRef<PeriodOffModalComponent>,
@@ -642,7 +566,6 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
     this.messageService.showMessage(response.message, AlertType.SUCCESS);
     this.loadAvailabilityConfig();
   }
-
   private handlePeriodOffError(
     error: ErrorResponse,
     dialogRef?: MatDialogRef<PeriodOffModalComponent>,
@@ -653,23 +576,19 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
       AlertType.ERROR,
     );
   }
-
   protected onDeleteEntity(id: number): void {
     console.log('Delete entity with id:', id);
     const workerId = this.sessionService.getSession()?.id;
     if (!workerId) return;
-
     this.availabilityService.deleteBlock(id).subscribe({
       next: (r) => this.handleDeleteBlockSuccess(r),
       error: (e: ErrorResponse) => this.handleDeleteBlockError(e),
     });
   }
-
   private handleDeleteBlockSuccess(response: DeleteBlockResponse): void {
     this.messageService.showMessage(response.message, AlertType.SUCCESS);
     this.loadAvailabilityConfig();
   }
-
   private handleDeleteBlockError(error: ErrorResponse): void {
     this.messageService.showMessage(
       error.message ?? 'Error al eliminar el bloqueo',
@@ -682,18 +601,14 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
   }
   protected onMonthDayClick(day: Date): void { }
   protected onMonthDayPointerDown(day: Date): void { }
-
   protected onBoundaryChange(
     payload: { day: Date; type: 'start' | 'end'; newSlot: TimeSlot; originalSlot: TimeSlot },
   ): void {
     if (!this.availabilityData?.workingHours?.length) return;
-
     const request = this.buildBoundaryRequest(payload);
     if (!request) return;
-
     const workerId = this.sessionService.getSession()?.id;
     if (!workerId) return;
-
     this.availabilityService.updateWorkingHours(workerId, request).subscribe({
       next: (r) => {
         this.messageService.showMessage(r.message, AlertType.SUCCESS);
@@ -705,29 +620,21 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
       },
     });
   }
-
   private buildBoundaryRequest(
     payload: { day: Date; type: 'start' | 'end'; newSlot: TimeSlot },
   ): UpdateWorkingHoursRequest | null {
     const weekday = DAY_INDEX_TO_WEEKDAY[getDay(payload.day)];
-
     const newMin = payload.type === 'start'
       ? payload.newSlot.hour * 60 + payload.newSlot.minute + 30
       : payload.newSlot.hour * 60 + payload.newSlot.minute;
-
     const newTimeStr =
       `${String(Math.floor(newMin / 60)).padStart(2, '0')}:${String(newMin % 60).padStart(2, '0')}`;
-
-
     if (!this.allWorkingHours.some(wh => wh.dayOfWeek === weekday)) return null;
-
-
     const workingHours = this.allWorkingHours.map(wh => ({
       dayOfWeek: wh.dayOfWeek as any,
       startTime: wh.dayOfWeek === weekday && payload.type === 'start' ? newTimeStr : wh.startTime,
       endTime: wh.dayOfWeek === weekday && payload.type === 'end' ? newTimeStr : wh.endTime,
     }));
-
     return { workingHours };
   }
 }

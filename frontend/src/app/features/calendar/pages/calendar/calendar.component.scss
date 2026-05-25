@@ -3,10 +3,34 @@
 @use '../../components/calendar-grid/month/calendar-grid-month.component.scss' as month-styles;
 @use '../../components/calendar-grid/base/calendar-grid.component.scss' as grid-styles;
 @use '../../components/calendar-sidebar/calendar-sidebar.component.scss' as sidebar-styles;
-@use '../../components/calendar-footer/calendar-footer.component.scss' as footer-styles;  // ← nuevo
+@use '../../components/calendar-footer/calendar-footer.component.scss' as footer-styles; // ← nuevo
 
 :host ::ng-deep {
-        
+
+    @keyframes cal-loading-pulse {
+
+        0%,
+        100% {
+            transform: scale(1);
+            opacity: 0.65;
+        }
+
+        50% {
+            transform: scale(1.12);
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
     .calendar-page {
         display: flex;
         flex-direction: column;
@@ -39,6 +63,44 @@
             color: $primary;
             letter-spacing: -0.03em;
             line-height: 1;
+        }
+    }
+
+    .cal-loading-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 20;
+        background: rgba(255, 255, 255, 0.72);
+        backdrop-filter: blur(3px);
+        -webkit-backdrop-filter: blur(3px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: inherit;
+        animation: fadeIn 0.15s ease both;
+
+        &__content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        &__icon {
+            font-size: 2rem !important;
+            line-height: 1 !important;
+            color: $vinotinto;
+            animation: cal-loading-pulse 1.4s ease-in-out infinite;
+        }
+
+        &__text {
+            font-family: 'Manrope', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: $vinotinto;
+            opacity: 0.75;
         }
     }
 
@@ -235,7 +297,7 @@
     @include grid-styles.styles();
     @include month-styles.styles();
     @include sidebar-styles.styles();
-    @include footer-styles.styles();   // ← nuevo
+    @include footer-styles.styles(); // ← nuevo
 
     @media (max-width: 640px) {
         .cal-grid__segment-label {
@@ -403,5 +465,4 @@
             }
         }
     }
-
 }
