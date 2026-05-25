@@ -1,81 +1,53 @@
 @use '../../styles/calendar-variables.scss' as *;
-
-
-
 $week-day-min: 4.5rem;
 $week-min-w:   calc(#{$time-col} + 7 * #{$week-day-min});
-
 @keyframes scroll-hint-float {
   0%, 100% { transform: translateY(0); }
   50%       { transform: translateY(-3px); }
 }
-
 :host {
   display: contents;
   pointer-events: none;
 }
-
-
 .scroll-hint-overlay {
   position: sticky;
   height: 0;
   overflow: visible;
   z-index: 6;
   pointer-events: none;
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
   &--week {
     display: grid;
     grid-template-columns: $time-col repeat(7, minmax(0, 1fr));
     min-width: 0;                              
     width: 100%; 
     @media (max-width: 640px) {
-      
       grid-template-columns: 3rem repeat(7, minmax(2.5rem, 1fr));
       width: max(100%, calc(3rem + 7 * 2.5rem));
     }         
   }
-
-  
-  
-  
-  
-  
   &--day {
     display: grid;
     grid-template-columns: minmax(0, 1fr) min(calc(100% - 2rem), 20rem) minmax(0, 1fr);
     width: 100%;
-
     @media (max-width: 640px) {
       grid-template-columns: minmax(0, 1fr) min(calc(100% - 1rem), 20rem) minmax(0, 1fr);
     }
-
     @media (max-width: 420px) {
       grid-template-columns: $time-col 1fr;
-
       .scroll-hint-overlay__spacer:last-child {
         display: none;
       }
     }
   }
-
   &__col {
     height: 0;
     overflow: visible;
     position: relative;
   }
 }
-
-
 .scroll-hint-btn {
+  will-change: transform, opacity;
+  transform: translateZ(0);
   position: absolute;
   top: 6px;
   left: 4px;
@@ -90,7 +62,6 @@ $week-min-w:   calc(#{$time-col} + 7 * #{$week-day-min});
   cursor: pointer;
   pointer-events: all;
   overflow: hidden;
-
   opacity: 0;
   transform: translateY(-6px) scale(0.95);
   transition:
@@ -98,19 +69,16 @@ $week-min-w:   calc(#{$time-col} + 7 * #{$week-day-min});
     transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
     background 0.15s ease,
     box-shadow 0.15s ease;
-
   &--visible {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
-
   &__icon {
     font-size: 1rem !important;
     flex-shrink: 0;
     line-height: 1;
     animation: scroll-hint-float 1.8s ease-in-out infinite;
   }
-
   &__reason {
     font-size: 0.55rem;
     font-weight: 800;
@@ -123,18 +91,14 @@ $week-min-w:   calc(#{$time-col} + 7 * #{$week-day-min});
     text-align: right;
     line-height: 1;
   }
-
-  
   &--timeoff {
     background: rgba(20, 5, 12, 0.92);
     box-shadow:
       0 2px 8px rgba(#b87098, 0.2),
       inset 0 0 0 1px rgba(#b87098, 0.4),
       inset 0 1px 0 rgba(#d094b8, 0.15);
-
     .scroll-hint-btn__icon   { color: rgba(#d094b8, 0.95); filter: drop-shadow(0 0 4px rgba(#b87098, 0.65)); }
     .scroll-hint-btn__reason { color: rgba(#e4b8d0, 0.88); }
-
     &:hover {
       background: rgba(56, 16, 42, 0.96);
       box-shadow: 0 3px 12px rgba(#b87098, 0.38), inset 0 0 0 1px rgba(#d094b8, 0.65);
@@ -142,18 +106,14 @@ $week-min-w:   calc(#{$time-col} + 7 * #{$week-day-min});
       .scroll-hint-btn__reason { color: rgba(#fce8f4, 0.95); }
     }
   }
-
-  
   &--periodoff {
     background: rgba(16, 3, 8, 0.92);
     box-shadow:
       0 2px 8px rgba(#b03050, 0.2),
       inset 0 0 0 1px rgba(#b03050, 0.4),
       inset 0 1px 0 rgba(#cc4865, 0.15);
-
     .scroll-hint-btn__icon   { color: rgba(#cc4865, 0.95); filter: drop-shadow(0 0 4px rgba(#b03050, 0.65)); }
     .scroll-hint-btn__reason { color: rgba(#e89aaa, 0.88); }
-
     &:hover {
       background: rgba(40, 8, 16, 0.96);
       box-shadow: 0 3px 12px rgba(#b03050, 0.38), inset 0 0 0 1px rgba(#cc4865, 0.65);
@@ -161,18 +121,14 @@ $week-min-w:   calc(#{$time-col} + 7 * #{$week-day-min});
       .scroll-hint-btn__reason { color: rgba(#f8e0e5, 0.95); }
     }
   }
-
-  
   &--dayoff {
     background: rgba(18, 6, 10, 0.92);
     box-shadow:
       0 2px 8px rgba(#c8a0b5, 0.2),
       inset 0 0 0 1px rgba(#c8a0b5, 0.4),
       inset 0 1px 0 rgba(#e0b8cc, 0.15);
-
     .scroll-hint-btn__icon   { color: rgba(#e0b8cc, 0.95); filter: drop-shadow(0 0 4px rgba(#c8a0b5, 0.65)); }
     .scroll-hint-btn__reason { color: rgba(#f0d0df, 0.88); }
-
     &:hover {
       background: rgba(48, 16, 32, 0.96);
       box-shadow: 0 3px 12px rgba(#c8a0b5, 0.38), inset 0 0 0 1px rgba(#e0b8cc, 0.65);
@@ -181,39 +137,25 @@ $week-min-w:   calc(#{$time-col} + 7 * #{$week-day-min});
     }
   }
 }
-
-
-
-
 @media (max-width: 640px) {
   .scroll-hint-overlay--week {
     grid-template-columns: 3rem repeat(7, minmax(2.5rem, 1fr));
-    
-    
     width: max(100%, calc(3rem + 7 * 2.5rem));
   }
-
   .scroll-hint-overlay--week .scroll-hint-btn {
     justify-content: center;
     padding: 0;
     gap: 0;
-
     .scroll-hint-btn__reason {
       display: none;
     }
   }
 }
-
-
-
-
-
 @media (max-width: 250px) {
   .scroll-hint-overlay--day .scroll-hint-btn {
     justify-content: center;
     padding: 0;
     gap: 0;
-
     .scroll-hint-btn__reason {
       display: none;
     }

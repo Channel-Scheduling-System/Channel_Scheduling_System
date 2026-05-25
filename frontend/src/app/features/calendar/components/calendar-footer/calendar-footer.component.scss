@@ -1,39 +1,22 @@
 @use '../../styles/calendar-variables.scss' as *;
-
 @mixin styles() {
-
-    // ── Footer del calendario ───────────────────────────────────────────
-    // Mismo lenguaje visual que .cal-sidebar pero en horizontal:
-    //   - gradiente oscuro de izquierda a derecha (espejo del sidebar)
-    //   - borde superior sutil que separa del contenido
-    //   - altura compacta — solo marca el límite inferior del shell
-    //   - listo para escalar: cualquier contenido futuro se añade aquí
     .cal-footer {
         flex-shrink: 0;
         width: 100%;
         height: 2.25rem;
-
         background: linear-gradient(
             to right,
             #0e0e0e 0%,
             #130004 40%,
             #1a0005 100%
         );
-
-        // Línea superior igual a como el sidebar tiene border-left
         border-top: 1px solid rgba(white, 0.05);
-
-        // Glow sutil hacia arriba que da continuidad visual con el sidebar
         box-shadow: 0 -4px 18px rgba(#1a0005, 0.55);
-
-        // Por si en el futuro se añade contenido alineado
         display: flex;
         align-items: center;
         padding: 0 0.75rem;
         position: relative;
         overflow: hidden;
-
-        // Reflejo especular tenue — mismo que usa el sidebar en ::before de btns
         &::before {
             content: '';
             position: absolute;

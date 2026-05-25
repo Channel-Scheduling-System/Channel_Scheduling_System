@@ -4,7 +4,6 @@
     {{ name }}
   </button>
 </div>
-
 <div class="cal-month__grid">
   <div *ngFor="let day of visibleDays; let i = index; trackBy: trackByDay" class="cal-month__day"
     [class.cal-month__day--outside]="!isCurrentMonth(day)" [class.cal-month__day--today]="isDayToday(day)"
@@ -17,7 +16,7 @@
     [class.cal-month__day--selection-start]="isCellSelectionStart(i)"
     [class.cal-month__day--selection-end]="isCellSelectionEnd(i)" (mousedown)="onCellMouseDown($event, day, i)"
     (mouseenter)="onDayEnter($event, day); onCellMouseEnter(day, i)" (mousemove)="onDayMove($event, day)"
-    (mouseleave)="onDayLeave()" (click)="onMonthDayClick(day)" (pointerdown)="onMonthDayPointerDown(day)">
+    (mouseleave)="onDayLeave()" (contextmenu)="onCellContextMenu($event, day, i)" (click)="onMonthDayClick(day)" (pointerdown)="onMonthDayPointerDown(day)">
     <span class="cal-month__day-number">{{ formatDayNumber(day) }}</span>
     <div class="cal-month__day-indicators"></div>
     <div class="cal-month__day-indicators">

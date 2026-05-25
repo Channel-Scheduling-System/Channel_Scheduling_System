@@ -1,27 +1,20 @@
-
 $wine:      #8e1b2e;
 $wine-deep: #4a0010;
 $pink-bar:  rgba(244, 184, 200, 0.88);
 $ink:       #1a0005;
 $t:         0.15s ease;
-
-
 @keyframes tpCardIn {
   from { opacity: 0; transform: translateY(-6px) scale(0.96); }
   to   { opacity: 1; transform: translateY(0)    scale(1);    }
 }
-
 @keyframes tpCellPop {
   0%   { transform: scale(1);    }
   45%  { transform: scale(1.18); }
   100% { transform: scale(1);    }
 }
-
-
 :host {
   display: block;
 }
-
 .tp-card {
   width: 19.5rem;
   border-radius: 1rem;
@@ -35,8 +28,6 @@ $t:         0.15s ease;
     0 0 24px rgba($wine, 0.08);
   animation: tpCardIn 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-
-
 .tp-header {
   display: flex;
   align-items: center;
@@ -45,7 +36,6 @@ $t:         0.15s ease;
   background: linear-gradient(135deg, $wine-deep 0%, $wine 55%, darken($wine, 5%) 100%);
   position: relative;
   overflow: hidden;
-
   &::before {
     content: '';
     position: absolute;
@@ -54,7 +44,6 @@ $t:         0.15s ease;
     background: linear-gradient(to right, transparent, $pink-bar, transparent);
     pointer-events: none;
   }
-
   &::after {
     content: '';
     position: absolute;
@@ -63,7 +52,6 @@ $t:         0.15s ease;
     pointer-events: none;
   }
 }
-
 .tp-header__icon {
   font-size: 1.25rem !important;
   line-height: 1     !important;
@@ -71,14 +59,12 @@ $t:         0.15s ease;
   flex-shrink: 0;
   z-index: 1;
 }
-
 .tp-header__text {
   display: flex;
   flex-direction: column;
   gap: 0.1rem;
   z-index: 1;
 }
-
 .tp-header__label {
   font-family: 'Manrope', sans-serif;
   font-size: 0.58rem;
@@ -87,7 +73,6 @@ $t:         0.15s ease;
   text-transform: uppercase;
   color: rgba(#f4b8c8, 0.6);
 }
-
 .tp-header__display {
   font-family: 'Manrope', monospace;
   font-size: 1.5rem;
@@ -97,8 +82,6 @@ $t:         0.15s ease;
   text-shadow: 0 0 22px rgba(#f4b8c8, 0.35);
   line-height: 1;
 }
-
-
 .tp-body {
   display: flex;
   align-items: flex-start;
@@ -106,7 +89,6 @@ $t:         0.15s ease;
   padding: 0.9rem 0.75rem 0.65rem;
   background: #fdfbfc;
 }
-
 .tp-vdiv {
   width: 1px;
   align-self: stretch;
@@ -117,21 +99,17 @@ $t:         0.15s ease;
     rgba($wine, 0.12) 80%,
     transparent);
 }
-
-
 .tp-col {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
   min-width: 0;
-
   &--period {
     flex: 0 0 auto;
     min-width: 3.4rem;
   }
 }
-
 .tp-col__label {
   font-family: 'Manrope', sans-serif;
   font-size: 0.54rem;
@@ -141,16 +119,12 @@ $t:         0.15s ease;
   color: rgba($wine, 0.4);
   text-align: center;
 }
-
-
 .tp-grid {
   display: grid;
   gap: 0.22rem;
-
   &--hours   { grid-template-columns: repeat(3, 1fr); }
   &--minutes { grid-template-columns: repeat(2, 1fr); }
 }
-
 .tp-cell {
   display: flex;
   align-items: center;
@@ -171,14 +145,12 @@ $t:         0.15s ease;
     color $t,
     box-shadow $t,
     transform 0.14s cubic-bezier(0.34, 1.56, 0.64, 1);
-
   &:hover:not(&--active) {
     background:   rgba($wine, 0.07);
     border-color: rgba($wine, 0.16);
     color:        $wine;
     transform:    scale(1.06);
   }
-
   &--active {
     background:   $wine;
     border-color: darken($wine, 8%);
@@ -188,15 +160,12 @@ $t:         0.15s ease;
     animation:    tpCellPop 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   }
 }
-
-
 .tp-period {
   display: flex;
   flex-direction: column;
   gap: 0.38rem;
   margin-top: 0.08rem;
 }
-
 .tp-period__btn {
   height: 2.15rem;
   width: 100%;
@@ -215,14 +184,12 @@ $t:         0.15s ease;
     color $t,
     box-shadow $t,
     transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
-
   &:hover:not(&--active) {
     background:   rgba($wine, 0.07);
     border-color: rgba($wine, 0.35);
     color:        $wine;
     transform:    scale(1.04);
   }
-
   &--active {
     background:   $wine-deep;
     border-color: $wine;
@@ -231,8 +198,6 @@ $t:         0.15s ease;
     box-shadow:   0 2px 12px rgba($wine, 0.35);
   }
 }
-
-
 .tp-footer {
   display: flex;
   align-items: center;
@@ -241,7 +206,6 @@ $t:         0.15s ease;
   background: #fdfbfc;
   border-top: 1px solid rgba($wine, 0.07);
 }
-
 .tp-footer__cancel {
   flex: 0 0 auto;
   padding: 0.45rem 0.85rem;
@@ -255,13 +219,11 @@ $t:         0.15s ease;
   cursor: pointer;
   border-radius: 0.42rem;
   transition: color $t, background $t;
-
   &:hover {
     color:      $wine;
     background: rgba($wine, 0.06);
   }
 }
-
 .tp-footer__confirm {
   flex: 1;
   display: flex;
@@ -284,18 +246,15 @@ $t:         0.15s ease;
     background 0.2s ease,
     box-shadow 0.2s ease,
     transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-
   .material-symbols-outlined {
     font-size: 0.9rem !important;
     line-height: 1    !important;
   }
-
   &:hover {
     background: linear-gradient(135deg, darken($wine, 4%) 0%, $wine-deep 100%);
     box-shadow: 0 5px 20px rgba($wine, 0.48);
     transform:  translateY(-1px);
   }
-
   &:active {
     transform: translateY(0) scale(0.97);
   }

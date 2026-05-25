@@ -3,6 +3,10 @@
     <span class="cal-sidebar__btn-icon"><span class="material-symbols-outlined" translate="no">schedule</span></span>
     <span class="cal-sidebar__btn-label">Horario base</span>
   </button>
+  <button class="cal-sidebar__btn cal-sidebar__btn--periodoff" (click)="onOpenPeriodOffConfig()" title="Configurar periodos libres">
+    <span class="cal-sidebar__btn-icon"><span class="material-symbols-outlined" translate="no">beach_access</span></span>
+    <span class="cal-sidebar__btn-label">Periodo libre</span>
+  </button>
   <button class="cal-sidebar__btn cal-sidebar__btn--dayoff" (click)="onOpenDayOffConfig()" title="Configurar días libres">
     <span class="cal-sidebar__btn-icon"><span class="material-symbols-outlined" translate="no">event_busy</span></span>
     <span class="cal-sidebar__btn-label">Día libre</span>
@@ -11,14 +15,8 @@
     <span class="cal-sidebar__btn-icon"><span class="material-symbols-outlined" translate="no">lock_clock</span></span>
     <span class="cal-sidebar__btn-label">Bloqueo</span>
   </button>
-  <button class="cal-sidebar__btn cal-sidebar__btn--periodoff" (click)="onOpenPeriodOffConfig()" title="Configurar periodos libres">
-    <span class="cal-sidebar__btn-icon"><span class="material-symbols-outlined" translate="no">beach_access</span></span>
-    <span class="cal-sidebar__btn-label">Periodo libre</span>
-  </button>
 </div>
-
 <div class="cal-sidebar__divider"></div>
-
 <button
   class="cal-sidebar__btn cal-sidebar__btn--delete"
   [class.cal-sidebar__btn--delete-active]="isDeleteMode"

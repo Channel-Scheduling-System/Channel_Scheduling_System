@@ -1,6 +1,5 @@
 <ng-container *ngIf="visible()">
   <div class="cal-sel-menu-backdrop" (click)="close()"></div>
-
   <div class="cal-sel-menu" [style.top.px]="top()" [style.left.px]="left()">
     <div class="cal-sel-menu__header">
       <span class="material-symbols-outlined cal-sel-menu__icon" translate="no">
@@ -11,9 +10,7 @@
         <span class="material-symbols-outlined" translate="no">close</span>
       </button>
     </div>
-
     <div class="cal-sel-menu__divider"></div>
-
     <div class="cal-sel-menu__actions">
       <button
         *ngFor="let action of actions()"

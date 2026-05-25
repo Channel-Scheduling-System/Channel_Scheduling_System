@@ -2,14 +2,12 @@
   display: contents;
   pointer-events: none;
 }
-
 .cal-sel-menu-backdrop {
   position: fixed;
   inset: 0;
   z-index: 9998;
   pointer-events: auto;
 }
-
 .cal-sel-menu {
   position: fixed;
   z-index: 9999;
@@ -17,7 +15,6 @@
   overflow: hidden;
   min-width: 13rem;
   max-width: 20rem;
-
   background: linear-gradient(
     155deg,
     rgba(18, 4, 9, 0.99) 0%,
@@ -26,15 +23,12 @@
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 0.875rem;
   padding: 0.75rem 1rem 0.875rem;
-
   box-shadow:
     0 0 0 1px rgba(142, 27, 46, 0.2),
     0 0 28px rgba(142, 27, 46, 0.3),
     0 0 64px rgba(142, 27, 46, 0.14),
     0 18px 52px rgba(0, 0, 0, 0.55);
-
   animation: calSelMenuIn 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
-
   &::before {
     content: '';
     position: absolute;
@@ -52,14 +46,12 @@
     );
     box-shadow: 0 0 10px rgba(142, 27, 46, 0.5);
   }
-
   &__header {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     margin-bottom: 0.5rem;
   }
-
   &__icon {
     font-size: 0.95rem !important;
     line-height: 1 !important;
@@ -67,7 +59,6 @@
     color: #e8899e;
     opacity: 0.9;
   }
-
   &__range {
     font-family: 'Manrope', sans-serif;
     font-size: 0.7rem;
@@ -78,7 +69,6 @@
     flex: 1;
     white-space: nowrap;
   }
-
   &__close {
     display: flex;
     align-items: center;
@@ -92,18 +82,15 @@
     cursor: pointer;
     flex-shrink: 0;
     transition: background 0.15s ease, color 0.15s ease;
-
     .material-symbols-outlined {
       font-size: 0.85rem !important;
       line-height: 1 !important;
     }
-
     &:hover {
       background: rgba(142, 27, 46, 0.2);
       color: rgba(244, 184, 200, 0.85);
     }
   }
-
   &__divider {
     height: 1px;
     width: 100%;
@@ -115,13 +102,11 @@
     );
     margin-bottom: 0.6rem;
   }
-
   &__actions {
     display: flex;
     flex-direction: column;
     gap: 0.3rem;
   }
-
   &__action {
     display: flex;
     align-items: center;
@@ -142,7 +127,6 @@
       border-color 0.15s ease,
       color 0.15s ease,
       box-shadow 0.15s ease;
-
     .material-symbols-outlined {
       font-size: 1rem !important;
       line-height: 1 !important;
@@ -150,24 +134,20 @@
       color: rgba(255, 255, 255, 0.65);
       transition: color 0.15s ease;
     }
-
     &:hover {
       background: rgba(142, 27, 46, 0.2);
       border-color: rgba(232, 137, 158, 0.45);
       color: rgba(255, 255, 255, 0.95);
       box-shadow: 0 0 12px rgba(142, 27, 46, 0.18);
-
       .material-symbols-outlined {
         color: rgba(255, 255, 255, 0.9);
       }
     }
-
     &:active {
       background: rgba(142, 27, 46, 0.3);
     }
   }
 }
-
 @keyframes calSelMenuIn {
   from {
     opacity: 0;

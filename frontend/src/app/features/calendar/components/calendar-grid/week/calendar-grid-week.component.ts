@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { CalendarGridBase } from '../base/calendar-grid.component';
-
 @Component({
   selector: '[appCalendarGridWeek]',
   standalone: true,
