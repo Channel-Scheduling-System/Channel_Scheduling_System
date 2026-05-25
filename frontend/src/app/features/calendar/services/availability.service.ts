@@ -17,15 +17,12 @@ import { SetDayOffResponse, SetDayOffResponseSchema } from "../models/responses/
 import { SetPeriodOffRequest } from "../models/requests/set-period-off-request.model";
 import { SetPeriodOffResponse, SetPeriodOffResponseSchema } from "../models/responses/set-period-off-response.model";
 import { DeleteBlockResponse, DeleteBlockResponseSchema } from "../models/responses/delete-block-response.model";
-
 @Injectable({ providedIn: 'root' })
 export class AvailabilityService implements IAvailabilityService {
-
     constructor(
         private http: HttpClient,
         private responseHandler: ResponseHandler
     ) { }
-    
     public updateWorkingHours(workerId: number, request: UpdateWorkingHoursRequest): Observable<UpdateWorkingHoursResponse> {
         return this.http
             .put(API_ENDPOINTS.CALENDAR.UPDATE_WORKING_HOURS(workerId), request)
@@ -35,7 +32,6 @@ export class AvailabilityService implements IAvailabilityService {
                 )
             );
     }
-
     public setDayOff(workerId: number, request: SetDayOffRequest): Observable<SetDayOffResponse> {
         return this.http
             .post(API_ENDPOINTS.CALENDAR.SET_DAY_OFF(workerId), request)
@@ -45,7 +41,6 @@ export class AvailabilityService implements IAvailabilityService {
                 )
             );
     }
-
     public setTimeOff(workerId: number, request: SetTimeOffRequest): Observable<SetTimeOffResponse> {
         return this.http
             .post(API_ENDPOINTS.CALENDAR.SET_TIME_OFF(workerId), request)
@@ -55,7 +50,6 @@ export class AvailabilityService implements IAvailabilityService {
                 )
             );
     }
-
     public setPeriodOff(workerId: number, request: SetPeriodOffRequest): Observable<SetPeriodOffResponse> {
         return this.http
             .post(API_ENDPOINTS.CALENDAR.SET_PERIOD_OFF(workerId), request)
@@ -65,7 +59,6 @@ export class AvailabilityService implements IAvailabilityService {
                 )
             );
     }
-
     public getAvailabilityConfig(
         workerId: number,
         params: AvailabilityConfigParamsRequest
@@ -79,8 +72,6 @@ export class AvailabilityService implements IAvailabilityService {
                 )
             );
     }
-
-    
     deleteBlock(blockId: number): Observable<DeleteBlockResponse> {
         return this.http
             .delete(API_ENDPOINTS.CALENDAR.DELETE_BLOCK(blockId))
