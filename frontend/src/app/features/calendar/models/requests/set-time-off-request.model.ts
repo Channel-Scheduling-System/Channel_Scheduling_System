@@ -1,7 +1,5 @@
 import { z } from 'zod';
 import { DayOfWeek } from '../dates.model';
-
-
 const baseTimeOff = {
   startTime: z
     .string()
@@ -14,17 +12,13 @@ const baseTimeOff = {
     .max(200, 'La razón no puede exceder los 200 caracteres')
     .optional(),
 };
-
-
 export const SetTimeOffSchema = z
   .discriminatedUnion('type', [
-    
     z.object({
       type: z.literal('RECURRING'),
       dayOfWeek: DayOfWeek,
       ...baseTimeOff,
     }),
-    
     z.object({
       type: z.literal('SPECIFIC'),
       date: z
@@ -33,7 +27,6 @@ export const SetTimeOffSchema = z
       ...baseTimeOff,
     }),
   ])
-  
   .refine(
     (data) => {
       const start = data.startTime.split(':').map(Number);
@@ -47,6 +40,4 @@ export const SetTimeOffSchema = z
       path: ['endTime'], 
     }
   );
-
-
 export type SetTimeOffRequest = z.infer<typeof SetTimeOffSchema>;
