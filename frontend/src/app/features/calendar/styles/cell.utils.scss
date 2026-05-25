@@ -1,6 +1,5 @@
 @mixin segment-border($color, $top: false, $bottom: false, $sides: true) {
     $shadows: ();
-
     @if $sides {
         $shadows: append($shadows, inset 2px 0 0 0 $color, comma);
         $shadows: append($shadows, inset -2px 0 0 0 $color, comma);
@@ -15,7 +14,6 @@
         $shadows: append($shadows, inset 0 -2px 0 0 $color, comma);
         $shadows: append($shadows, inset 0 -4px 0 0 rgba($color, 0.12), comma);
     }
-
     &::after {
         content: '';
         position: absolute;
@@ -25,13 +23,11 @@
         box-shadow: $shadows;
     }
 }
-
 @mixin group-gradient($color) {
     &::after {
         background: linear-gradient(to bottom, rgba($color, 0.08) 0%, transparent 70%);
     }
 }
-
 @mixin gap-filler($bg) {
     overflow: visible;
     &::before {
@@ -43,7 +39,6 @@
         pointer-events: none;
     }
 }
-
 @mixin gap-filler-hover($bg, $glow: null) {
     &::before {
         background: $bg;
@@ -52,7 +47,6 @@
         }
     }
 }
-
 @mixin segment-border-hover($color, $top: false, $bottom: false, $sides: true, $width: 2px) {
     $shadows: ();
     @if $sides {
@@ -69,31 +63,25 @@
         $shadows: append($shadows, inset 0 -#{$width} 0 0 $color, comma);
         $shadows: append($shadows, inset 0 -4px 0 0 rgba($color, 0.2), comma);
     }
-
     &::after {
         box-shadow: $shadows;
     }
 }
-
 @mixin segment-glow-hover($color) {
   filter:
     drop-shadow(0 0 4px rgba($color, 0.7))
     drop-shadow(0 0 10px rgba($color, 0.4))
     drop-shadow(0 0 20px rgba($color, 0.2));
-
   // Centro: solo lados izquierdo y derecho
   clip-path: inset(0 -25px 0 -25px);
-
   // Inicio del grupo: lados + arriba
   &.cal-grid__segment--group-start {
     clip-path: inset(-25px -25px 0 -25px);
   }
-
   // Fin del grupo: lados + abajo
   &.cal-grid__segment--group-end {
     clip-path: inset(0 -25px -25px -25px);
   }
-
   // Segmento único (es inicio y fin a la vez): todos los lados
   &.cal-grid__segment--group-start.cal-grid__segment--group-end {
     clip-path: inset(-25px -25px -25px -25px);
