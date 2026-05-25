@@ -1,12 +1,10 @@
 <div class="po-modal" (click)="$event.stopPropagation()">
     <div class="po-modal__inner">
         <div class="po-modal__scroll">
-
-
             <div class="po-modal__header">
                 <div class="po-modal__header-left">
                     <span class="material-symbols-outlined po-modal__header-icon" translate="no">
-                        event_busy
+                        beach_access
                     </span>
                     <div>
                         <h2 class="po-modal__title">Período libre</h2>
@@ -17,12 +15,8 @@
                     <span class="material-symbols-outlined" translate="no">close</span>
                 </button>
             </div>
-
             <div class="po-modal__divider"></div>
-
             <div class="po-modal__body" [formGroup]="form">
-
-
                 <div class="po-field-group">
                     <label class="po-label">Fecha de inicio</label>
                     <div class="po-input-wrap" [class.po-input-wrap--error]="!!getFieldError('startDate')">
@@ -40,8 +34,6 @@
                         {{ getFieldError('startDate') }}
                     </span>
                 </div>
-
-
                 <div class="po-field-group">
                     <label class="po-label">Fecha de finalización</label>
                     <div class="po-input-wrap"
@@ -60,8 +52,6 @@
                         {{ getFieldError('endDate') || getCrossDateError() }}
                     </span>
                 </div>
-
-
                 <div class="po-field-group">
                     <label class="po-label">
                         Motivo
@@ -85,23 +75,18 @@
                         </span>
                     </div>
                 </div>
-
             </div>
-
             <div class="po-modal__divider"></div>
-
-
             <div class="po-modal__footer">
                 <button class="po-modal__cancel" type="button" (click)="onCancel()">
                     Cancelar
                 </button>
                 <button class="po-modal__submit" type="button" (click)="onSubmit()" [disabled]="isSubmitting"
                     [class.po-modal__submit--loading]="isSubmitting">
-                    <span class="material-symbols-outlined" translate="no">event_busy</span>
+                    <span class="material-symbols-outlined" translate="no">beach_access</span>
                     <span>{{ isSubmitting ? 'Guardando...' : 'Añadir período libre' }}</span>
                 </button>
             </div>
-
         </div>
     </div>
 </div>

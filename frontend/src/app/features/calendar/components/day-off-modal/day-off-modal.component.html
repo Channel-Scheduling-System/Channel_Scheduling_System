@@ -1,12 +1,10 @@
 <div class="do-modal" (click)="$event.stopPropagation()">
   <div class="do-modal__inner">
     <div class="do-modal__scroll">
-
-      <!-- Header -->
       <div class="do-modal__header">
         <div class="do-modal__header-left">
           <span class="material-symbols-outlined do-modal__header-icon" translate="no">
-            work_off
+            event_busy
           </span>
           <div>
             <h2 class="do-modal__title">Día libre</h2>
@@ -17,12 +15,8 @@
           <span class="material-symbols-outlined" translate="no">close</span>
         </button>
       </div>
-
       <div class="do-modal__divider"></div>
-
       <div class="do-modal__body" [formGroup]="form">
-
-        <!-- 1. Fecha -->
         <div class="do-field-group">
           <label class="do-label">Fecha</label>
           <div
@@ -48,8 +42,6 @@
             {{ getFieldError('date') }}
           </span>
         </div>
-
-        <!-- 2. Motivo -->
         <div class="do-field-group">
           <label class="do-label">
             Motivo
@@ -83,12 +75,8 @@
             </span>
           </div>
         </div>
-
       </div>
-
       <div class="do-modal__divider"></div>
-
-      <!-- Footer -->
       <div class="do-modal__footer">
         <button class="do-modal__cancel" type="button" (click)="onCancel()">
           Cancelar
@@ -99,11 +87,10 @@
           (click)="onSubmit()"
           [disabled]="isSubmitting"
           [class.do-modal__submit--loading]="isSubmitting">
-          <span class="material-symbols-outlined" translate="no">work_off</span>
+          <span class="material-symbols-outlined" translate="no">event_busy</span>
           <span>{{ isSubmitting ? 'Guardando...' : 'Añadir día libre' }}</span>
         </button>
       </div>
-
     </div>
   </div>
 </div>
