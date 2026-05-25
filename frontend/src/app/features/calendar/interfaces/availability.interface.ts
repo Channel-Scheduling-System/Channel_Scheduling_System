@@ -1,4 +1,3 @@
-
 export interface RawTimeBlock {
     id: number;
     startMin: number;
@@ -6,8 +5,6 @@ export interface RawTimeBlock {
     reason?: string;
     kind: 'specific' | 'recurring';
 }
-
-
 export interface ResolvedTimeBlock {
     startMin: number;
     endMin: number;
@@ -19,5 +16,4 @@ export interface ResolvedTimeBlock {
     isGroupStart: boolean;
     isGroupEnd: boolean;
 }
-
 export interface IRange { start: number; end: number; }

@@ -6,4 +6,5 @@ export interface ObservedEntry {
   endEl:      HTMLElement;
   startAbove: boolean;
   endAbove:   boolean;
+  lastBottom: number;
 }

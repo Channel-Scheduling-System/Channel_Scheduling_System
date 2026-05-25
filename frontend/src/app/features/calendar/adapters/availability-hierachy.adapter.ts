@@ -2,10 +2,8 @@ import { Injectable } from '@angular/core';
 import { IRange, RawTimeBlock, ResolvedTimeBlock } from '../interfaces/availability.interface';
 import { RawResolved } from '../types/raw.types';
 import { subtractRanges } from '../utils/time.util';
-
 @Injectable()
 export class AvailabilityHierarchyAdapter {
-
     resolveTimeBlocks(
         specifics: RawTimeBlock[],
         recurrings: RawTimeBlock[],
@@ -14,10 +12,8 @@ export class AvailabilityHierarchyAdapter {
     ): ResolvedTimeBlock[] {
         const sortedSpec = [...specifics].sort((a, b) => a.startMin - b.startMin || a.id - b.id);
         const sortedRec = [...recurrings].sort((a, b) => a.startMin - b.startMin || a.id - b.id);
-
         const specClaimed: IRange[] = [];
         const raw: RawResolved[] = [];
-
         for (const s of sortedSpec) {
             const start = Math.max(s.startMin, jornadaStartMin);
             const end = Math.min(s.endMin, jornadaEndMin);
@@ -27,9 +23,7 @@ export class AvailabilityHierarchyAdapter {
                 specClaimed.push(frag);
             }
         }
-
         const recClaimed: IRange[] = [];
-
         for (const r of sortedRec) {
             const start = Math.max(r.startMin, jornadaStartMin);
             const end = Math.min(r.endMin, jornadaEndMin);
@@ -40,16 +34,13 @@ export class AvailabilityHierarchyAdapter {
                 recClaimed.push(frag);
             }
         }
-
         raw.sort((a, b) => a.startMin - b.startMin);
-
         const byGroup = new Map<number, RawResolved[]>();
         for (const b of raw) {
             const arr = byGroup.get(b.groupId) ?? [];
             arr.push(b);
             byGroup.set(b.groupId, arr);
         }
-
         return raw.map(b => {
             const frags = byGroup.get(b.groupId)!;
             const fragmentIndex = frags.indexOf(b);
@@ -57,5 +48,4 @@ export class AvailabilityHierarchyAdapter {
             return { ...b, fragmentId, isGroupStart: frags[0] === b, isGroupEnd: frags[frags.length - 1] === b };
         });
     }
-
 }

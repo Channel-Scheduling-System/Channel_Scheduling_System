@@ -1,5 +1,4 @@
 export type TooltipType = 'timeoff' | 'periodoff' | 'dayoff';
-
 export interface TooltipData {
   type: TooltipType;
   reason: string;
@@ -9,7 +8,6 @@ export interface TooltipData {
   endDate?: string;
   date?: string; 
 }
-
 export interface TooltipState {
   visible: boolean;
   x: number;

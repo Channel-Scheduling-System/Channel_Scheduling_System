@@ -3,7 +3,6 @@ export interface TimeSlot {
   minute: number;
   label: string;
 }
-
 export interface HintSlot {
   type:    'timeoff' | 'periodoff' | 'dayoff';
   reason:  string;

@@ -1,28 +1,22 @@
 import { z } from 'zod';
 import { SuccessResponseWithDataSchema } from '../../../../shared/models/api/success-response.schema';
 import { DayOfWeek } from '../dates.model';
-
-
 const TimeString = z
   .string()
   .regex(/^\d{2}:\d{2}$/, 'Debe tener formato HH:mm');
-
 const DateString = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/, 'Debe tener formato YYYY-MM-DD');
-
 export const workingHourSchema = z.object({
   dayOfWeek: DayOfWeek,
   startTime: TimeString,
   endTime: TimeString,
 });
-
 export const dayOffSchema = z.object({
   id: z.number().int().positive(),
   date: DateString,
   reason: z.string().optional(),
 });
-
 export const recurringTimeOffSchema = z.object({
   id: z.number().int().positive(),
   dayOfWeek: DayOfWeek,
@@ -30,7 +24,6 @@ export const recurringTimeOffSchema = z.object({
   endTime: TimeString,
   reason: z.string().optional(),
 });
-
 export const specificTimeOffSchema = z.object({
   id: z.number().int().positive(),
   date: DateString,
@@ -38,30 +31,25 @@ export const specificTimeOffSchema = z.object({
   endTime: TimeString,
   reason: z.string().optional(),
 });
-
 export const timeOffSchema = z.object({
   recurring: z.array(recurringTimeOffSchema).optional(),
   specific: z.array(specificTimeOffSchema).optional(),
 });
-
 export const periodOffSchema = z.object({
   id: z.number().int().positive(),
   startDate: DateString,
   endDate: DateString,
   reason: z.string().optional(),
 });
-
 const availabilityConfigDataSchema = z.object({
   workingHours: z.array(workingHourSchema).optional(),
-  daysOffs: z.array(dayOffSchema).optional(),
+  dayOffs: z.array(dayOffSchema).optional(),
   timeOffs: timeOffSchema.optional(),
-  periodsOff: z.array(periodOffSchema).optional(),
+  periodOffs: z.array(periodOffSchema).optional(),
 });
-
 export const availabilityConfigResponseSchema = SuccessResponseWithDataSchema(
   availabilityConfigDataSchema
 );
-
 export type AvailabilityConfigResponse = z.infer<typeof availabilityConfigResponseSchema>;
 export type AvailabilityConfigData = z.infer<typeof availabilityConfigDataSchema>;
 export type WorkingHour = z.infer<typeof workingHourSchema>;

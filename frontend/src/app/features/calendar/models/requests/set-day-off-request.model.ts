@@ -1,5 +1,4 @@
 import { z } from 'zod';
-
 export const SetDayOffSchema = z.object({
   date: z
     .string()
@@ -9,5 +8,4 @@ export const SetDayOffSchema = z.object({
     .max(200, 'La razón no puede exceder los 200 caracteres')
     .optional(),
 });
-
 export type SetDayOffRequest = z.infer<typeof SetDayOffSchema>;

@@ -4,7 +4,6 @@ import { CalendarTooltipService } from '../../ui/calendar-tooltip.service';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { formatTimeTo12Hour } from '../../utils/time.util';
-
 @Component({
     selector: 'app-calendar-tooltip',
     standalone: true,
@@ -14,10 +13,8 @@ import { formatTimeTo12Hour } from '../../utils/time.util';
 })
 export class CalendarTooltipComponent {
     private svc = inject(CalendarTooltipService);
-
     protected visible = computed(() => this.svc.state().visible);
     protected data = computed(() => this.svc.state().data);
-
     protected top = computed(() => {
         const { y } = this.svc.state();
         const estimatedH = 110;
@@ -28,7 +25,6 @@ export class CalendarTooltipComponent {
             ? y - estimatedH - offset
             : y + cursorH + offset;
     });
-
     protected left = computed(() => {
         const { x } = this.svc.state();
         const offset = 10;
@@ -38,7 +34,6 @@ export class CalendarTooltipComponent {
             ? Math.max(8, x - estimatedW - offset)
             : x + offset;
     });
-
     protected icon = computed(() => {
         switch (this.data()?.type) {
             case 'timeoff': return 'lock_clock';
@@ -47,7 +42,6 @@ export class CalendarTooltipComponent {
             default: return 'info';
         }
     });
-
     protected typeLabel = computed(() => {
         switch (this.data()?.type) {
             case 'timeoff': return 'Bloqueo de tiempo';
@@ -56,17 +50,14 @@ export class CalendarTooltipComponent {
             default: return '';
         }
     });
-
     protected rangeText = computed(() => {
         const d = this.data();
         if (!d) return '';
-
         if (d.type === 'timeoff' && d.startTime && d.endTime) {
             const start12h = formatTimeTo12Hour(d.startTime);
             const end12h = formatTimeTo12Hour(d.endTime);
             return `${start12h} — ${end12h}`;
         }
-
         if (d.type === 'periodoff' && d.startDate && d.endDate) {
             const s = parseISO(d.startDate);
             const e = parseISO(d.endDate);
@@ -75,11 +66,9 @@ export class CalendarTooltipComponent {
             }
             return `${format(s, "d MMM yyyy", { locale: es })} — ${format(e, "d MMM yyyy", { locale: es })}`;
         }
-
         if (d.type === 'dayoff' && d.date) {
             return format(parseISO(d.date), "EEEE, d 'de' MMMM yyyy", { locale: es });
         }
-
         return '';
     });
 }

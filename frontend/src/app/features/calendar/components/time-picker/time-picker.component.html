@@ -1,5 +1,4 @@
 <div class="tp-card" (click)="$event.stopPropagation()">
-
   <div class="tp-header">
     <span class="material-symbols-outlined tp-header__icon" translate="no">schedule</span>
     <div class="tp-header__text">
@@ -7,9 +6,7 @@
       <span class="tp-header__display">{{ displayValue }}</span>
     </div>
   </div>
-
   <div class="tp-body">
-
     <div class="tp-col">
       <span class="tp-col__label">Hora</span>
       <div class="tp-grid tp-grid--hours">
@@ -23,9 +20,7 @@
         </button>
       </div>
     </div>
-
     <div class="tp-vdiv"></div>
-
     <div class="tp-col">
       <span class="tp-col__label">Min</span>
       <div class="tp-grid tp-grid--minutes">
@@ -39,9 +34,7 @@
         </button>
       </div>
     </div>
-
     <div class="tp-vdiv"></div>
-
     <div class="tp-col tp-col--period">
       <span class="tp-col__label">Período</span>
       <div class="tp-period">
@@ -61,9 +54,7 @@
         </button>
       </div>
     </div>
-
   </div>
-
   <div class="tp-footer">
     <button type="button" class="tp-footer__cancel" (click)="onCancel()">
       Cancelar
@@ -73,5 +64,4 @@
       Listo
     </button>
   </div>
-
 </div>

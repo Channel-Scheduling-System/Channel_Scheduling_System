@@ -2,13 +2,11 @@
   display: contents;
   pointer-events: none;
 }
-
 .cal-tooltip {
   position: fixed;
   z-index: 9999;
   pointer-events: none;
   overflow: hidden;
-
   background: linear-gradient(
     155deg,
     rgba(14, 4, 8, 0.99) 0%,
@@ -19,9 +17,7 @@
   padding: 0.75rem 1rem 0.875rem;
   min-width: 13rem;
   max-width: 22rem;
-
   animation: calTooltipIn 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
-
   &::before {
     content: '';
     position: absolute;
@@ -31,14 +27,12 @@
     height: 2px;
     border-radius: 0.875rem 0.875rem 0 0;
   }
-
   &--timeoff {
     box-shadow:
       0 0 0 1px rgba(184, 112, 152, 0.1),
       0 0 28px rgba(155, 80, 112, 0.22),
       0 0 64px rgba(155, 80, 112, 0.1),
       0 18px 52px rgba(0, 0, 0, 0.55);
-
     &::before {
       background: linear-gradient(to right,
         transparent,
@@ -46,7 +40,6 @@
         rgba(184, 112, 152, 0.85) 60%,
         transparent);
     }
-
     .cal-tooltip__icon    { color: #c88aac; }
     .cal-tooltip__type    { color: rgba(228, 184, 208, 0.55); }
     .cal-tooltip__divider { background: rgba(184, 112, 152, 0.14); }
@@ -55,14 +48,12 @@
       text-shadow: 0 0 14px rgba(184, 112, 152, 0.3);
     }
   }
-
   &--periodoff {
     box-shadow:
       0 0 0 1px rgba(176, 48, 80, 0.12),
       0 0 28px rgba(140, 28, 55, 0.25),
       0 0 64px rgba(140, 28, 55, 0.1),
       0 18px 52px rgba(0, 0, 0, 0.55);
-
     &::before {
       background: linear-gradient(to right,
         transparent,
@@ -70,7 +61,6 @@
         rgba(192, 68, 90, 0.85) 60%,
         transparent);
     }
-
     .cal-tooltip__icon    { color: #c0445a; }
     .cal-tooltip__type    { color: rgba(232, 154, 170, 0.55); }
     .cal-tooltip__divider { background: rgba(192, 68, 90, 0.14); }
@@ -79,14 +69,12 @@
       text-shadow: 0 0 14px rgba(176, 48, 80, 0.3);
     }
   }
-
   &--dayoff {
     box-shadow:
       0 0 0 1px rgba(200, 160, 181, 0.1),
       0 0 28px rgba(170, 120, 148, 0.2),
       0 0 64px rgba(170, 120, 148, 0.08),
       0 18px 52px rgba(0, 0, 0, 0.55);
-
     &::before {
       background: linear-gradient(to right,
         transparent,
@@ -94,7 +82,6 @@
         rgba(212, 160, 181, 0.85) 60%,
         transparent);
     }
-
     .cal-tooltip__icon    { color: #d4a0b5; }
     .cal-tooltip__type    { color: rgba(240, 208, 223, 0.55); }
     .cal-tooltip__divider { background: rgba(212, 160, 181, 0.14); }
@@ -103,21 +90,18 @@
       text-shadow: 0 0 14px rgba(200, 160, 181, 0.28);
     }
   }
-
   &__header {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     margin-bottom: 0.5rem;
   }
-
   &__icon {
     font-size: 0.95rem !important;
     line-height: 1 !important;
     flex-shrink: 0;
     opacity: 0.9;
   }
-
   &__type {
     font-size: 0.57rem;
     font-weight: 700;
@@ -125,13 +109,11 @@
     letter-spacing: 0.14em;
     white-space: nowrap;
   }
-
   &__divider {
     height: 1px;
     width: 100%;
     margin-bottom: 0.55rem;
   }
-
   &__reason {
     font-size: 0.82rem;
     font-weight: 600;
@@ -143,7 +125,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
-
   &__range {
     font-family: 'Manrope', sans-serif;
     font-size: 0.7rem;
@@ -152,7 +133,6 @@
     white-space: nowrap;
   }
 }
-
 @keyframes calTooltipIn {
   from {
     opacity: 0;

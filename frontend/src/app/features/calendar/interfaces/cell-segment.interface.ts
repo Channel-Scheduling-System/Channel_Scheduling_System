@@ -3,7 +3,6 @@ export interface SegmentGroup {
   id: number;
   fragmentId?: string;
 }
-
 export interface CellSegment {
   startPct: number;
   endPct: number;

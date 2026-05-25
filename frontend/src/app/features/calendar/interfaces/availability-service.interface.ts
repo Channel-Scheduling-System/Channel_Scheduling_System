@@ -10,7 +10,6 @@ import { SetDayOffResponse } from "../models/responses/set-day-off-response.mode
 import { SetPeriodOffRequest } from "../models/requests/set-period-off-request.model";
 import { SetPeriodOffResponse } from "../models/responses/set-period-off-response.model";
 import { DeleteBlockResponse } from "../models/responses/delete-block-response.model";
-
 export interface IAvailabilityService {
     updateWorkingHours(workerId: number, request: UpdateWorkingHoursRequest): Observable<UpdateWorkingHoursResponse>;
     setDayOff(workerId: number, request: SetDayOffRequest): Observable<SetDayOffResponse>;

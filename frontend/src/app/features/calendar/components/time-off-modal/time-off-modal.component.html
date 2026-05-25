@@ -1,8 +1,6 @@
 <div class="tb-modal" (click)="closeDropdowns(); $event.stopPropagation()">
   <div class="tb-modal__inner">
     <div class="tb-modal__scroll">
-
-      
       <div class="tb-modal__header">
         <div class="tb-modal__header-left">
           <span class="material-symbols-outlined tb-modal__header-icon" translate="no">
@@ -17,12 +15,8 @@
           <span class="material-symbols-outlined" translate="no">close</span>
         </button>
       </div>
-
       <div class="tb-modal__divider"></div>
-
       <div class="tb-modal__body" [formGroup]="form">
-
-        
         <div class="tb-field-group">
           <label class="tb-label">
             Tipo de bloqueo
@@ -52,8 +46,6 @@
             </div>
           </div>
         </div>
-
-        
         <div class="tb-field-group" *ngIf="blockType === 'SPECIFIC'">
           <label class="tb-label">Fecha</label>
           <div class="tb-input-wrap" [class.tb-input-wrap--error]="!!getFieldError('date')">
@@ -69,8 +61,6 @@
             {{ getFieldError('date') }}
           </span>
         </div>
-
-        
         <div class="tb-field-group" *ngIf="blockType === 'RECURRING'">
           <label class="tb-label">Día de la semana</label>
           <div class="tb-select-wrap" [class.tb-select-wrap--open]="weekdaySelectOpen"
@@ -101,8 +91,6 @@
             {{ getFieldError('dayOfWeek') }}
           </span>
         </div>
-
-        
         <div class="tb-field-group">
           <label class="tb-label">Hora de inicio</label>
           <div class="tb-input-wrap" [class.tb-input-wrap--error]="!!getFieldError('startTime')" style="cursor:pointer"
@@ -116,8 +104,6 @@
             {{ getFieldError('startTime') }}
           </span>
         </div>
-
-        
         <div class="tb-field-group">
           <label class="tb-label">Hora de finalización</label>
           <div class="tb-input-wrap" [class.tb-input-wrap--error]="!!getFieldError('endTime') || !!getCrossTimeError()"
@@ -131,8 +117,6 @@
             {{ getFieldError('endTime') || getCrossTimeError() }}
           </span>
         </div>
-
-        
         <div class="tb-field-group">
           <label class="tb-label">
             Motivo
@@ -155,12 +139,8 @@
             </span>
           </div>
         </div>
-
       </div>
-
       <div class="tb-modal__divider"></div>
-
-      
       <div class="tb-modal__footer">
         <button class="tb-modal__cancel" type="button" (click)="onCancel()">
           Cancelar
@@ -171,7 +151,6 @@
           <span>{{ isSubmitting ? 'Guardando...' : 'Añadir bloqueo' }}</span>
         </button>
       </div>
-
     </div>
   </div>
 </div>
