@@ -123,6 +123,52 @@
         }
     }
 
+    .cal-empty-state {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: $sidebar-w;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        background: rgba(255, 255, 255, 0.92);
+        pointer-events: none;
+        transform: translateZ(0);
+        will-change: opacity, transform;
+        backface-visibility: hidden;
+        animation: fadeIn 0.3s ease both;
+
+        &__icon {
+            font-size: 3rem !important;
+            line-height: 1 !important;
+            color: $vinotinto;
+            opacity: 0.35;
+        }
+
+        &__title {
+            font-family: 'Manrope', sans-serif;
+            font-size: 1rem;
+            font-weight: 800;
+            color: $primary;
+            letter-spacing: -0.02em;
+            margin: 0;
+        }
+
+        &__subtitle {
+            font-family: 'Manrope', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: $muted;
+            text-align: center;
+            line-height: 1.6;
+            margin: 0;
+        }
+    }
+
     .cal-topbar {
         display: flex;
         align-items: center;
@@ -239,6 +285,9 @@
     }
 
     .cal-view-btn {
+        -webkit-appearance: none;
+        appearance: none;
+        -webkit-tap-highlight-color: transparent;
         height: 2rem;
         padding: 0 1rem;
         border-radius: 0.55rem;
@@ -257,11 +306,13 @@
             background: rgba($primary, 0.06);
         }
 
-        &--active {
-            background: $vinotinto;
-            color: white;
+        &.cal-view-btn--active,
+        &.cal-view-btn--active:focus,
+        &.cal-view-btn--active:focus-visible,
+        &.cal-view-btn--active:active {
+            background: $vinotinto !important;
+            color: white !important;
             box-shadow: 0 2px 8px rgba($vinotinto, 0.4);
-            pointer-events: none;
         }
     }
 
@@ -269,6 +320,7 @@
         display: flex;
         align-items: stretch;
         overflow: visible;
+        position: relative;
     }
 
     .cal-grid-wrap {
@@ -300,6 +352,10 @@
     @include footer-styles.styles(); // ← nuevo
 
     @media (max-width: 640px) {
+        .cal-empty-state {
+            right: 3.25rem;
+        }
+
         .cal-grid__segment-label {
             max-width: 100%;
             overflow: hidden;
@@ -331,6 +387,11 @@
             contain: layout paint;
             width: 3.25rem;
             padding: 1rem 0.4rem;
+            align-items: stretch;
+
+            &__config-group {
+                align-items: stretch;
+            }
 
             &__btn-label {
                 display: none;
@@ -338,6 +399,8 @@
 
             &__btn {
                 padding: 0.6rem 0.5rem;
+                width: 100%;
+                justify-content: center;
             }
         }
 
@@ -346,7 +409,7 @@
         }
 
         .cal-delete-banner {
-            right: 3.5rem;
+            right: 3.25rem;
             font-size: 0.72rem;
         }
     }

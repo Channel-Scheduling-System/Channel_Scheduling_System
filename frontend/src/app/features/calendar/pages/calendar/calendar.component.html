@@ -59,6 +59,15 @@
             ></div>
         </ng-container>
       </div>
+      <div class="cal-empty-state" *ngIf="isAvailabilityEmpty && !isLoading">
+        <span class="material-symbols-outlined cal-empty-state__icon" translate="no">
+          edit_calendar
+        </span>
+        <p class="cal-empty-state__title">Tu agenda está en blanco</p>
+        <p class="cal-empty-state__subtitle">
+          Configura tu horario y disponibilidad<br>usando los botones de la derecha
+        </p>
+      </div>
       <aside class="cal-sidebar" appCalendarSidebar [isDeleteMode]="isDeleteMode"
         (openWorkingHoursConfig)="openWorkingHoursConfig()" (openDayOffConfig)="openDayOffConfig()"
         (openTimeOffConfig)="openTimeOffConfig()" (openPeriodOffConfig)="openPeriodOffConfig()"
