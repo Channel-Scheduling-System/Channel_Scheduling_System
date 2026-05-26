@@ -398,7 +398,7 @@ $week-min-w: calc(#{$time-col} + 7 * #{$week-day-min});
       }
       &--non-working {
         cursor: not-allowed;
-        @include cell_utils.gap-filler(rgb(24, 26, 26));
+        @include cell_utils.gap-filler(rgb(78, 85, 85));
         &::after {
           display: none;
         }
