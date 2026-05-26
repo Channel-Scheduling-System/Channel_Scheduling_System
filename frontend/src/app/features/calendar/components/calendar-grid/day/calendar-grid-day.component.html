@@ -19,7 +19,9 @@
         [class.cal-grid__cell--timeblock]="availabilityData && !cellService.isInPeriodOff(currentDate) && !cellService.isDayOff(currentDate) && cellService.isWorkingDay(currentDate) && !cellService.isCellFullyNonWorking(currentDate, slot) && cellService.isCellFullyInTimeBlock(currentDate, slot)"
         [class.cal-grid__cell--group-continues]="cellContinuesGroup(currentDate, slot)"
         [class.cal-grid__cell--selection-start]="isCellSelectionStart(currentDate, slot)"
-        [class.cal-grid__cell--selection-end]="isCellSelectionEnd(currentDate, slot)"
+        [class.cal-grid__cell--selection-end]="isCellSelectionEnd(currentDate, slot)" [attr.data-slot-hour]="slot.hour"
+        [attr.data-slot-minute]="slot.minute" [attr.data-day]="formatDate(currentDate)"
+        (touchstart)="onCellTouchStart($event, currentDate, slot)"
         (mousedown)="onCellMouseDown($event, currentDate, slot)" (mouseenter)="onCellMouseEnter(currentDate, slot)"
         (click)="onSlotClick(currentDate, slot)">
         <div *ngFor="let seg of cellService.getCellSegments(currentDate, slot)" class="cal-grid__segment"
@@ -54,7 +56,7 @@
             [class.cal-grid__boundary-handle--dragging]="isBoundaryDragging(currentDate, 'start')"
             class="cal-grid__boundary-handle cal-grid__boundary-handle--start" type="button"
             title="Ajustar inicio de jornada" [style.top.%]="getUpperBoundaryPct(currentDate, slot)"
-            (mousedown)="$event.stopPropagation()" (mousedown)="onBoundaryMouseDown($event, currentDate, 'start')"
+            (pointerdown)="onBoundaryPointerDown($event, currentDate, 'start')"
             (click)="$event.stopPropagation()">
             <span class="material-symbols-outlined cal-grid__boundary-handle__icon">keyboard_arrow_down</span>
         </button>
@@ -62,7 +64,7 @@
             [class.cal-grid__boundary-handle--dragging]="isBoundaryDragging(currentDate, 'end')"
             class="cal-grid__boundary-handle cal-grid__boundary-handle--end" type="button"
             title="Ajustar fin de jornada" [style.top.%]="getLowerBoundaryPct(currentDate, slot)"
-            (mousedown)="onBoundaryMouseDown($event, currentDate, 'end')" (mousedown)="$event.stopPropagation()"
+            (pointerdown)="onBoundaryPointerDown($event, currentDate, 'end')"
             (click)="$event.stopPropagation()">
             <span class="material-symbols-outlined cal-grid__boundary-handle__icon">keyboard_arrow_up</span>
         </button>

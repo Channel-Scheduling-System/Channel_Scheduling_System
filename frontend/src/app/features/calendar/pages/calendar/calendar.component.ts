@@ -637,4 +637,13 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
     }));
     return { workingHours };
   }
+  protected get isAvailabilityEmpty(): boolean {
+    if (!this.availabilityData || this.isLoading) return false;
+    const d = this.availabilityData;
+    return !d.workingHours?.length
+      && !d.daysOff?.length
+      && !d.timesOff?.recurring?.length
+      && !d.timesOff?.specific?.length
+      && !d.periodsOff?.length;
+  }
 }

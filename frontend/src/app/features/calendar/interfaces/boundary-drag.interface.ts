@@ -8,4 +8,6 @@ interface BoundaryDragState {
   initialOffsetPct: number;
   startY: number;
   cellHeightPx: number;
+  pointerId?: number;
+  pointerCaptureEl?: HTMLElement;
 }
