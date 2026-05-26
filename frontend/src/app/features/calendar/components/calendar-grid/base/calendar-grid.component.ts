@@ -9,7 +9,7 @@ import type { AvailabilityConfigData } from '../../../models/responses/availabil
 import type { CellSegment } from '../../../interfaces/cell-segment.interface';
 import { CalendarCellService } from '../../../services/calendar-cell.service';
 import { CalendarTooltipService } from '../../../ui/calendar-tooltip.service';
-const MIN_BOUNDARY_GAP       = 1;
+const MIN_BOUNDARY_GAP = 1;
 @Directive()
 export abstract class CalendarGridBase {
   @Input() public currentDate: Date = new Date();
@@ -36,9 +36,20 @@ export abstract class CalendarGridBase {
   protected isDeselecting = false;
   protected boundaryDrag: BoundaryDragState | null = null;
   private _boundaryMoved = false;
+  private readonly _boundaryTouchMoveFn = (e: TouchEvent) => this._onBoundaryTouchMove(e);
+  private readonly _boundaryTouchUpFn = (e: TouchEvent) => this._onBoundaryTouchUp(e);
   private readonly _boundaryMoveFn = (e: MouseEvent) => this._onBoundaryMouseMove(e);
   private readonly _boundaryUpFn = (e: MouseEvent) => this._onBoundaryMouseUp(e);
+  private readonly _boundaryPointerMoveFn = (e: PointerEvent) => this._onBoundaryPointerMove(e);
+  private readonly _boundaryPointerUpFn = (e: PointerEvent) => this._onBoundaryPointerUp(e);
   private readonly _boundaryOverrides = new Map<string, number>();
+  private _touchStartX = 0;
+  private _touchStartY = 0;
+  private _touchDecided = false;
+  private _touchIsSelecting = false;
+  private readonly _touchMoveFn = (e: TouchEvent) => this._onSelectionTouchMove(e);
+  private readonly _touchEndFn = (e: TouchEvent) => this._onSelectionTouchEnd(e);
+  private readonly _boundaryTouchEndFn = (e: TouchEvent) => this._onBoundaryTouchEnd(e);
   protected hoveredGroupId: string | null = null;
   public ngOnChanges(changes: SimpleChanges): void {
     if (changes['availabilityData']) this._boundaryOverrides.clear();
@@ -249,6 +260,41 @@ export abstract class CalendarGridBase {
     document.addEventListener('mousemove', this._boundaryMoveFn);
     document.addEventListener('mouseup', this._boundaryUpFn, { once: true });
   }
+  protected onBoundaryPointerDown(event: PointerEvent, day: Date, type: 'start' | 'end'): void {
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+    event.preventDefault();
+    event.stopPropagation();
+
+    document.body.classList.add('cal-boundary-dragging');
+
+    const handleEl = event.currentTarget as HTMLElement | null;
+    const cellEl = handleEl?.closest('.cal-grid__cell') as HTMLElement | null;
+    if (!cellEl) return;
+
+    const overrideIdx = this._boundaryOverrides.get(this._boundaryKey(day, type));
+    const slotIndex = overrideIdx ?? this._findBoundarySlotIndex(day, type);
+    if (slotIndex === -1) return;
+
+    const pct = this._calcInitialBoundaryPct(day, slotIndex, type, overrideIdx);
+    this._boundaryMoved = false;
+    this.boundaryDrag = {
+      type, day,
+      originalSlotIndex: slotIndex,
+      baseSlotIndex: slotIndex,
+      currentSlotIndex: slotIndex,
+      snapDone: pct === 0,
+      initialOffsetPct: pct,
+      startY: event.clientY,
+      cellHeightPx: cellEl.getBoundingClientRect().height,
+      pointerId: event.pointerId,
+      pointerCaptureEl: handleEl ?? undefined,
+    };
+
+    handleEl?.setPointerCapture(event.pointerId);
+    document.addEventListener('pointermove', this._boundaryPointerMoveFn);
+    document.addEventListener('pointerup', this._boundaryPointerUpFn, { once: true });
+    document.addEventListener('pointercancel', this._boundaryPointerUpFn, { once: true });
+  }
   private _calcInitialBoundaryPct(
     day: Date, slotIndex: number, type: 'start' | 'end', overrideIdx: number | undefined,
   ): number {
@@ -259,26 +305,78 @@ export abstract class CalendarGridBase {
       : (segs.find(s => s.isLowerBoundaryEdge)?.startPct ?? 0);
   }
   private _onBoundaryMouseMove(event: MouseEvent): void {
+    this._processBoundaryMove(event.clientY);
+  }
+  private _onBoundaryPointerMove(event: PointerEvent): void {
+    if (!this.boundaryDrag || this.boundaryDrag.pointerId !== event.pointerId) return;
+    event.preventDefault();
+    this._processBoundaryMove(event.clientY);
+  }
+
+  private _processBoundaryMove(clientY: number): void {
     const drag = this.boundaryDrag;
     if (!drag) return;
-    const deltaY = event.clientY - drag.startY;
+
+    let deltaY = clientY - drag.startY;
     if (Math.abs(deltaY) < 3 && !this._boundaryMoved) return;
+
     if (!drag.snapDone) {
-      drag.baseSlotIndex = this._calcSnapBase(drag, deltaY < 0);
-      drag.currentSlotIndex = drag.baseSlotIndex;
+      const movingUp = deltaY < 0;
+      const isPartial = drag.initialOffsetPct > 0 && drag.initialOffsetPct < 100;
+      let newBase: number;
+
+      if (drag.type === 'start') {
+        newBase = (isPartial && movingUp)
+          ? Math.max(0, drag.originalSlotIndex - 1)
+          : drag.originalSlotIndex;
+      } else {
+        if (isPartial) {
+          newBase = !movingUp && this.timeSlots[drag.originalSlotIndex + 1]
+            ? drag.originalSlotIndex + 1
+            : drag.originalSlotIndex;
+        } else {
+          newBase = movingUp ? drag.originalSlotIndex : drag.originalSlotIndex + 1;
+          if (newBase !== drag.originalSlotIndex && !this.timeSlots[newBase]) {
+            newBase = drag.originalSlotIndex;
+          }
+        }
+      }
+
+      drag.baseSlotIndex = newBase;
+      drag.currentSlotIndex = newBase;
       drag.snapDone = true;
-      drag.startY = event.clientY;
       this._boundaryMoved = true;
-      return;
+
+      if (isPartial) {
+        const offsetPx = (drag.initialOffsetPct / 100) * drag.cellHeightPx;
+        const snapDistance = movingUp ? offsetPx : (drag.cellHeightPx - offsetPx);
+        const signedSnapDistance = movingUp ? -snapDistance : snapDistance;
+        const deltaAfterSnap = deltaY - signedSnapDistance;
+
+        if (movingUp && deltaAfterSnap > 0) deltaY = 0;
+        else if (!movingUp && deltaAfterSnap < 0) deltaY = 0;
+        else deltaY = deltaAfterSnap;
+      }
+
+      drag.startY = clientY;        // ← resetea desde la posición actual
     }
-    const slotDelta = this._deltaToSlots(deltaY, drag.cellHeightPx);
-    const targetIdx = Math.max(0, Math.min(this.timeSlots.length - 1, drag.baseSlotIndex + slotDelta));
-    const validIdx = this._findLastValidBoundaryIndex(drag.day, drag.type, drag.baseSlotIndex, targetIdx);
-    const blocked = validIdx === drag.currentSlotIndex && targetIdx !== validIdx && slotDelta !== 0;
-    document.body.classList.toggle('cal-boundary-dragging-blocked', blocked);
-    if (validIdx !== drag.currentSlotIndex) {
-      drag.currentSlotIndex = validIdx;
-      this._boundaryMoved = true;
+
+    const rawDelta = deltaY / drag.cellHeightPx;
+    const slotDelta = rawDelta < 0 ? -Math.floor(Math.abs(rawDelta)) : Math.floor(rawDelta);
+    const baseIdx = drag.currentSlotIndex;
+    const targetIdx = Math.max(0, Math.min(this.timeSlots.length - 1, baseIdx + slotDelta));
+    const validIdx = this._findLastValidBoundaryIndex(drag.day, drag.type, baseIdx, targetIdx);
+
+    const isBlocked = validIdx === baseIdx && targetIdx !== baseIdx && slotDelta !== 0;
+    document.body.classList.toggle('cal-boundary-dragging-blocked', isBlocked);
+
+    if (slotDelta !== 0) {
+      if (validIdx !== baseIdx) {
+        drag.currentSlotIndex = validIdx;
+        this._boundaryMoved = true;
+      }
+      drag.baseSlotIndex = drag.currentSlotIndex;
+      drag.startY = clientY;
     }
   }
   private _calcSnapBase(drag: BoundaryDragState, movingUp: boolean): number {
@@ -300,6 +398,29 @@ export abstract class CalendarGridBase {
     document.body.classList.remove('cal-boundary-dragging', 'cal-boundary-dragging-blocked');
     const drag = this.boundaryDrag;
     this.boundaryDrag = null;
+    if (!drag || !this._boundaryMoved) return;
+    this._boundaryOverrides.set(this._boundaryKey(drag.day, drag.type), drag.currentSlotIndex);
+    this.boundaryChange.emit({
+      day: drag.day,
+      type: drag.type,
+      newSlot: this.timeSlots[drag.currentSlotIndex],
+      originalSlot: this.timeSlots[drag.originalSlotIndex],
+    });
+  }
+  private _onBoundaryPointerUp(event: PointerEvent): void {
+    if (!this.boundaryDrag || this.boundaryDrag.pointerId !== event.pointerId) return;
+    document.removeEventListener('pointermove', this._boundaryPointerMoveFn);
+    document.removeEventListener('pointerup', this._boundaryPointerUpFn);
+    document.removeEventListener('pointercancel', this._boundaryPointerUpFn);
+    document.body.classList.remove('cal-boundary-dragging', 'cal-boundary-dragging-blocked');
+
+    const drag = this.boundaryDrag;
+    this.boundaryDrag = null;
+
+    if (drag.pointerCaptureEl?.hasPointerCapture(event.pointerId)) {
+      drag.pointerCaptureEl.releasePointerCapture(event.pointerId);
+    }
+
     if (!drag || !this._boundaryMoved) return;
     this._boundaryOverrides.set(this._boundaryKey(drag.day, drag.type), drag.currentSlotIndex);
     this.boundaryChange.emit({
@@ -377,5 +498,229 @@ export abstract class CalendarGridBase {
   }
   private _boundaryKey(day: Date, type: 'start' | 'end'): string {
     return `${format(day, 'yyyy-MM-dd')}-${type}`;
+  }
+  private _canStartTouchSelection(event: TouchEvent, day: Date, slot: TimeSlot): boolean {
+    return event.touches.length === 1 && this._isCellFree(day, slot);
+  }
+  private _startTouchSelection(touch: Touch, day: Date, slot: TimeSlot): void {
+    this._touchStartX = touch.clientX;
+    this._touchStartY = touch.clientY;
+    this._touchDecided = false;
+    this._touchIsSelecting = false;
+
+    this._triggerDeselect();
+    this.hasSelection = false;
+    this.isDragging = true;
+    this.didDrag = false;
+    this.dragDay = day;
+    const startIdx = this._slotIndex(slot);
+    this.dragStartIdx = startIdx;
+    this.dragEndIdx = startIdx;
+    [this.dragMinIdx, this.dragMaxIdx] = this._calcDragBounds(day, startIdx);
+  }
+  private _attachSelectionTouchListeners(): void {
+    document.addEventListener('touchmove', this._touchMoveFn, { passive: false });
+    document.addEventListener('touchend', this._touchEndFn, { once: true });
+    document.addEventListener('touchcancel', this._touchEndFn, { once: true });
+  }
+  private _detachSelectionTouchListeners(): void {
+    document.removeEventListener('touchmove', this._touchMoveFn);
+    document.removeEventListener('touchend', this._touchEndFn);
+    document.removeEventListener('touchcancel', this._touchEndFn);
+  }
+  private _getSingleTouch(event: TouchEvent): Touch | null {
+    return event.touches.length === 1 ? event.touches[0] : null;
+  }
+  private _getPrimaryTouch(event: TouchEvent): Touch | null {
+    return event.touches.length ? event.touches[0] : null;
+  }
+  private _decideSelectionGesture(touch: Touch): boolean {
+    if (this._touchDecided) return this._touchIsSelecting;
+
+    const dx = Math.abs(touch.clientX - this._touchStartX);
+    const dy = Math.abs(touch.clientY - this._touchStartY);
+    if (dx < 6 && dy < 6) return false;
+
+    this._touchDecided = true;
+    this._touchIsSelecting = dy > dx;
+
+    if (!this._touchIsSelecting) {
+      this._cancelSelectionGesture();
+      return false;
+    }
+
+    return true;
+  }
+  private _cancelSelectionGesture(): void {
+    this.isDragging = false;
+    this._detachSelectionTouchListeners();
+  }
+  private _updateSelectionFromTouch(touch: Touch): void {
+    const info = this._findCellInfoFromPoint(touch.clientX, touch.clientY);
+    if (!info || !this.dragDay) return;
+    if (format(info.day, 'yyyy-MM-dd') !== format(this.dragDay, 'yyyy-MM-dd')) return;
+
+    const clamped = Math.max(this.dragMinIdx, Math.min(this.dragMaxIdx, info.slotIdx));
+    if (clamped !== this.dragEndIdx) {
+      this.dragEndIdx = clamped;
+      if (clamped !== this.dragStartIdx) this.didDrag = true;
+    }
+  }
+  private _normalizeSelectionRange(): void {
+    if (this.dragEndIdx < this.dragStartIdx)
+      [this.dragStartIdx, this.dragEndIdx] = [this.dragEndIdx, this.dragStartIdx];
+  }
+  private _finalizeSelectionFromTouch(touch: Touch | null): void {
+    if (!this.dragDay || this.dragStartIdx < 0) { this._clearDrag(); return; }
+    this._normalizeSelectionRange();
+
+    this.hasSelection = true;
+    this.didDrag = true;
+
+    this.selectionComplete.emit({
+      day: this.dragDay,
+      startSlot: this.timeSlots[this.dragStartIdx],
+      endSlot: this.timeSlots[this.dragEndIdx],
+      x: touch?.clientX ?? 0,
+      y: touch?.clientY ?? 0,
+    });
+  }
+  private _getBoundarySlotInfo(
+    day: Date, type: 'start' | 'end',
+  ): { slotIndex: number; overrideIdx: number | undefined } | null {
+    const overrideIdx = this._boundaryOverrides.get(this._boundaryKey(day, type));
+    const slotIndex = overrideIdx ?? this._findBoundarySlotIndex(day, type);
+    if (slotIndex === -1) return null;
+    return { slotIndex, overrideIdx };
+  }
+  private _getBoundaryCellFromTarget(target: EventTarget | null): HTMLElement | null {
+    return (target as HTMLElement | null)?.closest('.cal-grid__cell') as HTMLElement | null;
+  }
+  private _startBoundaryTouchDrag(
+    target: EventTarget | null,
+    day: Date,
+    type: 'start' | 'end',
+    clientY: number,
+  ): void {
+    document.body.classList.add('cal-boundary-dragging');
+
+    const cellEl = this._getBoundaryCellFromTarget(target);
+    if (!cellEl) return;
+
+    const slotInfo = this._getBoundarySlotInfo(day, type);
+    if (!slotInfo) return;
+
+    const pct = this._calcInitialBoundaryPct(day, slotInfo.slotIndex, type, slotInfo.overrideIdx);
+    this._boundaryMoved = false;
+    this.boundaryDrag = {
+      type,
+      day,
+      originalSlotIndex: slotInfo.slotIndex,
+      baseSlotIndex: slotInfo.slotIndex,
+      currentSlotIndex: slotInfo.slotIndex,
+      snapDone: pct === 0,
+      initialOffsetPct: pct,
+      startY: clientY,
+      cellHeightPx: cellEl.getBoundingClientRect().height,
+    };
+
+    this._attachBoundaryTouchListeners();
+  }
+  private _attachBoundaryTouchListeners(): void {
+    document.addEventListener('touchmove', this._boundaryTouchMoveFn, { passive: false });
+    document.addEventListener('touchend', this._boundaryTouchUpFn, { once: true });
+    document.addEventListener('touchcancel', this._boundaryTouchUpFn, { once: true });
+  }
+  private _detachBoundaryTouchListeners(removeEnd = true): void {
+    document.removeEventListener('touchmove', this._boundaryTouchMoveFn);
+    if (!removeEnd) return;
+    document.removeEventListener('touchend', this._boundaryTouchUpFn);
+    document.removeEventListener('touchcancel', this._boundaryTouchUpFn);
+  }
+  private _clearBoundaryDragStyles(): void {
+    document.body.classList.remove('cal-boundary-dragging');
+    document.body.classList.remove('cal-boundary-dragging-blocked');
+  }
+  private _finalizeBoundaryTouchDrag(): void {
+    const drag = this.boundaryDrag;
+    this.boundaryDrag = null;
+    if (!drag || !this._boundaryMoved) return;
+
+    this._boundaryOverrides.set(this._boundaryKey(drag.day, drag.type), drag.currentSlotIndex);
+    this.boundaryChange.emit({
+      day: drag.day,
+      type: drag.type,
+      newSlot: this.timeSlots[drag.currentSlotIndex],
+      originalSlot: this.timeSlots[drag.originalSlotIndex],
+    });
+  }
+  protected onCellTouchStart(event: TouchEvent, day: Date, slot: TimeSlot): void {
+    if (!this._canStartTouchSelection(event, day, slot)) return;
+    const touch = event.touches[0];
+    this._startTouchSelection(touch, day, slot);
+    this._attachSelectionTouchListeners();
+  }
+
+  private _onSelectionTouchMove(event: TouchEvent): void {
+    if (!this.isDragging) return;
+    const touch = this._getSingleTouch(event);
+    if (!touch) return;
+    if (!this._decideSelectionGesture(touch)) return;
+
+    event.preventDefault();
+    this._updateSelectionFromTouch(touch);
+  }
+
+  private _onSelectionTouchEnd(event: TouchEvent): void {
+    event.preventDefault();
+    this._detachSelectionTouchListeners();
+    if (!this.isDragging) return;
+    this.isDragging = false;
+
+    const t = event.changedTouches[0] ?? null;
+    this._finalizeSelectionFromTouch(t);
+  }
+
+  protected onBoundaryTouchStart(event: TouchEvent, day: Date, type: 'start' | 'end'): void {
+    const touch = this._getSingleTouch(event);
+    if (!touch) return;
+    event.preventDefault();
+    event.stopPropagation();
+    this._startBoundaryTouchDrag(event.currentTarget, day, type, touch.clientY);
+  }
+
+  private _onBoundaryTouchMove(event: TouchEvent): void {
+    const touch = this._getPrimaryTouch(event);
+    if (!touch) return;
+    event.preventDefault();
+    this._processBoundaryMove(touch.clientY);
+  }
+
+  private _onBoundaryTouchEnd(_event: TouchEvent): void {
+    this._detachBoundaryTouchListeners(false);
+    this._clearBoundaryDragStyles();
+    this._finalizeBoundaryTouchDrag();
+  }
+
+  private _findCellInfoFromPoint(x: number, y: number): { day: Date; slotIdx: number } | null {
+    const cell = document.elementFromPoint(x, y)
+      ?.closest<HTMLElement>('.cal-grid__cell');
+    if (!cell) return null;
+
+    const hour = parseInt(cell.dataset['slotHour'] ?? '');
+    const minute = parseInt(cell.dataset['slotMinute'] ?? '');
+    const dayStr = cell.dataset['day'];
+    if (isNaN(hour) || isNaN(minute) || !dayStr) return null;
+
+    const slotIdx = this.timeSlots.findIndex(s => s.hour === hour && s.minute === minute);
+    if (slotIdx === -1) return null;
+
+    const [yr, mo, da] = dayStr.split('-').map(Number);
+    return { day: new Date(yr, mo - 1, da, 12, 0, 0), slotIdx };
+  }
+  private _onBoundaryTouchUp(_event: TouchEvent): void {
+    this._detachBoundaryTouchListeners();
+    this._clearBoundaryDragStyles();
+    this._finalizeBoundaryTouchDrag();
   }
 }

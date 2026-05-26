@@ -29,6 +29,14 @@ $week-min-w: calc(#{$time-col} + 7 * #{$week-day-min});
       grid-template-columns: $time-col repeat(7, minmax(0, 1fr));
       @media (max-width: 640px) {
         grid-template-columns: 3rem repeat(7, minmax(2.5rem, 1fr));
+        .cal-grid__time-label {
+          justify-content: flex-start;
+          padding: 0 0.25rem;
+          span {
+            width: 100%;
+            text-align: left;
+          }
+        }
         .cal-grid__segment-label {
           padding: 0 0.2rem;
           margin: 0;
@@ -569,6 +577,7 @@ $week-min-w: calc(#{$time-col} + 7 * #{$week-day-min});
       background: transparent;
       border: none;
       cursor: ns-resize;
+      touch-action: none;
       z-index: 2;
       outline: none;
       display: flex;
