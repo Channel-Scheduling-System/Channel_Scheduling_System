@@ -49,7 +49,7 @@ export class CalendarCellService {
     return !!this.findDayOffEntry(day);
   }
   public isInPeriodOff(day: Date): boolean {
-    if (!this.availabilityData?.periodOffs?.length) return false;
+    if (!this.availabilityData?.periodsOff?.length) return false;
     return !!this.findPeriodOffEntry(day);
   }
   public isWorkingDay(day: Date): boolean {
@@ -57,7 +57,7 @@ export class CalendarCellService {
     return this.workingHoursMap.has(DAY_INDEX_TO_WEEKDAY[getDay(day)]);
   }
   public getDayOffReason(day: Date): string | null {
-    if (!this.availabilityData?.dayOffs?.length) return null;
+    if (!this.availabilityData?.daysOff?.length) return null;
     const entry = this.findDayOffEntry(day);
     return entry ? (entry.reason?.trim() || DEFAULT_REASONS.dayoff) : null;
   }
@@ -66,7 +66,7 @@ export class CalendarCellService {
     return entry ? (entry.reason?.trim() || DEFAULT_REASONS.periodoff) : null;
   }
   public getMonthDayGroup(day: Date): { kind: 'periodoff' | 'dayoff'; id: number } | null {
-    const periodOff = this.availabilityData?.periodOffs?.length
+    const periodOff = this.availabilityData?.periodsOff?.length
       ? this.findPeriodOffEntry(day)
       : undefined;
     if (periodOff) return { kind: 'periodoff', id: periodOff.id };
@@ -113,7 +113,7 @@ export class CalendarCellService {
   private computeSegments(day: Date, slot: TimeSlot): CellSegment[] {
     const slotStart = slot.hour * 60 + slot.minute;
     const slotEnd = slotStart + 30;
-    const periodOff = this.availabilityData?.periodOffs?.length
+    const periodOff = this.availabilityData?.periodsOff?.length
       ? this.findPeriodOffEntry(day)
       : undefined;
     if (periodOff) return this.buildPeriodOffSegments(slotStart, slotEnd, periodOff);
@@ -231,8 +231,8 @@ export class CalendarCellService {
   }
   private tooltipForTimeoff(id: number): TooltipData | null {
     const block = [
-      ...(this.availabilityData?.timeOffs?.recurring ?? []),
-      ...(this.availabilityData?.timeOffs?.specific ?? []),
+      ...(this.availabilityData?.timesOff?.recurring ?? []),
+      ...(this.availabilityData?.timesOff?.specific ?? []),
     ].find(t => t.id === id);
     if (!block) return null;
     return {
@@ -243,7 +243,7 @@ export class CalendarCellService {
     };
   }
   private tooltipForPeriodoff(id: number): TooltipData | null {
-    const entry = this.availabilityData?.periodOffs?.find(p => p.id === id);
+    const entry = this.availabilityData?.periodsOff?.find(p => p.id === id);
     if (!entry) return null;
     return {
       type: 'periodoff',
@@ -253,7 +253,7 @@ export class CalendarCellService {
     };
   }
   private tooltipForDayoff(id: number): TooltipData | null {
-    const entry = this.availabilityData?.dayOffs?.find(d => d.id === id);
+    const entry = this.availabilityData?.daysOff?.find(d => d.id === id);
     if (!entry) return null;
     return {
       type: 'dayoff',
@@ -264,17 +264,17 @@ export class CalendarCellService {
   private findPeriodOffEntry(day: Date) {
     const ref = new Date(day);
     ref.setHours(12, 0, 0, 0);
-    return this.availabilityData?.periodOffs?.find(v =>
+    return this.availabilityData?.periodsOff?.find(v =>
       ref >= new Date(v.startDate + 'T00:00:00') &&
       ref <= new Date(v.endDate + 'T23:59:59')
     );
   }
   private findDayOffEntry(day: Date) {
     const dateStr = format(day, 'yyyy-MM-dd');
-    return this.availabilityData?.dayOffs?.find(d => d.date === dateStr);
+    return this.availabilityData?.daysOff?.find(d => d.date === dateStr);
   }
   private collectTimeBlockEntries(day: Date): TimeBlockEntry[] {
-    const timesOff = this.availabilityData?.timeOffs;
+    const timesOff = this.availabilityData?.timesOff;
     if (!timesOff) return [];
     const weekday = DAY_INDEX_TO_WEEKDAY[getDay(day)];
     const dateStr = format(day, 'yyyy-MM-dd');
@@ -292,7 +292,7 @@ export class CalendarCellService {
     const dayKey = this.dayCacheKey(day);
     if (this.resolvedBlocksCache.has(dayKey)) return this.resolvedBlocksCache.get(dayKey)!;
     const weekday = DAY_INDEX_TO_WEEKDAY[getDay(day)];
-    const timesOff = this.availabilityData?.timeOffs;
+    const timesOff = this.availabilityData?.timesOff;
     const range = this.workingHoursMap.get(weekday);
     const specifics = (timesOff?.specific ?? [])
       .filter(t => t.date === dayKey)

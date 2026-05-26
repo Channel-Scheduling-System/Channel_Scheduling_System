@@ -43,9 +43,9 @@ export const periodOffSchema = z.object({
 });
 const availabilityConfigDataSchema = z.object({
   workingHours: z.array(workingHourSchema).optional(),
-  dayOffs: z.array(dayOffSchema).optional(),
-  timeOffs: timeOffSchema.optional(),
-  periodOffs: z.array(periodOffSchema).optional(),
+  daysOff: z.array(dayOffSchema).optional(),
+  timesOff: timeOffSchema.optional(),
+  periodsOff: z.array(periodOffSchema).optional(),
 });
 export const availabilityConfigResponseSchema = SuccessResponseWithDataSchema(
   availabilityConfigDataSchema
