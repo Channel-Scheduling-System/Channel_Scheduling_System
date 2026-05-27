@@ -91,7 +91,7 @@ describe('AvailabilityService', () => {
 
             const input = {
                 workerId: 7,
-                date: '2026-05-20',
+                date: '2027-01-15',
                 reason: 'Personal',
             } as any;
 
@@ -105,7 +105,7 @@ describe('AvailabilityService', () => {
                 expect.objectContaining({
                     workerId: 7,
                     type: 'DAY',
-                    startDate: '2026-05-20T00:00:00Z',
+                    startDate: '2027-01-15T00:00:00Z',
                     reason: 'Personal',
                 }),
             );
@@ -151,6 +151,101 @@ describe('AvailabilityService', () => {
                     reason: 'Vacation',
                 }),
             );
+        });
+    });
+
+    describe('addTimeOff', () => {
+        it('should create a RECURRING time-off block', async () => {
+            const availabilityRepo = {
+                createWorkingHourBulk: jest.fn(),
+                deleteWorkingHoursByWorkerId: jest.fn(),
+                createBlockedTime: jest.fn().mockResolvedValue(undefined),
+                findBlockedTimeById: jest.fn(),
+                findAllBlockedTimes: jest.fn().mockResolvedValue([]),
+                deleteBlockedTime: jest.fn(),
+            } as any;
+
+            const userService = {
+                existsByIdAndRole: jest.fn().mockResolvedValue(true),
+            } as any;
+
+            const service = new AvailabilityService(availabilityRepo, userService);
+
+            const input = {
+                workerId: 7,
+                type: 'RECURRING',
+                dayOfWeek: 'MONDAY',
+                startTime: '09:00',
+                endTime: '11:00',
+                reason: 'Training',
+            } as any;
+
+            await service.addTimeOff(input);
+
+            expect(availabilityRepo.findAllBlockedTimes).toHaveBeenCalledWith({ workerId: 7 });
+            expect(availabilityRepo.createBlockedTime).toHaveBeenCalledWith(
+                expect.objectContaining({ type: 'HOUR', dayOfWeek: 1 }),
+            );
+        });
+
+        it('should create a SPECIFIC time-off block with date validation', async () => {
+            const availabilityRepo = {
+                createWorkingHourBulk: jest.fn(),
+                deleteWorkingHoursByWorkerId: jest.fn(),
+                createBlockedTime: jest.fn().mockResolvedValue(undefined),
+                findBlockedTimeById: jest.fn(),
+                findAllBlockedTimes: jest.fn().mockResolvedValue([]),
+                deleteBlockedTime: jest.fn(),
+            } as any;
+
+            const userService = {
+                existsByIdAndRole: jest.fn().mockResolvedValue(true),
+            } as any;
+
+            const service = new AvailabilityService(availabilityRepo, userService);
+
+            const input = {
+                workerId: 7,
+                type: 'SPECIFIC',
+                date: '2027-03-01',
+                startTime: '14:00',
+                endTime: '16:00',
+            } as any;
+
+            await service.addTimeOff(input);
+
+            expect(availabilityRepo.createBlockedTime).toHaveBeenCalledWith(
+                expect.objectContaining({ type: 'HOUR', workerId: 7 }),
+            );
+        });
+
+        it('should throw ConflictError when adding duplicate working days', async () => {
+            const availabilityRepo = {
+                createWorkingHourBulk: jest.fn(),
+                deleteWorkingHoursByWorkerId: jest.fn(),
+                createBlockedTime: jest.fn(),
+                findBlockedTimeById: jest.fn(),
+                findAllBlockedTimes: jest.fn(),
+                deleteBlockedTime: jest.fn(),
+            } as any;
+
+            const userService = {
+                existsByIdAndRole: jest.fn().mockResolvedValue(true),
+            } as any;
+
+            const service = new AvailabilityService(availabilityRepo, userService);
+
+            const { ConflictError } = await import('../../../src/shared/errors/domain.error');
+
+            await expect(
+                service.addWorkingHours({
+                    workerId: 7,
+                    workingHours: [
+                        { dayOfWeek: 'MONDAY', startTime: '08:00:00Z', endTime: '12:00:00Z' },
+                        { dayOfWeek: 'MONDAY', startTime: '13:00:00Z', endTime: '17:00:00Z' },
+                    ],
+                }),
+            ).rejects.toBeInstanceOf(ConflictError);
         });
     });
 
