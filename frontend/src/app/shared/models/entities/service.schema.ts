@@ -1,9 +1,20 @@
 import { z } from 'zod';
+import { EntityId } from './entity-base.schema';
+
+export const servicePrice = z.number('El precio debe ser un número')
+    .int('El precio debe ser un número entero')
+    .positive('El precio debe ser un número positivo')
+    .min(1, 'El precio mínimo es 1')
+    .max(999999, 'El precio no puede exceder 999,999');
+
+export const serviceDuration = z.number('La duración debe ser un número')
+    .int('La duración debe ser un número entero')
+    .positive('La duración debe ser un número positivo')
+    .min(5, 'La duración mínima es 5 minutos')
+    .max(300, 'La duración máxima es 300 minutos');
 
 export const ServiceSchema = z.object({
-  id: z.number()
-    .int('El ID debe ser un número entero')
-    .positive('El ID debe ser un número positivo'),
+  id: EntityId,
   name: z.string()
     .regex(
       /^[a-zA-Z0-9áéíóúñÁÉÍÓÚÑ\s]+$/,
@@ -24,16 +35,8 @@ export const ServiceSchema = z.object({
       /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/,
       'El color debe ser un código hexadecimal válido (#RRGGBB o #RGB)'
     ),
-  price: z.number('El precio debe ser un número')
-    .int('El precio debe ser un número entero')
-    .positive('El precio debe ser un número positivo')
-    .min(1, 'El precio mínimo es 1')
-    .max(999999, 'El precio no puede exceder 999,999'),
-  duration: z.number('La duración debe ser un número')
-    .int('La duración debe ser un número entero')
-    .positive('La duración debe ser un número positivo')
-    .min(5, 'La duración mínima es 5 minutos')
-    .max(300, 'La duración máxima es 300 minutos'),
+  price: servicePrice,
+  duration: serviceDuration,
   isActive: z.boolean().default(true)
 });
 

@@ -4,7 +4,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { UserService } from '../../services/user.service';
 import { MessageService } from '../../../../core/services/message.service';
 import { AlertType } from '../../../../core/utils/enums/AlertType';
-import { ListUserItem, ListUsersResponse, Meta } from '../../models/responses/list-users-response.model';
+import { ListUserItem, ListUsersResponse} from '../../models/responses/list-users-response.model';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { FabService } from '../../../../core/services/fab.services';
 import { TemplatePortal } from '@angular/cdk/portal';
@@ -14,6 +14,7 @@ import { ScrollService } from '../../../../core/services/scroll.service';
 import { ROLE_OPTIONS, STATE_OPTIONS } from '../../constants/user-filter-options.constants';
 import { ErrorResponse } from '../../../../shared/models/api/error-response.schema';
 import { PaginationComponent } from '../../../../core/components/pagination/pagination.component';
+import { Meta } from '../../../../shared/models/entities/entity-base.schema';
 
 @Component({
   selector: 'app-users',

@@ -21,6 +21,18 @@ export const API_ENDPOINTS = {
     AVAILABILITY_CONFIG: (id: number) => `${environment.apiUrl}/availability/${id}/config`,
     DELETE_BLOCK: (id: number) => `${environment.apiUrl}/availability/${id}`,
   },
+  APPOINTMENTS: {
+    VERIFY_OVERLAP: `${environment.apiUrl}/appointments/verify-overlap`,
+    CREATE: `${environment.apiUrl}/appointments`,
+    LIST_HISTORY: `${environment.apiUrl}/appointments`,
+    LIST_ACTIVE: `${environment.apiUrl}/appointments/active`,
+    UPDATE: (id: number) => `${environment.apiUrl}/appointments/${id}`,
+    RESCHEDULE: (id: number) => `${environment.apiUrl}/appointments/${id}/reschedule`,
+    APPROVE: (id: number) => `${environment.apiUrl}/appointments/${id}/approve`,
+    REJECT: (id: number) => `${environment.apiUrl}/appointments/${id}/reject`,
+    CANCEL: (id: number) => `${environment.apiUrl}/appointments/${id}/cancel`,
+    SET_STATE: (id: number) => `${environment.apiUrl}/appointments/${id}/status`,
+  },
   SERVICES: {
     LIST: `${environment.apiUrl}/services`,
     GET: (id: number) => `${environment.apiUrl}/services/${id}`,

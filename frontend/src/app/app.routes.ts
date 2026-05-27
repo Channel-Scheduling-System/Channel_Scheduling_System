@@ -33,6 +33,12 @@ export const routes: Routes = [
                 canActivate: [RoleGuard],
                 data: { roles: [WORKER] }
             },
+            {
+                path: 'appointments',
+                loadChildren: () => import('./features/appointments/appointments-module').then(m => m.AppointmentsModule),
+                canActivate: [RoleGuard],
+                data: { roles: [CLIENT, WORKER] }
+            },
             { 
                 path: 'services', 
                 loadChildren: () => import('./features/services/services-module').then(m => m.ServicesModule),
