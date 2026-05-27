@@ -2,8 +2,8 @@
 
 import { z } from 'zod';
 import { handleErrorMiddleware } from '../../../src/shared/middlewares/error.middleware';
-import { DomainError, NotFoundError, ConflictError } from '../../../src/shared/errors/domain.error';
-import { ValidationError, ValidationDTOError } from '../../../src/shared/errors/validation.error';
+import { NotFoundError, ConflictError } from '../../../src/shared/errors/domain.error';
+import { ValidationDTOError } from '../../../src/shared/errors/validation.error';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
