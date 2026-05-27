@@ -1,6 +1,6 @@
 /// <reference types="jest" />
 
-import { BlockedTimeOverlapValidator } from '../../../src/modules/availability/blocked-time-overlap.validator';
+import { BlockedTimeOverlapValidator } from '../../../src/modules/availability/validators/blocked-time-overlap.validator';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 

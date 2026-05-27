@@ -13,7 +13,13 @@ describe('AvailabilityService - addDayOff', () => {
             deleteWorkingHoursByWorkerId: jest.fn(),
             createBlockedTime: jest.fn().mockResolvedValue(undefined),
             findBlockedTimeById: jest.fn(),
-            findAllBlockedTimes: jest.fn().mockResolvedValue([]),
+            findBlockedTimesByWorkerId: jest.fn().mockResolvedValue([]),
+            findWorkingHours: jest.fn().mockResolvedValue([]),
+            findRecurringTimeOffs: jest.fn().mockResolvedValue([]),
+            findSpecificTimeOffs: jest.fn().mockResolvedValue([]),
+            findDayOffs: jest.fn().mockResolvedValue([]),
+            findPeriodOffs: jest.fn().mockResolvedValue([]),
+            findBlockedTimesByDate: jest.fn().mockResolvedValue([]),
             deleteBlockedTime: jest.fn(),
         } as any;
 
@@ -32,9 +38,7 @@ describe('AvailabilityService - addDayOff', () => {
         await service.addDayOff(input);
 
         expect(userService.existsByIdAndRole).toHaveBeenCalledWith(7, 'WORKER');
-        expect(availabilityRepo.findAllBlockedTimes).toHaveBeenCalledWith({
-            workerId: 7,
-        });
+        expect(availabilityRepo.findBlockedTimesByWorkerId).toHaveBeenCalledWith(7);
         expect(availabilityRepo.createBlockedTime).toHaveBeenCalledWith(
             expect.objectContaining({
                 workerId: 7,
