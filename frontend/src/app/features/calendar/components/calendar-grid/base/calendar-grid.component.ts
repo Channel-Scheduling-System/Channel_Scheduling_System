@@ -165,6 +165,8 @@ export abstract class CalendarGridBase {
   protected onSegmentClick(day: Date, seg: CellSegment): void {
     if (this.didDrag) { this.didDrag = false; return; }
     if (this.deleteMode) {
+      this.tooltipSvc.hide();
+      this.hoveredGroupId = null;
       if (seg.group && this._isTrackableType(seg)) {
         this.deleteEntity.emit(seg.group.id);
       }
@@ -175,6 +177,7 @@ export abstract class CalendarGridBase {
   }
   protected onSegmentEnter(event: MouseEvent, seg: CellSegment): void {
     if (this.isDragging || seg.type === 'non-working') return;
+    if (this.deleteMode && this._isTouchDevice()) return;
     this.hoveredGroupId = seg.group ? `${seg.group.kind}-${seg.group.id}` : null;
     if (seg.type !== 'free') {
       const data = this.cellService.getTooltipData(seg);
@@ -183,6 +186,7 @@ export abstract class CalendarGridBase {
   }
   protected onSegmentMove(event: MouseEvent, seg: CellSegment): void {
     if (this.isDragging || seg.type === 'non-working' || seg.type === 'free') return;
+    if (this.deleteMode && this._isTouchDevice()) return;
     this.tooltipSvc.resetTimer(event.clientX, event.clientY);
   }
   protected onSegmentLeave(): void {
@@ -530,6 +534,11 @@ export abstract class CalendarGridBase {
   }
   private _getSingleTouch(event: TouchEvent): Touch | null {
     return event.touches.length === 1 ? event.touches[0] : null;
+  }
+  private _isTouchDevice(): boolean {
+    if (typeof window === 'undefined') return false;
+    if (window.matchMedia?.('(hover: none) and (pointer: coarse)')?.matches) return true;
+    return typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0;
   }
   private _getPrimaryTouch(event: TouchEvent): Touch | null {
     return event.touches.length ? event.touches[0] : null;
