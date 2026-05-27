@@ -11,7 +11,8 @@
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
         "format": "prettier --write .",
-        "test": "jest --forceExit"
+        "test": "jest --forceExit",
+        "test:coverage": "jest --coverage --forceExit"
     },
     "repository": {
         "type": "git",

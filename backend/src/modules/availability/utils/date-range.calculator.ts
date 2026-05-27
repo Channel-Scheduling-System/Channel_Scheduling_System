@@ -28,10 +28,7 @@ export class DateRangeCalculator {
                     day: 1,
                 });
                 const lastDayOfMonth = firstDayOfMonth
-                    .with({
-                        month: firstDayOfMonth.month + 1,
-                        day: 1,
-                    })
+                    .add({ months: 1 })
                     .subtract({ days: 1 });
                 return {
                     startDate: firstDayOfMonth.toString(),
