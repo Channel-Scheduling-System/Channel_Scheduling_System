@@ -47,7 +47,7 @@ import { CalendarOptionsMenuComponent } from '../../components/calendar-options-
 import { CalendarScrollHintComponent } from '../../components/calendar-scroll-hint/calendar-scroll-hint.component';
 import { CalendarFooterComponent } from '../../components/calendar-footer/calendar-footer.component';
 import { AvailabilityHierarchyAdapter } from '../../adapters/availability-hierachy.adapter';
-import { formatTimeTo12Hour } from '../../utils/time.util';
+import { formatTimeTo12h } from '../../../../core/utils/time.util';
 import { Overlay } from '@angular/cdk/overlay';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { WorkingHoursModalComponent } from '../../components/working-hours-modal/working-hours-modal.component';
@@ -267,8 +267,8 @@ export class CalendarPageComponent implements OnInit, AfterViewInit {
     const endH = Math.floor(endTotalMin / 60);
     const endM = endTotalMin % 60;
     const endStr = `${endH.toString().padStart(2, '0')}:${endM.toString().padStart(2, '0')}`;
-    const start12h = formatTimeTo12Hour(startStr);
-    const end12h = formatTimeTo12Hour(endStr);
+    const start12h = formatTimeTo12h(startStr);
+    const end12h = formatTimeTo12h(endStr);
     const label = `${start12h} — ${end12h}`;
     this.selectionMenuSvc.show(selection.x, selection.y, 'edit_calendar', label, [
       {

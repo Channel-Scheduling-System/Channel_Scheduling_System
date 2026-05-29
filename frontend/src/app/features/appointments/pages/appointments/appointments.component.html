@@ -1,0 +1,52 @@
+<div class="appointments-page">
+
+  <div class="appointments-page__header">
+    <div>
+      <span class="appointments-page__eyebrow">Gestión</span>
+      <h1 class="appointments-page__title">Mis Citas</h1>
+    </div>
+  </div>
+
+  <div class="appt-nav">
+    <button class="appt-nav__btn" type="button" (click)="goToRequests()">
+      <span class="appt-nav__btn__shimmer"></span>
+      <span class="appt-nav__btn__glow"></span>
+      <span class="appt-nav__btn__content">
+        <span class="material-symbols-outlined appt-nav__btn__icon" translate="no">event_available</span>
+        <span class="appt-nav__btn__text">Gestionar Solicitudes</span>
+      </span>
+    </button>
+
+    <button class="appt-nav__btn" type="button" (click)="goToHistory()">
+      <span class="appt-nav__btn__shimmer"></span>
+      <span class="appt-nav__btn__glow"></span>
+      <span class="appt-nav__btn__content">
+        <span class="material-symbols-outlined appt-nav__btn__icon" translate="no">history</span>
+        <span class="appt-nav__btn__text">Ver Historial</span>
+      </span>
+    </button>
+  </div>
+
+  <app-appointment-calendar
+    [appointments]="appointments"
+    (weekStartChange)="onWeekChange($event)"
+    (rescheduleAppointment)="onRescheduleAppointment($event)"
+    (modifyAppointment)="onModifyAppointment($event)"
+    (cancelAppointment)="onCancelAppointment($event)" />
+
+</div>
+
+<ng-template #fabTemplate>
+  <button class="schedule-btn" type="button" (click)="scheduleAppointment()">
+    <span class="schedule-btn__ring schedule-btn__ring--1"></span>
+    <span class="schedule-btn__ring schedule-btn__ring--2"></span>
+    <span class="schedule-btn__shimmer"></span>
+    <span class="schedule-btn__spark schedule-btn__spark--a"></span>
+    <span class="schedule-btn__spark schedule-btn__spark--b"></span>
+    <span class="schedule-btn__spark schedule-btn__spark--c"></span>
+    <span class="schedule-btn__content">
+      <span class="schedule-btn__icon material-symbols-outlined" translate="no">calendar_add_on</span>
+      <span class="schedule-btn__label">Agendar nueva cita</span>
+    </span>
+  </button>
+</ng-template>

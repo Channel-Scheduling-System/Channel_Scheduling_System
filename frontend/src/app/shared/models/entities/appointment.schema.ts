@@ -4,6 +4,10 @@ import { serviceDuration, servicePrice } from './service.schema';
 
 export const AppointmentDateTime = z.iso.datetime({ precision: -1 });
 
+export const AppointmentNotes = z.string()
+        .max(300, 'Las notas no pueden exceder 300 caracteres')
+        .optional();
+
 export const AppointmentServiceSchema = z.object({
 	serviceId: EntityId,
 	customDuration: serviceDuration,
@@ -15,9 +19,7 @@ export const AppointmentSchema = z.object({
 	clientId: EntityId,
 	startAt: AppointmentDateTime,
 	services: z.array(AppointmentServiceSchema),
-	notes: z.string()
-        .max(300, 'Las notas no pueden exceder 300 caracteres')
-        .optional()
+	notes: AppointmentNotes
 });
 
 export const AppointmentStatus = z.enum([

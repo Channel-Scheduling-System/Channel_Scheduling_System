@@ -1,0 +1,67 @@
+<div class="agenda">
+
+  <div class="agenda__toolbar">
+
+    <div class="agenda__toolbar-nav" role="group" aria-label="Navegación de semana">
+
+      <button class="agenda__nav-btn" type="button" aria-label="Semana anterior" (click)="goToPrevWeek()">
+        <span class="toolbar-btn__shimmer"></span>
+        <span class="toolbar-btn__glow"></span>
+        <span class="material-symbols-outlined" translate="no">chevron_left</span>
+      </button>
+
+      <button class="agenda__today-btn" [class.agenda__today-btn--current]="isCurrentWeek" type="button"
+        (click)="goToToday()">
+        <span class="toolbar-btn__shimmer"></span>
+        <span class="toolbar-btn__glow"></span>
+        <span class="agenda__today-btn__content">Hoy</span>
+      </button>
+
+      <button class="agenda__nav-btn" type="button" aria-label="Semana siguiente" (click)="goToNextWeek()">
+        <span class="toolbar-btn__shimmer"></span>
+        <span class="toolbar-btn__glow"></span>
+        <span class="material-symbols-outlined" translate="no">chevron_right</span>
+      </button>
+
+    </div>
+
+    <div class="agenda__toolbar-range">
+      <span class="agenda__range-label">{{ weekRangeLabel }}</span>
+    </div>
+
+    <div class="agenda__view-switcher" role="group" aria-label="Cambiar vista">
+      @for (view of availableViews; track view.key) {
+      <button class="agenda__view-btn" [class.agenda__view-btn--active]="currentView === view.key" type="button"
+        (click)="setView(view.key)">
+        <span class="toolbar-btn__shimmer"></span>
+        <span class="toolbar-btn__glow"></span>
+        <span class="agenda__view-btn__label">{{ view.label }}</span>
+      </button>
+      }
+    </div>
+
+  </div>
+
+  <div class="agenda__body">
+
+    @switch (currentView) {
+    @case ('DAY') {
+    <div class="agenda__day-wrap">
+      <app-appointment-calendar-day-grid [currentDate]="currentDate" [autoScrollOnInit]="!hasAutoScrolled" />
+      <app-appointment-calendar-day-layer [currentDate]="currentDate" [appointments]="appointments"
+        [headerHeightRem]="headerHeightRem" (chipClick)="onChipClick($event)" />
+    </div>
+    }
+    @case ('WEEK') {
+    <div class="agenda__week-wrap">
+      <app-appointment-calendar-week-grid [weekStart]="weekStart" />
+      <app-appointment-calendar-week-layer [weekStart]="weekStart" [appointments]="appointments"
+        [headerHeightRem]="headerHeightRem" (chipClick)="onChipClick($event)" />
+    </div>
+    }
+    }
+
+  </div>
+  <app-appointment-action-modal />
+
+</div>
