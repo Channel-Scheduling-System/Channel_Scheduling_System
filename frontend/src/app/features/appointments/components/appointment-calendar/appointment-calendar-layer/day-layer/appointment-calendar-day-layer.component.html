@@ -1,0 +1,48 @@
+<div class="acl__container" aria-hidden="true">
+
+  @for (chip of chips; track trackByChip($index, chip)) {
+
+  <button
+    class="acl__chip"
+    [class.acl__chip--conflict]="chip.isConflict"
+    [class.acl__chip--overlap]="chip.zIndex > 2"
+    [class.acl__chip--next]="chip.isNext"
+    [class.acl__chip--next-overlap]="chip.isNextOverlap"
+    type="button"
+    [style.top]="chip.top"
+    [style.height]="chip.height"
+    [style.left]="chip.left"
+    [style.width]="chip.width"
+    [style.--chip-color]="chip.color"
+    [style.--chip-z]="chip.zIndex"
+    [attr.data-chip-anim]="chip.animName || null"
+    [attr.aria-label]="chip.serviceLabel + ' · ' + chip.timeLabel"
+    [attr.title]="chip.serviceLabel + ' · ' + chip.timeLabel"
+    (click)="onChipClick(chip, $event)">
+
+    <span class="acl__chip__glass"></span>
+
+    <div class="acl__chip__bg-layer"></div>
+
+    @if (chip.isConflict) {
+      <span class="acl__chip__conflict-icon material-symbols-outlined" aria-hidden="true" translate="no">warning</span>
+    } @else {
+      <span class="acl__chip__status-icon material-symbols-outlined" aria-hidden="true" translate="no">{{ chip.statusIcon }}</span>
+    }
+
+    <span class="acl__chip__body">
+      <span class="acl__chip__service">{{ chip.serviceLabel }}</span>
+      <span class="acl__chip__time">{{ chip.timeLabel }}</span>
+      @if (!chip.isConflict) {
+        <span class="acl__chip__client">{{ chip.clientLabel }}</span>
+      }
+      @if (chip.notes) {
+        <span class="acl__chip__notes">Notas: {{ chip.notes }}</span>
+      }
+    </span>
+
+  </button>
+
+  }
+
+</div>

@@ -1,0 +1,35 @@
+@use '../base/appointment-calendar-grid.base' as base;
+:host {
+  display: grid;
+  grid-template-columns: base.$time-col repeat(7, minmax(0, 1fr));
+  min-width: calc(#{base.$time-col} + 7 * 4.5rem);
+}
+@include base.corner('.wcg__corner');
+@include base.day-header(
+  '.wcg__day-header',
+  '.wcg__day-name',
+  '.wcg__day-number'
+);
+@include base.time-label('.wcg__time-label');
+@include base.cell(
+  '.wcg__cell',
+  (
+    inset 0 -1px 0 rgba(base.$outline, 0.95),
+    inset 1px 0 0  rgba(base.$outline, 0.95)
+  ),
+  inset 1px 0 0 rgba(base.$outline, 0.95)
+);
+@media (max-width: 640px) {
+  :host {
+    grid-template-columns: 3rem repeat(7, minmax(2.5rem, 1fr));
+    min-width: calc(3rem + 7 * 2.5rem);
+  }
+  .wcg__time-label {
+    justify-content: flex-start;
+    padding: 0 0.25rem;
+    span {
+      width:      100%;
+      text-align: left;
+    }
+  }
+}

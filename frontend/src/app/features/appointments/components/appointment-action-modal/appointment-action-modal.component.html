@@ -1,0 +1,33 @@
+<ng-container *ngIf="visible()">
+  <div class="aam__backdrop" (click)="close()"></div>
+  <div class="aam" #modalPanel role="dialog" aria-modal="true" [attr.aria-label]="title()">
+    <span class="aam__shimmer-line" aria-hidden="true"></span>
+    <div class="aam__header">
+      <span class="material-symbols-outlined aam__header-icon" translate="no" aria-hidden="true">
+        {{ headerIcon() }}
+      </span>
+      <div class="aam__header-text">
+        <span class="aam__title">{{ title() }}</span>
+        <span *ngIf="subtitle()" class="aam__subtitle">{{ subtitle() }}</span>
+        <div *ngIf="notes()" class="aam__notes">
+          <span class="material-symbols-outlined aam__notes-icon" translate="no" aria-hidden="true">sticky_note_2</span>
+          <span class="aam__notes-text">{{ notes() }}</span>
+        </div>
+        <span *ngIf="statusLabel()" class="aam__status-badge" [attr.data-status]="statusKey()">
+          {{ statusLabel() }}
+        </span>
+      </div>
+      <button class="aam__close" type="button" aria-label="Cerrar" (click)="close()">
+        <span class="material-symbols-outlined" translate="no" aria-hidden="true">close</span>
+      </button>
+    </div>
+    <div class="aam__divider" aria-hidden="true"></div>
+    <div class="aam__actions">
+      <button *ngFor="let action of actions()" class="aam__action"
+        [class.aam__action--danger]="action.variant === 'danger'" type="button" (click)="run(action.handler)">
+        <span class="material-symbols-outlined" translate="no" aria-hidden="true">{{ action.icon }}</span>
+        <span class="aam__action-label">{{ action.label }}</span>
+      </button>
+    </div>
+  </div>
+</ng-container>

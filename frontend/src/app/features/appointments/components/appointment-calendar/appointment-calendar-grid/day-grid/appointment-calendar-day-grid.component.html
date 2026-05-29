@@ -1,0 +1,30 @@
+<!-- ── Corner (sticky top-left anchor) ───────────────────────────────────── -->
+<div class="wdg__corner"></div>
+
+<!-- ── Day header ────────────────────────────────────────────────────────── -->
+<div class="wdg__day-header"
+     [class.wdg__day-header--today]="isDayToday(currentDate)">
+  <span class="wdg__day-name">{{ formatDayName(currentDate) }}</span>
+  <span class="wdg__day-number">{{ formatDayNumber(currentDate) }}</span>
+</div>
+
+<!-- ── Right-spacer header (col 3) ───────────────────────────────────────── -->
+<div class="wdg__spacer-header"></div>
+
+<!-- ── Time rows ─────────────────────────────────────────────────────────── -->
+<ng-container *ngFor="let slot of timeSlots; trackBy: trackBySlot">
+
+  <div class="wdg__time-label"
+       [class.wdg__time-label--half]="slot.minute === 30">
+    <span *ngIf="slot.minute === 0">{{ slot.label }}</span>
+  </div>
+
+  <div class="wdg__cell"
+       [class.wdg__cell--today]="isDayToday(currentDate)"
+       [class.wdg__cell--half]="slot.minute === 30">
+  </div>
+
+  <!-- ── Right spacer cell (col 3) ─────────────────────────────────────── -->
+  <div class="wdg__spacer-cell"></div>
+
+</ng-container>
