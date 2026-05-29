@@ -12,7 +12,6 @@ import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validator
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
-import { formatTimeTo12Hour } from '../../utils/time.util';
 import { timeOffFieldValidator, timeOffGroupValidator } from '../../validators/time-off-modal.validators';
 import { TIME_PICKER_SEED, TimePickerComponent } from '../time-picker/time-picker.component';
 import { DatePickerComponent, DATE_PICKER_SEED } from '../date-picker/date-picker.component';
@@ -22,6 +21,7 @@ import type { TimeSlot } from '../../interfaces/time-slot.interface';
 import type { SetTimeOffRequest } from '../../models/requests/set-time-off-request.model';
 import { MessageService } from '../../../../core/services/message.service';
 import { AlertType } from '../../../../core/utils/enums/AlertType';
+import { formatTimeTo12h } from '../../../../core/utils/time.util';
 const WEEKDAY_OPTIONS = [
   { value: 'MONDAY', label: 'Lunes' },
   { value: 'TUESDAY', label: 'Martes' },
@@ -205,7 +205,7 @@ export class TimeOffModalComponent implements OnInit, OnDestroy {
   }
   protected display12h(value: string | null | undefined): string {
     if (!value) return 'Selecciona la hora';
-    return formatTimeTo12Hour(value);
+    return formatTimeTo12h(value);
   }
   private getControlError(ctrl: AbstractControl | null, fieldName: string): string {
     if (!ctrl?.touched || !ctrl.errors) return '';

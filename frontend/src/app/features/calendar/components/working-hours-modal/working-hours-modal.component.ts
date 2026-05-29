@@ -2,7 +2,6 @@ import { Component, ComponentRef, inject, Inject, Injector, OnDestroy, OnInit } 
 import { CommonModule } from '@angular/common';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { formatTimeTo12Hour } from '../../utils/time.util';
 import type { WorkingHoursModalData } from '../../interfaces/calendar-modal-data.interface';
 import {
     workingHoursFieldValidator,
@@ -10,6 +9,7 @@ import {
 } from '../../validators/working-hours-modal.validators';
 import { MessageService } from '../../../../core/services/message.service';
 import { AlertType } from '../../../../core/utils/enums/AlertType';
+import { formatTimeTo12h } from '../../../../core/utils/time.util';
 import { TIME_PICKER_SEED, TimePickerComponent } from '../time-picker/time-picker.component';
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
@@ -199,7 +199,7 @@ export class WorkingHoursModalComponent implements OnInit, OnDestroy {
         this.dialogRef.close();
     }
     protected display12h(value: string | null | undefined): string {
-        return value ? formatTimeTo12Hour(value) : 'Selecciona la hora';
+        return value ? formatTimeTo12h(value) : 'Selecciona la hora';
     }
     private getControlError(ctrl: AbstractControl | null, fieldName: string): string {
         if (!ctrl?.touched || !ctrl.errors) return '';

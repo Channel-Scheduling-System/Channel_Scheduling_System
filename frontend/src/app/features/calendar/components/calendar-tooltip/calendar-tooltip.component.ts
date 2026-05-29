@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { CalendarTooltipService } from '../../ui/calendar-tooltip.service';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { formatTimeTo12Hour } from '../../utils/time.util';
+import { formatTimeTo12h } from '../../../../core/utils/time.util';
 @Component({
     selector: 'app-calendar-tooltip',
     standalone: true,
@@ -54,8 +54,8 @@ export class CalendarTooltipComponent {
         const d = this.data();
         if (!d) return '';
         if (d.type === 'timeoff' && d.startTime && d.endTime) {
-            const start12h = formatTimeTo12Hour(d.startTime);
-            const end12h = formatTimeTo12Hour(d.endTime);
+            const start12h = formatTimeTo12h(d.startTime);
+            const end12h = formatTimeTo12h(d.endTime);
             return `${start12h} — ${end12h}`;
         }
         if (d.type === 'periodoff' && d.startDate && d.endDate) {
