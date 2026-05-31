@@ -4,6 +4,7 @@ import {
     validateQueryDTO,
 } from '../../shared/middlewares/validateDTO.middleware.js';
 import {
+    paramId,
     id,
     workerId,
     clientId,
@@ -115,7 +116,7 @@ const appointmentQuerySchema = appointmentFilters.and(paginationSchema);
 // * CENTRALIZED VALIDATORS
 // ============================================================
 export const appointmentValidator = {
-    id: validateParamsDTO(id),
+    id: validateParamsDTO(paramId),
     verifyOverlap: validateBodyDTO(verifyOverlapInput),
     create: validateBodyDTO(createAppointmentInput),
     update: validateBodyDTO(updateAppointmentInput),

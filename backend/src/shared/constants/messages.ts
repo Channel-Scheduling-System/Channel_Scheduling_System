@@ -76,6 +76,7 @@ export const APPOINTMENT_ERRORS = {
     MAX_OVERLAPS_ALLOWED: `No se puede crear la cita. Ya se alcanzó el máximo de citas permitidas en este horario`,
     NOT_FOUND: 'Cita no encontrada',
     OWNER_CREATION_MISMATCH: 'No tienes permisos para crear esta cita',
+    OWNER_ACCESS_MISMATCH: 'No tienes permisos para acceder a esta cita',
     OWNER_MISMATCH: 'No tienes permisos para modificar esta cita',
 } as const;
 

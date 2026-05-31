@@ -1,6 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
 import { IAppointmentService } from './appointment.service.js';
-import { extractAuthContext } from '../../shared/utils/request-parser.util.js';
+import {
+    extractAuthContext,
+    extractRequestContextWithId,
+} from '../../shared/utils/request-parser.util.js';
 
 export class AppointmentController {
     constructor(private readonly appointmentService: IAppointmentService) {}
@@ -25,6 +28,16 @@ export class AppointmentController {
                         ? 'Cita creada correctamente'
                         : 'Cita solicitada correctamente',
             });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    getById = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { id, auth } = extractRequestContextWithId(req);
+            const appointment = await this.appointmentService.getById(id, auth);
+            return res.status(200).json({ data: appointment });
         } catch (error) {
             next(error);
         }

@@ -34,11 +34,8 @@ export class UserController {
 
     getById = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { id, authRole, authId } = extractRequestContextWithId(req);
-            const data = await this.userService.getById(id, {
-                role: authRole,
-                id: authId,
-            });
+            const { id, auth } = extractRequestContextWithId(req);
+            const data = await this.userService.getById(id, auth);
             return res.status(200).json({
                 message: 'Usuario recuperado exitosamente',
                 data,
@@ -70,11 +67,8 @@ export class UserController {
 
     update = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { id, authRole, authId } = extractRequestContextWithId(req);
-            await this.userService.update(
-                { id, ...req.body },
-                { id: authId, role: authRole },
-            );
+            const { id, auth } = extractRequestContextWithId(req);
+            await this.userService.update({ id, ...req.body }, auth);
             return res.status(200).json({
                 message: 'Usuario actualizado exitosamente',
             });
@@ -89,11 +83,8 @@ export class UserController {
         next: NextFunction,
     ) => {
         try {
-            const { id, authRole, authId } = extractRequestContextWithId(req);
-            await this.userService.updatePassword(
-                { id, ...req.body },
-                { id: authId, role: authRole },
-            );
+            const { id, auth } = extractRequestContextWithId(req);
+            await this.userService.updatePassword({ id, ...req.body }, auth);
             return res.status(200).json({
                 message: 'Su Contraseña se ha actualizado exitosamente',
             });
@@ -104,10 +95,10 @@ export class UserController {
 
     updateState = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { id, authRole, authId } = extractRequestContextWithId(req);
+            const { id, auth } = extractRequestContextWithId(req);
             const state = await this.userService.updateState(
                 { id, ...req.body },
-                { id: authId, role: authRole },
+                auth,
             );
             return res.status(200).json({
                 message: `Usuario ${state ? 'activado' : 'desactivado'} exitosamente`,

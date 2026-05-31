@@ -95,11 +95,11 @@ export class AvailabilityController {
         next: NextFunction,
     ) => {
         try {
-            const { id, authId, authRole } = extractRequestContextWithId(req);
+            const { id, auth } = extractRequestContextWithId(req);
             const filters = mapToAvailabilityWorkerFilter(id, req.query);
             const data = await this.availabilityService.getFullAvailability(
                 filters,
-                { id: authId, role: authRole },
+                auth,
             );
             return res.status(200).json({
                 message: 'Disponibilidad recuperada correctamente',
@@ -112,11 +112,8 @@ export class AvailabilityController {
 
     delete = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { id, authId, authRole } = extractRequestContextWithId(req);
-            await this.availabilityService.delete(id, {
-                id: authId,
-                role: authRole,
-            });
+            const { id, auth } = extractRequestContextWithId(req);
+            await this.availabilityService.delete(id, auth);
             return res.status(200).json({
                 message: 'Bloque de tiempo desbloqueado correctamente',
             });

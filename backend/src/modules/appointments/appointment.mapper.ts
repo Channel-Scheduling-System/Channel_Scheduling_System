@@ -7,6 +7,8 @@ import {
     CreateAppointmentResponse,
     VerifyOverlapInput,
     OverlapVerificationInput,
+    ExtendedAppointmentResponse,
+    ExtendedAppointment,
 } from './appointment.types.js';
 import { Temporal } from 'temporal-polyfill';
 
@@ -49,6 +51,30 @@ export function mapToCreateAppointmentResponse(
         startAt: appointment.startAt,
         endAt: appointment.endAt,
         status: appointment.status as Status,
+    };
+}
+
+export function mapToAppointmentExtendedResponse(
+    appointment: ExtendedAppointment,
+): ExtendedAppointmentResponse {
+    return {
+        id: appointment.id,
+        startAt: appointment.startAt,
+        endAt: appointment.endAt,
+        status: appointment.status as Status,
+        createdBy: appointment.createdBy as Role,
+        notes: appointment.notes,
+        createdAt: appointment.createdAt,
+        updatedAt: appointment.updatedAt,
+        worker: {
+            id: appointment.worker.id,
+            name: `${appointment.worker.firstName} ${appointment.worker.lastName}`,
+        },
+        client: {
+            id: appointment.client.id,
+            name: `${appointment.client.firstName} ${appointment.client.lastName}`,
+        },
+        services: appointment.services,
     };
 }
 

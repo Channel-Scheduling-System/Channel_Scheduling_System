@@ -10,10 +10,12 @@ import {
     Role,
     OverlapVerificationInput,
     OverlapVerificationResponse,
+    ExtendedAppointmentResponse,
 } from './appointment.types.js';
 
 import {
     mapToAppointmentData,
+    mapToAppointmentExtendedResponse,
     mapToCreateAppointmentResponse,
     mapToVerifyOverlapInput,
 } from './appointment.mapper.js';
@@ -27,6 +29,10 @@ export interface IAppointmentService {
         input: CreateAppointmentInput,
         auth: AuthContext,
     ): Promise<CreateAppointmentResponse>;
+    getById(
+        id: number,
+        auth: AuthContext,
+    ): Promise<ExtendedAppointmentResponse>;
 }
 
 export class AppointmentService implements IAppointmentService {
@@ -64,7 +70,7 @@ export class AppointmentService implements IAppointmentService {
         await this.appointmentDomain.ensureWorkerExists(workerId);
         await this.appointmentDomain.ensureClientExists(clientId);
         await this.appointmentDomain.ensureServicesExist(input.services);
-        this.appointmentDomain.checkCreationOwnership(auth, workerId, clientId);
+        this.appointmentDomain.checkCreator(auth, workerId, clientId);
         this.appointmentDomain.checkFutureDate(input.startAt);
         await this.appointmentDomain.ensureNoOverlaps(
             mapToVerifyOverlapInput(input),
@@ -75,6 +81,16 @@ export class AppointmentService implements IAppointmentService {
         const appointment = await this.appointmentRepo.create(appointmentData);
         await this.sendNotifications(appointment.id);
         return mapToCreateAppointmentResponse(appointment);
+    }
+
+    async getById(
+        id: number,
+        auth: AuthContext,
+    ): Promise<ExtendedAppointmentResponse> {
+        const apm =
+            await this.appointmentDomain.getExtendedAppointmentOrFail(id);
+        this.appointmentDomain.checkOwnership(auth, apm.workerId, apm.clientId);
+        return mapToAppointmentExtendedResponse(apm);
     }
 
     async sendNotifications(_appointmentId: number): Promise<void> {
