@@ -1,6 +1,7 @@
 import prisma from '../../config/prisma.js';
 import { Appointment } from '@prisma/client.js';
 import {
+    ExtendedAppointment,
     CreateAppointmentData,
     OverlapFilter,
     Status,
@@ -8,6 +9,8 @@ import {
 
 export interface IAppointmentRepository {
     create(data: CreateAppointmentData): Promise<Appointment>;
+    findById(id: number): Promise<Appointment | null>;
+    findExtendedById(id: number): Promise<ExtendedAppointment | null>;
     countOverlapsByWorker(filter: OverlapFilter): Promise<number>;
     countOverlapsByClient(filter: OverlapFilter): Promise<number>;
 }
@@ -19,6 +22,40 @@ export class AppointmentRepository implements IAppointmentRepository {
             data: {
                 ...appointmentData,
                 services: { create: services },
+            },
+        });
+    }
+
+    async findById(id: number): Promise<Appointment | null> {
+        return await prisma.appointment.findUnique({ where: { id } });
+    }
+
+    async findExtendedById(id: number): Promise<ExtendedAppointment | null> {
+        return await prisma.appointment.findUnique({
+            where: { id },
+            include: {
+                worker: {
+                    select: { id: true, firstName: true, lastName: true },
+                },
+                client: {
+                    select: { id: true, firstName: true, lastName: true },
+                },
+                services: {
+                    select: {
+                        id: true,
+                        customDurationMin: true,
+                        customPrice: true,
+                        service: {
+                            select: {
+                                id: true,
+                                name: true,
+                                colorHex: true,
+                                defaultDurationMin: true,
+                                defaultPrice: true,
+                            },
+                        },
+                    },
+                },
             },
         });
     }

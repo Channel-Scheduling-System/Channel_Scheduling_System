@@ -38,8 +38,8 @@ describe('request-parser utilities', () => {
             const ctx = extractRequestContextWithId(req);
 
             expect(ctx.id).toBe(3);
-            expect(ctx.authId).toBe(99);
-            expect(ctx.authRole).toBe('ADMIN');
+            expect(ctx.auth.id).toBe(99);
+            expect(ctx.auth.role).toBe('ADMIN');
         });
 
         it('should convert string params.id to number', () => {

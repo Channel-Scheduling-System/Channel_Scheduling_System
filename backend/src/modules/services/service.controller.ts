@@ -57,10 +57,10 @@ export class ServiceController {
 
     updateState = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { id, authRole, authId } = extractRequestContextWithId(req);
+            const { id, auth } = extractRequestContextWithId(req);
             const state = await this.serviceService.updateState(
                 { id, ...req.body },
-                { role: authRole, id: authId },
+                auth,
             );
             return res.status(200).json({
                 message: `Servicio ${state ? 'activado' : 'desactivado'} exitosamente`,

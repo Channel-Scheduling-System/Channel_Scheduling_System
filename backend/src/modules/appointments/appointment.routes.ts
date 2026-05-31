@@ -24,4 +24,11 @@ appointmentRouter.post(
     appointmentController.add,
 );
 
+appointmentRouter.get(
+    '/:id',
+    requireRole(['WORKER', 'CLIENT']),
+    appointmentValidator.id,
+    appointmentController.getById,
+);
+
 export default appointmentRouter;

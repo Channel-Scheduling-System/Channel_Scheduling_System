@@ -4,6 +4,8 @@ import { IUserService } from '../users/user.service.js';
 import { IServiceService } from '../services/service.service.js';
 import { IAvailabilityService } from '../availability/availability.service.js';
 import {
+    Appointment,
+    ExtendedAppointment,
     OverlapVerificationResponse,
     Role,
     VerifyOverlapInput,
@@ -58,15 +60,20 @@ export class AppointmentDomainService {
         );
     }
 
-    checkCreationOwnership(
+    checkCreator(auth: AuthContext, workerId: number, clientId: number) {
+        if (auth.role === Role.WORKER && auth.id !== workerId)
+            throw new ConflictError(APPOINTMENT_ERRORS.OWNER_CREATION_MISMATCH);
+        if (auth.role === Role.CLIENT && auth.id !== clientId)
+            throw new ConflictError(APPOINTMENT_ERRORS.OWNER_CREATION_MISMATCH);
+    }
+
+    checkOwnership(
         auth: AuthContext,
         workerId: number,
         clientId: number,
-    ) {
-        if (auth.role === 'WORKER' && auth.id !== workerId)
-            throw new ConflictError(APPOINTMENT_ERRORS.OWNER_CREATION_MISMATCH);
-        if (auth.role === 'CLIENT' && auth.id !== clientId)
-            throw new ConflictError(APPOINTMENT_ERRORS.OWNER_CREATION_MISMATCH);
+    ): void {
+        if (auth.id !== workerId && auth.id !== clientId)
+            throw new ConflictError(APPOINTMENT_ERRORS.OWNER_ACCESS_MISMATCH);
     }
 
     async verifyOverlaps(
@@ -82,8 +89,22 @@ export class AppointmentDomainService {
         const verification = await this.overlapValidator.verify(input, role);
         if (!verification.allowed)
             throw new ConflictError(verification.message);
-        if (role === 'CLIENT' && verification.needsConfirmation)
+        if (role === Role.CLIENT && verification.needsConfirmation)
             throw new ConflictError(APPOINTMENT_ERRORS.CANT_BE_REQUESTED);
+    }
+
+    async getAppointmentOrFail(id: number): Promise<Appointment> {
+        const appointment = await this.appointmentRepo.findById(id);
+        if (!appointment) throw new NotFoundError(APPOINTMENT_ERRORS.NOT_FOUND);
+        return appointment;
+    }
+
+    async getExtendedAppointmentOrFail(
+        id: number,
+    ): Promise<ExtendedAppointment> {
+        const appointment = await this.appointmentRepo.findExtendedById(id);
+        if (!appointment) throw new NotFoundError(APPOINTMENT_ERRORS.NOT_FOUND);
+        return appointment;
     }
 
     checkFutureDate(date: string): void {

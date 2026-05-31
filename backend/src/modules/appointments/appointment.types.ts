@@ -3,20 +3,22 @@ import {
     PaginationMeta,
 } from '../../shared/types/pagination.types.js';
 
-export enum Status {
-    PENDING = 'PENDING',
-    REJECTED = 'REJECTED',
-    SCHEDULED = 'SCHEDULED',
-    IN_PROGRESS = 'IN_PROGRESS',
-    CANCELLED = 'CANCELLED',
-    COMPLETED = 'COMPLETED',
-    NO_SHOW = 'NO_SHOW',
-}
+export const Status = {
+    PENDING: 'PENDING',
+    REJECTED: 'REJECTED',
+    SCHEDULED: 'SCHEDULED',
+    IN_PROGRESS: 'IN_PROGRESS',
+    CANCELLED: 'CANCELLED',
+    COMPLETED: 'COMPLETED',
+    NO_SHOW: 'NO_SHOW',
+} as const;
+export type Status = (typeof Status)[keyof typeof Status];
 
-export enum Role {
-    WORKER = 'WORKER',
-    CLIENT = 'CLIENT',
-}
+export const Role = {
+    WORKER: 'WORKER',
+    CLIENT: 'CLIENT',
+} as const;
+export type Role = (typeof Role)[keyof typeof Role];
 
 // ============================================================
 // * ENTITIES
@@ -34,12 +36,45 @@ export interface Appointment {
     updatedAt: Date;
 }
 
+interface WorkerSummary {
+    id: number;
+    firstName: string;
+    lastName: string;
+}
+
+interface ClientSummary {
+    id: number;
+    firstName: string;
+    lastName: string;
+}
+
+interface ServiceSummary {
+    id: number;
+    name: string;
+    colorHex: string;
+    defaultDurationMin: number;
+    defaultPrice: number;
+}
+
+interface AppointmentServiceDetail {
+    id: number;
+    service: ServiceSummary;
+    customDurationMin: number;
+    customPrice: number;
+}
+
 export interface AppointmentService {
     id: number;
     appointmentId: number;
     serviceId: number;
     customDurationMin: number; // Duration in minutes, if null, use service's default duration
     customPrice: number; // if null, use service's default price
+}
+
+export interface ExtendedAppointment extends Appointment {
+    worker: WorkerSummary;
+    client: ClientSummary;
+    services: AppointmentServiceDetail[];
 }
 
 // ============================================================
@@ -161,22 +196,23 @@ export interface AppointmentResponse {
     startAt: Date;
     endAt: Date;
     status: Status;
+    worker: { id: number; name: string };
+    client: { id: number; name: string };
+    services: AppointmentServiceDetail[];
+}
+
+export interface ExtendedAppointmentResponse {
+    id: number;
+    startAt: Date;
+    endAt: Date;
+    status: Status;
     createdBy: Role;
     notes: string | null;
-    worker: {
-        id: number;
-        name: string;
-    };
-    client: {
-        id: number;
-        name: string;
-    };
-    services: {
-        id: number;
-        name: string;
-        customDurationMin: number;
-        customPrice: number;
-    };
+    createdAt: Date;
+    updatedAt: Date;
+    worker: { id: number; name: string };
+    client: { id: number; name: string };
+    services: AppointmentServiceDetail[];
 }
 
 export interface PaginatedAppointmentResponse {

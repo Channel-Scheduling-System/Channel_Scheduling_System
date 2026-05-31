@@ -16,8 +16,7 @@ export interface AuthContext {
  */
 export interface RequestContextWithId {
     id: number;
-    authId: number;
-    authRole: SystemRole;
+    auth: AuthContext;
 }
 
 /**
@@ -55,5 +54,5 @@ export function extractRequestContextWithId(
     const authId = req.user?.sub as unknown as number;
     const authRole = req.user?.role as SystemRole;
 
-    return { id, authId, authRole };
+    return { id, auth: { id: authId, role: authRole } };
 }
