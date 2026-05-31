@@ -1,4 +1,4 @@
-import { dateTimeToIsoTime } from '../../../shared/utils/iso-to-datetime.util.js';
+import { dateTimeToIsoTime } from '../../../shared/utils/times-parser.util.js';
 import { dayOfWeekToNumber } from '../availability.mapper.js';
 import {
     BlockedTime,

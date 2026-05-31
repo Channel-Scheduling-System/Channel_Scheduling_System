@@ -1,3 +1,8 @@
+import {
+    Pagination,
+    PaginationMeta,
+} from '../../shared/types/pagination.types.js';
+
 export type SystemRole = 'ADMIN' | 'CLIENT' | 'WORKER';
 
 // ENTITY
@@ -91,6 +96,11 @@ export interface UserResponse {
     isActive: boolean;
 }
 
+export interface PaginatedUserResponse {
+    data: UserResponse[];
+    meta: PaginationMeta;
+}
+
 // FILTERS
 
 export interface UserFilters {
@@ -99,23 +109,4 @@ export interface UserFilters {
     identifier?: string;
 }
 
-export interface UserPagination {
-    page?: number;
-    limit?: number;
-}
-
-export interface UserQuery extends UserFilters, UserPagination {}
-
-// PAGINATION
-//* -----------------------------
-export interface PaginationMeta {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-}
-
-export interface PaginatedUserResponse {
-    data: UserResponse[];
-    meta: PaginationMeta;
-}
+export interface UserQuery extends UserFilters, Pagination {}

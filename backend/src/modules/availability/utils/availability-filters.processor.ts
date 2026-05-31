@@ -7,6 +7,8 @@ import {
     AvailabilityClientFilter,
     AvailabilityClientResponse,
     Slot,
+    DayAvailability,
+    WorkerAndDayInput,
 } from '../availability.types.js';
 import { DateRangeCalculator } from './date-range.calculator.js';
 import {
@@ -17,9 +19,9 @@ import {
     mapToWorkingHourResponse,
     mapToDayAvailability,
 } from '../availability.mapper.js';
-import { Temporal } from 'temporal-polyfill';
 import { SlotCalculator } from './slot-calculator.js';
 import { DateIterator } from './date-iterator.js';
+import { Temporal } from 'temporal-polyfill';
 
 export class AvailabilityFiltersProcessor {
     private readonly dateRangeCalculator = new DateRangeCalculator();
@@ -91,6 +93,26 @@ export class AvailabilityFiltersProcessor {
         const filter = this.buildRecurringFilter(workerId, date, view);
         const data = await this.availabilityRepo.findWorkingHours(filter);
         return data.map(mapToWorkingHourResponse);
+    }
+
+    async getAvailableSlotsForDay(
+        input: WorkerAndDayInput,
+    ): Promise<Slot[] | null> {
+        const { workerId, date, dayOfWeek } = input;
+        const workingHours = await this.availabilityRepo.findWorkingHours({
+            workerId,
+            dayOfWeek,
+        });
+        if (workingHours.length === 0) return null;
+
+        const blockedTimes = await this.availabilityRepo.findBlockedTimesByDate(
+            { workerId, date, dayOfWeek },
+        );
+
+        return this.slotCalculator.calculateAvailableSlots(
+            workingHours[0],
+            blockedTimes,
+        );
     }
 
     private async getTimesOff(
@@ -167,7 +189,7 @@ export class AvailabilityFiltersProcessor {
 
         const dailyAvailabilities = await Promise.all(
             dates.map(({ date, dayOfWeek }) =>
-                this.buildDayAvailability(workerId, date, dayOfWeek),
+                this.buildDayAvailability({ workerId, date, dayOfWeek }),
             ),
         );
 
@@ -177,28 +199,14 @@ export class AvailabilityFiltersProcessor {
     }
 
     private async buildDayAvailability(
-        workerId: number,
-        date: string,
-        dayOfWeek: number,
-    ): Promise<ReturnType<typeof mapToDayAvailability> | null> {
-        const workingHours = await this.availabilityRepo.findWorkingHours({
-            workerId,
-            dayOfWeek,
-        });
-        if (workingHours.length === 0) return null;
-
-        const blockedTimes = await this.availabilityRepo.findBlockedTimesByDate(
-            { workerId, date, dayOfWeek },
-        );
-
-        const availableSlots = this.slotCalculator.calculateAvailableSlots(
-            workingHours[0],
-            blockedTimes,
-        );
+        input: WorkerAndDayInput,
+    ): Promise<DayAvailability | null> {
+        const availableSlots = await this.getAvailableSlotsForDay(input);
+        if (availableSlots === null) return null;
         // TODO: Calcular slots ocupados (cuando se implemente módulo de citas)
         const occupiedSlots: Slot[] = [];
 
-        return mapToDayAvailability(date, availableSlots, occupiedSlots);
+        return mapToDayAvailability(input.date, availableSlots, occupiedSlots);
     }
 
     private calculateDateRange(

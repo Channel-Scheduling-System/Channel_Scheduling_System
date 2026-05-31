@@ -156,6 +156,7 @@ model BlockedTime {
   worker    User         @relation(fields: [workerId], references: [id], onDelete: Cascade)
   workerId  Int
 
+  @@index([workerId, type])
   @@map("blocked_times")
 }
 
@@ -177,6 +178,7 @@ model WorkingHour {
   worker    User     @relation(fields: [workerId], references: [id], onDelete: Cascade)
   workerId  Int
 
+  @@index([workerId, dayOfWeek])
   @@map("working_hours")
 }
 

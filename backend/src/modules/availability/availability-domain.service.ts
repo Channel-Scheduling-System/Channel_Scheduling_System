@@ -1,22 +1,22 @@
-import { Temporal } from 'temporal-polyfill';
-import { IUserService } from '../../users/user.service.js';
-import { IAvailabilityRepository } from '../availability.repository.js';
+import { BlockedTimeOverlapValidator } from './validators/blocked-time-overlap.validator.js';
+import { IUserService } from '../users/user.service.js';
+import { IAvailabilityRepository } from './availability.repository.js';
 import {
     WorkingHourInput,
     BlockedTime,
     CreateRecurringTimeOffInput,
     CreateBlockedTimeData,
-} from '../availability.types.js';
-import { AVAILABILITY_ERRORS } from '../../../shared/constants/messages.js';
+} from './availability.types.js';
 import {
     ConflictError,
     ForbiddenError,
     NotFoundError,
-} from '../../../shared/errors/domain.error.js';
-import { BlockedTimeOverlapValidator } from './blocked-time-overlap.validator.js';
-import { AuthContext } from '../../../shared/utils/request-parser.util.js';
+} from '../../shared/errors/domain.error.js';
+import { AVAILABILITY_ERRORS } from '../../shared/constants/messages.js';
+import { AuthContext } from '../../shared/utils/request-parser.util.js';
+import { isFutureDate } from '../../shared/utils/temporal.util.js';
 
-export class AvailabilityBusinessValidator {
+export class AvailabilityDomainService {
     private readonly overlapValidator = new BlockedTimeOverlapValidator();
 
     constructor(
@@ -40,13 +40,6 @@ export class AvailabilityBusinessValidator {
             }
             daysOfWeek.add(wh.dayOfWeek);
         }
-    }
-
-    checkFutureDate(date: string): void {
-        const dayOffDate = Temporal.PlainDate.from(date);
-        const today = Temporal.Now.plainDateISO();
-        if (Temporal.PlainDate.compare(dayOffDate, today) < 0)
-            throw new ConflictError(AVAILABILITY_ERRORS.DAY_OFF_IN_PAST);
     }
 
     async checkOverlapping(block: CreateBlockedTimeData): Promise<void> {
@@ -79,5 +72,10 @@ export class AvailabilityBusinessValidator {
         if (workerId !== auth.id) {
             throw new ForbiddenError(AVAILABILITY_ERRORS.CANNOT_VIEW);
         }
+    }
+
+    checkFutureDate(date: string): void {
+        if (!isFutureDate(date))
+            throw new ConflictError(AVAILABILITY_ERRORS.DAY_OFF_IN_PAST);
     }
 }

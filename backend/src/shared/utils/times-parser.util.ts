@@ -32,3 +32,36 @@ export function dateTimeToIsoTime(dateTime: string | null | undefined): string {
     const match = dateTime.match(/T(\d{2}):(\d{2})/);
     return match ? `${match[1]}:${match[2]}` : '00:00';
 }
+
+/**
+ * Convierte un DateTime ISO con segundos (YYYY-MM-DDTHH:MM:SSZ) a DateTime ISO sin segundos (YYYY-MM-DDTHH:MMZ)
+ * Ejemplo: "2026-05-15T14:30:00Z" → "2026-05-15T14:30Z"
+ */
+export function dateTimeToIsoDateTimeWithoutSeconds(dateTime: string): string {
+    return dateTime.replace(':00Z', 'Z');
+}
+
+export function isoDateTimeToDayMinutes(dateTime: string): number {
+    const timePart = dateTime.split('T')[1].replace('Z', '');
+    const [hours, minutes] = timePart.split(':').map(Number);
+    return hours * 60 + minutes;
+}
+
+/**
+ * Convierte un tiempo en formato HH:MM a minutos desde la medianoche
+ * Ejemplo: "14:30" → 870
+ */
+export function timeToMinutes(time: string): number {
+    const [hours, minutes] = time.split(':').map(Number);
+    return hours * 60 + minutes;
+}
+
+/**
+ * Convierte minutos desde la medianoche a formato HH:MM
+ * Ejemplo: 870 → "14:30"
+ */
+export function minutesToTime(minutes: number): string {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+}

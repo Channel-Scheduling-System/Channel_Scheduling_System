@@ -1,11 +1,7 @@
 import prisma from '../../config/prisma.js';
 import { Prisma, SystemRole, User } from '@prisma/client.js';
-import {
-    CreateUserData,
-    UpdateUserData,
-    UserFilters,
-    UserPagination,
-} from './user.types.js';
+import { CreateUserData, UpdateUserData, UserFilters } from './user.types.js';
+import { Pagination } from '../../shared/types/pagination.types.js';
 
 export interface IUserRepository {
     create(data: CreateUserData): Promise<User>;
@@ -18,7 +14,7 @@ export interface IUserRepository {
     findByEmail(email: string): Promise<User | null>;
     findByIdentifier(identifier: string): Promise<User | null>;
     findAll(
-        pagination: UserPagination,
+        pagination: Pagination,
         filters: UserFilters,
     ): Promise<{ data: User[]; total: number }>;
     update(userId: number, data: UpdateUserData): Promise<User>;
@@ -97,7 +93,7 @@ export class UserRepository implements IUserRepository {
     }
 
     async findAll(
-        pagination: UserPagination,
+        pagination: Pagination,
         filters: UserFilters,
     ): Promise<{ data: User[]; total: number }> {
         const limit = pagination.limit || 10;
