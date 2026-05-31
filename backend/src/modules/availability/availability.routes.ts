@@ -6,9 +6,10 @@ import { authMiddleware } from '../../shared/middlewares/auth.middleware.js';
 
 const availabilityRouter = Router();
 
+availabilityRouter.use(authMiddleware);
+
 availabilityRouter.put(
     '/:id/working-hours',
-    authMiddleware,
     requireRole('WORKER'),
     availabilityValidator.id,
     availabilityValidator.createWorkHour,
@@ -17,7 +18,6 @@ availabilityRouter.put(
 
 availabilityRouter.post(
     '/:id/time-off',
-    authMiddleware,
     requireRole('WORKER'),
     availabilityValidator.id,
     availabilityValidator.createTimeOff,
@@ -26,7 +26,6 @@ availabilityRouter.post(
 
 availabilityRouter.post(
     '/:id/day-off',
-    authMiddleware,
     requireRole('WORKER'),
     availabilityValidator.id,
     availabilityValidator.createDayOff,
@@ -35,7 +34,6 @@ availabilityRouter.post(
 
 availabilityRouter.post(
     '/:id/period-off',
-    authMiddleware,
     requireRole('WORKER'),
     availabilityValidator.id,
     availabilityValidator.createPeriodOff,
@@ -44,7 +42,6 @@ availabilityRouter.post(
 
 availabilityRouter.get(
     '/worker/:id',
-    authMiddleware,
     requireRole('CLIENT'),
     availabilityValidator.id,
     availabilityValidator.clientFilters,
@@ -53,7 +50,6 @@ availabilityRouter.get(
 
 availabilityRouter.get(
     '/:id/config',
-    authMiddleware,
     requireRole('WORKER'),
     availabilityValidator.id,
     availabilityValidator.workerFilters,
@@ -62,7 +58,6 @@ availabilityRouter.get(
 
 availabilityRouter.delete(
     '/:id',
-    authMiddleware,
     requireRole('WORKER'),
     availabilityValidator.id,
     availabilityController.delete,

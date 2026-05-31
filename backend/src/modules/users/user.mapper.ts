@@ -1,13 +1,7 @@
 import { User } from '@prisma/client.js';
-import {
-    UserFilters,
-    UserPagination,
-    UserResponse,
-} from './user.types.js';
-import {
-    userFiltersSchema,
-    userPaginationSchema,
-} from './user.validator.js';
+import { UserFilters, UserResponse } from './user.types.js';
+import { userFiltersSchema, userPaginationSchema } from './user.validator.js';
+import { Pagination } from '../../shared/types/pagination.types.js';
 
 /**
  * Maps a User entity to an UserResponse object
@@ -56,6 +50,6 @@ export function mapToUserFilters(
 export function mapToUserPagination(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     pagination: Record<string, any>,
-): UserPagination {
+): Pagination {
     return userPaginationSchema.parse(pagination);
 }

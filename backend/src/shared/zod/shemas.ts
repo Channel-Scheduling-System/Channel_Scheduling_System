@@ -20,6 +20,46 @@ export const workerId = z
     .int('El ID del trabajador debe ser un número entero')
     .positive('El ID del trabajador debe ser un número positivo');
 
+export const clientId = z
+    .number('El id del cliente debe ser un número')
+    .int('El ID del cliente debe ser un número entero')
+    .positive('El ID del cliente debe ser un número positivo');
+
+// ============================================================
+// * SCHEMAS COMUNES
+// ============================================================
+export const pageSchema = z.coerce
+    .number()
+    .positive('Page debe ser un número positivo');
+
+export const limitSchema = (limit: number) =>
+    z.coerce
+        .number()
+        .positive('Limit debe ser un número positivo')
+        .max(limit, `El límite máximo es ${limit} registros`);
+
+export const priceSchema = z
+    .number('El precio debe ser un número')
+    .int('El precio debe ser un número entero')
+    .positive('El precio debe ser un número positivo')
+    .max(999999, 'El precio no puede exceder 999.999');
+
+export const durationSchema = z
+    .number('La duración debe ser un número')
+    .int('La duración debe ser un número entero')
+    .positive('La duración debe ser un número positivo')
+    .min(10, 'La duración mínima es 5 minutos')
+    .max(500, 'La duración máxima es 500 minutos');
+
+// ============================================================
+// * TEMPORAL SCHEMAS
+// ============================================================
+export const dateSchema = z.iso.date();
+
+export const timeSchema = z.iso.time({ precision: -1 });
+
+export const dateTimeSchema = z.iso.datetime({ precision: -1 });
+
 // ============================================================
 // * DTOS COMUNES
 // ============================================================
@@ -28,13 +68,6 @@ export const updateStateDTO = z
         isActive: z.boolean(),
     })
     .strict();
-
-// ============================================================
-// * TEMPORAL SCHEMAS
-// ============================================================
-export const dateSchema = z.iso.date();
-
-export const timeSchema = z.iso.time({ precision: -1 });
 
 // ============================================================
 // * HELPERS DE VALIDACIÓN DE RANGOS

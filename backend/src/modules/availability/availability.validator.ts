@@ -19,18 +19,18 @@ import { z } from 'zod';
 // ============================================================
 // * BASE SCHEMAS
 // ============================================================
-export const dayOfWeekEnum = z.enum(dayOfWeek);
+const dayOfWeekEnum = z.enum(dayOfWeek);
 
-export const viewTypeEnum = z.enum(['DAY', 'WEEK', 'MONTH']);
+const viewTypeEnum = z.enum(['DAY', 'WEEK', 'MONTH']);
 
-export const availabilityTypeEnum = z.enum([
+const availabilityTypeEnum = z.enum([
     'workingHours',
     'timesOff',
     'daysOff',
     'periodsOff',
 ]);
 
-export const workingHourSchema = z.object({
+const workingHourSchema = z.object({
     id: id,
     workerId: workerId,
     dayOfWeek: dayOfWeekEnum,
@@ -41,7 +41,7 @@ export const workingHourSchema = z.object({
 // ============================================================
 // * INPUT DTOs
 // ============================================================
-export const createWorkHourInput = z
+const createWorkHourInput = z
     .object({
         workingHours: z
             .array(
@@ -56,7 +56,7 @@ export const createWorkHourInput = z
     })
     .strict();
 
-export const createSpecificTimeOffInput = z
+const createSpecificTimeOffInput = z
     .object({
         type: z.literal('SPECIFIC'),
         date: dateSchema,
@@ -68,7 +68,7 @@ export const createSpecificTimeOffInput = z
         message: 'La hora de inicio debe ser menor a la hora de fin',
     });
 
-export const createRecurringTimeOffInput = z
+const createRecurringTimeOffInput = z
     .object({
         type: z.literal('RECURRING'),
         dayOfWeek: dayOfWeekEnum,
@@ -80,17 +80,17 @@ export const createRecurringTimeOffInput = z
         message: 'La hora de inicio debe ser menor a la hora de fin',
     });
 
-export const createTimeOffInput = z.discriminatedUnion('type', [
+const createTimeOffInput = z.discriminatedUnion('type', [
     createSpecificTimeOffInput,
     createRecurringTimeOffInput,
 ]);
 
-export const createDayOffInput = z.object({
+const createDayOffInput = z.object({
     date: dateSchema,
     reason: z.string().max(200).optional(),
 });
 
-export const createPeriodOffInput = z
+const createPeriodOffInput = z
     .object({
         startDate: dateSchema,
         endDate: dateSchema,
@@ -109,7 +109,7 @@ export const availabilityWorkerFilters = z.object({
     date: dateSchema.optional(),
 });
 
-export const availabilityClientFilters = z.object({
+const availabilityClientFilters = z.object({
     view: viewTypeEnum.optional(),
     date: dateSchema.optional(),
 });

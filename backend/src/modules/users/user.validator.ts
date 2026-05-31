@@ -5,7 +5,9 @@ import {
 } from '../../shared/middlewares/validateDTO.middleware.js';
 import {
     id,
+    limitSchema,
     oneOrMany,
+    pageSchema,
     paramId,
     updateStateDTO,
 } from '../../shared/zod/shemas.js';
@@ -114,12 +116,8 @@ const deactivateMeDTO = z
 
 // FILTERS
 export const userPaginationSchema = z.object({
-    page: z.coerce.number().positive('Página debe ser positiva').optional(),
-    limit: z.coerce
-        .number()
-        .positive('Límite debe ser positivo')
-        .max(100, 'Límite máximo es 100 registros')
-        .optional(),
+    page: pageSchema.optional(),
+    limit: limitSchema(100).optional(),
 });
 
 export const userFiltersSchema = z.object({

@@ -3,7 +3,7 @@ import {
     dateTimeToIsoTime,
     isoDateToDateTime,
     isoTimeToDateTime,
-} from '../../shared/utils/iso-to-datetime.util.js';
+} from '../../shared/utils/times-parser.util.js';
 import {
     CreateWorkingHoursInput,
     CreateWorkingHourData,

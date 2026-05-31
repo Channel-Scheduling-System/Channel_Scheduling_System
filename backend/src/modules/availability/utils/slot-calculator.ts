@@ -4,6 +4,10 @@ import {
     mapBlockedTimeToSlot,
     mapWorkingHourToSlot,
 } from '../availability.mapper.js';
+import {
+    minutesToTime,
+    timeToMinutes,
+} from '../../../shared/utils/times-parser.util.js';
 
 export class SlotCalculator {
     calculateAvailableSlots(
@@ -27,7 +31,7 @@ export class SlotCalculator {
             return [{ start: working.start, end: working.end }];
 
         const sortedBlocked = blocked.sort(
-            (a, b) => this.timeToMinutes(a.start) - this.timeToMinutes(b.start),
+            (a, b) => timeToMinutes(a.start) - timeToMinutes(b.start),
         );
         // Fusionar bloques superpuestos
         const mergedBlocked = this.mergeOverlappingRanges(
@@ -40,7 +44,7 @@ export class SlotCalculator {
 
         for (const bl of mergedBlocked) {
             // Si hay espacio antes de este bloque
-            if (this.timeToMinutes(curStart) < this.timeToMinutes(bl.start)) {
+            if (timeToMinutes(curStart) < timeToMinutes(bl.start)) {
                 available.push({
                     start: curStart,
                     end: bl.start,
@@ -51,7 +55,7 @@ export class SlotCalculator {
         }
 
         // Si hay espacio después del último bloque
-        if (this.timeToMinutes(curStart) < this.timeToMinutes(working.end)) {
+        if (timeToMinutes(curStart) < timeToMinutes(working.end)) {
             available.push({
                 start: curStart,
                 end: working.end,
@@ -63,12 +67,12 @@ export class SlotCalculator {
 
     private mergeOverlappingRanges(working: Slot, blocked: Slot[]): Slot[] {
         const merged: Slot[] = [];
-        const workingStart = this.timeToMinutes(working.start);
-        const workingEnd = this.timeToMinutes(working.end);
+        const workingStart = timeToMinutes(working.start);
+        const workingEnd = timeToMinutes(working.end);
 
         for (const bl of blocked) {
-            const blockedStart = this.timeToMinutes(bl.start);
-            const blockedEnd = this.timeToMinutes(bl.end);
+            const blockedStart = timeToMinutes(bl.start);
+            const blockedEnd = timeToMinutes(bl.end);
 
             // Ignorar bloques que no intersectan con el rango de trabajo
             if (blockedEnd <= workingStart || blockedStart >= workingEnd)
@@ -80,11 +84,11 @@ export class SlotCalculator {
 
             if (merged.length > 0) {
                 const lastMerged = merged[merged.length - 1];
-                const lastEnd = this.timeToMinutes(lastMerged.end);
+                const lastEnd = timeToMinutes(lastMerged.end);
 
                 // Si se superpone con el anterior, fusionar
                 if (clippedStart <= lastEnd) {
-                    lastMerged.end = this.minutesToTime(
+                    lastMerged.end = minutesToTime(
                         Math.max(lastEnd, clippedEnd),
                     );
                     continue;
@@ -92,22 +96,11 @@ export class SlotCalculator {
             }
 
             merged.push({
-                start: this.minutesToTime(clippedStart),
-                end: this.minutesToTime(clippedEnd),
+                start: minutesToTime(clippedStart),
+                end: minutesToTime(clippedEnd),
             });
         }
 
         return merged;
-    }
-
-    private timeToMinutes(time: string): number {
-        const [hours, minutes] = time.split(':').map(Number);
-        return hours * 60 + minutes;
-    }
-
-    private minutesToTime(minutes: number): string {
-        const hours = Math.floor(minutes / 60);
-        const mins = minutes % 60;
-        return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
     }
 }
