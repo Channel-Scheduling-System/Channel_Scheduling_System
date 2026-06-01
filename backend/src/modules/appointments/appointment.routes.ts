@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { requireRole } from '../../shared/middlewares/role.middleware.js';
 import { authMiddleware } from '../../shared/middlewares/auth.middleware.js';
-import { appointmentController } from './appointment.module.js';
+import { appointmentController } from '../index.js';
 import { appointmentValidator } from './appointment.validator.js';
 import { clientAddAppointmentLimiter } from '../../config/security.js';
 

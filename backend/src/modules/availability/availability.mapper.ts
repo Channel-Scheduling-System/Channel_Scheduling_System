@@ -21,10 +21,10 @@ import {
     SpecificTimeOffResponse,
     AvailabilityWorkerFilter,
     AvailabilityClientFilter,
-    Slot,
     DayAvailability,
 } from './availability.types.js';
 import { availabilityWorkerFilters } from './availability.validator.js';
+import { Slot } from '../../shared/types/slots.types.js';
 
 // Mapeo entre strings (API) y números (BD)
 export const dayOfWeekToNumber: Record<dayOfWeek, number> = {

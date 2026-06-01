@@ -19,6 +19,7 @@ import {
     mapToCreateAppointmentResponse,
     mapToVerifyOverlapInput,
 } from './appointment.mapper.js';
+import { Slot } from '../../shared/types/slots.types.js';
 import { AuthContext } from '../../shared/utils/request-parser.util.js';
 
 export interface IAppointmentService {
@@ -33,6 +34,7 @@ export interface IAppointmentService {
         id: number,
         auth: AuthContext,
     ): Promise<ExtendedAppointmentResponse>;
+    getSlots(workerId: number, date: string): Promise<Slot[]>;
 }
 
 export class AppointmentService implements IAppointmentService {
@@ -42,7 +44,7 @@ export class AppointmentService implements IAppointmentService {
         private readonly appointmentRepo: IAppointmentRepository,
         private readonly userService: IUserService,
         private readonly serviceService: IServiceService,
-        private readonly availabilityService: IAvailabilityService,
+        private availabilityService: IAvailabilityService,
     ) {
         this.appointmentDomain = new AppointmentDomainService(
             appointmentRepo,
@@ -91,6 +93,11 @@ export class AppointmentService implements IAppointmentService {
             await this.appointmentDomain.getExtendedAppointmentOrFail(id);
         this.appointmentDomain.checkOwnership(auth, apm.workerId, apm.clientId);
         return mapToAppointmentExtendedResponse(apm);
+    }
+
+    async getSlots(workerId: number, date: string): Promise<Slot[]> {
+        await this.appointmentDomain.ensureWorkerExists(workerId);
+        return await this.appointmentDomain.getSlots(workerId, date);
     }
 
     async sendNotifications(_appointmentId: number): Promise<void> {

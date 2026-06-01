@@ -1,3 +1,5 @@
+import { Slot } from "../../shared/types/slots.types.js";
+
 export enum dayOfWeek {
     MONDAY = 'MONDAY',
     TUESDAY = 'TUESDAY',
@@ -153,12 +155,6 @@ export interface PeriodOffResponse {
     reason?: string;
 }
 
-// Represents a time slot in the client's availability response
-export interface Slot {
-    start: string; // ISO time string
-    end: string; // ISO time string
-}
-
 // Represents a day's availability in the client's response
 export interface DayAvailability {
     date: string;
@@ -184,11 +180,6 @@ export type AvailabilityClientResponse = DayAvailability[];
 // ============================================================
 // * FILTERS
 // ============================================================
-export interface DateRange {
-    startDate: string; // ISO date string
-    endDate: string; // ISO date string
-}
-
 export interface WorkingHourFilter {
     workerId: number;
     dayOfWeek?: number;

@@ -10,6 +10,7 @@ import {
     Role,
     VerifyOverlapInput,
 } from './appointment.types.js';
+import { Slot } from '../../shared/types/slots.types.js';
 import {
     ConflictError,
     NotFoundError,
@@ -17,9 +18,11 @@ import {
 import { APPOINTMENT_ERRORS } from '../../shared/constants/messages.js';
 import { isFutureDate } from '../../shared/utils/temporal.util.js';
 import { AuthContext } from '../../shared/utils/request-parser.util.js';
+import { SlotCalculator } from './util/slot-calculator.js';
 
 export class AppointmentDomainService {
     private readonly overlapValidator: OverlapValidator;
+    private readonly slotCalculator: SlotCalculator;
 
     constructor(
         private readonly appointmentRepo: IAppointmentRepository,
@@ -31,6 +34,15 @@ export class AppointmentDomainService {
             appointmentRepo,
             availabilityService,
         );
+        this.slotCalculator = new SlotCalculator();
+    }
+
+    async getSlots(workerId: number, date: string): Promise<Slot[]> {
+        const appointments = await this.appointmentRepo.findByWorkerAndDate(
+            workerId,
+            date,
+        );
+        return this.slotCalculator.calculateSlots(appointments);
     }
 
     async ensureWorkerExists(workerId: number): Promise<void> {

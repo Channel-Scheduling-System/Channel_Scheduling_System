@@ -1,5 +1,6 @@
-import { IUserService } from '../users/user.service.js';
 import { IAvailabilityRepository } from './availability.repository.js';
+import { IUserService } from '../users/user.service.js';
+import { IAppointmentService } from '../appointments/appointment.service.js';
 import {
     AvailabilityClientFilter,
     AvailabilityClientResponse,
@@ -10,7 +11,6 @@ import {
     CreatePeriodOffInput,
     CreateTimeOffInput,
     CreateWorkingHoursInput,
-    Slot,
 } from './availability.types.js';
 import { AVAILABILITY_ERRORS } from '../../shared/constants/messages.js';
 import { NotFoundError } from '../../shared/errors/domain.error.js';
@@ -23,6 +23,7 @@ import {
 import { AvailabilityDomainService } from './availability-domain.service.js';
 import { AvailabilityFiltersProcessor } from './utils/availability-filters.processor.js';
 import { AuthContext } from '../../shared/utils/request-parser.util.js';
+import { Slot } from '../../shared/types/slots.types.js';
 import { Temporal } from 'temporal-polyfill';
 
 export interface IAvailabilityService {
@@ -48,6 +49,7 @@ export class AvailabilityService implements IAvailabilityService {
     constructor(
         private readonly availabilityRepo: IAvailabilityRepository,
         private readonly userService: IUserService,
+        private readonly appointmentService: IAppointmentService,
     ) {
         this.availabilityDomain = new AvailabilityDomainService(
             availabilityRepo,
@@ -55,6 +57,7 @@ export class AvailabilityService implements IAvailabilityService {
         );
         this.filtersProcessor = new AvailabilityFiltersProcessor(
             availabilityRepo,
+            appointmentService,
         );
     }
 

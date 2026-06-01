@@ -1,11 +1,11 @@
 import { IAppointmentRepository } from '../appointment.repository.js';
 import { IAvailabilityService } from '../../availability/availability.service.js';
-import { Slot } from '../../availability/availability.types.js';
 import {
     OverlapVerificationResponse,
     Role,
     VerifyOverlapInput,
 } from '../appointment.types.js';
+import { Slot } from '../../../shared/types/slots.types.js';
 import {
     isoDateTimeToDayMinutes,
     timeToMinutes,
@@ -21,7 +21,7 @@ const MAX_OVERLAPS_ALLOWED = 2;
 export class OverlapValidator {
     constructor(
         private readonly appointmentRepo: IAppointmentRepository,
-        private readonly availabilityService: IAvailabilityService,
+        private readonly availabilityService: IAvailabilityService ,
     ) {}
 
     async verify(

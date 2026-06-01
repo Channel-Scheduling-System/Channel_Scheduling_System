@@ -1,4 +1,4 @@
-import { Slot } from '../availability.types.js';
+import { Slot } from '../../../shared/types/slots.types.js';
 import { BlockedTime, WorkingHour } from '../availability.types.js';
 import {
     mapBlockedTimeToSlot,
@@ -15,77 +15,60 @@ export class SlotCalculator {
         blockedTimes: BlockedTime[],
     ): Slot[] {
         const workingRange = mapWorkingHourToSlot(workingHour);
-        const blockedRanges = blockedTimes
+        const blockedSlots = blockedTimes
             .filter((bt) => bt.type === 'HOUR' || bt.type === 'DAY')
             .map(mapBlockedTimeToSlot);
 
-        const availableSlots = this.subtractBlockedFromSlot(
-            workingRange,
-            blockedRanges,
-        );
-        return availableSlots;
+        return this.subtractSlotsFromRange(workingRange, blockedSlots);
     }
 
-    private subtractBlockedFromSlot(working: Slot, blocked: Slot[]): Slot[] {
-        if (blocked.length === 0)
-            return [{ start: working.start, end: working.end }];
+    subtractOccupiedSlots(
+        availableSlots: Slot[],
+        occupiedSlots: Slot[],
+    ): Slot[] {
+        if (occupiedSlots.length === 0) return availableSlots;
+        if (availableSlots.length === 0) return [];
 
-        const sortedBlocked = blocked.sort(
+        const result: Slot[] = [];
+        for (const available of availableSlots) {
+            const slotsAfterSubtraction = this.subtractSlotsFromRange(
+                available,
+                occupiedSlots,
+            );
+            result.push(...slotsAfterSubtraction);
+        }
+
+        return result;
+    }
+
+    private subtractSlotsFromRange(range: Slot, slots: Slot[]): Slot[] {
+        if (slots.length === 0) return [{ start: range.start, end: range.end }];
+
+        const slotsSorted = slots.sort(
             (a, b) => timeToMinutes(a.start) - timeToMinutes(b.start),
         );
-        // Fusionar bloques superpuestos
-        const mergedBlocked = this.mergeOverlappingRanges(
-            working,
-            sortedBlocked,
-        );
-        // Calcular slots disponibles entre los bloques
-        const available: Slot[] = [];
-        let curStart = working.start; // Current
+        const mergedBlocked = this.mergeOverlappingSlots(range, slotsSorted);
 
-        for (const bl of mergedBlocked) {
-            // Si hay espacio antes de este bloque
-            if (timeToMinutes(curStart) < timeToMinutes(bl.start)) {
-                available.push({
-                    start: curStart,
-                    end: bl.start,
-                });
-            }
-            // Actualizar el inicio para después del bloque
-            curStart = bl.end;
-        }
-
-        // Si hay espacio después del último bloque
-        if (timeToMinutes(curStart) < timeToMinutes(working.end)) {
-            available.push({
-                start: curStart,
-                end: working.end,
-            });
-        }
-
-        return available;
+        return this.calculateRemainingSlots(range, mergedBlocked);
     }
 
-    private mergeOverlappingRanges(working: Slot, blocked: Slot[]): Slot[] {
+    private mergeOverlappingSlots(range: Slot, slots: Slot[]): Slot[] {
         const merged: Slot[] = [];
-        const workingStart = timeToMinutes(working.start);
-        const workingEnd = timeToMinutes(working.end);
+        const rangeStart = timeToMinutes(range.start);
+        const rangeEnd = timeToMinutes(range.end);
 
-        for (const bl of blocked) {
-            const blockedStart = timeToMinutes(bl.start);
-            const blockedEnd = timeToMinutes(bl.end);
-
-            // Ignorar bloques que no intersectan con el rango de trabajo
-            if (blockedEnd <= workingStart || blockedStart >= workingEnd)
-                continue;
-
-            // Recortar el bloque al rango de trabajo
-            const clippedStart = Math.max(blockedStart, workingStart);
-            const clippedEnd = Math.min(blockedEnd, workingEnd);
-
+        for (const slot of slots) {
+            const slotStart = timeToMinutes(slot.start);
+            const slotEnd = timeToMinutes(slot.end);
+            // Ignorar slots fuera del rango
+            if (slotEnd <= rangeStart || slotStart >= rangeEnd) continue;
+            // Recortar slot al rango
+            const clippedStart = Math.max(slotStart, rangeStart);
+            const clippedEnd = Math.min(slotEnd, rangeEnd);
+            // Fusionar con el anterior si se superponen
             if (merged.length > 0) {
                 const lastMerged = merged[merged.length - 1];
                 const lastEnd = timeToMinutes(lastMerged.end);
-
                 // Si se superpone con el anterior, fusionar
                 if (clippedStart <= lastEnd) {
                     lastMerged.end = minutesToTime(
@@ -102,5 +85,30 @@ export class SlotCalculator {
         }
 
         return merged;
+    }
+
+    private calculateRemainingSlots(range: Slot, blockedSlots: Slot[]): Slot[] {
+        const available: Slot[] = [];
+        let currentStart = range.start;
+
+        for (const blocked of blockedSlots) {
+            // Si hay espacio antes de este bloque
+            if (timeToMinutes(currentStart) < timeToMinutes(blocked.start)) {
+                available.push({
+                    start: currentStart,
+                    end: blocked.start,
+                });
+            }
+            currentStart = blocked.end;
+        }
+        // Si hay espacio después del último bloque
+        if (timeToMinutes(currentStart) < timeToMinutes(range.end)) {
+            available.push({
+                start: currentStart,
+                end: range.end,
+            });
+        }
+
+        return available;
     }
 }

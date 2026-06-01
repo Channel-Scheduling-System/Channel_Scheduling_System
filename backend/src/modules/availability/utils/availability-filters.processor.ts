@@ -1,16 +1,14 @@
 import { IAvailabilityRepository } from '../availability.repository.js';
+import { IAppointmentService } from '../../appointments/appointment.service.js';
 import {
     AvailabilityWorkerFilter,
     AvailabilityWorkerResponse,
-    DateRange,
     ViewType,
     AvailabilityClientFilter,
     AvailabilityClientResponse,
-    Slot,
     DayAvailability,
     WorkerAndDayInput,
 } from '../availability.types.js';
-import { DateRangeCalculator } from './date-range.calculator.js';
 import {
     mapToDaysOffResponse,
     mapToRecurringTimeOffResponse,
@@ -21,13 +19,21 @@ import {
 } from '../availability.mapper.js';
 import { SlotCalculator } from './slot-calculator.js';
 import { DateIterator } from './date-iterator.js';
+import {
+    DateRangeCalculator,
+    DateRange,
+} from '../../../shared/utils/date-range-calculator.util.js';
+import { Slot } from '../../../shared/types/slots.types.js';
 import { Temporal } from 'temporal-polyfill';
 
 export class AvailabilityFiltersProcessor {
     private readonly dateRangeCalculator = new DateRangeCalculator();
     private readonly slotCalculator = new SlotCalculator();
 
-    constructor(private readonly availabilityRepo: IAvailabilityRepository) {}
+    constructor(
+        private readonly availabilityRepo: IAvailabilityRepository,
+        private readonly appointmentService: IAppointmentService,
+    ) {}
 
     async processFullAvailability(
         workerId: number,
@@ -201,10 +207,17 @@ export class AvailabilityFiltersProcessor {
     private async buildDayAvailability(
         input: WorkerAndDayInput,
     ): Promise<DayAvailability | null> {
-        const availableSlots = await this.getAvailableSlotsForDay(input);
+        let availableSlots = await this.getAvailableSlotsForDay(input);
         if (availableSlots === null) return null;
-        // TODO: Calcular slots ocupados (cuando se implemente módulo de citas)
-        const occupiedSlots: Slot[] = [];
+        const occupiedSlots = await this.appointmentService.getSlots(
+            input.workerId,
+            input.date,
+        );
+
+        availableSlots = this.slotCalculator.subtractOccupiedSlots(
+            availableSlots,
+            occupiedSlots,
+        );
 
         return mapToDayAvailability(input.date, availableSlots, occupiedSlots);
     }
