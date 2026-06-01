@@ -37,8 +37,8 @@ export function dateTimeToIsoTime(dateTime: string | null | undefined): string {
  * Convierte un DateTime ISO con segundos (YYYY-MM-DDTHH:MM:SSZ) a DateTime ISO sin segundos (YYYY-MM-DDTHH:MMZ)
  * Ejemplo: "2026-05-15T14:30:00Z" → "2026-05-15T14:30Z"
  */
-export function dateTimeToIsoDateTimeWithoutSeconds(dateTime: string): string {
-    return dateTime.replace(':00Z', 'Z');
+export function dateTimeToIsoDateTimeWithoutSeconds(dateTime: Date): string {
+    return dateTime.toISOString().replace(':00.000Z', 'Z');
 }
 
 export function isoDateTimeToDayMinutes(dateTime: string): number {

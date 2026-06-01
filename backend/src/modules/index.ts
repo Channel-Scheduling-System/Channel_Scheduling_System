@@ -61,8 +61,7 @@ const appointmentService = new AppointmentService(
     appointmentRepository,
     userService,
     serviceService,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    null as any,
+    getAvailabilityService,
 );
 const appointmentController = new AppointmentController(appointmentService);
 
@@ -70,6 +69,7 @@ const appointmentController = new AppointmentController(appointmentService);
 // AVAILABILITY MODULE - Depende de userService y appointmentService
 // ============================================================================
 import { AvailabilityRepository } from './availability/availability.repository.js';
+import { IAvailabilityService } from './availability/availability.service.js';
 import { AvailabilityService } from './availability/availability.service.js';
 import { AvailabilityController } from './availability/availability.controller.js';
 
@@ -81,10 +81,9 @@ const availabilityService = new AvailabilityService(
 );
 const availabilityController = new AvailabilityController(availabilityService);
 
-// ============================================================================
-// RESOLVER DEPENDENCIAS CIRCULARES
-// ============================================================================
-Object.assign(appointmentService, { availabilityService });
+function getAvailabilityService(): IAvailabilityService {
+    return availabilityService;
+}
 
 export {
     // Auth

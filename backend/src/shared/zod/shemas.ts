@@ -10,6 +10,12 @@ export const paramId = z.object({
         .positive('El id debe ser un número positivo'),
 });
 
+export const queryId = (type: string) =>
+    z.coerce
+        .number(`El ${type}Id debe ser un número`)
+        .int(`El ${type}Id debe ser un número entero`)
+        .positive(`El ${type}Id debe ser un número positivo`);
+
 export const id = z
     .number('El id debe ser un número')
     .int('El ID debe ser un número entero')
