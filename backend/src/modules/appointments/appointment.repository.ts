@@ -1,10 +1,13 @@
 import prisma from '../../config/prisma.js';
-import { Appointment } from '@prisma/client.js';
+import { Appointment, Prisma } from '@prisma/client.js';
 import {
     ExtendedAppointment,
     CreateAppointmentData,
     OverlapFilter,
     Status,
+    AppointmentFilter,
+    AppointmentHistoryFilter,
+    BasicAppointment,
 } from './appointment.types.js';
 
 export interface IAppointmentRepository {
@@ -14,6 +17,9 @@ export interface IAppointmentRepository {
     findByWorkerAndDate(workerId: number, date: string): Promise<Appointment[]>;
     countOverlapsByWorker(filter: OverlapFilter): Promise<number>;
     countOverlapsByClient(filter: OverlapFilter): Promise<number>;
+    findAllWithPagination(
+        filter: AppointmentHistoryFilter,
+    ): Promise<{ data: BasicAppointment[]; total: number }>;
 }
 
 export class AppointmentRepository implements IAppointmentRepository {
@@ -111,5 +117,64 @@ export class AppointmentRepository implements IAppointmentRepository {
                 ],
             },
         });
+    }
+
+    async findAllWithPagination(
+        filter: AppointmentHistoryFilter,
+    ): Promise<{ data: BasicAppointment[]; total: number }> {
+        const limit = filter.limit || 10;
+        const page = Math.max(1, filter.page || 1);
+        const skip = (page - 1) * limit;
+
+        const where = this.buildWhere(filter);
+        const [data, total] = await Promise.all([
+            prisma.appointment.findMany({
+                skip,
+                take: limit,
+                where,
+                select: {
+                    id: true,
+                    startAt: true,
+                    endAt: true,
+                    status: true,
+                    worker: {
+                        select: { id: true, firstName: true, lastName: true },
+                    },
+                    client: {
+                        select: { id: true, firstName: true, lastName: true },
+                    },
+                    services: {
+                        select: {
+                            service: {
+                                select: {
+                                    id: true,
+                                    name: true,
+                                    colorHex: true,
+                                },
+                            },
+                        },
+                    },
+                },
+                orderBy: { createdAt: 'desc' },
+            }),
+            prisma.appointment.count({ where }),
+        ]);
+
+        return { data, total };
+    }
+
+    private buildWhere(
+        filter: AppointmentFilter,
+    ): Prisma.AppointmentWhereInput {
+        const where: Prisma.AppointmentWhereInput = {};
+        if (filter.workerId) where.workerId = filter.workerId;
+        if (filter.clientId) where.clientId = filter.clientId;
+        if (filter.status) where.status = { in: filter.status };
+        if (filter.from || filter.to) {
+            where.startAt = {};
+            if (filter.from) where.startAt.gte = new Date(filter.from);
+            if (filter.to) where.startAt.lte = new Date(filter.to);
+        }
+        return where;
     }
 }

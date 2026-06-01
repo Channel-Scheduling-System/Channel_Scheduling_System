@@ -4,6 +4,7 @@ import {
     extractAuthContext,
     extractRequestContextWithId,
 } from '../../shared/utils/request-parser.util.js';
+import { mapToAppointmentHistoryFilter } from './appointment.mapper.js';
 
 export class AppointmentController {
     constructor(private readonly appointmentService: IAppointmentService) {}
@@ -36,8 +37,28 @@ export class AppointmentController {
     getById = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { id, auth } = extractRequestContextWithId(req);
-            const appointment = await this.appointmentService.getById(id, auth);
-            return res.status(200).json({ data: appointment });
+            const data = await this.appointmentService.getById(id, auth);
+            return res.status(200).json({
+                message: 'Cita obtenida correctamente',
+                data,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    getHistory = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const filters = mapToAppointmentHistoryFilter(req.query);
+            const auth = extractAuthContext(req);
+            const data = await this.appointmentService.getHistory(
+                filters,
+                auth,
+            );
+            return res.status(200).json({
+                message: 'Citas obtenidas correctamente',
+                data,
+            });
         } catch (error) {
             next(error);
         }

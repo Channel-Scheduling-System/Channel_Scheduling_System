@@ -21,7 +21,7 @@ const MAX_OVERLAPS_ALLOWED = 2;
 export class OverlapValidator {
     constructor(
         private readonly appointmentRepo: IAppointmentRepository,
-        private readonly availabilityService: IAvailabilityService ,
+        private readonly availabilityService: () => IAvailabilityService,
     ) {}
 
     async verify(
@@ -56,7 +56,7 @@ export class OverlapValidator {
         const startInstant = Temporal.Instant.from(input.startAt);
         const startZoned = startInstant.toZonedDateTimeISO('UTC');
 
-        const availableSlots = await this.availabilityService.getAvailableSlots(
+        const availableSlots = await this.availabilityService().getAvailableSlots(
             input.workerId,
             startZoned.toPlainDate().toString(),
         );

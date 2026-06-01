@@ -9,10 +9,17 @@ import {
     OverlapVerificationInput,
     ExtendedAppointmentResponse,
     ExtendedAppointment,
+    AppointmentHistoryFilter,
+    AppointmentResponse,
+    BasicAppointment,
 } from './appointment.types.js';
 import { Slot } from '../../shared/types/slots.types.js';
-import { dateTimeToIsoTime } from '../../shared/utils/times-parser.util.js';
+import {
+    dateTimeToIsoDateTimeWithoutSeconds,
+    dateTimeToIsoTime,
+} from '../../shared/utils/times-parser.util.js';
 import { Temporal } from 'temporal-polyfill';
+import { appointmentHistoryFilterSchema } from './appointment.validator.js';
 
 export function mapToVerifyOverlapInput(
     input: CreateAppointmentInput | OverlapVerificationInput,
@@ -61,8 +68,8 @@ export function mapToAppointmentExtendedResponse(
 ): ExtendedAppointmentResponse {
     return {
         id: appointment.id,
-        startAt: appointment.startAt,
-        endAt: appointment.endAt,
+        startAt: dateTimeToIsoDateTimeWithoutSeconds(appointment.startAt),
+        endAt: dateTimeToIsoDateTimeWithoutSeconds(appointment.endAt),
         status: appointment.status as Status,
         createdBy: appointment.createdBy as Role,
         notes: appointment.notes,
@@ -87,6 +94,30 @@ export function mapToSlots(appointment: Appointment[]): Slot[] {
     }));
 }
 
+export function mapToHistoryAppointmentResponse(
+    appointments: BasicAppointment[],
+): AppointmentResponse[] {
+    return appointments.map((apm) => ({
+        id: apm.id,
+        startAt: dateTimeToIsoDateTimeWithoutSeconds(apm.startAt),
+        endAt: dateTimeToIsoDateTimeWithoutSeconds(apm.endAt),
+        status: apm.status as Status,
+        worker: {
+            id: apm.worker.id,
+            name: `${apm.worker.firstName} ${apm.worker.lastName}`,
+        },
+        client: {
+            id: apm.client.id,
+            name: `${apm.client.firstName} ${apm.client.lastName}`,
+        },
+        services: apm.services.map((s) => ({
+            id: s.service.id,
+            name: s.service.name,
+            colorHex: s.service.colorHex,
+        })),
+    }));
+}
+
 export function calculateEndDate(
     startAt: string,
     services: { customDurationMin?: number }[],
@@ -97,4 +128,11 @@ export function calculateEndDate(
     const startInstant = Temporal.Instant.from(startAt);
     const endInstant = startInstant.add({ minutes: totalDurationMin });
     return endInstant.toJSON();
+}
+
+export function mapToAppointmentHistoryFilter(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    filters: Record<string, any>,
+): AppointmentHistoryFilter {
+    return appointmentHistoryFilterSchema.parse(filters);
 }

@@ -71,6 +71,16 @@ export interface AppointmentService {
     customPrice: number; // if null, use service's default price
 }
 
+export interface BasicAppointment {
+    id: number;
+    startAt: Date;
+    endAt: Date;
+    status: Status;
+    worker: WorkerSummary;
+    client: ClientSummary;
+    services: { service: { id: number; name: string; colorHex: string } }[];
+}
+
 export interface ExtendedAppointment extends Appointment {
     worker: WorkerSummary;
     client: ClientSummary;
@@ -165,15 +175,16 @@ export interface OverlapFilter {
     endAt: string;
 }
 
-export interface AppointmentFilters {
+export interface AppointmentFilter {
     workerId?: number;
     clientId?: number;
-    status?: Status;
+    status?: Status[];
     from?: string; // ISO date string
     to?: string; // ISO date string
 }
 
-export interface AppointmentQuery extends AppointmentFilters, Pagination {}
+export interface AppointmentHistoryFilter
+    extends AppointmentFilter, Pagination {}
 
 // ============================================================
 // * RESPONSES
@@ -193,18 +204,18 @@ export interface CreateAppointmentResponse {
 
 export interface AppointmentResponse {
     id: number;
-    startAt: Date;
-    endAt: Date;
+    startAt: string;
+    endAt: string;
     status: Status;
     worker: { id: number; name: string };
     client: { id: number; name: string };
-    services: AppointmentServiceDetail[];
+    services: { id: number; name: string; colorHex: string }[];
 }
 
 export interface ExtendedAppointmentResponse {
     id: number;
-    startAt: Date;
-    endAt: Date;
+    startAt: string;
+    endAt: string;
     status: Status;
     createdBy: Role;
     notes: string | null;

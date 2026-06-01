@@ -25,6 +25,13 @@ appointmentRouter.post(
 );
 
 appointmentRouter.get(
+    '/history',
+    requireRole(['WORKER', 'CLIENT']),
+    appointmentValidator.historyFilters,
+    appointmentController.getHistory,
+);
+
+appointmentRouter.get(
     '/:id',
     requireRole(['WORKER', 'CLIENT']),
     appointmentValidator.id,

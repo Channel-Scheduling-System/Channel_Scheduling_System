@@ -13,6 +13,9 @@ import {
     priceSchema,
     durationSchema,
     limitSchema,
+    oneOrMany,
+    dateSchema,
+    queryId,
 } from '../../shared/zod/shemas.js';
 import { Status } from './appointment.types.js';
 import { z } from 'zod';
@@ -98,19 +101,19 @@ const changeAppointmentStatusInput = z
 // * FILTER SCHEMAS
 // ============================================================
 const appointmentFilters = z.object({
-    workerId: workerId.optional(),
-    clientId: clientId.optional(),
-    status: statusEnum.optional(),
-    from: dateTimeSchema.optional(),
-    to: dateTimeSchema.optional(),
+    workerId: queryId('worker').optional(),
+    clientId: queryId('client').optional(),
+    status: oneOrMany(statusEnum),
+    from: dateSchema.optional(),
+    to: dateSchema.optional(),
 });
 
 const paginationSchema = z.object({
     page: pageSchema.optional(),
-    limit: limitSchema(100).optional(),
+    limit: limitSchema(50).optional(),
 });
 
-const appointmentQuerySchema = appointmentFilters.and(paginationSchema);
+export const appointmentHistoryFilterSchema = appointmentFilters.and(paginationSchema);
 
 // ============================================================
 // * CENTRALIZED VALIDATORS
@@ -123,5 +126,5 @@ export const appointmentValidator = {
     reschedule: validateBodyDTO(rescheduleAppointmentInput),
     reject: validateBodyDTO(rejectAppointmentInput),
     changeStatus: validateBodyDTO(changeAppointmentStatusInput),
-    filters: validateQueryDTO(appointmentQuerySchema),
+    historyFilters: validateQueryDTO(appointmentHistoryFilterSchema),
 };

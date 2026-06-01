@@ -28,7 +28,7 @@ export class AppointmentDomainService {
         private readonly appointmentRepo: IAppointmentRepository,
         private readonly userService: IUserService,
         private readonly serviceService: IServiceService,
-        private readonly availabilityService: IAvailabilityService,
+        private readonly availabilityService: () => IAvailabilityService,
     ) {
         this.overlapValidator = new OverlapValidator(
             appointmentRepo,

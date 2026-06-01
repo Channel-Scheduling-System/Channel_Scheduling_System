@@ -3,7 +3,7 @@ import { IUserService } from '../users/user.service.js';
 import { IServiceService } from '../services/service.service.js';
 import { IAvailabilityService } from '../availability/availability.service.js';
 import { AppointmentDomainService } from './appointment-domain.service.js';
-
+import { AppointmentFiltersProcessor } from './util/appointment-filters.proccesor.js';
 import {
     CreateAppointmentInput,
     CreateAppointmentResponse,
@@ -11,8 +11,9 @@ import {
     OverlapVerificationInput,
     OverlapVerificationResponse,
     ExtendedAppointmentResponse,
+    AppointmentHistoryFilter,
+    PaginatedAppointmentResponse,
 } from './appointment.types.js';
-
 import {
     mapToAppointmentData,
     mapToAppointmentExtendedResponse,
@@ -35,22 +36,30 @@ export interface IAppointmentService {
         auth: AuthContext,
     ): Promise<ExtendedAppointmentResponse>;
     getSlots(workerId: number, date: string): Promise<Slot[]>;
+    getHistory(
+        filters: AppointmentHistoryFilter,
+        auth: AuthContext,
+    ): Promise<PaginatedAppointmentResponse>;
 }
 
 export class AppointmentService implements IAppointmentService {
     private readonly appointmentDomain: AppointmentDomainService;
+    private readonly filtersProcessor: AppointmentFiltersProcessor;
 
     constructor(
         private readonly appointmentRepo: IAppointmentRepository,
         private readonly userService: IUserService,
         private readonly serviceService: IServiceService,
-        private availabilityService: IAvailabilityService,
+        private availabilityService: () => IAvailabilityService,
     ) {
         this.appointmentDomain = new AppointmentDomainService(
             appointmentRepo,
             userService,
             serviceService,
             availabilityService,
+        );
+        this.filtersProcessor = new AppointmentFiltersProcessor(
+            appointmentRepo,
         );
     }
 
@@ -98,6 +107,21 @@ export class AppointmentService implements IAppointmentService {
     async getSlots(workerId: number, date: string): Promise<Slot[]> {
         await this.appointmentDomain.ensureWorkerExists(workerId);
         return await this.appointmentDomain.getSlots(workerId, date);
+    }
+
+    async getHistory(
+        filters: AppointmentHistoryFilter,
+        auth: AuthContext,
+    ): Promise<PaginatedAppointmentResponse> {
+        if (auth.role === Role.WORKER) filters.workerId = auth.id;
+        if (filters.clientId)
+            await this.appointmentDomain.ensureClientExists(filters.clientId);
+        
+        if (auth.role === Role.CLIENT) filters.clientId = auth.id;
+        if (filters.workerId)
+            await this.appointmentDomain.ensureWorkerExists(filters.workerId);
+
+        return await this.filtersProcessor.processHistoryFilters(filters);
     }
 
     async sendNotifications(_appointmentId: number): Promise<void> {
