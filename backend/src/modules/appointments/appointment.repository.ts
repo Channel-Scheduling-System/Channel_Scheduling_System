@@ -11,6 +11,7 @@ export interface IAppointmentRepository {
     create(data: CreateAppointmentData): Promise<Appointment>;
     findById(id: number): Promise<Appointment | null>;
     findExtendedById(id: number): Promise<ExtendedAppointment | null>;
+    findByWorkerAndDate(workerId: number, date: string): Promise<Appointment[]>;
     countOverlapsByWorker(filter: OverlapFilter): Promise<number>;
     countOverlapsByClient(filter: OverlapFilter): Promise<number>;
 }
@@ -55,6 +56,21 @@ export class AppointmentRepository implements IAppointmentRepository {
                             },
                         },
                     },
+                },
+            },
+        });
+    }
+
+    async findByWorkerAndDate(
+        workerId: number,
+        date: string,
+    ): Promise<Appointment[]> {
+        return await prisma.appointment.findMany({
+            where: {
+                workerId,
+                startAt: {
+                    gte: new Date(`${date}T00:00:00.000Z`),
+                    lt: new Date(`${date}T23:59:59.999Z`),
                 },
             },
         });

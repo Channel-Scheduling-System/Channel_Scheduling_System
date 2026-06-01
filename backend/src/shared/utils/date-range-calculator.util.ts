@@ -1,5 +1,11 @@
 import { Temporal } from 'temporal-polyfill';
-import { DateRange, ViewType } from '../availability.types.js';
+
+export type ViewType = 'DAY' | 'WEEK' | 'MONTH';
+
+export interface DateRange {
+    startDate: string; // ISO date string
+    endDate: string; // ISO date string
+}
 
 export class DateRangeCalculator {
     calculate(view: ViewType, date: string): DateRange {

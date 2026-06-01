@@ -1,1 +1,1 @@
-export { resetCodeService } from './reset-code.module.js';
+export { resetCodeService } from '../index.js';

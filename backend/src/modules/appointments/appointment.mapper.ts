@@ -10,6 +10,8 @@ import {
     ExtendedAppointmentResponse,
     ExtendedAppointment,
 } from './appointment.types.js';
+import { Slot } from '../../shared/types/slots.types.js';
+import { dateTimeToIsoTime } from '../../shared/utils/times-parser.util.js';
 import { Temporal } from 'temporal-polyfill';
 
 export function mapToVerifyOverlapInput(
@@ -76,6 +78,13 @@ export function mapToAppointmentExtendedResponse(
         },
         services: appointment.services,
     };
+}
+
+export function mapToSlots(appointment: Appointment[]): Slot[] {
+    return appointment.map((apm) => ({
+        start: dateTimeToIsoTime(apm.startAt.toISOString()),
+        end: dateTimeToIsoTime(apm.endAt.toISOString()),
+    }));
 }
 
 export function calculateEndDate(
