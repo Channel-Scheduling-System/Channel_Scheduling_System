@@ -5,7 +5,13 @@ import globals from 'globals';
 
 export default [
     {
-        ignores: ['dist/**', 'node_modules/**', 'generated/**', '*.config.*'],
+        ignores: [
+            'dist/**',
+            'node_modules/**',
+            'generated/**',
+            '*.config.*',
+            'prisma/**',
+        ],
     },
     js.configs.recommended, // Base JS
     ...tseslint.configs.recommended, // Base TS
