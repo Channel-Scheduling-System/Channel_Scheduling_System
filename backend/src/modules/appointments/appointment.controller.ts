@@ -54,13 +54,14 @@ export class AppointmentController {
         try {
             const filters = mapToAppointmentHistoryFilter(req.query);
             const auth = extractAuthContext(req);
-            const data = await this.appointmentService.getHistory(
+            const result = await this.appointmentService.getHistory(
                 filters,
                 auth,
             );
             return res.status(200).json({
                 message: 'Citas obtenidas correctamente',
-                data,
+                data: result.data,
+                meta: result.meta,
             });
         } catch (error) {
             next(error);
