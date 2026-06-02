@@ -2,7 +2,9 @@ import { Injectable } from "@angular/core";
 import { AvailabilityConfigResponse, availabilityConfigResponseSchema } from "../models/responses/availability-response.model";
 import { map } from "rxjs/internal/operators/map";
 import { AvailabilityConfigParamsRequest } from "../models/requests/availability-params-request.model";
-import { buildAvailabilityConfigHttpParams } from "../utils/availability-params.util";
+import { WorkerAvailabilityParamsRequest } from "../models/requests/worker-availability-params-request.model";
+import { WorkerAvailabilityResponse, workerAvailabilityResponseSchema } from "../models/responses/worker-availability-response.model";
+import { buildAvailabilityConfigHttpParams, buildWorkerAvailabilityHttpParams } from "../utils/availability-params.util";
 import { Observable } from "rxjs";
 import { API_ENDPOINTS } from "../../../shared/constants/api-endpoints.constants";
 import { ResponseHandler } from "../../../core/utils/handlers/response.handler";
@@ -69,6 +71,20 @@ export class AvailabilityService implements IAvailabilityService {
             .pipe(
                 map(response =>
                     this.responseHandler.handleSuccess(response, availabilityConfigResponseSchema)
+                )
+            );
+    }
+    public getWorkerAvailability(
+        workerId: number,
+        params: WorkerAvailabilityParamsRequest
+    ): Observable<WorkerAvailabilityResponse> {
+        const httpParams = buildWorkerAvailabilityHttpParams(params);
+
+        return this.http
+            .get(API_ENDPOINTS.CALENDAR.AVAILABILITY_WORKER(workerId), { params: httpParams })
+            .pipe(
+                map(response =>
+                    this.responseHandler.handleSuccess(response, workerAvailabilityResponseSchema)
                 )
             );
     }

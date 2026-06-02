@@ -1,7 +1,12 @@
 import z from "zod";
-import { BaseSuccessResponseSchema } from "../../../../shared/models/api/success-response.schema";
+import { BaseSuccessResponseSchema, SuccessResponseWithDataSchema } from "../../../../shared/models/api/success-response.schema";
 
-export const VerifyOverlapResponseSchema = BaseSuccessResponseSchema;
+const VerifyOverlapDataSchema = z.object({
+	allowed: z.boolean(),
+	needsConfirmation: z.boolean(),
+});
+
+export const VerifyOverlapResponseSchema = SuccessResponseWithDataSchema(VerifyOverlapDataSchema);
 export const CreateAppointmentResponseSchema = BaseSuccessResponseSchema;
 
 export type VerifyOverlapResponse = z.infer<typeof VerifyOverlapResponseSchema>;

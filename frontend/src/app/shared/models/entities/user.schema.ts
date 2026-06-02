@@ -1,6 +1,11 @@
 import { z } from 'zod';
 import { ROLES } from '../../../core/constants/roles.constants';
 
+export const UserName = z.string()
+    .regex(/^[a-zA-ZáéíóúñÁÉÍÓÚÑ\s]+$/, 'El nombre solo puede contener letras y espacios')
+    .min(2, 'El nombre debe tener al menos 2 caracteres')
+    .max(100, 'El nombre no puede exceder 100 caracteres');
+
 export const UserSchema = z.object({
     id: z.number()
         .positive('El ID debe ser un número positivo')

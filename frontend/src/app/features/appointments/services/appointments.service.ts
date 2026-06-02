@@ -46,7 +46,7 @@ export class AppointmentsService implements IAppointmentsService {
 
     public getActiveAppointments(params: AppointmentsActiveParamsRequest): Observable<AppointmentsListActiveResponse> {
         const httpParams = buildAppointmentsActiveHttpParams(params);
-        return this.http.get(API_ENDPOINTS.APPOINTMENTS.LIST_ACTIVE, { params: httpParams }).pipe(
+        return this.http.get(API_ENDPOINTS.APPOINTMENTS.LIST, { params: httpParams }).pipe(
             map(response => this.responseHandler.handleSuccess(response, AppointmentsListActiveResponseSchema))
         );
     }

@@ -1,6 +1,8 @@
 import { Observable } from "rxjs";
 import { AvailabilityConfigParamsRequest } from "../models/requests/availability-params-request.model";
 import { AvailabilityConfigResponse } from "../models/responses/availability-response.model";
+import { WorkerAvailabilityParamsRequest } from "../models/requests/worker-availability-params-request.model";
+import { WorkerAvailabilityResponse } from "../models/responses/worker-availability-response.model";
 import { UpdateWorkingHoursResponse } from "../models/responses/update-working-hours-response.model";
 import { UpdateWorkingHoursRequest } from "../models/requests/update-working-hours-request.model";
 import { SetTimeOffResponse } from "../models/responses/set-time-off-response.model";
@@ -16,5 +18,6 @@ export interface IAvailabilityService {
     setTimeOff(workerId: number, request: SetTimeOffRequest): Observable<SetTimeOffResponse>;
     setPeriodOff(workerId: number, request: SetPeriodOffRequest): Observable<SetPeriodOffResponse>;
     getAvailabilityConfig(workerId: number, params: AvailabilityConfigParamsRequest): Observable<AvailabilityConfigResponse>;
+    getWorkerAvailability(workerId: number, params: WorkerAvailabilityParamsRequest): Observable<WorkerAvailabilityResponse>;
     deleteBlock(blockId: number): Observable<DeleteBlockResponse>;
 }

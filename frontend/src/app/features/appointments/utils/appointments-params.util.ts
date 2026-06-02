@@ -7,7 +7,7 @@ import {
 export function buildAppointmentsHistoryHttpParams(
   params: AppointmentsParamsHistoryRequest
 ): HttpParams {
-  const { workerId, clientId, status, from, to, page, limit } = params;
+  const { workerId, clientId, status, from, to, page, limit, compact } = params;
 
   let httpParams = new HttpParams();
 
@@ -39,13 +39,19 @@ export function buildAppointmentsHistoryHttpParams(
     httpParams = httpParams.set('limit', String(limit));
   }
 
+  if (compact !== undefined) {
+    httpParams = httpParams.set('compact', String(compact));
+  }
+
+  httpParams = httpParams.set('active', 'true');
+
   return httpParams;
 }
 
 export function buildAppointmentsActiveHttpParams(
   params: AppointmentsActiveParamsRequest
 ): HttpParams {
-  const { view, date } = params;
+  const { view, date, clientId } = params;
 
   let httpParams = new HttpParams();
 
@@ -55,6 +61,10 @@ export function buildAppointmentsActiveHttpParams(
 
   if (date !== undefined) {
     httpParams = httpParams.set('date', date);
+  }
+
+  if (clientId !== undefined) {
+    httpParams = httpParams.set('clientId', String(clientId));
   }
 
   return httpParams;

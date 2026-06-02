@@ -1,11 +1,12 @@
 import { z } from 'zod';
 import { EntityId } from './entity-base.schema';
+import { UserName, UserSchema } from './user.schema';
 
 export const servicePrice = z.number('El precio debe ser un número')
     .int('El precio debe ser un número entero')
     .positive('El precio debe ser un número positivo')
-    .min(1, 'El precio mínimo es 1')
-    .max(999999, 'El precio no puede exceder 999,999');
+    .min(1, 'El precio mínimo es 1 COP')
+    .max(999999, 'El precio no puede exceder 999.999 COP');
 
 export const serviceDuration = z.number('La duración debe ser un número')
     .int('La duración debe ser un número entero')
@@ -37,7 +38,11 @@ export const ServiceSchema = z.object({
     ),
   price: servicePrice,
   duration: serviceDuration,
-  isActive: z.boolean().default(true)
+  isActive: z.boolean().default(true),
+  worker: UserSchema.pick({ id: true})
+    .extend({
+      name: UserName
+    })
 });
 
 export type Service = z.infer<typeof ServiceSchema>;
