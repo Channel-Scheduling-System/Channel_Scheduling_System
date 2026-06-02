@@ -12,7 +12,8 @@
         "lint:fix": "eslint . --fix",
         "format": "prettier --write .",
         "test": "jest --forceExit",
-        "test:coverage": "jest --coverage --forceExit"
+        "test:coverage": "jest --coverage --forceExit",
+        "seed": "tsx prisma/seed.ts"
     },
     "repository": {
         "type": "git",

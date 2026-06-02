@@ -15,6 +15,7 @@ export class NavigationService {
       { label: 'Inicio', icon: 'home', route: '/home', roles: [this.roleService.getAdminRole(), this.roleService.getWorkerRole(), this.roleService.getClientRole()] },
       { label: 'Mi Perfil', icon: 'manage_accounts', route: '/profile', roles: [this.roleService.getAdminRole(), this.roleService.getWorkerRole(), this.roleService.getClientRole()] },
       { label: 'Agenda', icon: 'calendar_month', route: '/calendar', roles: [this.roleService.getWorkerRole()] },
+      { label: 'Reportes', icon: 'bar_chart', route: '/reports', roles: [this.roleService.getAdminRole(), this.roleService.getWorkerRole()] },
       { label: 'Citas', icon: 'event', route: '/appointments', roles: [this.roleService.getClientRole(), this.roleService.getWorkerRole()] },
       { label: 'Servicios', icon: 'content_cut', route: '/services', roles: [this.roleService.getWorkerRole()] },
       { label: 'Usuarios', icon: 'person', route: '/users', roles: [this.roleService.getAdminRole(), this.roleService.getWorkerRole()] },
