@@ -2,13 +2,13 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-user-form-header',
+  selector: 'app-form-header',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './user-form-header.component.html',
-  styleUrl: './user-form-header.component.scss',
+  templateUrl: './form-header.component.html',
+  styleUrl: './form-header.component.scss',
 })
-export class UserFormHeaderComponent {
+export class FormHeaderComponent {
   @Input({ required: true }) title!: string;
   @Input() eyebrow?: string;
   @Input() description?: string;
