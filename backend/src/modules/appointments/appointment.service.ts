@@ -17,6 +17,7 @@ import {
     ApppointmentCalendarFilter,
     Status,
     RejectAppointmentInput,
+    ChangeAppointmentStatusInput,
 } from './appointment.types.js';
 import {
     mapToAppointmentData,
@@ -52,6 +53,11 @@ export interface IAppointmentService {
     ): Promise<AppointmentCalendarResponse>;
     approve(id: number, auth: AuthContext): Promise<void>;
     reject(input: RejectAppointmentInput, auth: AuthContext): Promise<void>;
+    cancel(id: number, auth: AuthContext): Promise<void>;
+    changeStatus(
+        input: ChangeAppointmentStatusInput,
+        auth: AuthContext,
+    ): Promise<void>;
 }
 
 export class AppointmentService implements IAppointmentService {
@@ -171,6 +177,26 @@ export class AppointmentService implements IAppointmentService {
         await this.sendNotifications(input.id);
     }
 
+    async cancel(id: number, auth: AuthContext): Promise<void> {
+        const apm = await this.appointmentDomain.getAppointmentOrFail(id);
+
+        this.appointmentDomain.checkOwnership(auth, apm.clientId, apm.workerId);
+        this.validateCancelTransition(auth.role as Role, apm.status);
+
+        await this.appointmentRepo.updateStatus(id, Status.CANCELLED);
+        await this.sendNotifications(id);
+    }
+
+    async changeStatus(
+        input: ChangeAppointmentStatusInput,
+        auth: AuthContext,
+    ): Promise<void> {
+        const apm = await this.appointmentDomain.getAppointmentOrFail(input.id);
+        this.appointmentDomain.checkStatusChangeAuthorship(auth, apm.workerId);
+        await this.appointmentRepo.updateStatus(input.id, input.status);
+        await this.sendNotifications(input.id);
+    }
+
     async sendNotifications(_appointmentId: number): Promise<void> {
         // TODO: Implement notification logic to inform worker and client about the appointment details and any updates.
     }
@@ -188,5 +214,16 @@ export class AppointmentService implements IAppointmentService {
             await this.appointmentDomain.ensureClientExists(filter.clientId);
         if (filter.workerId)
             await this.appointmentDomain.ensureWorkerExists(filter.workerId);
+    }
+
+    private validateCancelTransition(role: Role, status: Status): void {
+        if (role === Role.WORKER && status !== Status.SCHEDULED)
+            throw new ConflictError(APPOINTMENT_ERRORS.STATUS_MISMATCH);
+        if (
+            role === Role.CLIENT &&
+            status !== Status.SCHEDULED &&
+            status !== Status.PENDING
+        )
+            throw new ConflictError(APPOINTMENT_ERRORS.STATUS_MISMATCH);
     }
 }

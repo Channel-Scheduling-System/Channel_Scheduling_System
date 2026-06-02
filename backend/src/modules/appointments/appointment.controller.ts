@@ -108,4 +108,29 @@ export class AppointmentController {
             next(error);
         }
     };
+
+    cancel = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { id, auth } = extractRequestContextWithId(req);
+            await this.appointmentService.cancel(id, auth);
+            return res.status(200).json({
+                message: 'Cita cancelada correctamente',
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    changeStatus = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { id, auth } = extractRequestContextWithId(req);
+            const input = { id, ...req.body };
+            await this.appointmentService.changeStatus(input, auth);
+            return res.status(200).json({
+                message: 'Estado de la cita actualizado correctamente',
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
 }
