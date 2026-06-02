@@ -11,8 +11,8 @@ import type {
   AppointmentCalendarItem,
   ChipClickPayload,
   PositionedChip,
-} from '../../../../interfaces/appointment-calendar.interface';
-import { isoTo12h } from '../../../../utils/appointments-time.util';
+} from '../../interfaces/appointment-calendar.interface';
+import { isoTo12h } from '../../utils/appointments-time.util';
 
 export type { AppointmentCalendarItem, ChipClickPayload, PositionedChip };
 
@@ -169,6 +169,11 @@ export abstract class AppointmentCalendarLayerBase
     const { leftCSS, widthCSS } = this.resolvePosition(col, dayIdx);
     const { color, animName, animDuration } = this.resolveColorProps(appt);
 
+    // FIX: client es opcional en AppointmenActiveItemSchema (citas activas).
+    // Se accede de forma defensiva para evitar un TypeError en tiempo de
+    // ejecución que Angular captura silenciosamente y deja chips = [].
+    const clientName = appt.client?.name ?? '';
+
     return {
       appointment:   appt,
       top:           `${this.headerHeightRem + (startMin / 30) * SLOT_H_REM}rem`,
@@ -178,7 +183,8 @@ export abstract class AppointmentCalendarLayerBase
       color,
       timeLabel:     `${isoTo12h(appt.startAt)} – ${isoTo12h(appt.endAt)}`,
       serviceLabel:  appt.services.map(s => s.name).join(', ') || 'Cita',
-      clientLabel:   `${appt.client.firstName} ${appt.client.lastName}`,
+      clientLabel:   clientName,
+      workerLabel: appt.worker?.name ?? '',
       notes:         appt.notes ?? '',
       animName,
       animDuration,

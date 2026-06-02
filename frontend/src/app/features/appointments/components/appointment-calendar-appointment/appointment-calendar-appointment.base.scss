@@ -320,7 +320,7 @@ $transition: 0.18s ease;
     left:  var(--overlap-hover-left)   !important;
   }
 }
-@container acl-chip (max-height: 5.9rem) {
+@container acl-chip (max-height: 3.5rem) {
   .acl__chip__client { display: none !important; }
 }
 @container acl-chip (max-height: 4.5rem) {

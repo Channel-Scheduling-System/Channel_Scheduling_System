@@ -3,9 +3,9 @@ export interface AppointmentCalendarItem {
   startAt: string;
   endAt: string;
   status: string;
-  worker: { firstName: string; lastName: string; };
-  client: { firstName: string; lastName: string; };
-  services: Array<{ id: number; name: string; color: string; duration: number; }>;
+  worker: { name: string; };
+  client: { name: string; };
+  services: Array<{ id: number; name: string; color: string; }>;
   notes?: string;
 }
 
@@ -19,6 +19,7 @@ export interface PositionedChip {
   timeLabel: string;
   serviceLabel: string;
   clientLabel: string;
+  workerLabel: string;
   notes: string;
   animName: string;
   animDuration: string;

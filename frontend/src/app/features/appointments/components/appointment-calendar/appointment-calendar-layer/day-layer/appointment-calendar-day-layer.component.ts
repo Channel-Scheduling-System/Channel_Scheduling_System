@@ -1,4 +1,4 @@
-import { Component, Input, SimpleChanges } from '@angular/core';
+import { Component, inject, Input, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   AppointmentCalendarLayerBase,
@@ -7,13 +7,14 @@ import {
   NARROW_COL_RATIO,
   NARROW_STEP,
   RIGHT_INSET_PX,
-} from '../base/appointment-calendar-layer.base';
+} from '../../../appointment-calendar-appointment/appointment-calendar-appointment.base';
 import type { AppointmentCalendarItem } from '../../../../interfaces/appointment-calendar.interface';
+import { SessionService } from '../../../../../../core/services/session.service';
 export type {
   AppointmentCalendarItem,
   ChipClickPayload,
   PositionedChip,
-} from '../base/appointment-calendar-layer.base';
+} from '../../../appointment-calendar-appointment/appointment-calendar-appointment.base';
 @Component({
   selector: 'app-appointment-calendar-day-layer',
   standalone: true,
@@ -23,6 +24,7 @@ export type {
 })
 export class AppointmentCalendarDayLayerComponent extends AppointmentCalendarLayerBase {
   @Input() public currentDate!: Date;
+  protected session = inject(SessionService);
   protected override shouldRebuildOnChanges(changes: SimpleChanges): boolean {
     return !!(changes['currentDate'] || changes['appointments']);
   }

@@ -6,7 +6,7 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AppointmentCalendarGridBase } from '../base/appointment-calendar-grid.base';
+import { AppointmentCalendarGridBase } from '../../../appointment-calendar-grid/appointment-calendar-grid.base';
 @Component({
   selector: 'app-appointment-calendar-week-grid',
   standalone: true,

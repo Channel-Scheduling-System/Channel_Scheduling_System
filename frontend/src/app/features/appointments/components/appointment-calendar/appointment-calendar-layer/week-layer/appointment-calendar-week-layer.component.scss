@@ -1,4 +1,4 @@
-@use '../base/appointment-calendar-layer.base' as base;
+@use '../../../appointment-calendar-appointment/appointment-calendar-appointment.base' as base;
 :host {
   --layer-time-col: 3.5rem;
   --chip-hover-scale:    1.013;

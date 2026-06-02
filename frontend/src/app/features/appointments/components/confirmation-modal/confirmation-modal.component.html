@@ -1,0 +1,28 @@
+<div class="cm-backdrop" (click)="onCancel()"></div>
+
+<div class="cm" role="dialog" aria-modal="true" [attr.aria-labelledby]="'cm-title'">
+
+  <!-- Header -->
+  <div class="cm__header">
+    <span class="material-symbols-outlined cm__header-icon" translate="no">warning</span>
+    <h2 class="cm__title" id="cm-title">{{ data.title }}</h2>
+  </div>
+
+  <!-- Body -->
+  <div class="cm__body">
+    <p class="cm__message">{{ data.message }}</p>
+  </div>
+
+  <!-- Actions -->
+  <div class="cm__actions">
+    <button class="cm__btn cm__btn--cancel" type="button" (click)="onCancel()">
+      <span class="material-symbols-outlined cm__btn-icon" translate="no">close</span>
+      Cancelar
+    </button>
+    <button class="cm__btn cm__btn--confirm" type="button" (click)="onConfirm()">
+      <span class="material-symbols-outlined cm__btn-icon" translate="no">check</span>
+      Confirmar
+    </button>
+  </div>
+
+</div>

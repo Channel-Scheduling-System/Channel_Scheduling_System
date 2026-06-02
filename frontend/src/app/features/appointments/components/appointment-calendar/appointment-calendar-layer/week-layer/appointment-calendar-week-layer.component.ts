@@ -7,13 +7,13 @@ import {
   NARROW_COL_RATIO,
   NARROW_STEP,
   RIGHT_INSET_PX,
-} from '../base/appointment-calendar-layer.base';
+} from '../../../appointment-calendar-appointment/appointment-calendar-appointment.base';
 import type { AppointmentCalendarItem } from '../../../../interfaces/appointment-calendar.interface';
 export type {
   AppointmentCalendarItem,
   ChipClickPayload,
   PositionedChip,
-} from '../base/appointment-calendar-layer.base';
+} from '../../../appointment-calendar-appointment/appointment-calendar-appointment.base';
 @Component({
   selector: 'app-appointment-calendar-week-layer',
   standalone: true,

@@ -43,33 +43,33 @@ interface ViewOption {
 export class AppointmentCalendarComponent implements OnInit, AfterViewInit, OnChanges {
 
   @Input() public appointments: AppointmentCalendarItem[] = [];
-  @Output() public weekStartChange        = new EventEmitter<Date>();
-  @Output() public rescheduleAppointment  = new EventEmitter<AppointmentCalendarItem>();
-  @Output() public modifyAppointment      = new EventEmitter<AppointmentCalendarItem>();
-  @Output() public cancelAppointment      = new EventEmitter<AppointmentCalendarItem>();
+  @Output() public weekStartChange = new EventEmitter<Date>();
+  @Output() public rescheduleAppointment = new EventEmitter<AppointmentCalendarItem>();
+  @Output() public modifyAppointment = new EventEmitter<AppointmentCalendarItem>();
+  @Output() public cancelAppointment = new EventEmitter<AppointmentCalendarItem>();
 
   @ViewChild(AppointmentCalendarWeekGridComponent, { read: ElementRef })
   private gridRef!: ElementRef<HTMLElement>;
 
-  protected currentView:      ConfigView = 'DAY';
-  protected currentDate:      Date       = new Date();
-  protected weekStart!:       Date;
-  protected weekEnd!:         Date;
-  protected headerHeightRem:  number     = 5.0;
-  protected hasAutoScrolled:  boolean    = false;
+  protected currentView: ConfigView = 'DAY';
+  protected currentDate: Date = new Date();
+  protected weekStart!: Date;
+  protected weekEnd!: Date;
+  protected headerHeightRem: number = 5.0;
+  protected hasAutoScrolled: boolean = false;
 
   protected readonly availableViews: ViewOption[] = [
     { key: 'WEEK', label: 'Semana', icon: 'calendar_view_week' },
-    { key: 'DAY',  label: 'Día',    icon: 'calendar_view_day'  },
+    { key: 'DAY', label: 'Día', icon: 'calendar_view_day' },
   ];
 
   private readonly SCROLL_SLOT_H_REM = 3;
 
   constructor(
-    private readonly modalSvc:   AppointmentActionModalService,
+    private readonly modalSvc: AppointmentActionModalService,
     private readonly sessionSvc: SessionService,
-    private readonly el:         ElementRef<HTMLElement>,
-  ) {}
+    private readonly el: ElementRef<HTMLElement>,
+  ) { }
 
   public ngOnInit(): void {
     this.updateWeekBounds();
@@ -119,7 +119,7 @@ export class AppointmentCalendarComponent implements OnInit, AfterViewInit, OnCh
 
   protected setView(view: ConfigView): void {
     const savedScroll = this.readBodyScrollTop();
-    this.currentView  = view;
+    this.currentView = view;
 
     if (this.hasAutoScrolled) {
       setTimeout(() => this.restoreBodyScrollTop(savedScroll));
@@ -161,25 +161,25 @@ export class AppointmentCalendarComponent implements OnInit, AfterViewInit, OnCh
 
     if (sameMonth) {
       const start = this.weekStart.toLocaleDateString('es-CO', dayOpt);
-      const end   = this.weekEnd.toLocaleDateString('es-CO', { day: 'numeric' });
+      const end = this.weekEnd.toLocaleDateString('es-CO', { day: 'numeric' });
       return `${start} – ${end}, ${this.weekEnd.getFullYear()}`;
     }
 
     const start = this.weekStart.toLocaleDateString('es-CO', dayOpt);
-    const end   = this.weekEnd.toLocaleDateString('es-CO', { ...dayOpt, year: 'numeric' });
+    const end = this.weekEnd.toLocaleDateString('es-CO', { ...dayOpt, year: 'numeric' });
     return `${start} – ${end}`;
   }
 
   private updateWeekBounds(): void {
     const { start, end } = this.calcWeekBounds(this.currentDate);
     this.weekStart = start;
-    this.weekEnd   = end;
+    this.weekEnd = end;
     this.weekStartChange.emit(this.weekStart);
   }
 
   private calcWeekBounds(from: Date): { start: Date; end: Date } {
-    const d    = new Date(from);
-    const day  = d.getDay();
+    const d = new Date(from);
+    const day = d.getDay();
     const diff = day === 0 ? -6 : 1 - day;
 
     const start = new Date(d);
@@ -196,22 +196,22 @@ export class AppointmentCalendarComponent implements OnInit, AfterViewInit, OnCh
   protected onChipClick(payload: ChipClickPayload): void {
     const appt = payload.appointment;
     this.modalSvc.show({
-      anchorX:     payload.anchorX,
-      anchorY:     payload.anchorY,
-      headerIcon:  'calendar_month',
-      title:       appt.services.map(s => s.name).join(', ') || 'Cita',
-      subtitle:    this.buildModalSubtitle(appt),
-      statusKey:   appt.status,
+      anchorX: payload.anchorX,
+      anchorY: payload.anchorY,
+      headerIcon: 'calendar_month',
+      title: appt.services.map(s => s.name).join(', ') || 'Cita',
+      subtitle: this.buildModalSubtitle(appt),
+      statusKey: appt.status,
       statusLabel: this.statusToSpanish(appt.status),
-      notes:       appt.notes ?? null,
-      actions:     this.buildModalActions(appt),
+      notes: appt.notes ?? null,
+      actions: this.buildModalActions(appt),
     });
   }
 
   private buildModalSubtitle(appt: AppointmentCalendarItem): string {
     return this.sessionSvc.getRole() === 'CLIENT'
-      ? `Serás atendido por: ${appt.worker.firstName} ${appt.worker.lastName}`
-      : `Cliente: ${appt.client.firstName} ${appt.client.lastName}`;
+      ? `Serás atendido por: ${appt.worker.name}`
+      : `Cliente: ${appt.client?.name ?? 'Sin cliente'}`;
   }
 
   private buildModalActions(appt: AppointmentCalendarItem) {
@@ -227,16 +227,16 @@ export class AppointmentCalendarComponent implements OnInit, AfterViewInit, OnCh
 
   private buildPrimaryAction(appt: AppointmentCalendarItem) {
     return this.sessionSvc.getRole() === 'CLIENT'
-      ? { icon: 'event_repeat',   label: 'Reagendar cita', handler: () => this.rescheduleAppointment.emit(appt) }
-      : { icon: 'edit_calendar',  label: 'Modificar cita', handler: () => this.modifyAppointment.emit(appt)    };
+      ? { icon: 'event_repeat', label: 'Reagendar cita', handler: () => this.rescheduleAppointment.emit(appt) }
+      : { icon: 'edit_calendar', label: 'Modificar cita', handler: () => this.modifyAppointment.emit(appt) };
   }
 
   private statusToSpanish(status: string): string {
     const map: Record<string, string> = {
-      PENDING:     'Pendiente',
-      SCHEDULED:   'Agendada',
+      PENDING: 'Pendiente',
+      SCHEDULED: 'Agendada',
       IN_PROGRESS: 'En progreso',
-      COMPLETED:   'Completada',
+      COMPLETED: 'Completada',
     };
     return map[status] ?? status;
   }
@@ -245,7 +245,7 @@ export class AppointmentCalendarComponent implements OnInit, AfterViewInit, OnCh
     if (this.hasAutoScrolled || this.currentView !== 'DAY') { return; }
     if (!this.appointments.length) { return; }
 
-    const now      = new Date();
+    const now = new Date();
     const todayStr = this.toDayStr(now);
 
     if (this.toDayStr(this.currentDate) !== todayStr) {
@@ -259,7 +259,7 @@ export class AppointmentCalendarComponent implements OnInit, AfterViewInit, OnCh
   }
 
   private resolveScrollTargetMin(now: Date, todayStr: string): number {
-    const nowMin      = now.getHours() * 60 + now.getMinutes();
+    const nowMin = now.getHours() * 60 + now.getMinutes();
     const nextApptMin = this.findNextAppointmentMin(todayStr, nowMin);
     return nextApptMin ?? nowMin;
   }
@@ -277,9 +277,9 @@ export class AppointmentCalendarComponent implements OnInit, AfterViewInit, OnCh
   }
 
   private scrollBodyToMinute(targetMin: number): void {
-    const rem   = parseFloat(getComputedStyle(document.documentElement).fontSize);
+    const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
     const topPx = (this.headerHeightRem + (targetMin / 30) * this.SCROLL_SLOT_H_REM) * rem;
-    const body  = this.getAgendaBody();
+    const body = this.getAgendaBody();
     if (body) {
       body.scrollTo({ top: Math.max(0, topPx - body.clientHeight * 0.30), behavior: 'smooth' });
     }
@@ -299,7 +299,7 @@ export class AppointmentCalendarComponent implements OnInit, AfterViewInit, OnCh
   }
 
   private toDayStr(d: Date): string {
-    const y  = d.getFullYear();
+    const y = d.getFullYear();
     const mo = String(d.getMonth() + 1).padStart(2, '0');
     const dy = String(d.getDate()).padStart(2, '0');
     return `${y}-${mo}-${dy}`;
