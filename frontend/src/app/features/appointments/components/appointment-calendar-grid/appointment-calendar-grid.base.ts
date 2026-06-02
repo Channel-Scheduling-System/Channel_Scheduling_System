@@ -2,7 +2,7 @@ import {
   Directive,
   OnInit,
 } from '@angular/core';
-import { TimeSlot } from '../../../../interfaces/time-slot.interface';
+import { TimeSlot } from '../../interfaces/time-slot.interface';
 @Directive()
 export abstract class AppointmentCalendarGridBase implements OnInit {
   protected timeSlots: TimeSlot[] = [];

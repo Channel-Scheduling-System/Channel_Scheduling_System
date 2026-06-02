@@ -1,4 +1,4 @@
-@use '../base/appointment-calendar-layer.base' as base;
+@use '../../../appointment-calendar-appointment/appointment-calendar-appointment.base' as base;
 :host {
   --layer-day-col-w: min(calc(100% - 2rem), 20rem);
   --layer-day-left:  max(1rem, calc(50% - 10rem));
