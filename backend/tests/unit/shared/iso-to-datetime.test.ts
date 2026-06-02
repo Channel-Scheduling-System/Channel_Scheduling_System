@@ -5,7 +5,7 @@ import {
     isoTimeToDateTime,
     dateTimeToIsoDate,
     dateTimeToIsoTime,
-} from '../../../src/shared/utils/iso-to-datetime.util';
+} from '../../../src/shared/utils/times-parser.util';
 
 describe('iso-to-datetime utilities', () => {
     // ── isoDateToDateTime ─────────────────────────────────────────────────
