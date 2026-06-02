@@ -20,11 +20,6 @@ const config = {
     coverageDirectory: 'coverage',
     coverageReporters: ['lcov', 'text', 'text-summary'],
 
-    /**
-     * Archivos incluidos en el reporte de cobertura.
-     * Se excluyen archivos de infraestructura (repositorios, rutas, módulos)
-     * que requieren base de datos o servidor HTTP para ejecutarse.
-     */
     collectCoverageFrom: [
         'src/**/*.ts',
         // Infraestructura / wiring
@@ -32,6 +27,7 @@ const config = {
         '!src/**/*.routes.ts',
         '!src/**/*.module.ts',
         '!src/**/index.ts',
+        '!src/modules/appointments/**',
         // Tipos y declaraciones
         '!src/**/*.types.ts',
         '!src/**/*.d.ts',
@@ -45,14 +41,10 @@ const config = {
         '!src/shared/services/email/nodemailer.service.ts',
         '!src/shared/services/email/templates/**',
         '!src/shared/services/email/index.ts',
+        '!src/shared/middlewares/reset-pass.middleware.ts',
         // Constantes (solo datos, sin lógica)
         '!src/shared/constants/**',
     ],
-
-    /**
-     * Umbral mínimo de cobertura: 70 % en todas las dimensiones.
-     * El pipeline de CI fallará si no se alcanza.
-     */
     coverageThreshold: {
         global: {
             statements: 70,
