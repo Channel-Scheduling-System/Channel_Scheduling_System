@@ -165,7 +165,7 @@ export interface RejectAppointmentInput {
 
 export interface ChangeAppointmentStatusInput {
     id: number;
-    status: Exclude<Status, 'PENDING' | 'REJECTED' | 'SCHEDULED'>;
+    status: Extract<Status, 'IN_PROGRESS' | 'COMPLETED' | 'NO_SHOW'>;
 }
 
 // ============================================================

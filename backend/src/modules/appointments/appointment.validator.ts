@@ -50,9 +50,7 @@ const verifyOverlapInput = z
         workerId: workerId,
         startAt: dateTimeSchema,
         services: z
-            .array(
-                z.object({ serviceId: id, customDuration: durationSchema }),
-            )
+            .array(z.object({ serviceId: id, customDuration: durationSchema }))
             .min(1, 'Debe proporcionar al menos un servicio')
             .max(5, 'No puede proporcionar más de 5 servicios'),
     })
@@ -90,11 +88,12 @@ const rejectAppointmentInput = z
     })
     .strict();
 
+const allowedChangeStatus = ['IN_PROGRESS', 'COMPLETED', 'NO_SHOW'];
 const changeAppointmentStatusInput = z
     .object({
         status: statusEnum.refine(
-            (status) => !['PENDING', 'REJECTED', 'SCHEDULED'].includes(status),
-            { message: 'El estado no puede ser PENDING, REJECTED o SCHEDULED' },
+            (status) => allowedChangeStatus.includes(status),
+            { message: 'Estados válidos: IN_PROGRESS, COMPLETED, NO_SHOW' },
         ),
     })
     .strict();

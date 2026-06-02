@@ -60,4 +60,19 @@ appointmentRouter.patch(
     appointmentController.reject,
 );
 
+appointmentRouter.patch(
+    '/:id/cancel',
+    requireRole(['WORKER', 'CLIENT']),
+    appointmentValidator.id,
+    appointmentController.cancel,
+);
+
+appointmentRouter.patch(
+    '/:id/status',
+    requireRole('WORKER'),
+    appointmentValidator.id,
+    appointmentValidator.changeStatus,
+    appointmentController.changeStatus,
+);
+
 export default appointmentRouter;

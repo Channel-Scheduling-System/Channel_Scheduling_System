@@ -54,13 +54,14 @@ export class AppointmentController {
         try {
             const filters = mapToAppointmentHistoryFilter(req.query);
             const auth = extractAuthContext(req);
-            const data = await this.appointmentService.getHistory(
+            const result = await this.appointmentService.getHistory(
                 filters,
                 auth,
             );
             return res.status(200).json({
                 message: 'Citas obtenidas correctamente',
-                data,
+                data: result.data,
+                meta: result.meta,
             });
         } catch (error) {
             next(error);
@@ -103,6 +104,31 @@ export class AppointmentController {
             await this.appointmentService.reject(input, auth);
             return res.status(200).json({
                 message: 'Cita rechazada correctamente',
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    cancel = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { id, auth } = extractRequestContextWithId(req);
+            await this.appointmentService.cancel(id, auth);
+            return res.status(200).json({
+                message: 'Cita cancelada correctamente',
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    changeStatus = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { id, auth } = extractRequestContextWithId(req);
+            const input = { id, ...req.body };
+            await this.appointmentService.changeStatus(input, auth);
+            return res.status(200).json({
+                message: 'Estado de la cita actualizado correctamente',
             });
         } catch (error) {
             next(error);
