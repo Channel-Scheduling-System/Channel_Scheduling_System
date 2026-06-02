@@ -10,7 +10,7 @@ import {
 import { MessageService } from '../../../../core/services/message.service';
 import { AlertType } from '../../../../core/utils/enums/AlertType';
 import { formatTimeTo12h } from '../../../../core/utils/time.util';
-import { TIME_PICKER_SEED, TimePickerComponent } from '../time-picker/time-picker.component';
+import { TIME_PICKER_SEED, TimePickerComponent } from '../../../../core/components/time-picker/time-picker.component';
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 import { UpdateWorkingHoursRequest } from '../../models/requests/update-working-hours-request.model';

@@ -6,7 +6,7 @@ import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validator
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
-import { DATE_PICKER_SEED, DatePickerComponent } from '../date-picker/date-picker.component';
+import { DATE_PICKER_SEED, DatePickerComponent } from '../../../../core/components/date-picker/date-picker.component';
 import { periodOffFieldValidator, periodOffGroupValidator } from '../../validators/period-off-modal.validators';
 import type { PeriodOffModalData } from '../../interfaces/calendar-modal-data.interface';
 import { SetPeriodOffRequest } from '../../models/requests/set-period-off-request.model';

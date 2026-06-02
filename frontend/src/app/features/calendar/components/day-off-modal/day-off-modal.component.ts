@@ -12,7 +12,7 @@ import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validator
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
-import { DATE_PICKER_SEED, DatePickerComponent } from '../date-picker/date-picker.component';
+import { DATE_PICKER_SEED, DatePickerComponent } from '../../../../core/components/date-picker/date-picker.component';
 import { dayOffFieldValidator } from '../../validators/day-off-modal.validators';
 import type { DayOffModalData } from '../../interfaces/calendar-modal-data.interface';
 import { SetDayOffRequest } from '../../models/requests/set-day-off-request.model';
