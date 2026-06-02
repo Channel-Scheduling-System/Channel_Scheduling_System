@@ -154,6 +154,10 @@ export function mapToWorkerCalendarAppointmentResponse(
             id: apm.client.id,
             name: `${apm.client.firstName} ${apm.client.lastName}`,
         },
+        worker: {
+            id: apm.worker.id,
+            name: `${apm.worker.firstName} ${apm.worker.lastName}`,
+        },
         services: apm.services.map((s) => ({
             id: s.service.id,
             name: s.service.name,

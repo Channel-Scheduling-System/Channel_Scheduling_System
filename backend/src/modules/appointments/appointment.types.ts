@@ -237,6 +237,7 @@ export interface WorkerAppointmentResponse {
     endAt: string;
     status: Status;
     notes: string | null;
+    worker: { id: number; name: string };
     client: { id: number; name: string };
     services: { id: number; name: string; color: string }[];
 }
