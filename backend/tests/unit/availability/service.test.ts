@@ -25,6 +25,12 @@ function makeUserService(exists = true) {
     return { existsByIdAndRole: jest.fn().mockResolvedValue(exists) } as any;
 }
 
+function makeAppointmentService() {
+    return {
+        getSlots: jest.fn().mockResolvedValue([]),
+    } as any;
+}
+
 describe('AvailabilityService', () => {
     beforeEach(() => {
         jest.clearAllMocks();
@@ -34,7 +40,11 @@ describe('AvailabilityService', () => {
         it('should replace the current schedule with the provided working hours only', async () => {
             const availabilityRepo = makeRepo();
             const userService = makeUserService();
-            const service = new AvailabilityService(availabilityRepo, userService);
+            const service = new AvailabilityService(
+                availabilityRepo,
+                userService,
+                makeAppointmentService(),
+            );
 
             const input = {
                 workerId: 7,
@@ -58,7 +68,11 @@ describe('AvailabilityService', () => {
         it('should throw ConflictError when adding duplicate working days', async () => {
             const availabilityRepo = makeRepo();
             const userService = makeUserService();
-            const service = new AvailabilityService(availabilityRepo, userService);
+            const service = new AvailabilityService(
+                availabilityRepo,
+                userService,
+                makeAppointmentService(),
+            );
 
             const { ConflictError } = await import('../../../src/shared/errors/domain.error');
 
@@ -78,7 +92,11 @@ describe('AvailabilityService', () => {
         it('should create a day off after validations', async () => {
             const availabilityRepo = makeRepo();
             const userService = makeUserService();
-            const service = new AvailabilityService(availabilityRepo, userService);
+            const service = new AvailabilityService(
+                availabilityRepo,
+                userService,
+                makeAppointmentService(),
+            );
 
             const input = {
                 workerId: 7,
@@ -105,7 +123,11 @@ describe('AvailabilityService', () => {
         it('should validate dates and create a period off', async () => {
             const availabilityRepo = makeRepo();
             const userService = makeUserService();
-            const service = new AvailabilityService(availabilityRepo, userService);
+            const service = new AvailabilityService(
+                availabilityRepo,
+                userService,
+                makeAppointmentService(),
+            );
 
             const input = {
                 workerId: 7,
@@ -134,7 +156,11 @@ describe('AvailabilityService', () => {
         it('should create a RECURRING time-off block', async () => {
             const availabilityRepo = makeRepo();
             const userService = makeUserService();
-            const service = new AvailabilityService(availabilityRepo, userService);
+            const service = new AvailabilityService(
+                availabilityRepo,
+                userService,
+                makeAppointmentService(),
+            );
 
             const input = {
                 workerId: 7,
@@ -156,7 +182,11 @@ describe('AvailabilityService', () => {
         it('should create a SPECIFIC time-off block with date validation', async () => {
             const availabilityRepo = makeRepo();
             const userService = makeUserService();
-            const service = new AvailabilityService(availabilityRepo, userService);
+            const service = new AvailabilityService(
+                availabilityRepo,
+                userService,
+                makeAppointmentService(),
+            );
 
             const input = {
                 workerId: 7,
@@ -179,7 +209,11 @@ describe('AvailabilityService', () => {
         it('should return empty array when no working hours exist', async () => {
             const availabilityRepo = makeRepo();
             const userService = makeUserService();
-            const service = new AvailabilityService(availabilityRepo, userService);
+            const service = new AvailabilityService(
+                availabilityRepo,
+                userService,
+                makeAppointmentService(),
+            );
 
             const filters = { workerId: 7, view: 'DAY' as const, date: '2027-06-10' };
             const result = await service.getBasicAvailability(filters);
@@ -192,7 +226,11 @@ describe('AvailabilityService', () => {
         it('should return empty object when include is empty', async () => {
             const availabilityRepo = makeRepo();
             const userService = makeUserService();
-            const service = new AvailabilityService(availabilityRepo, userService);
+            const service = new AvailabilityService(
+                availabilityRepo,
+                userService,
+                makeAppointmentService(),
+            );
 
             const filters = { workerId: 7, include: [] };
             const result = await service.getFullAvailability(filters);
@@ -208,7 +246,11 @@ describe('AvailabilityService', () => {
                 deleteBlockedTime: jest.fn().mockResolvedValue(undefined),
             });
             const userService = {} as any;
-            const service = new AvailabilityService(availabilityRepo, userService);
+            const service = new AvailabilityService(
+                availabilityRepo,
+                userService,
+                makeAppointmentService(),
+            );
 
             await service.delete(3, { id: 7, role: 'WORKER' });
 
@@ -222,7 +264,11 @@ describe('AvailabilityService', () => {
                 deleteBlockedTime: jest.fn(),
             });
             const userService = {} as any;
-            const service = new AvailabilityService(availabilityRepo, userService);
+            const service = new AvailabilityService(
+                availabilityRepo,
+                userService,
+                makeAppointmentService(),
+            );
 
             const { ForbiddenError } = await import('../../../src/shared/errors/domain.error');
 
@@ -235,7 +281,11 @@ describe('AvailabilityService', () => {
                 findBlockedTimeById: jest.fn().mockResolvedValue(null),
             });
             const userService = {} as any;
-            const service = new AvailabilityService(availabilityRepo, userService);
+            const service = new AvailabilityService(
+                availabilityRepo,
+                userService,
+                makeAppointmentService(),
+            );
 
             const { NotFoundError } = await import('../../../src/shared/errors/domain.error');
 
