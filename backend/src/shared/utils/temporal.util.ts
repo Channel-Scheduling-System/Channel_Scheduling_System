@@ -5,9 +5,11 @@ function normalizeDateInput(date: string): string {
 }
 
 export function isFutureDate(date: string): boolean {
-    const dateInstant = Temporal.Instant.from(normalizeDateInput(date));
-    const now = Temporal.Now.instant();
-    return Temporal.Instant.compare(dateInstant, now) > 0;
+    const normalizedDate = normalizeDateInput(date);
+    const localDateTime = Temporal.PlainDateTime.from(normalizedDate.replace('Z', ''));
+    const instant = localDateTime.toZonedDateTime('America/Bogota').toInstant();
+    const now = Temporal.Now.zonedDateTimeISO('America/Bogota').toInstant();
+    return Temporal.Instant.compare(instant, now) > 0;
 }
 
 export function dateToInstant(date: Date | string): Temporal.Instant {

@@ -35,7 +35,6 @@ export function handleErrorMiddleware(
     if (error instanceof ValidationError) {
         return send(res, error.status, error.message, {
             code: error.code,
-            error
         });
     }
 
