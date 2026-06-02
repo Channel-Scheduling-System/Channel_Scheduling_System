@@ -8,6 +8,7 @@ import {
     AppointmentFilter,
     AppointmentHistoryFilter,
     BasicAppointment,
+    Role,
 } from './appointment.types.js';
 
 export interface IAppointmentRepository {
@@ -17,6 +18,10 @@ export interface IAppointmentRepository {
     findByWorkerAndDate(workerId: number, date: string): Promise<Appointment[]>;
     countOverlapsByWorker(filter: OverlapFilter): Promise<number>;
     countOverlapsByClient(filter: OverlapFilter): Promise<number>;
+    findAllCalendar(
+        filter: AppointmentFilter,
+        role: Role,
+    ): Promise<BasicAppointment[]>;
     findAllWithPagination(
         filter: AppointmentHistoryFilter,
     ): Promise<{ data: BasicAppointment[]; total: number }>;
@@ -40,30 +45,7 @@ export class AppointmentRepository implements IAppointmentRepository {
     async findExtendedById(id: number): Promise<ExtendedAppointment | null> {
         return await prisma.appointment.findUnique({
             where: { id },
-            include: {
-                worker: {
-                    select: { id: true, firstName: true, lastName: true },
-                },
-                client: {
-                    select: { id: true, firstName: true, lastName: true },
-                },
-                services: {
-                    select: {
-                        id: true,
-                        customDurationMin: true,
-                        customPrice: true,
-                        service: {
-                            select: {
-                                id: true,
-                                name: true,
-                                colorHex: true,
-                                defaultDurationMin: true,
-                                defaultPrice: true,
-                            },
-                        },
-                    },
-                },
-            },
+            include: extendedInclude,
         });
     }
 
@@ -119,6 +101,31 @@ export class AppointmentRepository implements IAppointmentRepository {
         });
     }
 
+    async findAllCalendar(
+        filter: AppointmentFilter,
+        role: Role,
+    ): Promise<BasicAppointment[]> {
+        const where = this.buildWhere(filter);
+        if (role === Role.WORKER)
+            where.status = {
+                in: [Status.SCHEDULED, Status.IN_PROGRESS, Status.COMPLETED],
+            };
+        if (role === Role.CLIENT)
+            where.status = {
+                in: [
+                    Status.PENDING,
+                    Status.SCHEDULED,
+                    Status.IN_PROGRESS,
+                    Status.COMPLETED,
+                ],
+            };
+        return await prisma.appointment.findMany({
+            where,
+            select: basicSelect,
+            orderBy: { startAt: 'asc' },
+        });
+    }
+
     async findAllWithPagination(
         filter: AppointmentHistoryFilter,
     ): Promise<{ data: BasicAppointment[]; total: number }> {
@@ -132,29 +139,7 @@ export class AppointmentRepository implements IAppointmentRepository {
                 skip,
                 take: limit,
                 where,
-                select: {
-                    id: true,
-                    startAt: true,
-                    endAt: true,
-                    status: true,
-                    worker: {
-                        select: { id: true, firstName: true, lastName: true },
-                    },
-                    client: {
-                        select: { id: true, firstName: true, lastName: true },
-                    },
-                    services: {
-                        select: {
-                            service: {
-                                select: {
-                                    id: true,
-                                    name: true,
-                                    colorHex: true,
-                                },
-                            },
-                        },
-                    },
-                },
+                select: basicSelect,
                 orderBy: { createdAt: 'desc' },
             }),
             prisma.appointment.count({ where }),
@@ -173,8 +158,58 @@ export class AppointmentRepository implements IAppointmentRepository {
         if (filter.from || filter.to) {
             where.startAt = {};
             if (filter.from) where.startAt.gte = new Date(filter.from);
-            if (filter.to) where.startAt.lte = new Date(filter.to);
+            if (filter.to) where.startAt.lt = new Date(filter.to);
         }
         return where;
     }
 }
+
+const basicSelect = {
+    id: true,
+    startAt: true,
+    endAt: true,
+    status: true,
+    notes: true,
+    worker: {
+        select: { id: true, firstName: true, lastName: true },
+    },
+    client: {
+        select: { id: true, firstName: true, lastName: true },
+    },
+    services: {
+        select: {
+            service: {
+                select: {
+                    id: true,
+                    name: true,
+                    colorHex: true,
+                },
+            },
+        },
+    },
+};
+
+const extendedInclude = {
+    worker: {
+        select: { id: true, firstName: true, lastName: true },
+    },
+    client: {
+        select: { id: true, firstName: true, lastName: true },
+    },
+    services: {
+        select: {
+            id: true,
+            customDurationMin: true,
+            customPrice: true,
+            service: {
+                select: {
+                    id: true,
+                    name: true,
+                    colorHex: true,
+                    defaultDurationMin: true,
+                    defaultPrice: true,
+                },
+            },
+        },
+    },
+};

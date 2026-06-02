@@ -13,6 +13,8 @@ import {
     ExtendedAppointmentResponse,
     AppointmentHistoryFilter,
     PaginatedAppointmentResponse,
+    AppointmentCalendarResponse,
+    ApppointmentCalendarFilter,
 } from './appointment.types.js';
 import {
     mapToAppointmentData,
@@ -40,6 +42,10 @@ export interface IAppointmentService {
         filters: AppointmentHistoryFilter,
         auth: AuthContext,
     ): Promise<PaginatedAppointmentResponse>;
+    getCalendar(
+        filters: ApppointmentCalendarFilter,
+        auth: AuthContext,
+    ): Promise<AppointmentCalendarResponse>;
 }
 
 export class AppointmentService implements IAppointmentService {
@@ -110,21 +116,40 @@ export class AppointmentService implements IAppointmentService {
     }
 
     async getHistory(
-        filters: AppointmentHistoryFilter,
+        filter: AppointmentHistoryFilter,
         auth: AuthContext,
     ): Promise<PaginatedAppointmentResponse> {
-        if (auth.role === Role.WORKER) filters.workerId = auth.id;
-        if (filters.clientId)
-            await this.appointmentDomain.ensureClientExists(filters.clientId);
-        
-        if (auth.role === Role.CLIENT) filters.clientId = auth.id;
-        if (filters.workerId)
-            await this.appointmentDomain.ensureWorkerExists(filters.workerId);
+        await this.validateAndNormalizeFilters(filter, auth);
+        return await this.filtersProcessor.processHistoryFilters(filter);
+    }
 
-        return await this.filtersProcessor.processHistoryFilters(filters);
+    async getCalendar(
+        filter: ApppointmentCalendarFilter,
+        auth: AuthContext,
+    ): Promise<AppointmentCalendarResponse> {
+        await this.validateAndNormalizeFilters(filter, auth);
+        return await this.filtersProcessor.processCalendarFilters(
+            filter,
+            auth.role as Role,
+        );
     }
 
     async sendNotifications(_appointmentId: number): Promise<void> {
         // TODO: Implement notification logic to inform worker and client about the appointment details and any updates.
+    }
+
+    private async validateAndNormalizeFilters(
+        filter: {
+            workerId?: number;
+            clientId?: number;
+        },
+        auth: AuthContext,
+    ): Promise<void> {
+        if (auth.role === Role.WORKER) filter.workerId = auth.id;
+        if (auth.role === Role.CLIENT) filter.clientId = auth.id;
+        if (filter.clientId)
+            await this.appointmentDomain.ensureClientExists(filter.clientId);
+        if (filter.workerId)
+            await this.appointmentDomain.ensureWorkerExists(filter.workerId);
     }
 }

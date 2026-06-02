@@ -12,6 +12,9 @@ import {
     AppointmentHistoryFilter,
     AppointmentResponse,
     BasicAppointment,
+    ApppointmentCalendarFilter,
+    ClientAppointmentResponse,
+    WorkerAppointmentResponse,
 } from './appointment.types.js';
 import { Slot } from '../../shared/types/slots.types.js';
 import {
@@ -19,7 +22,10 @@ import {
     dateTimeToIsoTime,
 } from '../../shared/utils/times-parser.util.js';
 import { Temporal } from 'temporal-polyfill';
-import { appointmentHistoryFilterSchema } from './appointment.validator.js';
+import {
+    appointmentHistoryFilterSchema,
+    appointmentCalendarFilterSchema,
+} from './appointment.validator.js';
 
 export function mapToVerifyOverlapInput(
     input: CreateAppointmentInput | OverlapVerificationInput,
@@ -46,7 +52,7 @@ export function mapToAppointmentData(
         notes: input.notes,
         services: input.services.map((service) => ({
             serviceId: service.serviceId,
-            customDurationMin: service.customDurationMin ?? 0,
+            customDurationMin: service.customDuration ?? 0,
             customPrice: service.customPrice ?? 0,
         })),
     };
@@ -83,7 +89,18 @@ export function mapToAppointmentExtendedResponse(
             id: appointment.client.id,
             name: `${appointment.client.firstName} ${appointment.client.lastName}`,
         },
-        services: appointment.services,
+        services: appointment.services.map((s) => ({
+            id: s.service.id,
+            customDuration: s.customDurationMin,
+            customPrice: s.customPrice,
+            service: {
+                id: s.service.id,
+                name: s.service.name,
+                color: s.service.colorHex,
+                defaultDuration: s.service.defaultDurationMin,
+                defaultPrice: s.service.defaultPrice,
+            },
+        })),
     };
 }
 
@@ -113,17 +130,58 @@ export function mapToHistoryAppointmentResponse(
         services: apm.services.map((s) => ({
             id: s.service.id,
             name: s.service.name,
-            colorHex: s.service.colorHex,
+            color: s.service.colorHex,
+        })),
+    }));
+}
+
+export function mapToWorkerCalendarAppointmentResponse(
+    appointments: BasicAppointment[],
+): WorkerAppointmentResponse[] {
+    return appointments.map((apm) => ({
+        id: apm.id,
+        startAt: dateTimeToIsoDateTimeWithoutSeconds(apm.startAt),
+        endAt: dateTimeToIsoDateTimeWithoutSeconds(apm.endAt),
+        status: apm.status as Status,
+        notes: apm.notes,
+        client: {
+            id: apm.client.id,
+            name: `${apm.client.firstName} ${apm.client.lastName}`,
+        },
+        services: apm.services.map((s) => ({
+            id: s.service.id,
+            name: s.service.name,
+            color: s.service.colorHex,
+        })),
+    }));
+}
+
+export function mapToClientCalendarAppointmentResponse(
+    appointments: BasicAppointment[],
+): ClientAppointmentResponse[] {
+    return appointments.map((apm) => ({
+        id: apm.id,
+        startAt: dateTimeToIsoDateTimeWithoutSeconds(apm.startAt),
+        endAt: dateTimeToIsoDateTimeWithoutSeconds(apm.endAt),
+        status: apm.status as Status,
+        worker: {
+            id: apm.worker.id,
+            name: `${apm.worker.firstName} ${apm.worker.lastName}`,
+        },
+        services: apm.services.map((s) => ({
+            id: s.service.id,
+            name: s.service.name,
+            color: s.service.colorHex,
         })),
     }));
 }
 
 export function calculateEndDate(
     startAt: string,
-    services: { customDurationMin?: number }[],
+    services: { customDuration?: number }[],
 ): string {
     const totalDurationMin = services.reduce((total, service) => {
-        return total + (service.customDurationMin ?? 0);
+        return total + (service.customDuration ?? 0);
     }, 0);
     const startInstant = Temporal.Instant.from(startAt);
     const endInstant = startInstant.add({ minutes: totalDurationMin });
@@ -135,4 +193,11 @@ export function mapToAppointmentHistoryFilter(
     filters: Record<string, any>,
 ): AppointmentHistoryFilter {
     return appointmentHistoryFilterSchema.parse(filters);
+}
+
+export function mapToAppointmentCalendarFilter(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    filters: Record<string, any>,
+): ApppointmentCalendarFilter {
+    return appointmentCalendarFilterSchema.parse(filters);
 }

@@ -32,6 +32,13 @@ appointmentRouter.get(
 );
 
 appointmentRouter.get(
+    '/calendar',
+    requireRole(['WORKER', 'CLIENT']),
+    appointmentValidator.calendarFilters,
+    appointmentController.getCalendar,
+);
+
+appointmentRouter.get(
     '/:id',
     requireRole(['WORKER', 'CLIENT']),
     appointmentValidator.id,

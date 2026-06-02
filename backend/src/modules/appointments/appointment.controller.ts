@@ -4,7 +4,10 @@ import {
     extractAuthContext,
     extractRequestContextWithId,
 } from '../../shared/utils/request-parser.util.js';
-import { mapToAppointmentHistoryFilter } from './appointment.mapper.js';
+import {
+    mapToAppointmentCalendarFilter,
+    mapToAppointmentHistoryFilter,
+} from './appointment.mapper.js';
 
 export class AppointmentController {
     constructor(private readonly appointmentService: IAppointmentService) {}
@@ -52,6 +55,23 @@ export class AppointmentController {
             const filters = mapToAppointmentHistoryFilter(req.query);
             const auth = extractAuthContext(req);
             const data = await this.appointmentService.getHistory(
+                filters,
+                auth,
+            );
+            return res.status(200).json({
+                message: 'Citas obtenidas correctamente',
+                data,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    getCalendar = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const filters = mapToAppointmentCalendarFilter(req.query);
+            const auth = extractAuthContext(req);
+            const data = await this.appointmentService.getCalendar(
                 filters,
                 auth,
             );

@@ -3,6 +3,8 @@ import {
     PaginationMeta,
 } from '../../shared/types/pagination.types.js';
 
+export type ViewType = 'DAY' | 'WEEK' | 'MONTH';
+
 export const Status = {
     PENDING: 'PENDING',
     REJECTED: 'REJECTED',
@@ -36,6 +38,14 @@ export interface Appointment {
     updatedAt: Date;
 }
 
+export interface AppointmentService {
+    id: number;
+    appointmentId: number;
+    serviceId: number;
+    customDurationMin: number; // Duration in minutes, if null, use service's default duration
+    customPrice: number; // if null, use service's default price
+}
+
 interface WorkerSummary {
     id: number;
     firstName: string;
@@ -56,19 +66,11 @@ interface ServiceSummary {
     defaultPrice: number;
 }
 
-interface AppointmentServiceDetail {
+interface AppointmentServiceSummary {
     id: number;
     service: ServiceSummary;
     customDurationMin: number;
     customPrice: number;
-}
-
-export interface AppointmentService {
-    id: number;
-    appointmentId: number;
-    serviceId: number;
-    customDurationMin: number; // Duration in minutes, if null, use service's default duration
-    customPrice: number; // if null, use service's default price
 }
 
 export interface BasicAppointment {
@@ -76,6 +78,7 @@ export interface BasicAppointment {
     startAt: Date;
     endAt: Date;
     status: Status;
+    notes: string | null;
     worker: WorkerSummary;
     client: ClientSummary;
     services: { service: { id: number; name: string; colorHex: string } }[];
@@ -84,7 +87,7 @@ export interface BasicAppointment {
 export interface ExtendedAppointment extends Appointment {
     worker: WorkerSummary;
     client: ClientSummary;
-    services: AppointmentServiceDetail[];
+    services: AppointmentServiceSummary[];
 }
 
 // ============================================================
@@ -113,7 +116,7 @@ export interface OverlapVerificationInput {
     startAt: string; // ISO date-time string
     services: {
         serviceId: number;
-        customDurationMin: number;
+        customDuration: number;
     }[];
 }
 
@@ -131,7 +134,7 @@ export interface CreateAppointmentInput {
     notes?: string;
     services: {
         serviceId: number;
-        customDurationMin?: number;
+        customDuration?: number;
         customPrice?: number;
     }[];
 }
@@ -142,7 +145,7 @@ export interface UpdateAppointmentInput {
     notes?: string;
     services?: {
         serviceId: number;
-        customDurationMin?: number;
+        customDuration?: number;
         customPrice?: number;
     }[];
 }
@@ -186,6 +189,13 @@ export interface AppointmentFilter {
 export interface AppointmentHistoryFilter
     extends AppointmentFilter, Pagination {}
 
+export interface ApppointmentCalendarFilter {
+    view: ViewType;
+    date: string; // ISO date string
+    workerId?: number;
+    clientId?: number;
+}
+
 // ============================================================
 // * RESPONSES
 // ============================================================
@@ -209,8 +219,31 @@ export interface AppointmentResponse {
     status: Status;
     worker: { id: number; name: string };
     client: { id: number; name: string };
-    services: { id: number; name: string; colorHex: string }[];
+    services: { id: number; name: string; color: string }[];
 }
+
+export interface ClientAppointmentResponse {
+    id: number;
+    startAt: string;
+    endAt: string;
+    status: Status;
+    worker: { id: number; name: string };
+    services: { id: number; name: string; color: string }[];
+}
+
+export interface WorkerAppointmentResponse {
+    id: number;
+    startAt: string;
+    endAt: string;
+    status: Status;
+    notes: string | null;
+    client: { id: number; name: string };
+    services: { id: number; name: string; color: string }[];
+}
+
+export type AppointmentCalendarResponse =
+    | ClientAppointmentResponse[]
+    | WorkerAppointmentResponse[];
 
 export interface ExtendedAppointmentResponse {
     id: number;
@@ -223,7 +256,18 @@ export interface ExtendedAppointmentResponse {
     updatedAt: Date;
     worker: { id: number; name: string };
     client: { id: number; name: string };
-    services: AppointmentServiceDetail[];
+    services: {
+        id: number;
+        customDuration: number;
+        customPrice: number;
+        service: {
+            id: number;
+            name: string;
+            color: string;
+            defaultDuration: number;
+            defaultPrice: number;
+        };
+    }[];
 }
 
 export interface PaginatedAppointmentResponse {
