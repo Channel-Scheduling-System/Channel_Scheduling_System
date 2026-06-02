@@ -1,6 +1,6 @@
 /// <reference types="jest" />
 
-import { DateRangeCalculator } from '../../../src/modules/availability/utils/date-range.calculator';
+import { DateRangeCalculator } from '../../../src/shared/utils/date-range-calculator.util';
 
 describe('DateRangeCalculator', () => {
     const calculator = new DateRangeCalculator();

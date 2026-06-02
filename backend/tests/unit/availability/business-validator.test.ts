@@ -1,6 +1,6 @@
 /// <reference types="jest" />
 
-import { AvailabilityBusinessValidator } from '../../../src/modules/availability/validators/availability-business.validator';
+import { AvailabilityDomainService } from '../../../src/modules/availability/availability-domain.service';
 
 function makeRepo(overrides: Record<string, jest.Mock> = {}) {
     return {
@@ -17,12 +17,12 @@ describe('AvailabilityBusinessValidator', () => {
     // ── ensureWorkerExists ─────────────────────────────────────────────────
     describe('ensureWorkerExists', () => {
         it('should resolve when worker exists', async () => {
-            const validator = new AvailabilityBusinessValidator(makeRepo(), makeUserService(true));
+            const validator = new AvailabilityDomainService(makeRepo(), makeUserService(true));
             await expect(validator.ensureWorkerExists(7)).resolves.toBeUndefined();
         });
 
         it('should throw NotFoundError when worker does not exist', async () => {
-            const validator = new AvailabilityBusinessValidator(makeRepo(), makeUserService(false));
+            const validator = new AvailabilityDomainService(makeRepo(), makeUserService(false));
             const { NotFoundError } = await import('../../../src/shared/errors/domain.error');
             await expect(validator.ensureWorkerExists(99)).rejects.toBeInstanceOf(NotFoundError);
         });
@@ -31,7 +31,7 @@ describe('AvailabilityBusinessValidator', () => {
     // ── checkUniqueWorkingDays ─────────────────────────────────────────────
     describe('checkUniqueWorkingDays', () => {
         it('should pass when all days are unique', () => {
-            const validator = new AvailabilityBusinessValidator(makeRepo(), makeUserService());
+            const validator = new AvailabilityDomainService(makeRepo(), makeUserService());
             expect(() =>
                 validator.checkUniqueWorkingDays([
                     { dayOfWeek: 'MONDAY', startTime: '08:00', endTime: '12:00' } as any,
@@ -41,7 +41,7 @@ describe('AvailabilityBusinessValidator', () => {
         });
 
         it('should throw ConflictError when there are duplicate days', async () => {
-            const validator = new AvailabilityBusinessValidator(makeRepo(), makeUserService());
+            const validator = new AvailabilityDomainService(makeRepo(), makeUserService());
             const { ConflictError } = await import('../../../src/shared/errors/domain.error');
             expect(() =>
                 validator.checkUniqueWorkingDays([
@@ -55,12 +55,12 @@ describe('AvailabilityBusinessValidator', () => {
     // ── checkFutureDate ────────────────────────────────────────────────────
     describe('checkFutureDate', () => {
         it('should pass for a future date', () => {
-            const validator = new AvailabilityBusinessValidator(makeRepo(), makeUserService());
+            const validator = new AvailabilityDomainService(makeRepo(), makeUserService());
             expect(() => validator.checkFutureDate('2099-01-01')).not.toThrow();
         });
 
         it('should throw ConflictError for a past date', async () => {
-            const validator = new AvailabilityBusinessValidator(makeRepo(), makeUserService());
+            const validator = new AvailabilityDomainService(makeRepo(), makeUserService());
             const { ConflictError } = await import('../../../src/shared/errors/domain.error');
             expect(() => validator.checkFutureDate('2020-01-01')).toThrow(ConflictError);
         });
@@ -70,7 +70,7 @@ describe('AvailabilityBusinessValidator', () => {
     describe('checkOverlapping', () => {
         it('should resolve when there are no existing blocks', async () => {
             const repo = makeRepo({ findBlockedTimesByWorkerId: jest.fn().mockResolvedValue([]) });
-            const validator = new AvailabilityBusinessValidator(repo, makeUserService());
+            const validator = new AvailabilityDomainService(repo, makeUserService());
 
             await expect(
                 validator.checkOverlapping({
@@ -97,7 +97,7 @@ describe('AvailabilityBusinessValidator', () => {
             const repo = makeRepo({
                 findBlockedTimesByWorkerId: jest.fn().mockResolvedValue([existing]),
             });
-            const validator = new AvailabilityBusinessValidator(repo, makeUserService());
+            const validator = new AvailabilityDomainService(repo, makeUserService());
             const { ConflictError } = await import('../../../src/shared/errors/domain.error');
 
             await expect(
@@ -113,7 +113,7 @@ describe('AvailabilityBusinessValidator', () => {
     // ── checkOverlappingRecurring ──────────────────────────────────────────
     describe('checkOverlappingRecurring', () => {
         it('should resolve when there are no existing blocks', async () => {
-            const validator = new AvailabilityBusinessValidator(makeRepo(), makeUserService());
+            const validator = new AvailabilityDomainService(makeRepo(), makeUserService());
 
             await expect(
                 validator.checkOverlappingRecurring({
@@ -142,7 +142,7 @@ describe('AvailabilityBusinessValidator', () => {
             const repo = makeRepo({
                 findBlockedTimesByWorkerId: jest.fn().mockResolvedValue([existing]),
             });
-            const validator = new AvailabilityBusinessValidator(repo, makeUserService());
+            const validator = new AvailabilityDomainService(repo, makeUserService());
             const { ConflictError } = await import('../../../src/shared/errors/domain.error');
 
             await expect(
@@ -160,7 +160,7 @@ describe('AvailabilityBusinessValidator', () => {
     // ── validateOwnership ──────────────────────────────────────────────────
     describe('validateOwnership', () => {
         it('should pass when block owner matches auth', () => {
-            const validator = new AvailabilityBusinessValidator(makeRepo(), makeUserService());
+            const validator = new AvailabilityDomainService(makeRepo(), makeUserService());
             expect(() =>
                 validator.validateOwnership(
                     { id: 5, workerId: 7 } as any,
@@ -170,7 +170,7 @@ describe('AvailabilityBusinessValidator', () => {
         });
 
         it('should throw ForbiddenError when ownership does not match', async () => {
-            const validator = new AvailabilityBusinessValidator(makeRepo(), makeUserService());
+            const validator = new AvailabilityDomainService(makeRepo(), makeUserService());
             const { ForbiddenError } = await import('../../../src/shared/errors/domain.error');
             expect(() =>
                 validator.validateOwnership(
@@ -184,14 +184,14 @@ describe('AvailabilityBusinessValidator', () => {
     // ── validateCanView ────────────────────────────────────────────────────
     describe('validateCanView', () => {
         it('should pass when workerId matches auth id', () => {
-            const validator = new AvailabilityBusinessValidator(makeRepo(), makeUserService());
+            const validator = new AvailabilityDomainService(makeRepo(), makeUserService());
             expect(() =>
                 validator.validateCanView(7, { id: 7, role: 'WORKER' }),
             ).not.toThrow();
         });
 
         it('should throw ForbiddenError when workerId does not match auth id', async () => {
-            const validator = new AvailabilityBusinessValidator(makeRepo(), makeUserService());
+            const validator = new AvailabilityDomainService(makeRepo(), makeUserService());
             const { ForbiddenError } = await import('../../../src/shared/errors/domain.error');
             expect(() =>
                 validator.validateCanView(10, { id: 7, role: 'WORKER' }),

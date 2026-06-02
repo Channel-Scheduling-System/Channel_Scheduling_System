@@ -7,6 +7,12 @@ describe('AvailabilityService - addDayOff', () => {
         jest.clearAllMocks();
     });
 
+    function makeAppointmentService() {
+        return {
+            getSlots: jest.fn().mockResolvedValue([]),
+        } as any;
+    }
+
     it('should create a day off after validations', async () => {
         const availabilityRepo = {
             createWorkingHourBulk: jest.fn(),
@@ -27,7 +33,11 @@ describe('AvailabilityService - addDayOff', () => {
             existsByIdAndRole: jest.fn().mockResolvedValue(true),
         } as any;
 
-        const service = new AvailabilityService(availabilityRepo, userService);
+        const service = new AvailabilityService(
+            availabilityRepo,
+            userService,
+            makeAppointmentService(),
+        );
 
         const input = {
             workerId: 7,
