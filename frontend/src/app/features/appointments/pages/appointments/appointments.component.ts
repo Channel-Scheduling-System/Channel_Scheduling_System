@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, TemplateRef, ViewChild, ViewContainerRef, AfterViewInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, TemplateRef, ViewChild, ViewContainerRef, AfterViewInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subject, EMPTY } from 'rxjs';
 import { switchMap, takeUntil, tap, catchError } from 'rxjs/operators';
@@ -9,6 +9,7 @@ import { AppointmentsService } from '../../services/appointments.service';
 import { AppointmentCalendarItem } from '../../components/appointment-calendar/appointment-calendar-layer/week-layer/appointment-calendar-week-layer.component';
 import { MessageService } from '../../../../core/services/message.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { SessionService } from '../../../../core/services/session.service';
 
 @Component({
   selector: 'app-appointments',
@@ -21,6 +22,7 @@ export class AppointmentsPageComponent implements OnInit, AfterViewInit, OnDestr
   @ViewChild('fabTemplate') fabTemplate!: TemplateRef<any>;
 
   protected appointments: AppointmentCalendarItem[] = [];
+  protected sessionService = inject(SessionService);
 
   protected currentWeekStart: Date = this.getMonday(new Date());
 
@@ -63,7 +65,9 @@ export class AppointmentsPageComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   protected goToRequests(): void {
-    // TODO: navigate to requests/scheduled appointments page
+    this.router.navigate(['manage-requests'], {
+      relativeTo: this.route
+    });
   }
 
   protected goToHistory(): void {
