@@ -37,7 +37,7 @@ export class AppointmentsService implements IAppointmentsService {
         );
     }
 
-    public getAppointmentsHistory(params: AppointmentsParamsHistoryRequest): Observable<AppointmentsListHistoryResponse> {
+    public getAppointmentsBy(params: AppointmentsParamsHistoryRequest): Observable<AppointmentsListHistoryResponse> {
         const httpParams = buildAppointmentsHistoryHttpParams(params);
         return this.http.get(API_ENDPOINTS.APPOINTMENTS.LIST_HISTORY, { params: httpParams }).pipe(
             map(response => this.responseHandler.handleSuccess(response, AppointmentsListHistoryResponseSchema))
