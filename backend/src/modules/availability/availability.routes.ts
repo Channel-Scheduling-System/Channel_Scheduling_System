@@ -42,7 +42,7 @@ availabilityRouter.post(
 
 availabilityRouter.get(
     '/worker/:id',
-    requireRole('CLIENT'),
+    requireRole(['WORKER', 'CLIENT']),
     availabilityValidator.id,
     availabilityValidator.clientFilters,
     availabilityController.getBasicAvailability,
