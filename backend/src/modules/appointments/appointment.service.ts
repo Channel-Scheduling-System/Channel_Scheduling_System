@@ -15,6 +15,8 @@ import {
     PaginatedAppointmentResponse,
     AppointmentCalendarResponse,
     ApppointmentCalendarFilter,
+    Status,
+    RejectAppointmentInput,
 } from './appointment.types.js';
 import {
     mapToAppointmentData,
@@ -24,6 +26,8 @@ import {
 } from './appointment.mapper.js';
 import { Slot } from '../../shared/types/slots.types.js';
 import { AuthContext } from '../../shared/utils/request-parser.util.js';
+import { ConflictError } from '../../shared/errors/domain.error.js';
+import { APPOINTMENT_ERRORS } from '../../shared/constants/messages.js';
 
 export interface IAppointmentService {
     verifyOverlap(
@@ -46,6 +50,8 @@ export interface IAppointmentService {
         filters: ApppointmentCalendarFilter,
         auth: AuthContext,
     ): Promise<AppointmentCalendarResponse>;
+    approve(id: number, auth: AuthContext): Promise<void>;
+    reject(input: RejectAppointmentInput, auth: AuthContext): Promise<void>;
 }
 
 export class AppointmentService implements IAppointmentService {
@@ -132,6 +138,37 @@ export class AppointmentService implements IAppointmentService {
             filter,
             auth.role as Role,
         );
+    }
+
+    async approve(id: number, auth: AuthContext): Promise<void> {
+        const apm = await this.appointmentDomain.getAppointmentOrFail(id);
+
+        this.appointmentDomain.checkStatusChangeAuthorship(auth, apm.workerId);
+        if (apm.status !== Status.PENDING)
+            throw new ConflictError(APPOINTMENT_ERRORS.STATUS_MISMATCH);
+        this.appointmentDomain.checkExpiredDate(apm.startAt.toISOString());
+
+        await this.appointmentDomain.ensureNoOverlaps(
+            mapToVerifyOverlapInput(apm),
+            auth.role as Role,
+        );
+
+        await this.appointmentRepo.updateStatus(id, Status.SCHEDULED);
+        await this.sendNotifications(id);
+    }
+
+    async reject(
+        input: RejectAppointmentInput,
+        auth: AuthContext,
+    ): Promise<void> {
+        const apm = await this.appointmentDomain.getAppointmentOrFail(input.id);
+
+        this.appointmentDomain.checkStatusChangeAuthorship(auth, apm.workerId);
+        if (apm.status !== Status.PENDING)
+            throw new ConflictError(APPOINTMENT_ERRORS.STATUS_MISMATCH);
+
+        await this.appointmentRepo.updateStatus(input.id, Status.REJECTED);
+        await this.sendNotifications(input.id);
     }
 
     async sendNotifications(_appointmentId: number): Promise<void> {

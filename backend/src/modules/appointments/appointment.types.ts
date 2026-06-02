@@ -46,6 +46,24 @@ export interface AppointmentService {
     customPrice: number; // if null, use service's default price
 }
 
+// ============================================================
+// * PERSISTENCE MODELS
+// ============================================================
+export interface CreateAppointmentData {
+    workerId: number;
+    clientId: number;
+    startAt: string; // ISO date string
+    endAt: string; // ISO date string
+    status: Status;
+    createdBy: Role;
+    notes?: string;
+    services: {
+        serviceId: number;
+        customDurationMin: number;
+        customPrice: number;
+    }[];
+}
+
 interface WorkerSummary {
     id: number;
     firstName: string;
@@ -88,24 +106,6 @@ export interface ExtendedAppointment extends Appointment {
     worker: WorkerSummary;
     client: ClientSummary;
     services: AppointmentServiceSummary[];
-}
-
-// ============================================================
-// * PERSISTENCE MODELS
-// ============================================================
-export interface CreateAppointmentData {
-    workerId: number;
-    clientId: number;
-    startAt: string; // ISO date string
-    endAt: string; // ISO date string
-    status: Status;
-    createdBy: Role;
-    notes?: string;
-    services: {
-        serviceId: number;
-        customDurationMin: number;
-        customPrice: number;
-    }[];
 }
 
 // ============================================================

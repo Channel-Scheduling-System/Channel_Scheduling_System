@@ -26,14 +26,20 @@ import {
     appointmentHistoryFilterSchema,
     appointmentCalendarFilterSchema,
 } from './appointment.validator.js';
+import { dateToInstant } from '../../shared/utils/temporal.util.js';
 
 export function mapToVerifyOverlapInput(
-    input: CreateAppointmentInput | OverlapVerificationInput,
+    input: CreateAppointmentInput | OverlapVerificationInput | Appointment,
 ): VerifyOverlapInput {
+    const startAt = dateToInstant(input.startAt).toJSON();
+    const endAt =
+        'services' in input
+            ? calculateEndDate(input.startAt, input.services)
+            : dateToInstant(input.endAt).toJSON();
     return {
         workerId: input.workerId,
-        startAt: Temporal.Instant.from(input.startAt).toJSON(),
-        endAt: calculateEndDate(input.startAt, input.services),
+        startAt: Temporal.Instant.from(startAt).toJSON(),
+        endAt: endAt,
         clientId: 'clientId' in input ? input.clientId : undefined,
     };
 }
