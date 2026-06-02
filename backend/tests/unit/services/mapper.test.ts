@@ -11,6 +11,11 @@ function buildServiceEntity(overrides: Record<string, unknown> = {}) {
     return {
         id: 1,
         workerId: 10,
+        worker: {
+            id: 10,
+            firstName: 'Johan',
+            lastName: 'Gil',
+        },
         name: 'Haircut',
         description: 'Classic haircut',
         colorHex: '#FF5733',
@@ -91,6 +96,10 @@ describe('service.mapper', () => {
                 price: 25000,
                 duration: 45,
                 isActive: true,
+                worker: {
+                    id: 10,
+                    name: 'Johan Gil',
+                },
             });
         });
 

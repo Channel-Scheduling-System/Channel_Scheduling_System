@@ -58,6 +58,11 @@ describe('ServiceService', () => {
             const mockService = {
                 id: 1,
                 workerId: 1,
+                worker: {
+                    id: 1,
+                    firstName: 'Johan',
+                    lastName: 'Gil',
+                },
                 name: 'Corte de cabello',
                 description: 'Servicio de corte de cabello profesional',
                 colorHex: '#FF5733',
@@ -72,17 +77,7 @@ describe('ServiceService', () => {
             repo.existsByName.mockResolvedValue(false);
             repo.create.mockResolvedValue(mockService);
 
-            const result = await service.add(input);
-
-            expect(result).toEqual({
-                id: 1,
-                name: 'Corte de cabello',
-                description: 'Servicio de corte de cabello profesional',
-                color: '#FF5733',
-                price: 50000,
-                duration: 30,
-                isActive: true,
-            });
+            await expect(service.add(input)).resolves.toBeUndefined();
             expect(userService.existsByIdAndRole).toHaveBeenCalledWith(
                 1,
                 'WORKER',
@@ -91,7 +86,14 @@ describe('ServiceService', () => {
                 1,
                 'Corte de cabello',
             );
-            expect(repo.create).toHaveBeenCalled();
+            expect(repo.create).toHaveBeenCalledWith({
+                workerId: 1,
+                name: 'Corte de cabello',
+                description: 'Servicio de corte de cabello profesional',
+                colorHex: '#FF5733',
+                defaultPrice: 50000,
+                defaultDurationMin: 30,
+            });
         });
 
         it('should throw NotFoundError when worker does not exist', async () => {
@@ -150,6 +152,11 @@ describe('ServiceService', () => {
             const mockService = {
                 id: 1,
                 workerId: 1,
+                worker: {
+                    id: 1,
+                    firstName: 'Johan',
+                    lastName: 'Gil',
+                },
                 name: 'Corte de cabello',
                 description: 'Servicio de corte de cabello profesional',
                 colorHex: '#FF5733',
@@ -172,6 +179,10 @@ describe('ServiceService', () => {
                 price: 50000,
                 duration: 30,
                 isActive: true,
+                worker: {
+                    id: 1,
+                    name: 'Johan Gil',
+                },
             });
             expect(repo.findById).toHaveBeenCalledWith(1);
         });
@@ -199,6 +210,11 @@ describe('ServiceService', () => {
                 {
                     id: 1,
                     workerId: 1,
+                    worker: {
+                        id: 1,
+                        firstName: 'Johan',
+                        lastName: 'Gil',
+                    },
                     name: 'Corte de cabello',
                     description: 'Servicio de corte de cabello profesional',
                     colorHex: '#FF5733',
@@ -211,6 +227,11 @@ describe('ServiceService', () => {
                 {
                     id: 2,
                     workerId: 1,
+                    worker: {
+                        id: 1,
+                        firstName: 'Johan',
+                        lastName: 'Gil',
+                    },
                     name: 'Tintura',
                     description: 'Servicio de tintura de cabello',
                     colorHex: '#FF5733',
@@ -235,6 +256,10 @@ describe('ServiceService', () => {
                 price: 50000,
                 duration: 30,
                 isActive: true,
+                worker: {
+                    id: 1,
+                    name: 'Johan Gil',
+                },
             });
         });
 
@@ -247,6 +272,11 @@ describe('ServiceService', () => {
                 {
                     id: 1,
                     workerId: 1,
+                    worker: {
+                        id: 1,
+                        firstName: 'Johan',
+                        lastName: 'Gil',
+                    },
                     name: 'Corte de cabello',
                     description: 'Servicio de corte de cabello profesional',
                     colorHex: '#FF5733',
