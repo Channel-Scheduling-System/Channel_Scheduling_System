@@ -14,7 +14,7 @@ export interface IAppointmentsService {
 
     createAppointment(request: CreateAppointmentRequest): Observable<CreateAppointmentResponse>;
     
-    getAppointmentsHistory(params: AppointmentsParamsHistoryRequest): Observable<AppointmentsListHistoryResponse>;
+    getAppointmentsBy(params: AppointmentsParamsHistoryRequest): Observable<AppointmentsListHistoryResponse>;
 
     getActiveAppointments(params: AppointmentsActiveParamsRequest): Observable<AppointmentsListActiveResponse>;
 

@@ -1,8 +1,8 @@
 <div class="edit-user-page flex flex-col gap-8">
 
-    <app-user-form-header eyebrow="Gestión" title="Perfil del Usuario"
+    <app-form-header eyebrow="Gestión" title="Perfil del Usuario"
         description="Gestiona la información personal del usuario" (back)="goBack()">
-    </app-user-form-header>
+    </app-form-header>
 
     <div *ngIf="isLoading" class="flex items-center justify-center gap-3 py-16 text-[#877270] text-sm font-medium">
         <mat-spinner diameter="32"></mat-spinner>

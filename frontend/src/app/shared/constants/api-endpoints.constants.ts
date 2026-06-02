@@ -25,8 +25,8 @@ export const API_ENDPOINTS = {
   APPOINTMENTS: {
     VERIFY_OVERLAP: `${environment.apiUrl}/appointments/verify-overlap`,
     CREATE: `${environment.apiUrl}/appointments`,
-    LIST_HISTORY: `${environment.apiUrl}/appointments`,
-    LIST: `${environment.apiUrl}/appointments`,
+    LIST_HISTORY: `${environment.apiUrl}/appointments/history`,
+    LIST: `${environment.apiUrl}/appointments/calendar`,
     UPDATE: (id: number) => `${environment.apiUrl}/appointments/${id}`,
     RESCHEDULE: (id: number) => `${environment.apiUrl}/appointments/${id}/reschedule`,
     APPROVE: (id: number) => `${environment.apiUrl}/appointments/${id}/approve`,

@@ -25,8 +25,6 @@ export const appointmentsParamsHistoryRequestSchema = z.object({
 	from: dateParam.optional(),
 	to: dateParam.optional(),
 	page: numericParam('page').optional(),
-	limit: numericParam('limit').optional(),
-	compact: compactParam.optional(),
 });
 
 export const appointmentsActiveParamsRequestSchema = z.object({

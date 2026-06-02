@@ -8,7 +8,8 @@
   </div>
 
   <div class="appt-nav">
-    <button class="appt-nav__btn" type="button" (click)="goToRequests()">
+    @if (sessionService.getRole() === 'WORKER') {
+      <button class="appt-nav__btn" type="button" (click)="goToRequests()">
       <span class="appt-nav__btn__shimmer"></span>
       <span class="appt-nav__btn__glow"></span>
       <span class="appt-nav__btn__content">
@@ -16,6 +17,7 @@
         <span class="appt-nav__btn__text">Gestionar Solicitudes</span>
       </span>
     </button>
+    }
 
     <button class="appt-nav__btn" type="button" (click)="goToHistory()">
       <span class="appt-nav__btn__shimmer"></span>

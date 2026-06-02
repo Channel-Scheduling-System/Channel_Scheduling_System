@@ -8,7 +8,6 @@ import { UserService } from '../../services/user.service';
 import { MessageService } from '../../../../core/services/message.service';
 import { AlertType } from '../../../../core/utils/enums/AlertType';
 import { UserFormFieldsComponent } from '../../components/user-form-fields/user-form-fields.component';
-import { UserFormHeaderComponent } from '../../components/user-form-header/user-form-header.component';
 import { updateUserFieldValidator } from '../../validators/update-user.validators';
 import { UpdateUserRequest } from '../../models/requests/update-request.model';
 import { GetUserResponse } from '../../models/responses/get-user-response.model';
@@ -17,6 +16,7 @@ import { SetStateUserResponse } from '../../models/responses/set-state-user-resp
 import { SetStateUserRequest } from '../../models/requests/set-state-user-request.model';
 import { UpdateUserResponse } from '../../models/responses/update-response.model';
 import { ErrorResponse } from '../../../../shared/models/api/error-response.schema';
+import { FormHeaderComponent } from '../../../../core/components/form-header/form-header.component';
 
 @Component({
   selector: 'app-update-user',
@@ -26,7 +26,7 @@ import { ErrorResponse } from '../../../../shared/models/api/error-response.sche
     ReactiveFormsModule,
     MatProgressSpinnerModule,
     UserFormFieldsComponent,
-    UserFormHeaderComponent,
+    FormHeaderComponent,
   ],
   templateUrl: './update-user.component.html',
   styleUrl: './update-user.component.scss',
