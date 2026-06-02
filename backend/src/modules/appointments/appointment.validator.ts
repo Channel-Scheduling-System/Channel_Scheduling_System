@@ -23,6 +23,8 @@ import { z } from 'zod';
 // ============================================================
 // * BASE SCHEMAS
 // ============================================================
+const viewTypeEnum = z.enum(['DAY', 'WEEK', 'MONTH']);
+
 const statusEnum = z.enum(Status);
 
 const notesSchema = z.string().max(300).optional();
@@ -36,7 +38,7 @@ const appointmentSchema = z.object({
 
 const appointmentServiceSchema = z.object({
     serviceId: id,
-    customDurationMin: durationSchema,
+    customDuration: durationSchema,
     customPrice: priceSchema,
 });
 
@@ -49,7 +51,7 @@ const verifyOverlapInput = z
         startAt: dateTimeSchema,
         services: z
             .array(
-                z.object({ serviceId: id, customDurationMin: durationSchema }),
+                z.object({ serviceId: id, customDuration: durationSchema }),
             )
             .min(1, 'Debe proporcionar al menos un servicio')
             .max(5, 'No puede proporcionar más de 5 servicios'),
@@ -113,7 +115,15 @@ const paginationSchema = z.object({
     limit: limitSchema(50).optional(),
 });
 
-export const appointmentHistoryFilterSchema = appointmentFilters.and(paginationSchema);
+export const appointmentHistoryFilterSchema =
+    appointmentFilters.and(paginationSchema);
+
+export const appointmentCalendarFilterSchema = z.object({
+    view: viewTypeEnum,
+    date: dateSchema,
+    workerId: queryId('worker').optional(),
+    clientId: queryId('client').optional(),
+});
 
 // ============================================================
 // * CENTRALIZED VALIDATORS
@@ -127,4 +137,5 @@ export const appointmentValidator = {
     reject: validateBodyDTO(rejectAppointmentInput),
     changeStatus: validateBodyDTO(changeAppointmentStatusInput),
     historyFilters: validateQueryDTO(appointmentHistoryFilterSchema),
+    calendarFilters: validateQueryDTO(appointmentCalendarFilterSchema),
 };
