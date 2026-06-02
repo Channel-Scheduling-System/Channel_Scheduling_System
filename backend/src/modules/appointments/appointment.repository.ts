@@ -25,6 +25,7 @@ export interface IAppointmentRepository {
     findAllWithPagination(
         filter: AppointmentHistoryFilter,
     ): Promise<{ data: BasicAppointment[]; total: number }>;
+    updateStatus(id: number, status: Status): Promise<void>;
 }
 
 export class AppointmentRepository implements IAppointmentRepository {
@@ -146,6 +147,13 @@ export class AppointmentRepository implements IAppointmentRepository {
         ]);
 
         return { data, total };
+    }
+
+    async updateStatus(id: number, status: Status): Promise<void> {
+        await prisma.appointment.update({
+            where: { id },
+            data: { status },
+        });
     }
 
     private buildWhere(

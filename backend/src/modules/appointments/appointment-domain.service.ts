@@ -88,6 +88,13 @@ export class AppointmentDomainService {
             throw new ConflictError(APPOINTMENT_ERRORS.OWNER_ACCESS_MISMATCH);
     }
 
+    checkStatusChangeAuthorship(auth: AuthContext, workerId: number): void {
+        if (auth.role !== Role.WORKER || auth.id !== workerId)
+            throw new ConflictError(
+                APPOINTMENT_ERRORS.OWNER_STATUSCHANGE_MISMATCH,
+            );
+    }
+
     async verifyOverlaps(
         input: VerifyOverlapInput,
     ): Promise<OverlapVerificationResponse> {
@@ -121,6 +128,11 @@ export class AppointmentDomainService {
 
     checkFutureDate(date: string): void {
         if (!isFutureDate(date))
-            throw new ConflictError(APPOINTMENT_ERRORS.APPOINTMENT_IN_PAST);
+            throw new ConflictError(APPOINTMENT_ERRORS.DATE_IN_PAST);
+    }
+
+    checkExpiredDate(date: string): void {
+        if (!isFutureDate(date))
+            throw new ConflictError(APPOINTMENT_ERRORS.DATE_EXPIRED);
     }
 }

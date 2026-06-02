@@ -83,4 +83,29 @@ export class AppointmentController {
             next(error);
         }
     };
+
+    approve = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { id, auth } = extractRequestContextWithId(req);
+            await this.appointmentService.approve(id, auth);
+            return res.status(200).json({
+                message: 'Cita aprobada correctamente',
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    reject = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { id, auth } = extractRequestContextWithId(req);
+            const input = { id, ...req.body };
+            await this.appointmentService.reject(input, auth);
+            return res.status(200).json({
+                message: 'Cita rechazada correctamente',
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
 }

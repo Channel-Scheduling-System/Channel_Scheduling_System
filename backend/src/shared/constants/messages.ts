@@ -69,15 +69,19 @@ export const APPOINTMENT_ERRORS = {
     SERVICE_NOT_FOUND(serviceId: number) {
         return `El servicio con id ${serviceId} no existe`;
     },
-    APPOINTMENT_IN_PAST: 'No se puede crear una cita en una fecha pasada',
+    DATE_IN_PAST: 'No se puede crear una cita en una fecha pasada',
+    DATE_EXPIRED: 'Esta acción no se puede realizar porque la fecha de la cita ya pasó',
     OUT_OF_WORKING_HOURS:
         'La cita no está dentro de los horarios laborales del trabajador',
-    CANT_BE_REQUESTED: 'No se puede solicitar la cita. Este horario no esta disponible',
+    CANT_BE_REQUESTED:
+        'No se puede solicitar la cita. Este horario no esta disponible',
     MAX_OVERLAPS_ALLOWED: `No se puede crear la cita. Ya se alcanzó el máximo de citas permitidas en este horario`,
     NOT_FOUND: 'Cita no encontrada',
     OWNER_CREATION_MISMATCH: 'No tienes permisos para crear esta cita',
     OWNER_ACCESS_MISMATCH: 'No tienes permisos para acceder a esta cita',
-    OWNER_MISMATCH: 'No tienes permisos para modificar esta cita',
+    OWNER_STATUSCHANGE_MISMATCH:
+        'No tienes permisos para cambiar el estado de esta cita',
+    STATUS_MISMATCH: 'La cita no está en un estado que permita esta acción',
 } as const;
 
 export const APPOINTMENT_MESSAGES = {

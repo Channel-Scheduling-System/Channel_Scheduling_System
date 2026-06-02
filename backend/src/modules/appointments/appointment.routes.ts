@@ -45,4 +45,19 @@ appointmentRouter.get(
     appointmentController.getById,
 );
 
+appointmentRouter.patch(
+    '/:id/approve',
+    requireRole('WORKER'),
+    appointmentValidator.id,
+    appointmentController.approve,
+);
+
+appointmentRouter.patch(
+    '/:id/reject',
+    requireRole('WORKER'),
+    appointmentValidator.id,
+    appointmentValidator.reject,
+    appointmentController.reject,
+);
+
 export default appointmentRouter;
