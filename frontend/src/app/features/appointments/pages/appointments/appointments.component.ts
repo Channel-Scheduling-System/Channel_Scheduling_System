@@ -8,6 +8,7 @@ import { AppointmentCalendarComponent } from '../../components/appointment-calen
 import { AppointmentsService } from '../../services/appointments.service';
 import { AppointmentCalendarItem } from '../../components/appointment-calendar/appointment-calendar-layer/week-layer/appointment-calendar-week-layer.component';
 import { MessageService } from '../../../../core/services/message.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-appointments',
@@ -30,6 +31,8 @@ export class AppointmentsPageComponent implements OnInit, AfterViewInit, OnDestr
     private fabService:          FabService,
     private viewContainerRef:    ViewContainerRef,
     private appointmentsService: AppointmentsService,
+    private router: Router,
+    private route: ActivatedRoute,
     private messageService:      MessageService,
   ) {}
 
@@ -68,7 +71,9 @@ export class AppointmentsPageComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   protected scheduleAppointment(): void {
-    // TODO: navigate to schedule appointment page
+    this.router.navigate(['create'], {
+      relativeTo: this.route
+    });
   }
 
   protected onRescheduleAppointment(appointment: AppointmentCalendarItem): void {

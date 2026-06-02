@@ -1,0 +1,68 @@
+<div class="create-appt-page">
+  <div class="stepper" [style.--total-steps]="totalVisibleSteps">
+    <div class="stepper__track">
+      <div class="stepper__fill" [style.width.%]="progressPercent()"></div>
+    </div>
+    <div class="stepper__steps">
+      <div
+        *ngFor="let step of steps; let stepIndex = index"
+        class="stepper__step"
+        [class.stepper__step--completed]="isStepCompleted(stepIndex)"
+        [class.stepper__step--active]="isStepActive(stepIndex)">
+        <div class="stepper__node">
+          <span
+            class="material-symbols-outlined stepper__node-icon"
+            translate="no">
+            {{ isStepCompleted(stepIndex) ? 'check' : step.icon }}
+          </span>
+        </div>
+        <span class="stepper__label">{{ step.label }}</span>
+      </div>
+    </div>
+  </div>
+  <div class="create-appt-page__body">
+    <ng-container *ngIf="currentStep === 1">
+      <app-service-selection />
+    </ng-container>
+    <ng-container *ngIf="currentStep === 2">
+      <app-client-selection />
+    </ng-container>
+    <ng-container *ngIf="currentStep === 3">
+      <app-datetime-selection />
+    </ng-container>
+    <ng-container *ngIf="currentStep === 4">
+      <app-confirm-selection />
+    </ng-container>
+  </div>
+</div>
+<ng-template #fabTemplate>
+  <div class="fab-nav">
+    <button class="back-fab" type="button" (click)="goBack()">
+      <span class="back-fab__shimmer"></span>
+      <span class="back-fab__content">
+        <span class="material-symbols-outlined back-fab__icon" translate="no">arrow_back</span>
+        <span class="back-fab__label">
+          {{ wizardState.canGoBack() ? 'Paso anterior' : 'Cancelar' }}
+        </span>
+      </span>
+    </button>
+    <button
+      class="next-fab"
+      type="button"
+      [disabled]="!wizardState.canGoNext() || isDatetimeVerifying"
+      [class.next-fab--disabled]="!wizardState.canGoNext() || isDatetimeVerifying"
+      (click)="goNext()">
+      <span class="next-fab__shimmer"></span>
+      <span class="next-fab__content">
+        <ng-container *ngIf="!isDatetimeVerifying">
+          <span class="next-fab__label">Siguiente</span>
+          <span class="material-symbols-outlined next-fab__icon" translate="no">arrow_forward</span>
+        </ng-container>
+        <ng-container *ngIf="isDatetimeVerifying">
+          <span class="next-fab__label">Verificando...</span>
+          <span class="material-symbols-outlined next-fab__icon" translate="no">progress_activity</span>
+        </ng-container>
+      </span>
+    </button>
+  </div>
+</ng-template>

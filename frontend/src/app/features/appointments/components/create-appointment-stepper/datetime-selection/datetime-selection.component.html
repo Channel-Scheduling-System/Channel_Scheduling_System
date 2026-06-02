@@ -1,0 +1,100 @@
+<div class="dt-sel">
+    <div class="dt-sel__header">
+        <div>
+            <span class="dt-sel__eyebrow">Paso {{ visibleStep() }}</span>
+            <h2 class="dt-sel__title">Elige la fecha y hora de la cita</h2>
+            <p class="dt-sel__description">Selecciona el momento donde quieres tu cita</p>
+        </div>
+    </div>
+    <div class="dt-sel__layout" [class.dt-sel__layout--tray-collapsed]="trayCollapsed">
+        <div class="dt-sel__calendar">
+            <app-datetime-calendar
+                [workerId]="wizard.lockedWorkerId()"
+                [clientId]="wizard.currentUserId()"
+                [clientAppointments]="clientAppointments"
+                [availabilityDay]="availabilityDay"
+                (dateChange)="onDateChange($event)" />
+        </div>
+        <div class="dt-sel__tray" [class.dt-sel__tray--collapsed]="trayCollapsed">
+            <button class="dt-sel__tray-toggle" type="button"
+                [title]="trayCollapsed ? 'Expandir panel' : 'Minimizar panel'"
+                (click)="toggleTray()">
+                <span class="dt-sel__tray-toggle__track"></span>
+                <span class="material-symbols-outlined dt-sel__tray-toggle__icon" translate="no">
+                    {{ trayCollapsed ? 'chevron_left' : 'chevron_right' }}
+                </span>
+            </button>
+            <div class="dt-sel__tray-inner">
+                <div class="dt-sel__tray-header">
+                    <h3 class="dt-sel__tray-title">Fecha y hora seleccionadas</h3>
+                </div>
+                <div class="dt-sel__fields">
+                    <div class="dtf-group">
+                        <label class="dtf-label">
+                            <span class="material-symbols-outlined dtf-label__icon" translate="no">calendar_today</span>
+                            Fecha
+                        </label>
+                        <div class="dtf-input-wrap" [class.dtf-input-wrap--focus]="dateInputFocused">
+                            <span class="material-symbols-outlined dtf-input-wrap__icon" translate="no">event</span>
+                            <input
+                                class="dtf-input dtf-input--date"
+                                type="date"
+                                [value]="dateInputValue()"
+                                (focus)="dateInputFocused = true"
+                                (blur)="dateInputFocused = false; onDateInputChange($event)" />
+                            <button
+                                class="dtf-picker-btn"
+                                type="button"
+                                title="Abrir calendario"
+                                (click)="openDatePicker($event)">
+                                <span class="dtf-picker-btn__shimmer"></span>
+                                <span class="material-symbols-outlined" translate="no">calendar_month</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="dtf-divider"></div>
+                    <div class="dtf-group">
+                        <label class="dtf-label">
+                            <span class="material-symbols-outlined dtf-label__icon" translate="no">schedule</span>
+                            Hora de inicio
+                        </label>
+                        <div class="dtf-input-wrap dtf-input-wrap--time"
+                             [class.dtf-input-wrap--focus]="activePicker === 'startTime'"
+                             style="cursor:pointer"
+                             (click)="openTimePicker('startTime', $event)">
+                            <span class="material-symbols-outlined dtf-input-wrap__icon" translate="no">schedule</span>
+                            <input
+                                class="dtf-input dtf-input--readonly"
+                                [attr.data-has-value]="hasTimeSelection() ? true : null"
+                                [value]="hasTimeSelection() ? startTimeDisplay() : ''"
+                                [placeholder]="'Selecciona la hora'"
+                                readonly />
+                        </div>
+                    </div>
+                    <div class="dtf-group">
+                        <label class="dtf-label">
+                            <span class="material-symbols-outlined dtf-label__icon" translate="no">timer</span>
+                            Hora de finalización
+                        </label>
+                        <div class="dtf-input-wrap dtf-input-wrap--time dtf-input-wrap--end"
+                             [class.dtf-input-wrap--focus]="activePicker === 'endTime'"
+                             style="cursor:pointer"
+                             (click)="openTimePicker('endTime', $event)">
+                            <span class="material-symbols-outlined dtf-input-wrap__icon" translate="no">timer</span>
+                            <input
+                                class="dtf-input dtf-input--readonly dtf-input--end"
+                                [attr.data-has-value]="hasTimeSelection() ? true : null"
+                                [value]="hasTimeSelection() ? endTimeDisplay() : ''"
+                                [placeholder]="'Selecciona la hora'"
+                                readonly />
+                        </div>
+                    </div>
+                    <div class="dtf-duration">
+                        <span class="material-symbols-outlined dtf-duration__icon" translate="no">timelapse</span>
+                        <span class="dtf-duration__text">{{ wizard.totalDuration() }} min de duración</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,161 @@
+<div class="confirm">
+  <div class="confirm__header">
+    <span class="confirm__eyebrow">Paso {{ isWorker ? 4 : 3 }}</span>
+    <h2 class="confirm__title">Confirma tu cita</h2>
+    <p class="confirm__subtitle">Revisa la información antes de {{ isWorker ? 'agendar' : 'solicitar' }}</p>
+  </div>
+  <div class="confirm__layout" [class.confirm__layout--full]="!isWorker">
+    <div class="confirm__summary">
+      <div class="confirm__section">
+        <span class="confirm__section-label">
+          <span class="material-symbols-outlined" translate="no">content_cut</span>
+          Estilista
+        </span>
+        <div class="confirm__info-row">
+          <div class="confirm__avatar">
+            <span class="material-symbols-outlined" translate="no">person</span>
+          </div>
+          <span class="confirm__info-value">{{ workerName }}</span>
+        </div>
+      </div>
+      <div class="confirm__section" *ngIf="isWorker">
+        <span class="confirm__section-label">
+          <span class="material-symbols-outlined" translate="no">person</span>
+          Cliente
+        </span>
+        <div class="confirm__info-row">
+          <div class="confirm__avatar confirm__avatar--client">
+            <span class="material-symbols-outlined" translate="no">account_circle</span>
+          </div>
+          <span class="confirm__info-value">{{ clientName }}</span>
+        </div>
+      </div>
+      <div class="confirm__section">
+        <span class="confirm__section-label">
+          <span class="material-symbols-outlined" translate="no">calendar_month</span>
+          Fecha y hora
+        </span>
+        <div class="confirm__datetime">
+          <div class="confirm__date">{{ formattedDate }}</div>
+          <div class="confirm__time">
+            <span class="material-symbols-outlined" translate="no">schedule</span>
+            {{ formattedTime }} — {{ formattedEndTime }}
+          </div>
+        </div>
+      </div>
+      <div class="confirm__section">
+        <span class="confirm__section-label">
+          <span class="material-symbols-outlined" translate="no">cut</span>
+          Servicios
+          <span class="confirm__section-badge">{{ selectedServices.length }}</span>
+        </span>
+        <div class="confirm__services-list">
+          <div
+            *ngFor="let svc of selectedServices"
+            class="confirm__service-chip">
+            <div class="confirm__service-accent" [style.background-color]="svc.color"></div>
+            <div class="confirm__service-body">
+              <span class="confirm__service-name">{{ svc.name }}</span>
+              <div class="confirm__service-meta">
+                <span class="confirm__service-price">
+                  {{ getEffectivePrice(svc) | currency:'COP':'symbol-narrow':'1.0-0' }}
+                </span>
+                <span class="confirm__service-sep">·</span>
+                <span class="confirm__service-duration">
+                  <span class="material-symbols-outlined" translate="no">schedule</span>
+                  {{ formatDuration(getEffectiveDuration(svc)) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="confirm__totals">
+        <div class="confirm__total-row">
+          <span class="confirm__total-label">
+            <span class="material-symbols-outlined" translate="no">payments</span>
+            Total a pagar
+          </span>
+          <span class="confirm__total-value confirm__total-value--price">
+            {{ totalPrice | currency:'COP':'symbol-narrow':'1.0-0' }}
+          </span>
+        </div>
+        <div class="confirm__total-row">
+          <span class="confirm__total-label">
+            <span class="material-symbols-outlined" translate="no">hourglass_empty</span>
+            Duración total
+          </span>
+          <span class="confirm__total-value">{{ formatDuration(totalDuration) }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="confirm__notes-panel" *ngIf="isWorker">
+      <div class="confirm__notes-header">
+        <span class="confirm__section-label">
+          <span class="material-symbols-outlined" translate="no">edit_note</span>
+          Notas de la cita
+          <span class="confirm__notes-optional">(Opcional)</span>
+        </span>
+      </div>
+      <div
+        class="confirm__notes-field"
+        [class.confirm__notes-field--error]="notesError">
+        <textarea
+          class="confirm__notes-textarea"
+          placeholder="Ej: Cliente prefiere tinte sin amoniaco, alergia a producto X..."
+          rows="5"
+          [formControl]="notesControl"
+          (input)="notesControl.markAsTouched()">
+        </textarea>
+        <div class="confirm__notes-footer">
+          <div class="confirm__notes-error" *ngIf="notesError">
+            <span class="material-symbols-outlined" translate="no">error</span>
+            {{ notesError }}
+          </div>
+          <span class="confirm__notes-counter" [class.confirm__notes-counter--warn]="notesLength > 260">
+            {{ notesLength }}/300
+          </span>
+        </div>
+      </div>
+      <div class="confirm__notes-hint">
+        <span class="material-symbols-outlined" translate="no">info</span>
+        <p>Las notas son visibles unicamente para ti y ayudan a preparar mejor cada servicio.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<ng-template #confirmFabTemplate>
+  <div class="confirm-fab-row">
+    <button class="back-fab" type="button" (click)="wizard.prevStep()">
+      <span class="back-fab__shimmer"></span>
+      <span class="back-fab__content">
+        <span class="material-symbols-outlined back-fab__icon" translate="no">arrow_back</span>
+        <span class="back-fab__label">Paso anterior</span>
+      </span>
+    </button>
+    <button
+      class="confirm-fab"
+      type="button"
+      [disabled]="isSubmitting()"
+      [class.confirm-fab--loading]="isSubmitting()"
+      (click)="onSubmit()">
+      <span class="confirm-fab__ring confirm-fab__ring--1"></span>
+      <span class="confirm-fab__ring confirm-fab__ring--2"></span>
+      <span class="confirm-fab__ring confirm-fab__ring--3"></span>
+      <span class="confirm-fab__border"></span>
+      <span class="confirm-fab__shimmer"></span>
+      <span class="confirm-fab__spark confirm-fab__spark--a"></span>
+      <span class="confirm-fab__spark confirm-fab__spark--b"></span>
+      <span class="confirm-fab__spark confirm-fab__spark--c"></span>
+      <span class="confirm-fab__spark confirm-fab__spark--d"></span>
+      <span class="confirm-fab__content">
+        <span class="material-symbols-outlined confirm-fab__icon" translate="no">
+          {{ isSubmitting() ? 'hourglass_top' : (isWorker ? 'event_available' : 'send') }}
+        </span>
+        <span class="confirm-fab__label">
+          {{ isSubmitting() ? 'Procesando...' : (isWorker ? 'Agendar cita' : 'Solicitar cita') }}
+        </span>
+      </span>
+    </button>
+  </div>
+</ng-template>

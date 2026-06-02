@@ -1,0 +1,75 @@
+<div class="svc-search">
+  <div class="svc-search__bar">
+    <span class="svc-search__bar-btn" aria-hidden="true">
+      <span class="material-symbols-outlined svc-search__bar-icon" translate="no">search</span>
+    </span>
+    <input
+      class="svc-search__bar-input"
+      [placeholder]="isFiltered ? 'Buscar en sus servicios...' : 'Buscar por nombre o descripción...'"
+      type="text"
+      [value]="searchTerm"
+      (input)="onSearchInput($event)"
+      autocomplete="off">
+  </div>
+  <div *ngIf="loading" class="svc-search__loading">
+    <mat-spinner diameter="28"></mat-spinner>
+    <span>Cargando servicios...</span>
+  </div>
+  <div *ngIf="!loading && pagedServices.length === 0" class="svc-search__empty">
+    <span class="material-symbols-outlined" translate="no">sentiment_dissatisfied</span>
+    <p>
+      {{ searchTerm
+        ? 'Sin resultados para "' + searchTerm + '"'
+        : 'No hay servicios disponibles.' }}
+    </p>
+  </div>
+  <div class="svc-search__list" *ngIf="!loading && pagedServices.length > 0">
+    <div
+      *ngFor="let service of pagedServices"
+      class="svc-card"
+      [class.svc-card--selected]="wizard.isServiceSelected(service.id)"
+      [class.svc-card--disabled]="wizard.isServiceDisabled(service)"
+      [class.svc-card--inactive]="!service.isActive"
+      (click)="onCardClick(service)">
+      <div class="svc-card__accent" [style.background-color]="service.color"></div>
+      <div class="svc-card__body">
+        <div class="svc-card__top">
+          <span class="svc-card__name">{{ service.name }}</span>
+          <span class="svc-card__price">
+            {{ service.price | currency:'COP':'symbol-narrow':'1.0-0' }}
+          </span>
+        </div>
+        <p class="svc-card__desc" *ngIf="service.description">{{ service.description }}</p>
+        <div class="svc-card__meta">
+          <span class="svc-card__duration">
+            <span class="material-symbols-outlined" translate="no">schedule</span>
+            {{ formatDuration(service.duration) }}
+          </span>
+          <span *ngIf="!isFiltered && !hideWorkerName" class="svc-card__worker">
+            <span class="material-symbols-outlined" translate="no">person</span>
+            {{ service.worker.name }}
+          </span>
+          <span *ngIf="wizard.isServiceDisabled(service)" class="svc-card__conflict">
+            <span class="material-symbols-outlined" translate="no">warning</span>
+            Otro estilista
+          </span>
+        </div>
+      </div>
+      <div class="svc-card__check" *ngIf="wizard.isServiceSelected(service.id)">
+        <span class="material-symbols-outlined" translate="no">check</span>
+      </div>
+    </div>
+  </div>
+  <div class="svc-search__pagination" *ngIf="!loading && totalCount > 0">
+    <app-pagination
+      [currentPage]="currentPage"
+      [totalPages]="totalPages"
+      [totalItems]="totalCount"
+      [displayedItems]="pagedServices.length"
+      [itemLabel]="'servicio'"
+      [itemLabelPlural]="'servicios'"
+      [showFiltered]="searchTerm !== ''"
+      (pageChange)="goToPage($event)">
+    </app-pagination>
+  </div>
+</div>

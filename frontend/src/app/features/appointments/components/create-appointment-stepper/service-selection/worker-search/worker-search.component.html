@@ -1,0 +1,66 @@
+<div class="worker-search">
+  <div class="worker-search__bar">
+    <button class="worker-search__bar-btn" type="button" aria-label="Buscar">
+      <span class="worker-search__bar-ripple"></span>
+      <span class="material-symbols-outlined worker-search__bar-icon" translate="no">search</span>
+    </button>
+    <input
+      class="worker-search__bar-input"
+      placeholder="Buscar estilista por nombre, correo..."
+      type="text"
+      [value]="searchTerm"
+      (input)="onSearchInput($event)"
+      autocomplete="off">
+  </div>
+  <div *ngIf="loading" class="worker-search__loading">
+    <mat-spinner diameter="28"></mat-spinner>
+    <span>Cargando estilistas...</span>
+  </div>
+  <div *ngIf="!loading && workers.length === 0" class="worker-search__empty">
+    <span class="material-symbols-outlined" translate="no">person_off</span>
+    <p>
+      {{ searchTerm
+        ? 'Sin resultados para "' + searchTerm + '"'
+        : 'No hay estilistas disponibles.' }}
+    </p>
+  </div>
+  <div class="worker-search__list" *ngIf="!loading && workers.length > 0">
+    <div
+      *ngFor="let worker of workers"
+      class="worker-card"
+      (click)="onSelectWorker(worker)">
+      <div class="worker-card__avatar">
+        <span>{{ workerInitials(worker) }}</span>
+      </div>
+      <div class="worker-card__body">
+        <span class="worker-card__name">{{ worker.firstName }} {{ worker.lastName }}</span>
+        <span class="worker-card__alias" *ngIf="worker.alias">@{{ worker.alias }}</span>
+        <div class="worker-card__contact">
+          <span class="worker-card__email">
+            <span class="material-symbols-outlined" translate="no">mail</span>
+            {{ worker.email }}
+          </span>
+          <span class="worker-card__phone" *ngIf="worker.phone">
+            <span class="material-symbols-outlined" translate="no">call</span>
+            {{ worker.phone }}
+          </span>
+        </div>
+      </div>
+      <span class="worker-card__cta">
+        <span class="material-symbols-outlined" translate="no">chevron_right</span>
+      </span>
+    </div>
+  </div>
+  <div class="worker-search__pagination" *ngIf="!loading && meta.total > 0">
+    <app-pagination
+      [currentPage]="currentPage"
+      [totalPages]="meta.totalPages"
+      [totalItems]="meta.total"
+      [displayedItems]="workers.length"
+      [itemLabel]="'estilista'"
+      [itemLabelPlural]="'estilistas'"
+      [showFiltered]="searchTerm !== ''"
+      (pageChange)="goToPage($event)">
+    </app-pagination>
+  </div>
+</div>
