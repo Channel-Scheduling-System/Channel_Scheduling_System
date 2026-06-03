@@ -6,7 +6,7 @@ export interface AppointmentCalendarItem {
   worker: { name: string; };
   client: { name: string; };
   services: Array<{ id: number; name: string; color: string; }>;
-  notes?: string;
+  notes?: string | null;
 }
 
 export interface PositionedChip {

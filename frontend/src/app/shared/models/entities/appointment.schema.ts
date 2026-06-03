@@ -6,7 +6,7 @@ export const AppointmentDateTime = z.iso.datetime({ precision: -1 });
 
 export const AppointmentNotes = z.string()
         .max(300, 'Las notas no pueden exceder 300 caracteres')
-        .optional();
+        .optional().nullable();
 
 export const AppointmentServiceSchema = z.object({
 	serviceId: EntityId,

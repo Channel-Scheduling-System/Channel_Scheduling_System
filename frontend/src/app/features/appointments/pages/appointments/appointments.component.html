@@ -9,13 +9,14 @@
 
   <div class="appt-nav">
     @if (sessionService.getRole() === 'WORKER') {
-      <button class="appt-nav__btn" type="button" (click)="goToRequests()">
+    <button class="appt-nav__btn" type="button" (click)="goToRequests()">
       <span class="appt-nav__btn__shimmer"></span>
       <span class="appt-nav__btn__glow"></span>
       <span class="appt-nav__btn__content">
         <span class="material-symbols-outlined appt-nav__btn__icon" translate="no">event_available</span>
         <span class="appt-nav__btn__text">Gestionar Solicitudes</span>
       </span>
+      <span class="appt-nav__btn__badge">{{ pendingCount }}</span>
     </button>
     }
 

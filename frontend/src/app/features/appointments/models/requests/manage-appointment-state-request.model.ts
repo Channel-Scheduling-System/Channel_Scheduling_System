@@ -7,8 +7,14 @@ export const RejectAppointmentRequestSchema = z.object({
           .optional()
 });
 
+const ValidStates = z.enum([
+  'IN_PROGRESS',
+  'COMPLETED',
+  'NO_SHOW',
+]);
+
 export const SetAppointmentStateRequestSchema = z.object({
-  state: AppointmentStatus
+  status: ValidStates
 });
 
 export type RejectAppointmentRequest = z.infer<typeof RejectAppointmentRequestSchema>;

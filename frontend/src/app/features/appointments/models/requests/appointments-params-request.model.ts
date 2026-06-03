@@ -14,10 +14,6 @@ const statusParam = z
 	.transform(val => val.split(',').map(s => s.trim()))
 	.pipe(z.array(AppointmentStatus).min(1));
 
-const compactParam = z
-	.union([z.boolean(), z.enum(['true', 'false'])])
-	.transform(val => val === true || val === 'true');
-
 export const appointmentsParamsHistoryRequestSchema = z.object({
 	workerId: numericParam('workerId').optional(),
 	clientId: numericParam('clientId').optional(),
@@ -33,10 +29,18 @@ export const appointmentsActiveParamsRequestSchema = z.object({
 	clientId: numericParam('clientId').optional(),
 });
 
+export const getQuantityStatusAppointmentsParamsRequestSchema = z.object({
+	status: statusParam.optional(),
+});
+
 export type AppointmentsParamsHistoryRequest = z.infer<
 	typeof appointmentsParamsHistoryRequestSchema
 >;
 
 export type AppointmentsActiveParamsRequest = z.infer<
 	typeof appointmentsActiveParamsRequestSchema
+>;
+
+export type GetQuantityStatusAppointmentsParamsRequest = z.infer<
+	typeof getQuantityStatusAppointmentsParamsRequestSchema
 >;
