@@ -13,9 +13,53 @@
           <span class="material-symbols-outlined aam__notes-icon" translate="no" aria-hidden="true">sticky_note_2</span>
           <span class="aam__notes-text">{{ notes() }}</span>
         </div>
-        <span *ngIf="statusLabel()" class="aam__status-badge" [attr.data-status]="statusKey()">
-          {{ statusLabel() }}
-        </span>
+
+        <ng-container *ngIf="statusLabel()">
+
+          <span *ngIf="!isWorker()"
+            class="aam__status-badge"
+            [attr.data-status]="statusKey()">
+            {{ statusLabel() }}
+          </span>
+
+          <div *ngIf="isWorker()"
+            class="aam__status-dropdown"
+            [class.aam__status-dropdown--open]="dropdownOpen()"
+            [attr.data-status]="getSelectedKey()">
+
+            <button
+              class="aam__status-trigger"
+              type="button"
+              [attr.data-status]="getSelectedKey()"
+              [attr.aria-expanded]="dropdownOpen()"
+              aria-haspopup="listbox"
+              (click)="$event.stopPropagation(); toggleDropdown()">
+              <span class="aam__status-trigger__label">{{ getSelectedLabel() }}</span>
+              <span class="aam__status-trigger__arrow material-symbols-outlined" translate="no" aria-hidden="true">
+                expand_more
+              </span>
+            </button>
+
+            <ul *ngIf="dropdownOpen()"
+              class="aam__status-menu"
+              role="listbox"
+              (click)="$event.stopPropagation()">
+              <li *ngFor="let opt of stateOptions"
+                class="aam__status-option"
+                [class.aam__status-option--selected]="opt.key === getSelectedKey()"
+                [attr.data-status]="opt.key"
+                role="option"
+                [attr.aria-selected]="opt.key === getSelectedKey()"
+                (click)="selectState(opt)">
+                <span class="aam__status-option__bullet" aria-hidden="true"></span>
+                <span class="aam__status-option__label">{{ opt.label }}</span>
+              </li>
+            </ul>
+
+          </div>
+
+        </ng-container>
+
       </div>
       <button class="aam__close" type="button" aria-label="Cerrar" (click)="close()">
         <span class="material-symbols-outlined" translate="no" aria-hidden="true">close</span>

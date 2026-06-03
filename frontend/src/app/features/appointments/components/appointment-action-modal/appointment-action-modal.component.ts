@@ -5,9 +5,20 @@ import {
   ViewChild,
   computed,
   inject,
+  signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AppointmentActionModalService } from '../../utils/appointments-actions-modal.service';
+import { AppointmentsService } from '../../services/appointments.service';
+import { MessageService } from '../../../../core/services/message.service';
+import { SessionService } from '../../../../core/services/session.service';
+
+type ValidState = 'IN_PROGRESS' | 'COMPLETED' | 'NO_SHOW';
+
+interface StateOption {
+  key: ValidState;
+  label: string;
+}
 
 @Component({
   selector: 'app-appointment-action-modal',
@@ -18,7 +29,10 @@ import { AppointmentActionModalService } from '../../utils/appointments-actions-
 })
 export class AppointmentActionModalComponent implements AfterViewChecked {
 
-  private readonly svc = inject(AppointmentActionModalService);
+  private readonly svc             = inject(AppointmentActionModalService);
+  private readonly appointmentsSvc = inject(AppointmentsService);
+  private readonly messageSvc      = inject(MessageService);
+  private readonly sessionSvc      = inject(SessionService);
 
   protected readonly visible     = computed(() => this.svc.state().visible);
   protected readonly headerIcon  = computed(() => this.svc.state().headerIcon);
@@ -28,6 +42,18 @@ export class AppointmentActionModalComponent implements AfterViewChecked {
   protected readonly statusKey   = computed(() => this.svc.state().statusKey);
   protected readonly actions     = computed(() => this.svc.state().actions);
   protected readonly notes       = computed(() => this.svc.state().notes);
+
+  protected readonly isWorker = computed(() => this.sessionSvc.getRole() === 'WORKER');
+
+  protected dropdownOpen = signal(false);
+
+  protected selectedStateKey = signal<ValidState | null>(null);
+
+  protected readonly stateOptions: StateOption[] = [
+    { key: 'IN_PROGRESS', label: 'En progreso' },
+    { key: 'COMPLETED',   label: 'Completada'  },
+    { key: 'NO_SHOW',     label: 'No asistió'  },
+  ];
 
   @ViewChild('modalPanel') private modalPanel!: ElementRef<HTMLElement>;
 
@@ -39,15 +65,22 @@ export class AppointmentActionModalComponent implements AfterViewChecked {
   ngAfterViewChecked(): void {
     if (!this.visible()) {
       this._positioned = false;
+      this.dropdownOpen.set(false);
       return;
     }
     if (!this.modalPanel?.nativeElement || this._positioned) { return; }
+
+    const currentStatus = this.statusKey();
+    const isValid = this.stateOptions.some(o => o.key === currentStatus);
+    this.selectedStateKey.set(isValid ? (currentStatus as ValidState) : null);
+    this.dropdownOpen.set(false);
 
     this.applyPosition();
     this._positioned = true;
   }
 
   protected close(): void {
+    this.dropdownOpen.set(false);
     this.svc.hide();
   }
 
@@ -56,11 +89,57 @@ export class AppointmentActionModalComponent implements AfterViewChecked {
     this.svc.hide();
   }
 
+  protected toggleDropdown(): void {
+    this.dropdownOpen.update(v => !v);
+  }
+
+  protected selectState(option: StateOption): void {
+    if (option.key === this.selectedStateKey()) {
+      this.dropdownOpen.set(false);
+      return;
+    }
+
+    const appointmentId = this.svc.state().appointmentId;
+    if (!appointmentId) {
+      console.warn('No appointmentId found in modal state');
+      this.dropdownOpen.set(false);
+      return;
+    }
+
+    this.dropdownOpen.set(false);
+
+    this.appointmentsSvc
+      .setAppointmentState(appointmentId, { status: option.key })
+      .subscribe({
+        next: (response) => {
+          this.selectedStateKey.set(option.key);
+          this.messageSvc.showMessage(response.message, 'success');
+          this.svc.notifyStateUpdated();
+        },
+        error: () => {
+          this.messageSvc.showMessage(
+            'No se pudo actualizar el estado de la cita. Inténtalo de nuevo.',
+            'error',
+          );
+        },
+      });
+  }
+
+  protected getSelectedLabel(): string {
+    const key = this.selectedStateKey();
+    if (!key) { return this.statusLabel() ?? ''; }
+    return this.stateOptions.find(o => o.key === key)?.label ?? this.statusLabel() ?? '';
+  }
+
+  protected getSelectedKey(): string {
+    return this.selectedStateKey() ?? this.statusKey() ?? '';
+  }
+
   private applyPosition(): void {
-    const el             = this.modalPanel.nativeElement;
-    const { left, top }  = this.calcPosition(el);
-    el.style.left        = `${left}px`;
-    el.style.top         = `${top}px`;
+    const el            = this.modalPanel.nativeElement;
+    const { left, top } = this.calcPosition(el);
+    el.style.left       = `${left}px`;
+    el.style.top        = `${top}px`;
   }
 
   private calcPosition(el: HTMLElement): { left: number; top: number } {
