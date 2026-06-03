@@ -524,6 +524,7 @@ $bottom-nav-height: 3.75rem;
 .layout-main {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 2rem 2.5rem;
   background: linear-gradient(to bottom, #fcf9f8, white);
   animation: fadeInLeft 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
