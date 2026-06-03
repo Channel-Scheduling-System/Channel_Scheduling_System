@@ -39,6 +39,13 @@ appointmentRouter.get(
 );
 
 appointmentRouter.get(
+    '/quantity',
+    requireRole(['WORKER', 'CLIENT']),
+    appointmentValidator.countFilters,
+    appointmentController.getCount,
+);
+
+appointmentRouter.get(
     '/:id',
     requireRole(['WORKER', 'CLIENT']),
     appointmentValidator.id,
@@ -56,7 +63,6 @@ appointmentRouter.patch(
     '/:id/reject',
     requireRole('WORKER'),
     appointmentValidator.id,
-    appointmentValidator.reject,
     appointmentController.reject,
 );
 
@@ -64,6 +70,7 @@ appointmentRouter.patch(
     '/:id/cancel',
     requireRole(['WORKER', 'CLIENT']),
     appointmentValidator.id,
+    appointmentValidator.cancel,
     appointmentController.cancel,
 );
 

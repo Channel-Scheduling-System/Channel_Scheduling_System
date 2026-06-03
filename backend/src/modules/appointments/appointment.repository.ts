@@ -9,13 +9,17 @@ import {
     AppointmentHistoryFilter,
     BasicAppointment,
     Role,
+    NotifyAppointment,
+    AppointmentCountFilter,
 } from './appointment.types.js';
 
 export interface IAppointmentRepository {
     create(data: CreateAppointmentData): Promise<Appointment>;
     findById(id: number): Promise<Appointment | null>;
     findExtendedById(id: number): Promise<ExtendedAppointment | null>;
+    findForStatusChange(id: number): Promise<NotifyAppointment | null>;
     findByWorkerAndDate(workerId: number, date: string): Promise<Appointment[]>;
+    count(filter: AppointmentCountFilter): Promise<number>;
     countOverlapsByWorker(filter: OverlapFilter): Promise<number>;
     countOverlapsByClient(filter: OverlapFilter): Promise<number>;
     findAllCalendar(
@@ -50,6 +54,13 @@ export class AppointmentRepository implements IAppointmentRepository {
         });
     }
 
+    async findForStatusChange(id: number): Promise<NotifyAppointment | null> {
+        return await prisma.appointment.findUnique({
+            where: { id },
+            select: forStatusChangeSelect,
+        });
+    }
+
     async findByWorkerAndDate(
         workerId: number,
         date: string,
@@ -62,6 +73,16 @@ export class AppointmentRepository implements IAppointmentRepository {
                     lt: new Date(`${date}T23:59:59.999Z`),
                 },
             },
+        });
+    }
+
+    async count(filter: AppointmentCountFilter): Promise<number> {
+        return await prisma.appointment.count({
+            where: {
+                workerId: filter.workerId,
+                clientId: filter.clientId,
+                status: filter.status ? { in: filter.status } : undefined,
+            }
         });
     }
 
@@ -109,7 +130,12 @@ export class AppointmentRepository implements IAppointmentRepository {
         const where = this.buildWhere(filter);
         if (role === Role.WORKER)
             where.status = {
-                in: [Status.SCHEDULED, Status.IN_PROGRESS, Status.COMPLETED],
+                in: [
+                    Status.SCHEDULED,
+                    Status.IN_PROGRESS,
+                    Status.COMPLETED,
+                    Status.NO_SHOW,
+                ],
             };
         if (role === Role.CLIENT)
             where.status = {
@@ -218,6 +244,26 @@ const extendedInclude = {
                     defaultPrice: true,
                 },
             },
+        },
+    },
+};
+
+const forStatusChangeSelect = {
+    id: true,
+    startAt: true,
+    endAt: true,
+    status: true,
+    workerId: true,
+    clientId: true,
+    worker: {
+        select: { firstName: true, lastName: true, email: true },
+    },
+    client: {
+        select: { firstName: true, lastName: true, email: true },
+    },
+    services: {
+        select: {
+            service: { select: { name: true, colorHex: true } },
         },
     },
 };
