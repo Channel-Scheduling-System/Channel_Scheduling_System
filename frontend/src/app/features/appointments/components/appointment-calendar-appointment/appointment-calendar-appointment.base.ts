@@ -16,21 +16,20 @@ import { isoTo12h } from '../../utils/appointments-time.util';
 
 export type { AppointmentCalendarItem, ChipClickPayload, PositionedChip };
 
-export const SLOT_H_REM       = 3;
-export const LEFT_INSET_PX    = 2;
-export const RIGHT_INSET_PX   = 1;
+export const SLOT_H_REM = 3;
+export const LEFT_INSET_PX = 2;
+export const RIGHT_INSET_PX = 1;
 export const NARROW_COL_RATIO = 0.58;
-export const NARROW_STEP      = 0.15;
+export const NARROW_STEP = 0.15;
 
 export interface ChipPosition {
-  leftCSS:  string;
+  leftCSS: string;
   widthCSS: string;
 }
 
 @Directive()
 export abstract class AppointmentCalendarLayerBase
-  implements OnChanges, OnDestroy
-{
+  implements OnChanges, OnDestroy {
   @Input() public appointments: AppointmentCalendarItem[] = [];
   @Input() public headerHeightRem: number = 5.0;
   @Output() public chipClick = new EventEmitter<ChipClickPayload>();
@@ -107,7 +106,7 @@ export abstract class AppointmentCalendarLayerBase
   ): PositionedChip[] {
     if (!dayAppts.length) { return []; }
 
-    const sorted   = this.sortByStartThenLongest(dayAppts);
+    const sorted = this.sortByStartThenLongest(dayAppts);
     const apptCols = this.assignCollisionColumns(sorted);
 
     return sorted
@@ -129,12 +128,12 @@ export abstract class AppointmentCalendarLayerBase
 
   private assignCollisionColumns(sorted: AppointmentCalendarItem[]): number[] {
     const colEndTimes: number[] = [];
-    const apptCols:    number[] = [];
+    const apptCols: number[] = [];
 
     for (const appt of sorted) {
       const startMin = this.parseIsoToMinutes(appt.startAt);
-      const endMin   = this.parseIsoToMinutes(appt.endAt);
-      const col      = this.findOrCreateColumn(colEndTimes, startMin, endMin);
+      const endMin = this.parseIsoToMinutes(appt.endAt);
+      const col = this.findOrCreateColumn(colEndTimes, startMin, endMin);
       apptCols.push(col);
     }
 
@@ -161,8 +160,8 @@ export abstract class AppointmentCalendarLayerBase
     dayIdx: number,
     col: number,
   ): PositionedChip | null {
-    const startMin    = this.parseIsoToMinutes(appt.startAt);
-    const endMin      = this.parseIsoToMinutes(appt.endAt);
+    const startMin = this.parseIsoToMinutes(appt.startAt);
+    const endMin = this.parseIsoToMinutes(appt.endAt);
     const durationMin = endMin - startMin;
     if (durationMin <= 0) { return null; }
 
@@ -175,24 +174,24 @@ export abstract class AppointmentCalendarLayerBase
     const clientName = appt.client?.name ?? '';
 
     return {
-      appointment:   appt,
-      top:           `${this.headerHeightRem + (startMin / 30) * SLOT_H_REM}rem`,
-      height:        `${(durationMin / 30) * SLOT_H_REM}rem`,
-      left:          leftCSS,
-      width:         widthCSS,
+      appointment: appt,
+      top: `${this.headerHeightRem + (startMin / 30) * SLOT_H_REM}rem`,
+      height: `${(durationMin / 30) * SLOT_H_REM}rem`,
+      left: leftCSS,
+      width: widthCSS,
       color,
-      timeLabel:     `${isoTo12h(appt.startAt)} – ${isoTo12h(appt.endAt)}`,
-      serviceLabel:  appt.services.map(s => s.name).join(', ') || 'Cita',
-      clientLabel:   clientName,
+      timeLabel: `${isoTo12h(appt.startAt)} – ${isoTo12h(appt.endAt)}`,
+      serviceLabel: appt.services.map(s => s.name).join(', ') || 'Cita',
+      clientLabel: clientName,
       workerLabel: appt.worker?.name ?? '',
-      notes:         appt.notes ?? '',
+      notes: appt.notes ?? '',
       animName,
       animDuration,
-      statusIcon:    this.statusToIcon(appt.status),
-      isConflict:    false,
-      zIndex:        col + 2,
-      dayIndex:      dayIdx,
-      isNext:        false,
+      statusIcon: this.statusToIcon(appt.status),
+      isConflict: false,
+      zIndex: col + 2,
+      dayIndex: dayIdx,
+      isNext: false,
       isNextOverlap: false,
     };
   }
@@ -202,12 +201,12 @@ export abstract class AppointmentCalendarLayerBase
     animName: string;
     animDuration: string;
   } {
-    const colors     = appt.services.map(s => s.color).filter(Boolean);
+    const colors = appt.services.map(s => s.color).filter(Boolean);
     const multiColor = colors.length > 1;
-    const prefix     = this.getChipAnimPrefix();
+    const prefix = this.getChipAnimPrefix();
     return {
-      color:        colors[0] ?? '#4a0010',
-      animName:     multiColor ? `${prefix}${appt.id}` : '',
+      color: colors[0] ?? '#4a0010',
+      animName: multiColor ? `${prefix}${appt.id}` : '',
       animDuration: multiColor ? `${colors.length * 3}s` : '',
     };
   }
@@ -221,13 +220,13 @@ export abstract class AppointmentCalendarLayerBase
   }
 
   private buildAnimationRules(chip: PositionedChip): string[] {
-    const colors  = chip.appointment.services.map(s => s.color).filter(Boolean);
+    const colors = chip.appointment.services.map(s => s.color).filter(Boolean);
     const slotPct = 100 / colors.length;
     const holdPct = slotPct * 0.72;
 
     const keyframeStops = colors.map((c, i) => {
       const start = (i * slotPct).toFixed(2);
-      const hold  = (i * slotPct + holdPct).toFixed(2);
+      const hold = (i * slotPct + holdPct).toFixed(2);
       return `  ${start}%, ${hold}% { --chip-color: ${c}; }`;
     }).join('\n');
 
@@ -247,8 +246,8 @@ export abstract class AppointmentCalendarLayerBase
   }
 
   private markNextChip(): void {
-    const nowStr  = this.currentDateTimeStr();
-    const next    = this.findNextChip(nowStr);
+    const nowStr = this.currentDateTimeStr();
+    const next = this.findNextChip(nowStr);
     if (!next) { return; }
 
     next.isNext = true;
@@ -289,10 +288,11 @@ export abstract class AppointmentCalendarLayerBase
 
   protected statusToIcon(status: string): string {
     const map: Record<string, string> = {
-      PENDING:     'schedule',
-      SCHEDULED:   'event_available',
+      PENDING: 'schedule',
+      SCHEDULED: 'event_available',
       IN_PROGRESS: 'timelapse',
-      COMPLETED:   'task_alt',
+      COMPLETED: 'check',
+      NO_SHOW: 'person_cancel',
     };
     return map[status] ?? 'calendar_month';
   }
@@ -306,8 +306,8 @@ export abstract class AppointmentCalendarLayerBase
   protected formatDateStr(base: Date, offsetDays = 0): string {
     const d = new Date(base);
     d.setDate(d.getDate() + offsetDays);
-    const y   = d.getFullYear();
-    const m   = String(d.getMonth() + 1).padStart(2, '0');
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     return `${y}-${m}-${day}`;
   }

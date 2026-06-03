@@ -21,6 +21,13 @@ $transition:    0.22s ease;
   display: flex;
   flex-direction: column;
   min-height: 480px;
+
+  &::before {
+    content: '';
+    height: 5px;
+    flex-shrink: 0;
+    background: linear-gradient(90deg, #c4899a 0%, #3a3a3a 100%);
+  }
 }
 .dt-agenda__toolbar {
   display: flex;
