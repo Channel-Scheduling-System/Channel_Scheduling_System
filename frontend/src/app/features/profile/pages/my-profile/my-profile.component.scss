@@ -19,6 +19,15 @@
   margin-top: 0.4rem;
 }
 
+.profile-card {
+  &::before {
+    content: '';
+    display: block;
+    height: 3px;
+    background: linear-gradient(90deg, #c4899a 0%, #000000 100%);
+  }
+}
+
 .reset-password-btn {
     position: relative;
     display: inline-flex;
