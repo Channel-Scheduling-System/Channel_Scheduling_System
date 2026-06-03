@@ -3,8 +3,8 @@ import { generateAppointmentApprovedEmailHTML } from '../../../shared/services/e
 import { generateAppointmentRejectedEmailHTML } from '../../../shared/services/email/templates/appointment-rejected.template.js';
 import { generateAppointmentCancelledEmailHTML } from '../../../shared/services/email/templates/appointment-cancelled.template.js';
 import { NotifyAppointmentResponse, Role } from '../appointment.types.js';
-import { generateAppointmentScheduledHTML } from '#/shared/services/email/templates/appointment-scheduled.template.js';
-import { generateAppointmentRequestedHTML } from '#/shared/services/email/templates/appointment-requested.template.js';
+import { generateAppointmentScheduledHTML } from '../../../shared/services/email/templates/appointment-scheduled.template.js';
+import { generateAppointmentRequestedHTML } from '../../../shared/services/email/templates/appointment-requested.template.js';
 
 const SCHEDULE_SUBJECT = '¡Nueva cita programada! - Channel Scheduling System';
 const REQUEST_SUBJECT = '¡Nueva solicitud de cita! - Channel Scheduling System';
