@@ -55,6 +55,7 @@ export class AppointmentsHistoryPageComponent implements OnInit, OnDestroy {
     protected statusDropdownOpen = false;
     protected fromPickerOpen = false;
     protected toPickerOpen = false;
+    protected isViewingOwnHistory = true;
 
     // ── Pagination ───────────────────────────────────────────────────────────────
     private currentPage = 1;
@@ -101,18 +102,23 @@ export class AppointmentsHistoryPageComponent implements OnInit, OnDestroy {
             // CLIENT viewing own history – no id params needed
             this.workerIdParam = undefined;
             this.clientIdParam = undefined;
+            this.isViewingOwnHistory = true;
         } else if (role === 'WORKER') {
             if (sessionId === this.clientIdFromUrl) {
                 // WORKER viewing their own history – no id params
                 this.workerIdParam = undefined;
                 this.clientIdParam = undefined;
+                this.isViewingOwnHistory = true;
             } else {
                 // WORKER viewing a client's history
                 this.workerIdParam = undefined;
                 this.clientIdParam = this.clientIdFromUrl ?? undefined;
+                this.isViewingOwnHistory = false;
             }
+        } else {
+            // ADMIN: consider it viewing another user's history if an id is in the URL
+            this.isViewingOwnHistory = false;
         }
-        // ADMIN role: no restrictions, no id filter needed
 
         this.pageChange$
             .pipe(
@@ -140,7 +146,11 @@ export class AppointmentsHistoryPageComponent implements OnInit, OnDestroy {
 
     // ── Navigation ───────────────────────────────────────────────────────────────
     protected goBack(): void {
-        this.router.navigate(['../../'], { relativeTo: this.route });
+        if (this.isViewingOwnHistory) {
+            this.router.navigate(['../../'], { relativeTo: this.route });
+        } else {
+            this.router.navigate(['/appointments/manage-requests']);
+        }
     }
 
     protected get allStatusesSelected(): boolean {
@@ -265,7 +275,7 @@ export class AppointmentsHistoryPageComponent implements OnInit, OnDestroy {
 
     // ── Formatting helpers ────────────────────────────────────────────────────────
     protected formatDate(dateStr: string): string {
-        const date = new Date(dateStr);
+        const date = new Date(dateStr.replace(/Z$|[+-]\d{2}:\d{2}$/, ''));
         return date.toLocaleDateString('es-CO', {
             weekday: 'long',
             day: 'numeric',
@@ -275,7 +285,7 @@ export class AppointmentsHistoryPageComponent implements OnInit, OnDestroy {
     }
 
     protected formatTime(dateStr: string): string {
-        const date = new Date(dateStr);
+        const date = new Date(dateStr.replace(/Z$|[+-]\d{2}:\d{2}$/, ''));
         return date.toLocaleTimeString('es-CO', {
             hour: '2-digit',
             minute: '2-digit',
