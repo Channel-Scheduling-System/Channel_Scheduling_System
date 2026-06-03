@@ -7,7 +7,7 @@ import { AppointmentsListActiveResponse, AppointmentsListHistoryResponse } from 
 import { RescheduleAppointmentResponse, UpdateAppointmentResponse } from '../models/responses/update-appointment-response.model';
 import { RescheduleAppointmentRequest, UpdateAppointmentRequest } from '../models/requests/update-appointment-request.model';
 import { ApproveAppointmentResponse, CancelAppointmentResponse, RejectAppointmentResponse, SetAppointmentStateResponse } from '../models/responses/manage-appointment-state-response.model';
-import { SetAppointmentStateRequest } from '../models/requests/manage-appointment-state-request.model';
+import { CancelAppointmentRequest, SetAppointmentStateRequest } from '../models/requests/manage-appointment-state-request.model';
 import { GetQuantityStatusAppointmentsResponse } from '../models/responses/get-quantity-status-appointment-response.model';
 
 export interface IAppointmentsService {
@@ -32,6 +32,6 @@ export interface IAppointmentsService {
 
     setAppointmentState(appointmentId: number, request: SetAppointmentStateRequest): Observable<SetAppointmentStateResponse>;
 
-    cancelAppointment(appointmentId: number): Observable<CancelAppointmentResponse>;
+    cancelAppointment(appointmentId: number, request: CancelAppointmentRequest): Observable<CancelAppointmentResponse>;
     
 }
