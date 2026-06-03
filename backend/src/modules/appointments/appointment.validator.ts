@@ -82,7 +82,7 @@ const rescheduleAppointmentInput = z
     })
     .strict();
 
-const rejectAppointmentInput = z
+const cancelAppointmentInput = z
     .object({
         reason: z.string().max(300).optional(),
     })
@@ -124,6 +124,12 @@ export const appointmentCalendarFilterSchema = z.object({
     clientId: queryId('client').optional(),
 });
 
+export const countFilterSchema = z.object({
+    workerId: queryId('worker').optional(),
+    clientId: queryId('client').optional(),
+    status: oneOrMany(statusEnum),
+});
+
 // ============================================================
 // * CENTRALIZED VALIDATORS
 // ============================================================
@@ -133,8 +139,9 @@ export const appointmentValidator = {
     create: validateBodyDTO(createAppointmentInput),
     update: validateBodyDTO(updateAppointmentInput),
     reschedule: validateBodyDTO(rescheduleAppointmentInput),
-    reject: validateBodyDTO(rejectAppointmentInput),
+    cancel: validateBodyDTO(cancelAppointmentInput),
     changeStatus: validateBodyDTO(changeAppointmentStatusInput),
     historyFilters: validateQueryDTO(appointmentHistoryFilterSchema),
     calendarFilters: validateQueryDTO(appointmentCalendarFilterSchema),
+    countFilters: validateQueryDTO(countFilterSchema),
 };

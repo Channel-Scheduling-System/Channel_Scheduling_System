@@ -5,6 +5,7 @@ import { IServiceService } from '../services/service.service.js';
 import { IAvailabilityService } from '../availability/availability.service.js';
 import {
     Appointment,
+    NotifyAppointment,
     ExtendedAppointment,
     OverlapVerificationResponse,
     Role,
@@ -122,6 +123,12 @@ export class AppointmentDomainService {
         id: number,
     ): Promise<ExtendedAppointment> {
         const appointment = await this.appointmentRepo.findExtendedById(id);
+        if (!appointment) throw new NotFoundError(APPOINTMENT_ERRORS.NOT_FOUND);
+        return appointment;
+    }
+
+    async getNotifyAppointmentOrFail(id: number): Promise<NotifyAppointment> {
+        const appointment = await this.appointmentRepo.findForStatusChange(id);
         if (!appointment) throw new NotFoundError(APPOINTMENT_ERRORS.NOT_FOUND);
         return appointment;
     }

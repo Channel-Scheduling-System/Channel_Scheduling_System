@@ -108,6 +108,18 @@ export interface ExtendedAppointment extends Appointment {
     services: AppointmentServiceSummary[];
 }
 
+export interface NotifyAppointment {
+    id: number;
+    startAt: Date;
+    endAt: Date;
+    status: Status;
+    workerId: number;
+    clientId: number;
+    worker: { firstName: string; lastName: string; email: string };
+    client: { firstName: string; lastName: string; email: string };
+    services: { service: { name: string; colorHex: string } }[];
+}
+
 // ============================================================
 // * INPUTS
 // ============================================================
@@ -158,7 +170,7 @@ export interface RescheduleAppointmentInput {
     }[];
 }
 
-export interface RejectAppointmentInput {
+export interface CancelAppointmentInput {
     id: number;
     reason?: string;
 }
@@ -194,6 +206,12 @@ export interface ApppointmentCalendarFilter {
     date: string; // ISO date string
     workerId?: number;
     clientId?: number;
+}
+
+export interface AppointmentCountFilter {
+    workerId?: number;
+    clientId?: number;
+    status?: Status[];
 }
 
 // ============================================================
@@ -269,6 +287,15 @@ export interface ExtendedAppointmentResponse {
             defaultPrice: number;
         };
     }[];
+}
+
+export interface NotifyAppointmentResponse {
+    dateStr: string;
+    timeStr: string;
+    status: Status;
+    worker: { name: string; email: string };
+    client: { name: string; email: string };
+    services: { name: string; color: string }[];
 }
 
 export interface PaginatedAppointmentResponse {
