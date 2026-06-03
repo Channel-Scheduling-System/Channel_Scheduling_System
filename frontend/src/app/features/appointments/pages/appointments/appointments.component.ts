@@ -28,6 +28,7 @@ import {
   CONFIRMATION_MODAL_DATA,
 } from '../../components/confirmation-modal/confirmation-modal.component';
 import { ErrorResponse } from '../../../../shared/models/api/error-response.schema';
+import { cancelReasonValidator } from '../../validators/cancel-reason.validators';
 
 @Component({
   selector: 'app-appointments',
@@ -46,22 +47,22 @@ export class AppointmentsPageComponent implements OnInit, AfterViewInit, OnDestr
   protected pendingCount: number = 0;
 
   private readonly weekChange$ = new Subject<Date>();
-  private readonly destroy$    = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
 
-  private readonly overlay  = inject(Overlay);
+  private readonly overlay = inject(Overlay);
   private readonly injector = inject(Injector);
 
   private confirmOverlayRef: OverlayRef | null = null;
-  private confirmModalRef:   ComponentRef<ConfirmationModalComponent> | null = null;
+  private confirmModalRef: ComponentRef<ConfirmationModalComponent> | null = null;
 
   constructor(
-    private readonly fabService:          FabService,
-    private readonly viewContainerRef:    ViewContainerRef,
+    private readonly fabService: FabService,
+    private readonly viewContainerRef: ViewContainerRef,
     private readonly appointmentsService: AppointmentsService,
-    private readonly router:              Router,
-    private readonly route:               ActivatedRoute,
-    private readonly messageService:      MessageService,
-  ) {}
+    private readonly router: Router,
+    private readonly route: ActivatedRoute,
+    private readonly messageService: MessageService,
+  ) { }
 
 
   public ngOnInit(): void {
@@ -101,22 +102,23 @@ export class AppointmentsPageComponent implements OnInit, AfterViewInit, OnDestr
     console.log('Reagendar cita:', appointment);
   }
 
+  /*
   protected onModifyAppointment(appointment: AppointmentCalendarItem): void {
     // TODO: open modify appointment form (WORKER role)
     console.log('Modificar cita:', appointment);
-  }
+  }*/
 
   protected onCancelAppointment(appointment: AppointmentCalendarItem): void {
     this.closeConfirmOverlay();
 
     this.confirmOverlayRef = this.createFullScreenOverlay();
-    const portal           = this.buildConfirmationPortal();
-    this.confirmModalRef   = this.confirmOverlayRef.attach(portal);
+    const portal = this.buildConfirmationPortal();
+    this.confirmModalRef = this.confirmOverlayRef.attach(portal);
     this.confirmModalRef.changeDetectorRef.detectChanges();
 
-    this.confirmModalRef.instance.confirmed.subscribe(() => {
+    this.confirmModalRef.instance.confirmed.subscribe((reason) => {
       this.closeConfirmOverlay();
-      this.executeCancelAppointment(appointment);
+      this.executeCancelAppointment(appointment, reason);
     });
 
     this.confirmModalRef.instance.cancelled.subscribe(() => {
@@ -130,7 +132,8 @@ export class AppointmentsPageComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   protected goToHistory(): void {
-    // TODO: navigate to appointment history page
+    const userId = this.sessionService.getUserId();
+    this.router.navigate([userId, 'history'], { relativeTo: this.route });
   }
 
   protected scheduleAppointment(): void {
@@ -143,17 +146,17 @@ export class AppointmentsPageComponent implements OnInit, AfterViewInit, OnDestr
       .getQuantityStatusAppointments({ status: ['PENDING'] })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next:  (res) => { this.pendingCount = res.quantity; },
-        error: ()    => { this.pendingCount = 0; },
+        next: (res) => { this.pendingCount = res.quantity; },
+        error: () => { this.pendingCount = 0; },
       });
   }
 
   private createFullScreenOverlay(): OverlayRef {
     const ref = this.overlay.create({
       positionStrategy: this.overlay.position().global().centerHorizontally().centerVertically(),
-      scrollStrategy:   this.overlay.scrollStrategies.reposition(),
-      hasBackdrop:      true,
-      backdropClass:    'cdk-overlay-transparent-backdrop',
+      scrollStrategy: this.overlay.scrollStrategies.reposition(),
+      hasBackdrop: true,
+      backdropClass: 'cdk-overlay-transparent-backdrop',
     });
     ref.backdropClick().subscribe(() => this.closeConfirmOverlay());
     return ref;
@@ -162,10 +165,16 @@ export class AppointmentsPageComponent implements OnInit, AfterViewInit, OnDestr
   private buildConfirmationPortal(): ComponentPortal<ConfirmationModalComponent> {
     const childInjector = Injector.create({
       providers: [{
-        provide:  CONFIRMATION_MODAL_DATA,
+        provide: CONFIRMATION_MODAL_DATA,
         useValue: {
-          title:   '¿Cancelar cita?',
+          title: '¿Cancelar cita?',
           message: 'Esta acción no se puede deshacer. ¿Estás seguro de que deseas cancelar esta cita?',
+          textField: {
+            label:       'Motivo de cancelación',
+            icon:        'edit_note',
+            placeholder: 'Ej: El cliente solicitó cancelar por cambio de planes...',
+            validator:   cancelReasonValidator(),
+          },
         },
       }],
       parent: this.injector,
@@ -176,12 +185,12 @@ export class AppointmentsPageComponent implements OnInit, AfterViewInit, OnDestr
   private closeConfirmOverlay(): void {
     this.confirmOverlayRef?.dispose();
     this.confirmOverlayRef = null;
-    this.confirmModalRef   = null;
+    this.confirmModalRef = null;
   }
 
-  private executeCancelAppointment(appointment: AppointmentCalendarItem): void {
+  private executeCancelAppointment(appointment: AppointmentCalendarItem, reason?: string): void {
     this.appointmentsService
-      .cancelAppointment(appointment.id)
+      .cancelAppointment(appointment.id, { reason })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
@@ -220,7 +229,7 @@ export class AppointmentsPageComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   private getMonday(date: Date): Date {
-    const d   = new Date(date);
+    const d = new Date(date);
     const day = d.getDay();
     d.setDate(d.getDate() + (day === 0 ? -6 : 1 - day));
     d.setHours(0, 0, 0, 0);

@@ -16,7 +16,7 @@
         <span class="material-symbols-outlined appt-nav__btn__icon" translate="no">event_available</span>
         <span class="appt-nav__btn__text">Gestionar Solicitudes</span>
       </span>
-      <span class="appt-nav__btn__badge">{{ pendingCount }}</span>
+      <span class="appt-nav__btn__badge" *ngIf="pendingCount > 0">{{ pendingCount }}</span>
     </button>
     }
 
@@ -34,8 +34,8 @@
     [appointments]="appointments"
     (weekStartChange)="onWeekChange($event)"
     (rescheduleAppointment)="onRescheduleAppointment($event)"
-    (modifyAppointment)="onModifyAppointment($event)"
     (cancelAppointment)="onCancelAppointment($event)" />
+  <!--(modifyAppointment)="onModifyAppointment($event)"-->
 
 </div>
 
