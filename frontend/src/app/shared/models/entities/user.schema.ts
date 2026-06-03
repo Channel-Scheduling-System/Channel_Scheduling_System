@@ -53,7 +53,7 @@ const alias = z.string()
         .min(3, 'El alias debe tener al menos 3 caracteres')
         .max(30, 'El alias no puede exceder 30 caracteres');
 
-export const identifier = z.union([alias, email, phone]);
+export const identifier = z.union([alias, email, phone], "El identificador debe ser un alias, email o teléfono válido");
 
 export const password = z.string()
         .min(8, 'La contraseña debe tener al menos 8 caracteres')

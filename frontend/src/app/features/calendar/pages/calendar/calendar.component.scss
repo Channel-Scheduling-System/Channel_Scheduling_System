@@ -116,6 +116,13 @@
         position: relative;
         transition: box-shadow $transition;
 
+        &::before {
+            content: '';
+            height: 3px;
+            flex-shrink: 0;
+            background: linear-gradient(90deg, #c4899a 0%, #000000 100%);
+        }
+
         &--delete-mode {
             box-shadow:
                 0 0 0 2px rgba($error, 0.4),

@@ -1,6 +1,7 @@
 <div class="ah-page">
     <app-form-header eyebrow="Gestión" title="Historial de citas"
-        description="Consulta todas tus citas pasadas y futuras" (back)="goBack()">
+        [description]="isViewingOwnHistory ? 'Consulta todas tus citas pasadas y futuras' : 'Consulta todas las citas pasadas y futuras del usuario'"
+        (back)="goBack()">
     </app-form-header>
 
     <!-- ── Filters ────────────────────────────────────────────────────────────── -->
