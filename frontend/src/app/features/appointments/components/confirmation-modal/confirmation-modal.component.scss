@@ -129,6 +129,114 @@ $smooth:     0.4s cubic-bezier(0.22, 1, 0.36, 1);
       }
     }
   }
+  &__field-label {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: $muted;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  &__field-label-icon {
+    font-size: 0.85rem !important;
+    line-height: 1 !important;
+    color: $crimson;
+  }
+  &__field-optional {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: $muted;
+    opacity: 0.7;
+    text-transform: none;
+    letter-spacing: 0.05em;
+    margin-left: 0.1rem;
+  }
+  &__field {
+    background: $white;
+    border: 2px solid rgba($primary, 0.1);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    transition: border-color $transition, box-shadow $transition;
+    &:focus-within {
+      border-color: $vinotinto;
+      box-shadow: 0 0 0 3px rgba($vinotinto, 0.1);
+    }
+    &:hover:not(:focus-within) {
+      border-color: rgba($vinotinto, 0.35);
+    }
+    &--error {
+      border-color: #ba1a1a !important;
+      box-shadow: 0 0 0 3px rgba(186, 26, 26, 0.1) !important;
+      animation: cmFieldErrorShake 0.3s ease both;
+    }
+  }
+  &__field-textarea {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.75rem 1rem;
+    border: none;
+    background: transparent;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: $primary;
+    line-height: 1.6;
+    resize: none;
+    outline: none;
+    &::placeholder {
+      color: rgba($muted, 0.6);
+    }
+  }
+  &__field-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0.3rem 0.75rem 0.4rem;
+    background: rgba($surface, 0.5);
+    border-top: 1px solid rgba($primary, 0.05);
+    min-height: 1.6rem;
+    gap: 0.5rem;
+  }
+  &__field-error {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #ba1a1a;
+    flex: 1;
+    animation: cmErrorSlideIn 0.2s ease both;
+  }
+  &__field-error-icon {
+    font-size: 0.8rem !important;
+    line-height: 1 !important;
+    flex-shrink: 0;
+  }
+  &__field-counter {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: rgba($muted, 0.7);
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
+    &--warn {
+      color: #ba1a1a;
+      font-weight: 700;
+    }
+  }
+}
+@keyframes cmFieldErrorShake {
+  0%, 100% { transform: translateX(0); }
+  25%       { transform: translateX(-3px); }
+  75%       { transform: translateX(3px); }
+}
+@keyframes cmErrorSlideIn {
+  from { opacity: 0; transform: translateY(-3px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 @keyframes cmFadeIn {
   from { opacity: 0; }

@@ -29,7 +29,7 @@ export const API_ENDPOINTS = {
     LIST: `${environment.apiUrl}/appointments/calendar`,
     UPDATE: (id: number) => `${environment.apiUrl}/appointments/${id}`,
     RESCHEDULE: (id: number) => `${environment.apiUrl}/appointments/${id}/reschedule`,
-    GET_STATUS_QUANTITY: `${environment.apiUrl}/appointments/status/quantity`,
+    GET_STATUS_QUANTITY: `${environment.apiUrl}/appointments/quantity`,
     APPROVE: (id: number) => `${environment.apiUrl}/appointments/${id}/approve`,
     REJECT: (id: number) => `${environment.apiUrl}/appointments/${id}/reject`,
     CANCEL: (id: number) => `${environment.apiUrl}/appointments/${id}/cancel`,

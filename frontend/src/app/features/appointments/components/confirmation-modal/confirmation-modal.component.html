@@ -2,18 +2,41 @@
 
 <div class="cm" role="dialog" aria-modal="true" [attr.aria-labelledby]="'cm-title'">
 
-  <!-- Header -->
   <div class="cm__header">
     <span class="material-symbols-outlined cm__header-icon" translate="no">warning</span>
     <h2 class="cm__title" id="cm-title">{{ data.title }}</h2>
   </div>
 
-  <!-- Body -->
   <div class="cm__body">
     <p class="cm__message">{{ data.message }}</p>
+
+    <ng-container *ngIf="data.textField">
+      <div class="cm__field-label">
+        <span class="material-symbols-outlined cm__field-label-icon" translate="no">{{ data.textField.icon }}</span>
+        {{ data.textField.label }}
+        <span class="cm__field-optional">Opcional</span>
+      </div>
+      <div class="cm__field" [class.cm__field--error]="fieldError">
+        <textarea
+          class="cm__field-textarea"
+          [placeholder]="data.textField.placeholder ?? ''"
+          rows="3"
+          [formControl]="textControl"
+          (input)="textControl.markAsTouched()">
+        </textarea>
+        <div class="cm__field-footer">
+          <div class="cm__field-error" *ngIf="fieldError">
+            <span class="material-symbols-outlined cm__field-error-icon" translate="no">error</span>
+            {{ fieldError }}
+          </div>
+          <span class="cm__field-counter" [class.cm__field-counter--warn]="fieldLength > 260">
+            {{ fieldLength }}/300
+          </span>
+        </div>
+      </div>
+    </ng-container>
   </div>
 
-  <!-- Actions -->
   <div class="cm__actions">
     <button class="cm__btn cm__btn--cancel" type="button" (click)="onCancel()">
       <span class="material-symbols-outlined cm__btn-icon" translate="no">close</span>

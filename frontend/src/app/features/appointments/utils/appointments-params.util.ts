@@ -67,13 +67,13 @@ export function buildAppointmentsQuantityStatusHttpParams(
   params: GetQuantityStatusAppointmentsParamsRequest
 ): HttpParams {
   const { status } = params;
-
   let httpParams = new HttpParams();
 
   if (status) {
     if (Array.isArray(status)) {
       if (status.length > 0) {
-        httpParams = httpParams.set('status', status.join(', '));
+        //  CORREGIDO: .join(',') sin espacio
+        httpParams = httpParams.set('status', status.join(','));
       }
     } else {
       httpParams = httpParams.set('status', String(status));

@@ -17,7 +17,7 @@ import { ResponseHandler } from "../../../core/utils/handlers/response.handler";
 import { HttpClient } from "@angular/common/http";
 import { API_ENDPOINTS } from "../../../shared/constants/api-endpoints.constants";
 import { buildAppointmentsHistoryHttpParams, buildAppointmentsActiveHttpParams, buildAppointmentsQuantityStatusHttpParams } from "../utils/appointments-params.util";
-import { SetAppointmentStateRequest } from "../models/requests/manage-appointment-state-request.model";
+import { CancelAppointmentRequest, SetAppointmentStateRequest } from "../models/requests/manage-appointment-state-request.model";
 import { GetQuantityStatusAppointmentsResponse, GetQuantityStatusAppointmentsResponseSchema } from "../models/responses/get-quantity-status-appointment-response.model";
 
 @Injectable({ providedIn: 'root' })
@@ -84,8 +84,8 @@ export class AppointmentsService implements IAppointmentsService {
             map(response => this.responseHandler.handleSuccess(response, SetAppointmentStateResponseSchema))
         );
     }
-    public cancelAppointment(appointmentId: number): Observable<CancelAppointmentResponse> {
-        return this.http.patch(API_ENDPOINTS.APPOINTMENTS.CANCEL(appointmentId), {}).pipe(
+    public cancelAppointment(appointmentId: number, request: CancelAppointmentRequest): Observable<CancelAppointmentResponse> {
+        return this.http.patch(API_ENDPOINTS.APPOINTMENTS.CANCEL(appointmentId), request).pipe(
             map(response => this.responseHandler.handleSuccess(response, CancelAppointmentResponseSchema))
         );
     }
