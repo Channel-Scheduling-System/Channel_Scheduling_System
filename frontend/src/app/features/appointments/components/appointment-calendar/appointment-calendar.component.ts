@@ -49,7 +49,7 @@ export class AppointmentCalendarComponent implements OnInit, AfterViewInit, OnCh
   @Input() public appointments: AppointmentCalendarItem[] = [];
   @Output() public weekStartChange = new EventEmitter<Date>();
   @Output() public rescheduleAppointment = new EventEmitter<AppointmentCalendarItem>();
-  @Output() public modifyAppointment = new EventEmitter<AppointmentCalendarItem>();
+  //@Output() public modifyAppointment = new EventEmitter<AppointmentCalendarItem>();
   @Output() public cancelAppointment = new EventEmitter<AppointmentCalendarItem>();
 
   @ViewChild(AppointmentCalendarWeekGridComponent, { read: ElementRef })
@@ -230,7 +230,7 @@ export class AppointmentCalendarComponent implements OnInit, AfterViewInit, OnCh
 
   private buildModalActions(appt: AppointmentCalendarItem) {
     return [
-      this.buildPrimaryAction(appt),
+      //this.buildPrimaryAction(appt),
       {
         icon: 'event_busy', label: 'Cancelar cita',
         handler: () => this.cancelAppointment.emit(appt),
@@ -239,11 +239,12 @@ export class AppointmentCalendarComponent implements OnInit, AfterViewInit, OnCh
     ];
   }
 
+  /*
   private buildPrimaryAction(appt: AppointmentCalendarItem) {
     return this.sessionSvc.getRole() === 'CLIENT'
       ? { icon: 'event_repeat', label: 'Reagendar cita', handler: () => this.rescheduleAppointment.emit(appt) }
       : { icon: 'edit_calendar', label: 'Modificar cita', handler: () => this.modifyAppointment.emit(appt) };
-  }
+  }*/
 
   private statusToSpanish(status: string): string {
     const map: Record<string, string> = {

@@ -347,10 +347,3 @@ $transition: 0.18s ease;
     letter-spacing: 0;
   }
 }
-@media (max-width: 640px) {
-  .acl__chip__time,
-  .acl__chip__client,
-  .acl__chip__notes {
-    display: none;
-  }
-}
