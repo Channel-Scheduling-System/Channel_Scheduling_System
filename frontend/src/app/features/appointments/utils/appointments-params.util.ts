@@ -1,7 +1,8 @@
 import { HttpParams } from '@angular/common/http';
 import {
   AppointmentsParamsHistoryRequest,
-  AppointmentsActiveParamsRequest
+  AppointmentsActiveParamsRequest,
+  GetQuantityStatusAppointmentsParamsRequest
 } from '../models/requests/appointments-params-request.model';
 
 export function buildAppointmentsHistoryHttpParams(
@@ -57,6 +58,26 @@ export function buildAppointmentsActiveHttpParams(
 
   if (clientId !== undefined) {
     httpParams = httpParams.set('clientId', String(clientId));
+  }
+
+  return httpParams;
+}
+
+export function buildAppointmentsQuantityStatusHttpParams(
+  params: GetQuantityStatusAppointmentsParamsRequest
+): HttpParams {
+  const { status } = params;
+
+  let httpParams = new HttpParams();
+
+  if (status) {
+    if (Array.isArray(status)) {
+      if (status.length > 0) {
+        httpParams = httpParams.set('status', status.join(', '));
+      }
+    } else {
+      httpParams = httpParams.set('status', String(status));
+    }
   }
 
   return httpParams;
