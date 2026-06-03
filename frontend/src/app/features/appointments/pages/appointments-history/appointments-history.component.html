@@ -1,0 +1,198 @@
+<div class="ah-page">
+    <app-form-header eyebrow="Gestión" title="Historial de citas"
+        description="Consulta todas tus citas pasadas y futuras" (back)="goBack()">
+    </app-form-header>
+
+    <!-- ── Filters ────────────────────────────────────────────────────────────── -->
+    <div class="ah-filters" (click)="$event.stopPropagation()">
+        <span class="ah-filters__label">Filtrar por:</span>
+
+        <!-- Status multi-select dropdown -->
+        <div class="ah-filter__dropdown" [class.ah-filter__dropdown--open]="statusDropdownOpen">
+            <button class="ah-filter__trigger" type="button" (click)="toggleStatusDropdown($event)">
+                <span class="material-symbols-outlined ah-filter__trigger-icon" translate="no">
+                    {{ statusDropdownIcon }}
+                </span>
+                <span class="ah-filter__trigger-label">{{ statusDropdownLabel }}</span>
+                <span class="material-symbols-outlined ah-filter__arrow" translate="no">expand_more</span>
+            </button>
+            <div class="ah-filter__options ah-filter__options--checklist" *ngIf="statusDropdownOpen"
+                (click)="$event.stopPropagation()">
+                <button *ngFor="let opt of statusOptions" class="ah-filter__option ah-filter__option--check"
+                    [class.ah-filter__option--selected]="isStatusSelected(opt.value)" type="button"
+                    (click)="toggleStatus(opt.value, $event)">
+                    <span class="ah-filter__check-box"
+                        [class.ah-filter__check-box--checked]="isStatusSelected(opt.value)">
+                        <span class="material-symbols-outlined ah-filter__check-icon" translate="no">check</span>
+                    </span>
+                    {{ opt.label }}
+                </button>
+                <div class="ah-filter__options-divider"></div>
+                <button class="ah-filter__option ah-filter__option--check ah-filter__option--select-all"
+                    [class.ah-filter__option--selected]="allStatusesSelected" type="button"
+                    (click)="selectAllStatuses($event)">
+                    <span class="ah-filter__check-box" [class.ah-filter__check-box--checked]="allStatusesSelected">
+                        <span class="material-symbols-outlined ah-filter__check-icon" translate="no">check</span>
+                    </span>
+                    Todos los estados
+                </button>
+            </div>
+
+        </div>
+
+        <div class="ah-filters__divider" aria-hidden="true"></div>
+
+        <!-- From date picker -->
+        <div class="ah-filter__dropdown ah-filter__dropdown--date" [class.ah-filter__dropdown--open]="fromPickerOpen">
+            <button class="ah-filter__trigger" [class.ah-filter__trigger--active]="!!fromDate" type="button"
+                (click)="toggleFromPicker($event)">
+                <span class="material-symbols-outlined ah-filter__trigger-icon" translate="no">calendar_month</span>
+                <span class="ah-filter__trigger-label">{{ fromDateLabel }}</span>
+                <span *ngIf="fromDate" class="material-symbols-outlined ah-filter__clear" translate="no"
+                    (click)="clearFromDate($event)">close</span>
+                <span *ngIf="!fromDate" class="material-symbols-outlined ah-filter__arrow"
+                    translate="no">expand_more</span>
+            </button>
+            <div class="ah-filter__picker-panel" *ngIf="fromPickerOpen" (click)="$event.stopPropagation()">
+                <app-date-picker label="Fecha inicio" [value]="fromDate ?? ''" (confirmed)="onFromDateConfirmed($event)"
+                    (cancelled)="onFromDateCancelled()">
+                </app-date-picker>
+            </div>
+        </div>
+
+        <span class="ah-filters__range-sep">—</span>
+
+        <!-- To date picker -->
+        <div class="ah-filter__dropdown ah-filter__dropdown--date" [class.ah-filter__dropdown--open]="toPickerOpen">
+            <button class="ah-filter__trigger" [class.ah-filter__trigger--active]="!!toDate" type="button"
+                (click)="toggleToPicker($event)">
+                <span class="material-symbols-outlined ah-filter__trigger-icon" translate="no">event</span>
+                <span class="ah-filter__trigger-label">{{ toDateLabel }}</span>
+                <span *ngIf="toDate" class="material-symbols-outlined ah-filter__clear" translate="no"
+                    (click)="clearToDate($event)">close</span>
+                <span *ngIf="!toDate" class="material-symbols-outlined ah-filter__arrow"
+                    translate="no">expand_more</span>
+            </button>
+            <div class="ah-filter__picker-panel" *ngIf="toPickerOpen" (click)="$event.stopPropagation()">
+                <app-date-picker label="Fecha fin" [value]="toDate ?? ''" (confirmed)="onToDateConfirmed($event)"
+                    (cancelled)="onToDateCancelled()">
+                </app-date-picker>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Skeleton loading ───────────────────────────────────────────────────── -->
+    <div class="ah-list" *ngIf="isLoading">
+        <div class="ah-skeleton" *ngFor="let i of [1,2,3]">
+            <div class="ah-skeleton__left">
+                <div class="ah-skeleton__bar ah-skeleton__bar--short"></div>
+                <div class="ah-skeleton__bar ah-skeleton__bar--long"></div>
+                <div class="ah-skeleton__bar ah-skeleton__bar--medium"></div>
+                <div class="ah-skeleton__people"></div>
+            </div>
+            <div class="ah-skeleton__right">
+                <div class="ah-skeleton__services"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Empty state ────────────────────────────────────────────────────────── -->
+    <div class="ah-empty" *ngIf="!isLoading && appointments.length === 0">
+        <span class="material-symbols-outlined ah-empty__icon" translate="no">calendar_today</span>
+        <h3 class="ah-empty__title">Sin citas encontradas</h3>
+        <p class="ah-empty__desc">No se encontraron citas con los filtros seleccionados.</p>
+    </div>
+
+    <!-- ── Appointments list ──────────────────────────────────────────────────── -->
+    <div class="ah-list" *ngIf="!isLoading && appointments.length > 0">
+        <div class="ah-card" *ngFor="let appt of appointments">
+            <div class="ah-card__glow"></div>
+            <div class="ah-card__accent-bar"></div>
+
+            <!-- Left column: date, people, notes -->
+            <div class="ah-card__left">
+
+                <!-- Header: date + status badge -->
+                <div class="ah-card__header">
+                    <div class="ah-card__date-badge">
+                        <span class="material-symbols-outlined ah-card__date-icon" translate="no">calendar_month</span>
+                        <div>
+                            <span class="ah-card__date">{{ formatDate(appt.startAt) }}</span>
+                            <span class="ah-card__time">
+                                {{ formatTime(appt.startAt) }} — {{ formatTime(appt.endAt) }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="ah-card__status-badge" [attr.data-status]="appt.status">
+                        <span class="material-symbols-outlined ah-card__status-icon" translate="no">
+                            {{ getStatusIcon(appt.status) }}
+                        </span>
+                        <span class="ah-card__status-label">{{ getStatusLabel(appt.status) }}</span>
+                    </div>
+                </div>
+
+                <div class="ah-card__divider"></div>
+
+                <!-- People -->
+                <div class="ah-card__people">
+                    <div class="ah-card__person">
+                        <div class="ah-card__person-avatar ah-card__person-avatar--client">
+                            <span class="material-symbols-outlined" translate="no">person</span>
+                        </div>
+                        <div class="ah-card__person-info">
+                            <span class="ah-card__person-role">Cliente</span>
+                            <span class="ah-card__person-name">{{ appt.client.name }}</span>
+                        </div>
+                    </div>
+                    <div class="ah-card__people-sep">
+                        <span class="material-symbols-outlined" translate="no">chevron_right</span>
+                    </div>
+                    <div class="ah-card__person">
+                        <div class="ah-card__person-avatar ah-card__person-avatar--worker">
+                            <span class="material-symbols-outlined" translate="no">person</span>
+                        </div>
+                        <div class="ah-card__person-info">
+                            <span class="ah-card__person-role">Estilista</span>
+                            <span class="ah-card__person-name">{{ appt.worker.name }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div class="ah-card__notes" *ngIf="appt.notes">
+                    <span class="material-symbols-outlined ah-card__notes-icon" translate="no">notes</span>
+                    <span class="ah-card__notes-text">{{ appt.notes }}</span>
+                </div>
+
+            </div>
+
+            <!-- Vertical separator -->
+            <div class="ah-card__col-divider"></div>
+
+            <!-- Right column: services -->
+            <div class="ah-card__right">
+                <div class="ah-card__services-header">
+                    <span class="ah-card__services-label">
+                        <span class="material-symbols-outlined" translate="no">content_cut</span>
+                        Servicios ({{ appt.services.length }})
+                    </span>
+                </div>
+                <div class="ah-card__services-list">
+                    <div class="ah-svc-chip" *ngFor="let svc of appt.services">
+                        <div class="ah-svc-chip__dot" [style.background-color]="svc.color"></div>
+                        <span class="ah-svc-chip__name">{{ svc.name }}</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ── Pagination ─────────────────────────────────────────────────────────── -->
+    <div class="ah-pagination" *ngIf="!isLoading && meta.total > 0">
+        <app-pagination [currentPage]="meta.page" [totalPages]="meta.totalPages" [totalItems]="meta.total"
+            [displayedItems]="appointments.length" itemLabel="cita" itemLabelPlural="citas"
+            (pageChange)="onPageChange($event)">
+        </app-pagination>
+    </div>
+</div>
