@@ -15,6 +15,9 @@ import {
     ApppointmentCalendarFilter,
     ClientAppointmentResponse,
     WorkerAppointmentResponse,
+    NotifyAppointment,
+    NotifyAppointmentResponse,
+    AppointmentCountFilter,
 } from './appointment.types.js';
 import { Slot } from '../../shared/types/slots.types.js';
 import {
@@ -25,17 +28,25 @@ import { Temporal } from 'temporal-polyfill';
 import {
     appointmentHistoryFilterSchema,
     appointmentCalendarFilterSchema,
+    countFilterSchema,
 } from './appointment.validator.js';
-import { dateToInstant } from '../../shared/utils/temporal.util.js';
+import {
+    dateToInstant,
+    formatLongDate,
+    formatTime,
+} from '../../shared/utils/temporal.util.js';
 
 export function mapToVerifyOverlapInput(
-    input: CreateAppointmentInput | OverlapVerificationInput | Appointment,
+    input:
+        | CreateAppointmentInput
+        | OverlapVerificationInput
+        | NotifyAppointment,
 ): VerifyOverlapInput {
     const startAt = dateToInstant(input.startAt).toJSON();
     const endAt =
-        'services' in input
-            ? calculateEndDate(input.startAt, input.services)
-            : dateToInstant(input.endAt).toJSON();
+        'endAt' in input
+            ? dateToInstant(input.endAt).toJSON()
+            : calculateEndDate(input.startAt, input.services);
     return {
         workerId: input.workerId,
         startAt: Temporal.Instant.from(startAt).toJSON(),
@@ -106,6 +117,31 @@ export function mapToAppointmentExtendedResponse(
                 defaultDuration: s.service.defaultDurationMin,
                 defaultPrice: s.service.defaultPrice,
             },
+        })),
+    };
+}
+
+export function mapToNotifyAppointmentResponse(
+    appointment: NotifyAppointment,
+): NotifyAppointmentResponse {
+    return {
+        dateStr: formatLongDate(appointment.startAt),
+        timeStr:
+            formatTime(appointment.startAt) +
+            ' - ' +
+            formatTime(appointment.endAt),
+        status: appointment.status as Status,
+        worker: {
+            name: `${appointment.worker.firstName} ${appointment.worker.lastName}`,
+            email: appointment.worker.email,
+        },
+        client: {
+            name: `${appointment.client.firstName} ${appointment.client.lastName}`,
+            email: appointment.client.email,
+        },
+        services: appointment.services.map((s) => ({
+            name: s.service.name,
+            color: s.service.colorHex,
         })),
     };
 }
@@ -210,4 +246,11 @@ export function mapToAppointmentCalendarFilter(
     filters: Record<string, any>,
 ): ApppointmentCalendarFilter {
     return appointmentCalendarFilterSchema.parse(filters);
+}
+
+export function mapToAppointmentCountFilter(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    filters: Record<string, any>,
+): AppointmentCountFilter {
+    return countFilterSchema.parse(filters);
 }

@@ -6,6 +6,7 @@ import {
 } from '../../shared/utils/request-parser.util.js';
 import {
     mapToAppointmentCalendarFilter,
+    mapToAppointmentCountFilter,
     mapToAppointmentHistoryFilter,
 } from './appointment.mapper.js';
 
@@ -85,6 +86,20 @@ export class AppointmentController {
         }
     };
 
+    getCount = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const auth = extractAuthContext(req);
+            const filters = mapToAppointmentCountFilter(req.query);
+            const quantity = await this.appointmentService.getCount(auth, filters);
+            return res.status(200).json({
+                message: 'Cantidad obtenida correctamente',
+                quantity,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
     approve = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { id, auth } = extractRequestContextWithId(req);
@@ -100,8 +115,7 @@ export class AppointmentController {
     reject = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { id, auth } = extractRequestContextWithId(req);
-            const input = { id, ...req.body };
-            await this.appointmentService.reject(input, auth);
+            await this.appointmentService.reject(id, auth);
             return res.status(200).json({
                 message: 'Cita rechazada correctamente',
             });
@@ -113,7 +127,8 @@ export class AppointmentController {
     cancel = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { id, auth } = extractRequestContextWithId(req);
-            await this.appointmentService.cancel(id, auth);
+            const input = { id, ...req.body };
+            await this.appointmentService.cancel(input, auth);
             return res.status(200).json({
                 message: 'Cita cancelada correctamente',
             });

@@ -16,19 +16,22 @@ import {
     AppointmentCalendarResponse,
     ApppointmentCalendarFilter,
     Status,
-    RejectAppointmentInput,
+    CancelAppointmentInput,
     ChangeAppointmentStatusInput,
+    AppointmentCountFilter,
 } from './appointment.types.js';
 import {
     mapToAppointmentData,
     mapToAppointmentExtendedResponse,
     mapToCreateAppointmentResponse,
+    mapToNotifyAppointmentResponse,
     mapToVerifyOverlapInput,
 } from './appointment.mapper.js';
 import { Slot } from '../../shared/types/slots.types.js';
 import { AuthContext } from '../../shared/utils/request-parser.util.js';
 import { ConflictError } from '../../shared/errors/domain.error.js';
 import { APPOINTMENT_ERRORS } from '../../shared/constants/messages.js';
+import { AppointmentNotifier } from './util/appointment.notifier.js';
 
 export interface IAppointmentService {
     verifyOverlap(
@@ -51,9 +54,13 @@ export interface IAppointmentService {
         filters: ApppointmentCalendarFilter,
         auth: AuthContext,
     ): Promise<AppointmentCalendarResponse>;
+    getCount(
+        auth: AuthContext,
+        filter: AppointmentCountFilter,
+    ): Promise<number>;
     approve(id: number, auth: AuthContext): Promise<void>;
-    reject(input: RejectAppointmentInput, auth: AuthContext): Promise<void>;
-    cancel(id: number, auth: AuthContext): Promise<void>;
+    reject(id: number, auth: AuthContext): Promise<void>;
+    cancel(input: CancelAppointmentInput, auth: AuthContext): Promise<void>;
     changeStatus(
         input: ChangeAppointmentStatusInput,
         auth: AuthContext,
@@ -63,6 +70,7 @@ export interface IAppointmentService {
 export class AppointmentService implements IAppointmentService {
     private readonly appointmentDomain: AppointmentDomainService;
     private readonly filtersProcessor: AppointmentFiltersProcessor;
+    private readonly notifier = new AppointmentNotifier();
 
     constructor(
         private readonly appointmentRepo: IAppointmentRepository,
@@ -108,7 +116,8 @@ export class AppointmentService implements IAppointmentService {
 
         const appointmentData = mapToAppointmentData(input, auth.role as Role);
         const appointment = await this.appointmentRepo.create(appointmentData);
-        await this.sendNotifications(appointment.id);
+        await this.sendAddedNotifications(appointment.id, input.notes);
+
         return mapToCreateAppointmentResponse(appointment);
     }
 
@@ -146,8 +155,17 @@ export class AppointmentService implements IAppointmentService {
         );
     }
 
+    async getCount(
+        auth: AuthContext,
+        filter: AppointmentCountFilter,
+    ): Promise<number> {
+        if (auth.role === Role.WORKER) filter.workerId = auth.id;
+        if (auth.role === Role.CLIENT) filter.clientId = auth.id;
+        return await this.appointmentRepo.count(filter);
+    }
+
     async approve(id: number, auth: AuthContext): Promise<void> {
-        const apm = await this.appointmentDomain.getAppointmentOrFail(id);
+        const apm = await this.appointmentDomain.getNotifyAppointmentOrFail(id);
 
         this.appointmentDomain.checkStatusChangeAuthorship(auth, apm.workerId);
         if (apm.status !== Status.PENDING)
@@ -160,45 +178,65 @@ export class AppointmentService implements IAppointmentService {
         );
 
         await this.appointmentRepo.updateStatus(id, Status.SCHEDULED);
-        await this.sendNotifications(id);
+        await this.notifier.sendApprovedNotification(
+            mapToNotifyAppointmentResponse(apm),
+        );
     }
 
-    async reject(
-        input: RejectAppointmentInput,
-        auth: AuthContext,
-    ): Promise<void> {
-        const apm = await this.appointmentDomain.getAppointmentOrFail(input.id);
+    async reject(id: number, auth: AuthContext): Promise<void> {
+        const apm = await this.appointmentDomain.getNotifyAppointmentOrFail(id);
 
         this.appointmentDomain.checkStatusChangeAuthorship(auth, apm.workerId);
         if (apm.status !== Status.PENDING)
             throw new ConflictError(APPOINTMENT_ERRORS.STATUS_MISMATCH);
 
-        await this.appointmentRepo.updateStatus(input.id, Status.REJECTED);
-        await this.sendNotifications(input.id);
+        await this.appointmentRepo.updateStatus(id, Status.REJECTED);
+        await this.notifier.sendRejectedNotification(
+            mapToNotifyAppointmentResponse(apm),
+        );
     }
 
-    async cancel(id: number, auth: AuthContext): Promise<void> {
-        const apm = await this.appointmentDomain.getAppointmentOrFail(id);
+    async cancel(
+        input: CancelAppointmentInput,
+        auth: AuthContext,
+    ): Promise<void> {
+        const apm = await this.appointmentDomain.getNotifyAppointmentOrFail(
+            input.id,
+        );
 
         this.appointmentDomain.checkOwnership(auth, apm.clientId, apm.workerId);
         this.validateCancelTransition(auth.role as Role, apm.status);
 
-        await this.appointmentRepo.updateStatus(id, Status.CANCELLED);
-        await this.sendNotifications(id);
+        await this.appointmentRepo.updateStatus(input.id, Status.CANCELLED);
+        await this.notifier.sendCancelledNotification(
+            mapToNotifyAppointmentResponse(apm),
+            auth.role as Role,
+            input.reason,
+        );
     }
 
     async changeStatus(
         input: ChangeAppointmentStatusInput,
         auth: AuthContext,
     ): Promise<void> {
-        const apm = await this.appointmentDomain.getAppointmentOrFail(input.id);
+        const apm = await this.appointmentDomain.getNotifyAppointmentOrFail(
+            input.id,
+        );
         this.appointmentDomain.checkStatusChangeAuthorship(auth, apm.workerId);
         await this.appointmentRepo.updateStatus(input.id, input.status);
-        await this.sendNotifications(input.id);
     }
 
-    async sendNotifications(_appointmentId: number): Promise<void> {
-        // TODO: Implement notification logic to inform worker and client about the appointment details and any updates.
+    private async sendAddedNotifications(id: number, notes?: string) {
+        const apm = await this.appointmentDomain.getNotifyAppointmentOrFail(id);
+        if (apm.status === Status.SCHEDULED)
+            await this.notifier.sendScheduledNotification(
+                mapToNotifyAppointmentResponse(apm),
+                notes,
+            );
+        else if (apm.status === Status.PENDING)
+            await this.notifier.sendRequestedNotification(
+                mapToNotifyAppointmentResponse(apm),
+            );
     }
 
     private async validateAndNormalizeFilters(
