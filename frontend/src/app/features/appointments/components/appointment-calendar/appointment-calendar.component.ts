@@ -5,12 +5,14 @@ import {
   EventEmitter,
   Input,
   OnChanges,
+  OnDestroy,
   OnInit,
   Output,
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Subject, takeUntil } from 'rxjs';
 import { AppointmentCalendarWeekGridComponent } from './appointment-calendar-grid/week-grid/appointment-calendar-week-grid.component';
 import { AppointmentCalendarItem, AppointmentCalendarWeekLayerComponent, ChipClickPayload } from './appointment-calendar-layer/week-layer/appointment-calendar-week-layer.component';
 import { AppointmentActionModalComponent } from '../appointment-action-modal/appointment-action-modal.component';
@@ -40,7 +42,9 @@ interface ViewOption {
   templateUrl: './appointment-calendar.component.html',
   styleUrl: './appointment-calendar.component.scss',
 })
-export class AppointmentCalendarComponent implements OnInit, AfterViewInit, OnChanges {
+export class AppointmentCalendarComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
+
+  private readonly destroy$ = new Subject<void>();
 
   @Input() public appointments: AppointmentCalendarItem[] = [];
   @Output() public weekStartChange = new EventEmitter<Date>();
@@ -73,6 +77,15 @@ export class AppointmentCalendarComponent implements OnInit, AfterViewInit, OnCh
 
   public ngOnInit(): void {
     this.updateWeekBounds();
+
+    this.modalSvc.stateUpdated$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.weekStartChange.emit(this.weekStart));
+  }
+
+  public ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   public ngAfterViewInit(): void {
@@ -205,6 +218,7 @@ export class AppointmentCalendarComponent implements OnInit, AfterViewInit, OnCh
       statusLabel: this.statusToSpanish(appt.status),
       notes: appt.notes ?? null,
       actions: this.buildModalActions(appt),
+      appointmentId: appt.id,
     });
   }
 
@@ -233,10 +247,11 @@ export class AppointmentCalendarComponent implements OnInit, AfterViewInit, OnCh
 
   private statusToSpanish(status: string): string {
     const map: Record<string, string> = {
-      PENDING: 'Pendiente',
-      SCHEDULED: 'Agendada',
+      PENDING:     'Pendiente',
+      SCHEDULED:   'Agendada',
       IN_PROGRESS: 'En progreso',
-      COMPLETED: 'Completada',
+      COMPLETED:   'Completada',
+      NO_SHOW:     'No asistió',
     };
     return map[status] ?? status;
   }
