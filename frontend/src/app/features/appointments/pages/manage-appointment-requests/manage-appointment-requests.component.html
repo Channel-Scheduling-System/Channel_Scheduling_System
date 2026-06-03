@@ -49,7 +49,9 @@
       </div>
       <div class="mar-card__divider"></div>
       <div class="mar-card__people">
-        <div class="mar-card__person">
+        <a class="mar-card__person mar-card__person--link"
+           [routerLink]="['/appointments', appt.client.id, 'history']"
+           title="Ver historial de citas del cliente">
           <div class="mar-card__person-avatar mar-card__person-avatar--client">
             <span class="material-symbols-outlined" translate="no">person</span>
           </div>
@@ -57,7 +59,7 @@
             <span class="mar-card__person-role">Cliente</span>
             <span class="mar-card__person-name">{{ appt.client.name }}</span>
           </div>
-        </div>
+        </a>
         <div class="mar-card__people-sep">
           <span class="material-symbols-outlined" translate="no">chevron_right</span>
         </div>

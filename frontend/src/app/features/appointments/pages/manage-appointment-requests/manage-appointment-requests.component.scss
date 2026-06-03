@@ -179,6 +179,28 @@ $smooth:        0.4s cubic-bezier(0.22, 1, 0.36, 1);
     align-items: center;
     gap: 0.65rem;
     min-width: 0;
+    &--link {
+      text-decoration: none;
+      color: inherit;
+      border-radius: 0.625rem;
+      padding: 0.25rem 0.375rem;
+      margin: -0.25rem -0.375rem;
+      transition:
+        background $transition,
+        box-shadow $transition;
+      &:hover {
+        background: rgba(26, 58, 110, 0.06);
+        box-shadow: 0 0 0 1.5px rgba(26, 58, 110, 0.18);
+        .mar-card__person-name {
+          color: #1a3a6e;
+          text-decoration: underline;
+          text-underline-offset: 2px;
+        }
+        .mar-card__person-avatar--client {
+          box-shadow: 0 2px 14px rgba(26, 58, 110, 0.45);
+        }
+      }
+    }
   }
   &__person-avatar {
     width: 2.25rem;

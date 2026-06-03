@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { Subject, EMPTY } from 'rxjs';
 import { switchMap, takeUntil, tap, catchError, finalize } from 'rxjs/operators';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -13,7 +14,7 @@ import { FormHeaderComponent } from '../../../../core/components/form-header/for
 @Component({
   selector: 'app-manage-appointment-requests',
   standalone: true,
-  imports: [CommonModule, CurrencyPipe, PaginationComponent, FormHeaderComponent],
+  imports: [CommonModule, CurrencyPipe, RouterModule, PaginationComponent, FormHeaderComponent],
   templateUrl: './manage-appointment-requests.component.html',
   styleUrl: './manage-appointment-requests.component.scss',
 })
@@ -88,7 +89,7 @@ export class ManageAppointmentRequestsPageComponent implements OnInit, OnDestroy
       });
   }
   protected formatDate(dateStr: string): string {
-    const date = new Date(dateStr);
+    const date = new Date(dateStr.replace(/Z$|[+-]\d{2}:\d{2}$/, ''));
     return date.toLocaleDateString('es-CO', {
       weekday: 'long',
       day: 'numeric',
@@ -97,7 +98,7 @@ export class ManageAppointmentRequestsPageComponent implements OnInit, OnDestroy
     });
   }
   protected formatTime(dateStr: string): string {
-    const date = new Date(dateStr);
+    const date = new Date(dateStr.replace(/Z$|[+-]\d{2}:\d{2}$/, ''));
     return date.toLocaleTimeString('es-CO', {
       hour: '2-digit',
       minute: '2-digit',
