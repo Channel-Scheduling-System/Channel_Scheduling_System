@@ -154,6 +154,8 @@ export class DatetimeSelectionComponent implements OnInit, OnDestroy {
                 const days: WorkerAvailabilityDay[] | undefined = availability?.data;
                 if (days?.length) {
                     this.availabilityDay = days.find(d => d.date === dateParam) ?? days[0] ?? null;
+                } else if (availability !== null) {
+                    this.availabilityDay = { date: dateParam, available: [], occupied: [] };
                 } else {
                     this.availabilityDay = null;
                 }
@@ -193,7 +195,7 @@ export class DatetimeSelectionComponent implements OnInit, OnDestroy {
         this._pendingDate.set(dateOnly);
         const pendingMin = this._pendingTime();
         if (pendingMin !== null) {
-            this._commitBothParts(dateOnly, pendingMin, /* emitChange */ true);
+            this._commitBothParts(dateOnly, pendingMin);
         } else {
             this._navigateDayOnly(dateOnly);
         }
@@ -222,7 +224,9 @@ export class DatetimeSelectionComponent implements OnInit, OnDestroy {
             this._pendingDate.set(dateOnly);
             const pendingMin = this._pendingTime();
             if (pendingMin !== null) {
-                this._commitBothParts(dateOnly, pendingMin, /* emitChange */ true);
+                // emitChange = true so the calendar fires dateChange → day-data reload
+                // and the selection layer re-evaluates conflicts for the new date.
+                this._commitBothParts(dateOnly, pendingMin);
             } else {
                 this._navigateDayOnly(dateOnly);
             }
@@ -298,14 +302,14 @@ export class DatetimeSelectionComponent implements OnInit, OnDestroy {
                 })()
                 : null);
         if (pendingDate !== null) {
-            this._commitBothParts(pendingDate, startTotalMin, /* emitChange */ false);
+            this._commitBothParts(pendingDate, startTotalMin);
         }
     }
     private _navigateDayOnly(dateOnly: Date): void {
         this.dateChange$.next(dateOnly);
         this.calendarRef?.navigateDayOnly(dateOnly);
     }
-    private _commitBothParts(dateOnly: Date, timeMin: number, emitChange: boolean): void {
+    private _commitBothParts(dateOnly: Date, timeMin: number): void {
         const h = Math.floor(timeMin / 60);
         const m = timeMin % 60;
         const updated = new Date(dateOnly);
@@ -318,7 +322,13 @@ export class DatetimeSelectionComponent implements OnInit, OnDestroy {
             return;
         }
         this.wizard.setSelectedDateTime(updated);
-        this.calendarRef?.scrollToDate(updated, emitChange);
+        // Always emit dateChange$ so day data is (re)loaded and the calendar's
+        // currentDate is updated — this ensures the selection layer re-evaluates
+        // conflicts and the "Siguiente" button reflects the new selection even
+        // when the calendar was already showing the target day (dayChanged = false
+        // in scrollToDate would otherwise suppress the emit).
+        this.dateChange$.next(dateOnly);
+        this.calendarRef?.scrollToDate(updated, /* emitChange */ false);
     }
     private _syncPendingFromWizard(dt: Date): void {
         const dateOnly = new Date(dt);
