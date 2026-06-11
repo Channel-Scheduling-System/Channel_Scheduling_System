@@ -15,13 +15,11 @@ import {
 } from '../appointment.mapper.js';
 import {
     DateRange,
-    DateRangeCalculator,
+    calculateDataRange,
 } from '../../../shared/utils/date-range-calculator.util.js';
 import { Temporal } from 'temporal-polyfill';
 
 export class AppointmentFiltersProcessor {
-    private readonly dateRangeCalculator = new DateRangeCalculator();
-
     constructor(private readonly appointmentRepo: IAppointmentRepository) {}
 
     async processHistoryFilters(
@@ -72,8 +70,8 @@ export class AppointmentFiltersProcessor {
         date?: string,
     ): DateRange | undefined {
         if (!view || !date) return undefined;
-        const range = this.dateRangeCalculator.calculate(view, date);
-        
+        const range = calculateDataRange(view, date);
+
         if (range.startDate === range.endDate) {
             const to = Temporal.PlainDate.from(range.endDate);
             range.endDate = to.add({ days: 1 }).toString();

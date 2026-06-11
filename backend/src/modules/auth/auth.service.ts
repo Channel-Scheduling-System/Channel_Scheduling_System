@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
-import { SignJWT, jwtVerify } from 'jose';
+import { SignJWT } from 'jose';
 import { env } from '../../config/env.js';
 import {
     UnauthorizedError,
@@ -28,6 +28,7 @@ import { IAuthRepository } from './auth.repository.js';
 import { IUserService } from '../users/user.service.js';
 import { IResetCodeService } from '../reset-codes/reset-code.service.js';
 import { AUTH_ERRORS, USER_ERRORS } from '../../shared/constants/messages.js';
+import { verifyJwt } from '../../shared/utils/jwt.util.js';
 
 export interface IAuthService {
     register(input: RegisterInput): Promise<AuthResult>;
@@ -40,6 +41,8 @@ export interface IAuthService {
     checkAdminExists(): Promise<boolean>;
 }
 
+const REFRESH_SECRET = new TextEncoder().encode(env.jwt.refresh);
+const REFRESH_AUDIENCE = 'refresh';
 const TOKEN_HASH_ALGORITHM = 'sha256';
 const AUTH_EMAIL_NOT_FOUND_DELAY_MS = 2500;
 
@@ -220,30 +223,42 @@ export class AuthService implements IAuthService {
     }
 
     private async verifyRefreshToken(token: string): Promise<JwtPayload> {
-        const secret = new TextEncoder().encode(env.jwt.refresh);
         try {
-            const { payload } = await jwtVerify(token, secret, {
-                audience: 'refresh',
+            const payload = await verifyJwt(token, {
+                secret: REFRESH_SECRET,
+                audience: REFRESH_AUDIENCE,
+                errorMessages: {
+                    expired: AUTH_ERRORS.REFRESH_TOKEN_EXPIRED,
+                    invalid: AUTH_ERRORS.REFRESH_TOKEN_INVALID,
+                },
             });
-
-            if (payload.sub) {
-                return {
-                    sub: Number(payload.sub),
-                    role: String(payload.role) as SystemRole,
-                };
-            }
+            return {
+                sub: Number(payload.sub),
+                role: String(payload['role']) as SystemRole,
+            };
         } catch (error) {
-            if (error instanceof Error && error.message.includes('expired')) {
-                throw new InvalidTokenError(AUTH_ERRORS.REFRESH_TOKEN_EXPIRED);
+            if (
+                error instanceof InvalidTokenError &&
+                error.message === AUTH_ERRORS.REFRESH_TOKEN_EXPIRED
+            ) {
+                return this.decodeExpiredToken(token);
             }
+            throw error;
         }
+    }
 
+    private decodeExpiredToken(token: string): JwtPayload {
+        const parts = token.split('.');
+        if (parts.length !== 3)
+            throw new InvalidTokenError(AUTH_ERRORS.REFRESH_TOKEN_INVALID);
         try {
-            const parts = token.split('.');
-            if (parts.length !== 3) throw new InvalidTokenError(AUTH_ERRORS.REFRESH_TOKEN_INVALID);
             const payloadJson = this.base64UrlDecode(parts[1]);
-            const decoded = JSON.parse(payloadJson) as { sub?: string; role?: string };
-            if (!decoded.sub) throw new InvalidTokenError(AUTH_ERRORS.REFRESH_TOKEN_INVALID);
+            const decoded = JSON.parse(payloadJson) as {
+                sub?: string;
+                role?: string;
+            };
+            if (!decoded.sub)
+                throw new InvalidTokenError(AUTH_ERRORS.REFRESH_TOKEN_INVALID);
             return {
                 sub: Number(decoded.sub),
                 role: String(decoded.role) as SystemRole,
@@ -260,7 +275,8 @@ export class AuthService implements IAuthService {
         try {
             const payloadJson = this.base64UrlDecode(parts[1]);
             const decoded = JSON.parse(payloadJson) as { exp?: number };
-            if (!decoded.exp) throw new InvalidTokenError(AUTH_ERRORS.TOKEN_DECODE_FAILED);
+            if (!decoded.exp)
+                throw new InvalidTokenError(AUTH_ERRORS.TOKEN_DECODE_FAILED);
             return new Date(decoded.exp * 1000);
         } catch {
             throw new InvalidTokenError(AUTH_ERRORS.TOKEN_DECODE_FAILED);

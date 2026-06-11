@@ -1,5 +1,6 @@
 const requiredEnvVars = [
     'NODE_ENV',
+    'FRONTEND_URL',
     'DATABASE_URL',
     'JWT_SECRET',
     'JWT_EXPIRES_IN',
@@ -24,8 +25,8 @@ for (const key of requiredEnvVars) {
 
 export const env = {
     nodeEnv: process.env.NODE_ENV as 'development' | 'production' | 'test',
-    frontendUrl: process.env.FRONTEND_URL || 'http://localhost:4200',
-    port: process.env.PORT ? parseInt(process.env.PORT, 10) : 3000,
+    frontendUrl: process.env.FRONTEND_URL as string,
+    port: process.env.PORT ? getEnvNumber('PORT') : 3000,
     databaseUrl: process.env.DATABASE_URL as string,
     jwt: {
         secret: process.env.JWT_SECRET as string,
@@ -37,17 +38,25 @@ export const env = {
     },
     otp: {
         secret: process.env.OTP_SECRET as string,
-        expiresIn: parseInt(process.env.OTP_EXPIRES_IN as string, 10),
+        expiresIn: getEnvNumber('OTP_EXPIRES_IN'),
     },
     token: {
         secret: process.env.TOKEN_SECRET as string,
     },
     email: {
         host: process.env.SMTP_HOST as string,
-        port: parseInt(process.env.SMTP_PORT as string, 10),
+        port: getEnvNumber('SMTP_PORT'),
         user: process.env.SMTP_USER as string,
         pass: process.env.SMTP_PASS as string,
         from: process.env.EMAIL_FROM as string,
     },
     firstAdminSecretCode: process.env.FIRST_ADMIN_SECRET_CODE as string,
 };
+
+function getEnvNumber(key: string): number {
+    const value = process.env[key];
+    const parsed = Number(value);
+    if (Number.isNaN(parsed))
+        throw new Error(`Env variable ${key} must be a number`);
+    return parsed;
+}

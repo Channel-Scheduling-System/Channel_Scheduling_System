@@ -21,7 +21,7 @@ import {
 } from './appointment.types.js';
 import { Slot } from '../../shared/types/slots.types.js';
 import {
-    dateTimeToIsoDateTimeWithoutSeconds,
+    stripSecondsFromDateTime,
     dateTimeToIsoTime,
 } from '../../shared/utils/times-parser.util.js';
 import { Temporal } from 'temporal-polyfill';
@@ -91,8 +91,8 @@ export function mapToAppointmentExtendedResponse(
 ): ExtendedAppointmentResponse {
     return {
         id: appointment.id,
-        startAt: dateTimeToIsoDateTimeWithoutSeconds(appointment.startAt),
-        endAt: dateTimeToIsoDateTimeWithoutSeconds(appointment.endAt),
+        startAt: stripSecondsFromDateTime(appointment.startAt),
+        endAt: stripSecondsFromDateTime(appointment.endAt),
         status: appointment.status as Status,
         createdBy: appointment.createdBy as Role,
         notes: appointment.notes,
@@ -158,8 +158,8 @@ export function mapToHistoryAppointmentResponse(
 ): AppointmentResponse[] {
     return appointments.map((apm) => ({
         id: apm.id,
-        startAt: dateTimeToIsoDateTimeWithoutSeconds(apm.startAt),
-        endAt: dateTimeToIsoDateTimeWithoutSeconds(apm.endAt),
+        startAt: stripSecondsFromDateTime(apm.startAt),
+        endAt: stripSecondsFromDateTime(apm.endAt),
         status: apm.status as Status,
         worker: {
             id: apm.worker.id,
@@ -182,8 +182,8 @@ export function mapToWorkerCalendarAppointmentResponse(
 ): WorkerAppointmentResponse[] {
     return appointments.map((apm) => ({
         id: apm.id,
-        startAt: dateTimeToIsoDateTimeWithoutSeconds(apm.startAt),
-        endAt: dateTimeToIsoDateTimeWithoutSeconds(apm.endAt),
+        startAt: stripSecondsFromDateTime(apm.startAt),
+        endAt: stripSecondsFromDateTime(apm.endAt),
         status: apm.status as Status,
         notes: apm.notes,
         client: {
@@ -207,8 +207,8 @@ export function mapToClientCalendarAppointmentResponse(
 ): ClientAppointmentResponse[] {
     return appointments.map((apm) => ({
         id: apm.id,
-        startAt: dateTimeToIsoDateTimeWithoutSeconds(apm.startAt),
-        endAt: dateTimeToIsoDateTimeWithoutSeconds(apm.endAt),
+        startAt: stripSecondsFromDateTime(apm.startAt),
+        endAt: stripSecondsFromDateTime(apm.endAt),
         status: apm.status as Status,
         worker: {
             id: apm.worker.id,

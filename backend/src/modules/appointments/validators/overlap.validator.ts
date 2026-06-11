@@ -7,7 +7,7 @@ import {
 } from '../appointment.types.js';
 import { Slot } from '../../../shared/types/slots.types.js';
 import {
-    isoDateTimeToDayMinutes,
+    isoDateTimeToMinutes,
     timeToMinutes,
 } from '../../../shared/utils/times-parser.util.js';
 import {
@@ -74,8 +74,8 @@ export class OverlapValidator {
         end: string,
         availableSlots: Slot[],
     ): boolean {
-        const startMinutes = isoDateTimeToDayMinutes(start);
-        const endMinutes = isoDateTimeToDayMinutes(end);
+        const startMinutes = isoDateTimeToMinutes(start);
+        const endMinutes = isoDateTimeToMinutes(end);
         for (const slot of availableSlots) {
             const slotStart = timeToMinutes(slot.start);
             const slotEnd = timeToMinutes(slot.end);

@@ -81,8 +81,12 @@ export class BlockedTimeOverlapValidator {
 
         const { startTime: exiStart, endTime: exiEnd } =
             this.getBlockTimeRange(exiBlock);
-        const inputStart = dateTimeToIsoTime(input.startTime);
-        const inputEnd = dateTimeToIsoTime(input.endTime);
+        const inputStart = input.startTime
+            ? dateTimeToIsoTime(input.startTime)
+            : '00:00';
+        const inputEnd = input.endTime
+            ? dateTimeToIsoTime(input.endTime)
+            : '00:00';
 
         return this.checkHoursOverlap(inputStart, inputEnd, exiStart, exiEnd);
     }
