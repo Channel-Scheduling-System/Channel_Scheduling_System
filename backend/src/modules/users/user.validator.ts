@@ -10,7 +10,7 @@ import {
     pageSchema,
     paramId,
     updateStateDTO,
-} from '../../shared/zod/shemas.js';
+} from '../../shared/zod/schemas.js';
 import { z } from 'zod';
 
 export const role = z.enum(['ADMIN', 'CLIENT', 'WORKER']);

@@ -12,7 +12,7 @@ import {
     validateDateRange,
     paramId,
     oneOrMany,
-} from '../../shared/zod/shemas.js';
+} from '../../shared/zod/schemas.js';
 import { dayOfWeek } from './availability.types.js';
 import { z } from 'zod';
 

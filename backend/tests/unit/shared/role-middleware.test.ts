@@ -1,10 +1,6 @@
 /// <reference types="jest" />
 
-import {
-    requireRole,
-    hasRole,
-    hasOneOfRoles,
-} from '../../../src/shared/middlewares/role.middleware';
+import { requireRole } from '../../../src/shared/middlewares/role.middleware';
 import { ForbiddenError, UnauthorizedError } from '../../../src/shared/errors/domain.error';
 
 // ─── Helper ───────────────────────────────────────────────────────────────────
@@ -71,40 +67,6 @@ describe('role.middleware', () => {
             const next = jest.fn();
             middleware(req, {} as any, next);
             expect(next).toHaveBeenCalledWith();
-        });
-    });
-
-    // ── hasRole ───────────────────────────────────────────────────────────
-    describe('hasRole', () => {
-        it('should return true when user has the given role', () => {
-            expect(hasRole({ role: 'ADMIN' }, 'ADMIN')).toBe(true);
-        });
-
-        it('should return false when user has a different role', () => {
-            expect(hasRole({ role: 'CLIENT' }, 'ADMIN')).toBe(false);
-        });
-
-        it('should return false when user is undefined', () => {
-            expect(hasRole(undefined, 'ADMIN')).toBe(false);
-        });
-
-        it('should return false when user has no role', () => {
-            expect(hasRole({}, 'ADMIN')).toBe(false);
-        });
-    });
-
-    // ── hasOneOfRoles ─────────────────────────────────────────────────────
-    describe('hasOneOfRoles', () => {
-        it('should return true when user has one of the given roles', () => {
-            expect(hasOneOfRoles({ role: 'WORKER' }, ['ADMIN', 'WORKER'])).toBe(true);
-        });
-
-        it('should return false when user has none of the given roles', () => {
-            expect(hasOneOfRoles({ role: 'CLIENT' }, ['ADMIN', 'WORKER'])).toBe(false);
-        });
-
-        it('should return false when user is undefined', () => {
-            expect(hasOneOfRoles(undefined, ['ADMIN'])).toBe(false);
         });
     });
 });

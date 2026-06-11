@@ -16,7 +16,7 @@ import {
     oneOrMany,
     dateSchema,
     queryId,
-} from '../../shared/zod/shemas.js';
+} from '../../shared/zod/schemas.js';
 import { Status } from './appointment.types.js';
 import { z } from 'zod';
 

@@ -11,7 +11,7 @@ import {
     priceSchema,
     durationSchema,
     updateStateDTO,
-} from '../../shared/zod/shemas.js';
+} from '../../shared/zod/schemas.js';
 
 // SERVICES
 //* -----------------------------

@@ -54,7 +54,7 @@ export const durationSchema = z
     .number('La duración debe ser un número')
     .int('La duración debe ser un número entero')
     .positive('La duración debe ser un número positivo')
-    .min(10, 'La duración mínima es 5 minutos')
+    .min(10, 'La duración mínima es 10 minutos')
     .max(500, 'La duración máxima es 500 minutos');
 
 // ============================================================

@@ -20,14 +20,13 @@ import {
 import { SlotCalculator } from './slot-calculator.js';
 import { DateIterator } from './date-iterator.js';
 import {
-    DateRangeCalculator,
     DateRange,
+    calculateDataRange,
 } from '../../../shared/utils/date-range-calculator.util.js';
 import { Slot } from '../../../shared/types/slots.types.js';
 import { Temporal } from 'temporal-polyfill';
 
 export class AvailabilityFiltersProcessor {
-    private readonly dateRangeCalculator = new DateRangeCalculator();
     private readonly slotCalculator = new SlotCalculator();
 
     constructor(
@@ -227,6 +226,6 @@ export class AvailabilityFiltersProcessor {
         date?: string,
     ): DateRange | undefined {
         if (!view || !date) return undefined;
-        return this.dateRangeCalculator.calculate(view, date);
+        return calculateDataRange(view, date);
     }
 }
