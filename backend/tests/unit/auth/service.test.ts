@@ -60,7 +60,17 @@ jest.mock(
                     return `header.${encodedPayload}.signature`;
                 }),
             })),
-        jwtVerify: jest.fn().mockResolvedValue({ payload: {} }),
+        jwtVerify: jest.fn().mockImplementation(async (token: string) => {
+            const parts = token.split('.');
+            if (parts.length !== 3) throw new Error('Invalid token format');
+            const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
+            return { payload };
+        }),
+        errors: {
+            JWTExpired: class JWTExpired extends Error {
+                constructor(message?: string) { super(message); this.name = 'JWTExpired'; }
+            },
+        },
     }),
     { virtual: true },
 );
