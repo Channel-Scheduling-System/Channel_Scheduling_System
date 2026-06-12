@@ -9,7 +9,7 @@ import { AUTH_ERRORS } from '../constants/messages.js';
 import { verifyJwt } from '../utils/jwt.util.js';
 
 const RESET_PASSWORD_SECRET = new TextEncoder().encode(env.jwt.resetPass);
-const RESET_PASSWORD_AUDIENCE = 'password-reset';
+const RESET_AUDIENCE_CLAIM = 'reset-auth';
 
 /**
  * **Reset Password Token Middleware**
@@ -34,7 +34,7 @@ export async function resetTokenMiddleware(
 async function verifyToken(token: string): Promise<CustomJwtPayload> {
     const payload = await verifyJwt(token, {
         secret: RESET_PASSWORD_SECRET,
-        audience: RESET_PASSWORD_AUDIENCE,
+        audience: RESET_AUDIENCE_CLAIM,
         errorMessages: {
             expired: AUTH_ERRORS.RESETPASS_TOKEN_EXPIRED,
             invalid: AUTH_ERRORS.RESETPASS_TOKEN_INVALID,

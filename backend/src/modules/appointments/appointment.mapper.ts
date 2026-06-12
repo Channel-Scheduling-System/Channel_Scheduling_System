@@ -82,7 +82,7 @@ export function mapToCreateAppointmentResponse(
         id: appointment.id,
         startAt: appointment.startAt,
         endAt: appointment.endAt,
-        status: appointment.status as Status,
+        status: appointment.status,
     };
 }
 
@@ -93,8 +93,8 @@ export function mapToAppointmentExtendedResponse(
         id: appointment.id,
         startAt: stripSecondsFromDateTime(appointment.startAt),
         endAt: stripSecondsFromDateTime(appointment.endAt),
-        status: appointment.status as Status,
-        createdBy: appointment.createdBy as Role,
+        status: appointment.status,
+        createdBy: appointment.createdBy,
         notes: appointment.notes,
         createdAt: appointment.createdAt,
         updatedAt: appointment.updatedAt,
@@ -130,7 +130,7 @@ export function mapToNotifyAppointmentResponse(
             formatTime(appointment.startAt) +
             ' - ' +
             formatTime(appointment.endAt),
-        status: appointment.status as Status,
+        status: appointment.status,
         worker: {
             name: `${appointment.worker.firstName} ${appointment.worker.lastName}`,
             email: appointment.worker.email,
