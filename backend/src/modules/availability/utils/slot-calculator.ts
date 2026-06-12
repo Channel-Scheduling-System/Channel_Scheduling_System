@@ -44,7 +44,7 @@ export class SlotCalculator {
     private subtractSlotsFromRange(range: Slot, slots: Slot[]): Slot[] {
         if (slots.length === 0) return [{ start: range.start, end: range.end }];
 
-        const slotsSorted = slots.sort(
+        const slotsSorted = slots.toSorted(
             (a, b) => timeToMinutes(a.start) - timeToMinutes(b.start),
         );
         const mergedBlocked = this.mergeOverlappingSlots(range, slotsSorted);

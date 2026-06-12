@@ -11,14 +11,14 @@ export class SlotCalculator {
 
     private mergeOverlappingSlots(slots: Slot[]): Slot[] {
         if (slots.length === 0) return [];
-        const sortedSlots = slots.sort(
+        const sortedSlots = slots.toSorted(
             (a, b) => timeToMinutes(a.start) - timeToMinutes(b.start),
         );
         const mergedSlots: Slot[] = [sortedSlots[0]];
 
         for (let i = 1; i < sortedSlots.length; i++) {
             const currentSlot = sortedSlots[i];
-            const lastMergedSlot = mergedSlots[mergedSlots.length - 1];
+            const lastMergedSlot = mergedSlots.at(-1)!;
             const lastMergedSlotEndMin = timeToMinutes(lastMergedSlot.end);
 
             if (timeToMinutes(currentSlot.start) <= lastMergedSlotEndMin) {

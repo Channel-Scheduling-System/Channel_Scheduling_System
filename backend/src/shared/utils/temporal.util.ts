@@ -51,7 +51,6 @@ export function formatTime(date: Date | string): string {
     return `${hour12}:${minute} ${period}`;
 }
 
-// TODO: Refactorizar para manejar correctamente zonas horarias y formatos de fecha
 function toZonedDateTime(date: Date | string): Temporal.ZonedDateTime {
     const normalizedDate = date instanceof Date ? date.toISOString() : date;
     const localDateTime = Temporal.PlainDateTime.from(

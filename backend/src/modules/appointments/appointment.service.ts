@@ -76,7 +76,7 @@ export class AppointmentService implements IAppointmentService {
         private readonly appointmentRepo: IAppointmentRepository,
         private readonly userService: IUserService,
         private readonly serviceService: IServiceService,
-        private availabilityService: () => IAvailabilityService,
+        private readonly availabilityService: () => IAvailabilityService,
     ) {
         this.appointmentDomain = new AppointmentDomainService(
             appointmentRepo,
