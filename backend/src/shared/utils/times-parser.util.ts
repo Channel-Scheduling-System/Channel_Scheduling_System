@@ -29,7 +29,7 @@ export function dateTimeToIsoDate(dateTime: string): string {
  * @returns Tiempo en formato ISO (HH:MM)
  */
 export function dateTimeToIsoTime(dateTime: string): string {
-    const match = dateTime.match(/T(\d{2}):(\d{2})/);
+    const match = /T(\d{2}):(\d{2})/.exec(dateTime);
     return match ? `${match[1]}:${match[2]}` : '00:00';
 }
 
