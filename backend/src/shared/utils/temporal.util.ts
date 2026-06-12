@@ -16,7 +16,7 @@ export function isFutureDate(date: string): boolean {
 
 /**
  * @param date Fecha en formato ISO o un objeto Date
- * @returns Temporal.Instant correspondiente a la fecha dada 
+ * @returns Temporal.Instant correspondiente a la fecha dada
  */
 export function dateToInstant(date: Date | string): Temporal.Instant {
     const value =

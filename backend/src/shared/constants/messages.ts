@@ -70,7 +70,8 @@ export const APPOINTMENT_ERRORS = {
         return `El servicio con id ${serviceId} no existe`;
     },
     DATE_IN_PAST: 'No se puede crear una cita en una fecha pasada',
-    DATE_EXPIRED: 'Esta acción no se puede realizar porque la fecha de la cita ya pasó',
+    DATE_EXPIRED:
+        'Esta acción no se puede realizar porque la fecha de la cita ya pasó',
     OUT_OF_WORKING_HOURS:
         'La cita no está dentro de los horarios laborales del trabajador',
     CANT_BE_REQUESTED:

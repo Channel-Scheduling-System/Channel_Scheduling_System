@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { StatusCodes } from 'http-status-codes';
 import { IAvailabilityService } from './availability.service.js';
 import { extractRequestContextWithId } from '../../shared/utils/request-parser.util.js';
 import {
@@ -20,7 +21,7 @@ export class AvailabilityController {
                 workerId: id,
                 workingHours: req.body.workingHours,
             });
-            return res.status(201).json({
+            return res.status(StatusCodes.CREATED).json({
                 message: 'Horario establecido correctamente',
             });
         } catch (error) {
@@ -35,7 +36,7 @@ export class AvailabilityController {
                 workerId,
                 ...req.body,
             });
-            return res.status(201).json({
+            return res.status(StatusCodes.CREATED).json({
                 message: 'Tiempo bloqueado correctamente',
             });
         } catch (error) {
@@ -47,7 +48,7 @@ export class AvailabilityController {
         try {
             const workerId = req.params.id as unknown as number;
             await this.availabilityService.addDayOff({ workerId, ...req.body });
-            return res.status(201).json({
+            return res.status(StatusCodes.CREATED).json({
                 message: 'Dia bloqueado correctamente',
             });
         } catch (error) {
@@ -62,7 +63,7 @@ export class AvailabilityController {
                 workerId,
                 ...req.body,
             });
-            return res.status(201).json({
+            return res.status(StatusCodes.CREATED).json({
                 message: 'Periodo bloqueado correctamente',
             });
         } catch (error) {
@@ -80,7 +81,7 @@ export class AvailabilityController {
             const filters = mapToAvailabilityClientFilter(workerId, req.query);
             const data =
                 await this.availabilityService.getBasicAvailability(filters);
-            return res.status(200).json({
+            return res.status(StatusCodes.OK).json({
                 message: 'Disponibilidad recuperada correctamente',
                 data,
             });
@@ -101,7 +102,7 @@ export class AvailabilityController {
                 filters,
                 auth,
             );
-            return res.status(200).json({
+            return res.status(StatusCodes.OK).json({
                 message: 'Disponibilidad recuperada correctamente',
                 data,
             });
@@ -114,7 +115,7 @@ export class AvailabilityController {
         try {
             const { id, auth } = extractRequestContextWithId(req);
             await this.availabilityService.delete(id, auth);
-            return res.status(200).json({
+            return res.status(StatusCodes.OK).json({
                 message: 'Bloque de tiempo desbloqueado correctamente',
             });
         } catch (error) {

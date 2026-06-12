@@ -3,7 +3,9 @@ export interface PasswordResetEmailData {
     expiresInMinutes: number;
 }
 
-export function generatePasswordResetEmailHTML(data: PasswordResetEmailData): string {
+export function generatePasswordResetEmailHTML(
+    data: PasswordResetEmailData,
+): string {
     return `
         <!DOCTYPE html>
         <html lang="es">

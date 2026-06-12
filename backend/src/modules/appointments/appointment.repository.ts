@@ -82,7 +82,7 @@ export class AppointmentRepository implements IAppointmentRepository {
                 workerId: filter.workerId,
                 clientId: filter.clientId,
                 status: filter.status ? { in: filter.status } : undefined,
-            }
+            },
         });
     }
 

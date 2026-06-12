@@ -164,9 +164,11 @@ describe('AuthService', () => {
         expect(bcryptMock.compare).toHaveBeenCalledWith('Password123', 'hash');
         expect(repo.deleteRefreshTokensForUser).toHaveBeenCalledWith(1);
         expect(repo.createRefreshToken).toHaveBeenCalledWith(
-            1,
-            expect.any(String),
-            expect.any(Date),
+            expect.objectContaining({
+                userId: 1,
+                tokenHash: expect.any(String),
+                expireAt: expect.any(Date),
+            }),
         );
     });
 
@@ -277,9 +279,11 @@ describe('AuthService', () => {
             },
         });
         expect(repo.createRefreshToken).toHaveBeenCalledWith(
-            5,
-            expect.any(String),
-            expect.any(Date),
+            expect.objectContaining({
+                userId: 5,
+                tokenHash: expect.any(String),
+                expireAt: expect.any(Date),
+            }),
         );
     });
 
@@ -313,9 +317,11 @@ describe('AuthService', () => {
             refreshTokenHash,
         );
         expect(repo.createRefreshToken).toHaveBeenCalledWith(
-            1,
-            expect.any(String),
-            expect.any(Date),
+            expect.objectContaining({
+                userId: 1,
+                tokenHash: expect.any(String),
+                expireAt: expect.any(Date),
+            }),
         );
         expect(result.user).toEqual({
             id: 1,

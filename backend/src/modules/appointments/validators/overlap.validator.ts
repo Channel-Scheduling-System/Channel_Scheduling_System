@@ -56,10 +56,11 @@ export class OverlapValidator {
         const startInstant = Temporal.Instant.from(input.startAt);
         const startZoned = startInstant.toZonedDateTimeISO('UTC');
 
-        const availableSlots = await this.availabilityService().getAvailableSlots(
-            input.workerId,
-            startZoned.toPlainDate().toString(),
-        );
+        const availableSlots =
+            await this.availabilityService().getAvailableSlots(
+                input.workerId,
+                startZoned.toPlainDate().toString(),
+            );
         if (!availableSlots) return false;
 
         return this.isAppointmentInSlots(

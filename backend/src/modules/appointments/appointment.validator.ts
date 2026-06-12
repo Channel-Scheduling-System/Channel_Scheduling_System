@@ -91,10 +91,9 @@ const cancelAppointmentInput = z
 const allowedChangeStatus = new Set(['IN_PROGRESS', 'COMPLETED', 'NO_SHOW']);
 const changeAppointmentStatusInput = z
     .object({
-        status: statusEnum.refine(
-            (status) => allowedChangeStatus.has(status),
-            { message: 'Estados válidos: IN_PROGRESS, COMPLETED, NO_SHOW' },
-        ),
+        status: statusEnum.refine((status) => allowedChangeStatus.has(status), {
+            message: 'Estados válidos: IN_PROGRESS, COMPLETED, NO_SHOW',
+        }),
     })
     .strict();
 

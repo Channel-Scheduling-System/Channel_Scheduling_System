@@ -1,15 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import { env } from '../../config/env.js';
-import {
-    CustomJwtPayload,
-    extractToken,
-    assertUserIsActive,
-} from './auth.middleware.js';
+import { extractToken, assertUserIsActive } from './auth.middleware.js';
 import { AUTH_ERRORS } from '../constants/messages.js';
 import { verifyJwt } from '../utils/jwt.util.js';
+import { JwtPayload } from '../types/jwt.js';
 
-const RESET_PASSWORD_SECRET = new TextEncoder().encode(env.jwt.resetPass);
-const RESET_AUDIENCE_CLAIM = 'reset-auth';
+const RESET_PASS_SECRET = new TextEncoder().encode(env.jwt.resetPass);
+const RESET_PASS_AUDIENCE = 'reset-pass';
 
 /**
  * **Reset Password Token Middleware**
@@ -31,10 +28,10 @@ export async function resetTokenMiddleware(
     }
 }
 
-async function verifyToken(token: string): Promise<CustomJwtPayload> {
+async function verifyToken(token: string): Promise<JwtPayload> {
     const payload = await verifyJwt(token, {
-        secret: RESET_PASSWORD_SECRET,
-        audience: RESET_AUDIENCE_CLAIM,
+        secret: RESET_PASS_SECRET,
+        audience: RESET_PASS_AUDIENCE,
         errorMessages: {
             expired: AUTH_ERRORS.RESETPASS_TOKEN_EXPIRED,
             invalid: AUTH_ERRORS.RESETPASS_TOKEN_INVALID,

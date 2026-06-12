@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { JwtPayload } from '../types/jwt.js';
 import { env } from '../../config/env.js';
 import prisma from '../../config/prisma.js';
 import { InvalidTokenError } from '../errors/validation.error.js';
@@ -8,25 +9,6 @@ import { verifyJwt } from '../utils/jwt.util.js';
 
 const JWT_SECRET = new TextEncoder().encode(env.jwt.secret);
 const ACCESS_AUDIENCE = 'access';
-
-/**
- * JWT Payload after verification.
- * @property sub: user ID
- * @property role: user role in the system
- */
-export interface CustomJwtPayload {
-    readonly sub: number;
-    readonly role?: string;
-}
-
-/**
- * Express Request extension
- */
-declare module 'express-serve-static-core' {
-    interface Request {
-        user?: CustomJwtPayload;
-    }
-}
 
 /**
  * **JWT Auth Middleware**
@@ -59,7 +41,7 @@ export function extractToken(authHeader?: string): string {
     return token;
 }
 
-async function verifyToken(token: string): Promise<CustomJwtPayload> {
+async function verifyToken(token: string): Promise<JwtPayload> {
     const payload = await verifyJwt(token, {
         secret: JWT_SECRET,
         audience: ACCESS_AUDIENCE,

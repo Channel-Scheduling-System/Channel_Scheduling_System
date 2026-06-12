@@ -160,7 +160,7 @@ export function mapToHistoryAppointmentResponse(
         id: apm.id,
         startAt: stripSecondsFromDateTime(apm.startAt),
         endAt: stripSecondsFromDateTime(apm.endAt),
-        status: apm.status as Status,
+        status: apm.status,
         worker: {
             id: apm.worker.id,
             name: `${apm.worker.firstName} ${apm.worker.lastName}`,
@@ -184,7 +184,7 @@ export function mapToWorkerCalendarAppointmentResponse(
         id: apm.id,
         startAt: stripSecondsFromDateTime(apm.startAt),
         endAt: stripSecondsFromDateTime(apm.endAt),
-        status: apm.status as Status,
+        status: apm.status,
         notes: apm.notes,
         client: {
             id: apm.client.id,
@@ -209,7 +209,7 @@ export function mapToClientCalendarAppointmentResponse(
         id: apm.id,
         startAt: stripSecondsFromDateTime(apm.startAt),
         endAt: stripSecondsFromDateTime(apm.endAt),
-        status: apm.status as Status,
+        status: apm.status,
         worker: {
             id: apm.worker.id,
             name: `${apm.worker.firstName} ${apm.worker.lastName}`,
