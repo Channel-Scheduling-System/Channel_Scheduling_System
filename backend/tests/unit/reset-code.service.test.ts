@@ -13,6 +13,7 @@ process.env.OTP_SECRET = 'otp_secret_test';
 process.env.OTP_EXPIRES_IN = String(10 * 60 * 1000); // 10 minutes
 process.env.TOKEN_SECRET = 'token_secret';
 process.env.FIRST_ADMIN_SECRET_CODE = 'first_admin';
+process.env.FRONTEND_URL = 'http://localhost:4200';
 process.env.SMTP_HOST = 'localhost';
 process.env.SMTP_PORT = '1025';
 process.env.SMTP_USER = 'user';

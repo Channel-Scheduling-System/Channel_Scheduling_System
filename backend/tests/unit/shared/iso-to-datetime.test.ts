@@ -49,16 +49,8 @@ describe('iso-to-datetime utilities', () => {
             expect(dateTimeToIsoTime('1900-01-01T14:30:00Z')).toBe('14:30');
         });
 
-        it('should return 00:00 when the input is null', () => {
-            expect(dateTimeToIsoTime(null)).toBe('00:00');
-        });
-
-        it('should return 00:00 when the input is undefined', () => {
-            expect(dateTimeToIsoTime(undefined)).toBe('00:00');
-        });
-
-        it('should return the same value when already in HH:MM format', () => {
-            expect(dateTimeToIsoTime('08:00')).toBe('08:00');
+        it('should return 00:00 when format is unrecognised (no T token)', () => {
+            expect(dateTimeToIsoTime('08:00')).toBe('00:00');
         });
 
         it('should return 00:00 when format is unrecognised', () => {

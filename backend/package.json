@@ -13,7 +13,8 @@
         "format": "prettier --write .",
         "test": "jest --forceExit",
         "test:coverage": "jest --coverage --forceExit",
-        "seed": "tsx prisma/seed.ts"
+        "seed": "tsx prisma/seed.ts",
+        "seed:rollback": "tsx prisma/seed.ts --rollback"
     },
     "repository": {
         "type": "git",
