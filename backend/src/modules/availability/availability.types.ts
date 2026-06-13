@@ -1,4 +1,4 @@
-import { Slot } from "../../shared/types/slots.types.js";
+import { Slot } from '../../shared/types/slots.types.js';
 
 export enum dayOfWeek {
     MONDAY = 'MONDAY',

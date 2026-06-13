@@ -15,17 +15,9 @@ serviceRouter.post(
     serviceController.add,
 );
 
-serviceRouter.get(
-    '/',
-    serviceValidator.filters,
-    serviceController.getAll,
-);
+serviceRouter.get('/', serviceValidator.filters, serviceController.getAll);
 
-serviceRouter.get(
-    '/:id',
-    serviceValidator.id,
-    serviceController.getById,
-);
+serviceRouter.get('/:id', serviceValidator.id, serviceController.getById);
 
 serviceRouter.put(
     '/:id',

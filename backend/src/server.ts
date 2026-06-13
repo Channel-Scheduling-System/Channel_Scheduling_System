@@ -19,7 +19,7 @@ async function run() {
             await prisma.$disconnect();
             process.exit(0);
         };
-        
+
         process.on('SIGINT', shutdown);
         process.on('SIGTERM', shutdown);
     } catch (error) {

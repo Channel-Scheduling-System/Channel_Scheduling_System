@@ -18,7 +18,7 @@ export class SlotCalculator {
 
         for (let i = 1; i < sortedSlots.length; i++) {
             const currentSlot = sortedSlots[i];
-            const lastMergedSlot = mergedSlots.at(-1)!;
+            const lastMergedSlot = mergedSlots[mergedSlots.length - 1];
             const lastMergedSlotEndMin = timeToMinutes(lastMergedSlot.end);
 
             if (timeToMinutes(currentSlot.start) <= lastMergedSlotEndMin) {

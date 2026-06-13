@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { StatusCodes } from 'http-status-codes';
 import { IAppointmentService } from './appointment.service.js';
 import {
     extractAuthContext,
@@ -17,7 +18,7 @@ export class AppointmentController {
         try {
             const { message, ...data } =
                 await this.appointmentService.verifyOverlap(req.body);
-            return res.status(200).json({ data, message });
+            return res.status(StatusCodes.OK).json({ data, message });
         } catch (error) {
             next(error);
         }
@@ -27,7 +28,7 @@ export class AppointmentController {
         try {
             const auth = extractAuthContext(req);
             await this.appointmentService.add(req.body, auth);
-            return res.status(201).json({
+            return res.status(StatusCodes.CREATED).json({
                 message:
                     auth.role === 'WORKER'
                         ? 'Cita creada correctamente'
@@ -42,7 +43,7 @@ export class AppointmentController {
         try {
             const { id, auth } = extractRequestContextWithId(req);
             const data = await this.appointmentService.getById(id, auth);
-            return res.status(200).json({
+            return res.status(StatusCodes.OK).json({
                 message: 'Cita obtenida correctamente',
                 data,
             });
@@ -59,7 +60,7 @@ export class AppointmentController {
                 filters,
                 auth,
             );
-            return res.status(200).json({
+            return res.status(StatusCodes.OK).json({
                 message: 'Citas obtenidas correctamente',
                 data: result.data,
                 meta: result.meta,
@@ -77,7 +78,7 @@ export class AppointmentController {
                 filters,
                 auth,
             );
-            return res.status(200).json({
+            return res.status(StatusCodes.OK).json({
                 message: 'Citas obtenidas correctamente',
                 data,
             });
@@ -90,8 +91,11 @@ export class AppointmentController {
         try {
             const auth = extractAuthContext(req);
             const filters = mapToAppointmentCountFilter(req.query);
-            const quantity = await this.appointmentService.getCount(auth, filters);
-            return res.status(200).json({
+            const quantity = await this.appointmentService.getCount(
+                auth,
+                filters,
+            );
+            return res.status(StatusCodes.OK).json({
                 message: 'Cantidad obtenida correctamente',
                 quantity,
             });
@@ -104,7 +108,7 @@ export class AppointmentController {
         try {
             const { id, auth } = extractRequestContextWithId(req);
             await this.appointmentService.approve(id, auth);
-            return res.status(200).json({
+            return res.status(StatusCodes.OK).json({
                 message: 'Cita aprobada correctamente',
             });
         } catch (error) {
@@ -116,7 +120,7 @@ export class AppointmentController {
         try {
             const { id, auth } = extractRequestContextWithId(req);
             await this.appointmentService.reject(id, auth);
-            return res.status(200).json({
+            return res.status(StatusCodes.OK).json({
                 message: 'Cita rechazada correctamente',
             });
         } catch (error) {
@@ -129,7 +133,7 @@ export class AppointmentController {
             const { id, auth } = extractRequestContextWithId(req);
             const input = { id, ...req.body };
             await this.appointmentService.cancel(input, auth);
-            return res.status(200).json({
+            return res.status(StatusCodes.OK).json({
                 message: 'Cita cancelada correctamente',
             });
         } catch (error) {
@@ -142,7 +146,7 @@ export class AppointmentController {
             const { id, auth } = extractRequestContextWithId(req);
             const input = { id, ...req.body };
             await this.appointmentService.changeStatus(input, auth);
-            return res.status(200).json({
+            return res.status(StatusCodes.OK).json({
                 message: 'Estado de la cita actualizado correctamente',
             });
         } catch (error) {

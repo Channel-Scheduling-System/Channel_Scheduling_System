@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { StatusCodes } from 'http-status-codes';
 import { IUserService } from './user.service.js';
 import { mapToUserFilters, mapToUserPagination } from './user.mapper.js';
 import {
@@ -13,7 +14,7 @@ export class UserController {
         try {
             const auth = extractAuthContext(req);
             await this.userService.add(req.body, auth);
-            return res.status(201).json({
+            return res.status(StatusCodes.CREATED).json({
                 message: 'Usuario registrado exitosamente',
             });
         } catch (error) {
@@ -24,7 +25,7 @@ export class UserController {
     addFirstAdmin = async (req: Request, res: Response, next: NextFunction) => {
         try {
             await this.userService.addFirstAdmin(req.body);
-            res.status(201).json({
+            res.status(StatusCodes.CREATED).json({
                 message: 'Administrador registrado exitosamente',
             });
         } catch (error) {
@@ -36,7 +37,7 @@ export class UserController {
         try {
             const { id, auth } = extractRequestContextWithId(req);
             const data = await this.userService.getById(id, auth);
-            return res.status(200).json({
+            return res.status(StatusCodes.OK).json({
                 message: 'Usuario recuperado exitosamente',
                 data,
             });
@@ -55,7 +56,7 @@ export class UserController {
                 filters,
                 role,
             );
-            return res.status(200).json({
+            return res.status(StatusCodes.OK).json({
                 message: 'Usuarios recuperados exitosamente',
                 data: result.data,
                 meta: result.meta,
@@ -69,7 +70,7 @@ export class UserController {
         try {
             const { id, auth } = extractRequestContextWithId(req);
             await this.userService.update({ id, ...req.body }, auth);
-            return res.status(200).json({
+            return res.status(StatusCodes.OK).json({
                 message: 'Usuario actualizado exitosamente',
             });
         } catch (error) {
@@ -85,7 +86,7 @@ export class UserController {
         try {
             const { id, auth } = extractRequestContextWithId(req);
             await this.userService.updatePassword({ id, ...req.body }, auth);
-            return res.status(200).json({
+            return res.status(StatusCodes.OK).json({
                 message: 'Su Contraseña se ha actualizado exitosamente',
             });
         } catch (error) {
@@ -100,7 +101,7 @@ export class UserController {
                 { id, ...req.body },
                 auth,
             );
-            return res.status(200).json({
+            return res.status(StatusCodes.OK).json({
                 message: `Usuario ${state ? 'activado' : 'desactivado'} exitosamente`,
             });
         } catch (error) {
@@ -115,7 +116,7 @@ export class UserController {
                 id,
                 role,
             });
-            return res.status(200).json({
+            return res.status(StatusCodes.OK).json({
                 message: 'Su cuenta ha sido desactivada exitosamente',
             });
         } catch (error) {

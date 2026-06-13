@@ -10,51 +10,38 @@ import {
     userPhone,
     createUserInput,
 } from '../users/user.validator.js';
-import { resetCodeRequestDTO } from '../reset-codes/reset-code.validator.js';
+import { resetCodeRequestInput } from '../reset-codes/reset-code.validator.js';
 
-// REGISTER
-//* -----------------------------
-const registerDTO = createUserInput.omit({ role: true }).strict();
+// ============================================================
+// * INPUT DTOs
+// ============================================================
+const registerInput = createUserInput.omit({ role: true }).strict();
 
-// LOGIN
-//* -----------------------------
-const loginDTO = z
+const loginInput = z
     .object({
         identifier: z.union([userAlias, userEmail, userPhone]),
         password: userPassword,
     })
     .strict();
 
-// REFRESH TOKEN
-//* -----------------------------
-const refreshTokenDTO = z
-    .string()
-    .min(1, 'El token es requerido')
-    .regex(
-        /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/,
-        'Token JWT inválido',
-    );
+const refreshTokenInput = z.jwt({ alg: 'HS256' });
 
-// VERIFY RESET CODE
-//* -----------------------------
-const verifyResetCodeDTO = z
+const verifyResetCodeInput = z
     .object({
         email: userEmail,
         code: z.string().length(6, 'El código debe tener 6 dígitos'),
     })
     .strict();
 
-// RESET PASSWORD
-//* -----------------------------
-const resetPasswordDTO = z.object({ newPassword: userPassword }).strict();
+const resetPasswordInput = z.object({ newPassword: userPassword }).strict();
 
 // Export centralizado
 //* -----------------------------
 export const authValidator = {
-    register: validateBodyDTO(registerDTO),
-    login: validateBodyDTO(loginDTO),
-    refreshToken: validateCookieDTO('refreshToken', refreshTokenDTO),
-    requestPasswordReset: validateBodyDTO(resetCodeRequestDTO),
-    verifyResetCode: validateBodyDTO(verifyResetCodeDTO),
-    resetPassword: validateBodyDTO(resetPasswordDTO),
+    register: validateBodyDTO(registerInput),
+    login: validateBodyDTO(loginInput),
+    refreshToken: validateCookieDTO('refreshToken', refreshTokenInput),
+    requestPasswordReset: validateBodyDTO(resetCodeRequestInput),
+    verifyResetCode: validateBodyDTO(verifyResetCodeInput),
+    resetPassword: validateBodyDTO(resetPasswordInput),
 };

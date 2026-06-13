@@ -1,30 +1,20 @@
 import { NextFunction, Request, Response } from 'express';
-import { env } from '../../config/env.js';
+import { StatusCodes } from 'http-status-codes';
 import { IAuthService } from './auth.service.js';
 import { mapToAuthResultResponse } from './auth.mapper.js';
-
-// ONE_DAY_IN_MS = ms * seg * min * hr
-const ONE_DAY_IN_MS = 1000 * 60 * 60 * 24;
-const REFRESH_TOKEN_DAYS = 7;
+import {
+    REFRESH_COOKIE_NAME,
+    REFRESH_COOKIE_OPTIONS,
+} from '../../shared/constants/cookies.js';
 
 export class AuthController {
     constructor(private readonly authService: IAuthService) {}
-
-    private readonly refreshCookieOptions = {
-        httpOnly: true,
-        secure: env.nodeEnv === 'production',
-        sameSite: (env.nodeEnv === 'production' ? 'none' : 'lax') as
-            | 'none'
-            | 'lax',
-        maxAge: ONE_DAY_IN_MS * REFRESH_TOKEN_DAYS,
-        path: '/',
-    };
 
     register = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const data = await this.authService.register(req.body);
             this.setRefreshTokenCookie(res, data.tokens.refreshToken);
-            res.status(201).json({
+            res.status(StatusCodes.CREATED).json({
                 message: 'Usuario registrado exitosamente',
                 data: mapToAuthResultResponse(data),
             });
@@ -37,7 +27,7 @@ export class AuthController {
         try {
             const data = await this.authService.login(req.body);
             this.setRefreshTokenCookie(res, data.tokens.refreshToken);
-            res.status(200).json({
+            res.status(StatusCodes.OK).json({
                 message: 'Login exitoso',
                 data: mapToAuthResultResponse(data),
             });
@@ -48,11 +38,11 @@ export class AuthController {
 
     refresh = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const refreshToken = req.cookies?.refreshToken;
+            const refreshToken = req.cookies?.[REFRESH_COOKIE_NAME];
             const data = await this.authService.refresh({ refreshToken });
 
             this.setRefreshTokenCookie(res, data.tokens.refreshToken);
-            res.status(200).json({
+            res.status(StatusCodes.OK).json({
                 message: 'Autenticación exitosa',
                 data: mapToAuthResultResponse(data),
             });
@@ -63,15 +53,14 @@ export class AuthController {
 
     logout = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const refreshToken = req.cookies?.refreshToken;
-            const userId = req.user?.sub;
+            const refreshToken = req.cookies?.[REFRESH_COOKIE_NAME];
+            const userId = req.user?.sub as unknown as number;
 
-            if (refreshToken) {
+            if (refreshToken)
                 await this.authService.logout({ refreshToken, userId });
-            }
 
             this.clearRefreshTokenCookie(res);
-            res.status(200).json({
+            res.status(StatusCodes.OK).json({
                 message: 'Sesión cerrada exitosamente',
             });
         } catch (err) {
@@ -86,7 +75,7 @@ export class AuthController {
     ) => {
         try {
             await this.authService.requestPasswordReset(req.body.email);
-            res.status(200).json({
+            res.status(StatusCodes.OK).json({
                 message:
                     'Si el correo está registrado, recibirá un código de recuperación',
             });
@@ -102,7 +91,7 @@ export class AuthController {
     ) => {
         try {
             const resetToken = await this.authService.verifyResetCode(req.body);
-            res.status(200).json({
+            res.status(StatusCodes.OK).json({
                 message: 'Código verificado correctamente',
                 resetToken,
             });
@@ -128,7 +117,7 @@ export class AuthController {
     ) => {
         try {
             const exists = await this.authService.checkAdminExists();
-            res.status(200).json({
+            res.status(StatusCodes.OK).json({
                 message: exists
                     ? 'Hay un administrador registrado'
                     : 'No hay un administrador registrado',
@@ -139,12 +128,12 @@ export class AuthController {
         }
     };
 
-    private setRefreshTokenCookie = (res: Response, refreshToken: string) => {
-        res.cookie('refreshToken', refreshToken, this.refreshCookieOptions);
+    private readonly setRefreshTokenCookie = (res: Response, token: string) => {
+        res.cookie(REFRESH_COOKIE_NAME, token, REFRESH_COOKIE_OPTIONS);
     };
 
-    private clearRefreshTokenCookie = (res: Response) => {
-        const { maxAge: _maxAge, ...cookieOptions } = this.refreshCookieOptions;
-        res.clearCookie('refreshToken', cookieOptions);
+    private readonly clearRefreshTokenCookie = (res: Response) => {
+        const { maxAge: _maxAge, ...cookieOptions } = REFRESH_COOKIE_OPTIONS;
+        res.clearCookie(REFRESH_COOKIE_NAME, cookieOptions);
     };
 }
