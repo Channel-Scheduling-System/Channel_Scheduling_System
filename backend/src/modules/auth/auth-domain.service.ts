@@ -21,12 +21,17 @@ export class AuthDomainService {
             throw new UnauthorizedError(USER_ERRORS.USER_DEACTIVATED);
     }
 
-    async validateRefreshTokenReuse(token: string): Promise<void> {
+    async validateRefreshTokenReuse(
+        token: string,
+        userId: number,
+    ): Promise<void> {
         const tokenHash = hashToken(token);
         const storedToken = await this.authRepo.findRefreshToken(tokenHash);
 
-        if (!storedToken)
+        if (!storedToken) {
+            await this.authRepo.deleteRefreshTokensForUser(userId);
             throw new TokenReuseError(AUTH_ERRORS.TOKEN_REUSE_DETECTED);
+        }
     }
 
     async validateTokenForLogout(

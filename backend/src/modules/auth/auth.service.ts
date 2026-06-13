@@ -87,7 +87,7 @@ export class AuthService implements IAuthService {
         const token = input.refreshToken;
 
         const payload = await this.tokenService.verifyRefreshToken(token);
-        await this.domainService.validateRefreshTokenReuse(token);
+        await this.domainService.validateRefreshTokenReuse(token, payload.sub);
         await this.domainService.validateUserActive(payload);
 
         await this.authRepo.invalidateRefreshToken(hashToken(token));
