@@ -180,11 +180,9 @@ export class TimeOffModalComponent implements OnInit, OnDestroy {
     this._pickerRef = ref;
   }
   protected displayDate(value: string | null | undefined): string {
-    if (!value) return 'Selecciona la fecha';
-    const [y, m, d] = value.split('-').map(Number);
-    const months = ['ene.', 'feb.', 'mar.', 'abr.', 'may.', 'jun.',
-      'jul.', 'ago.', 'sep.', 'oct.', 'nov.', 'dic.'];
-    return `${d} ${months[m - 1]} ${y}`;
+    if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return 'Selecciona la fecha';
+    const [y, m, d] = value.split('-');
+    return `${d}/${m}/${y}`;
   }
   protected closeDropdowns(): void {
     this.selectOpen = false;

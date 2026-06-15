@@ -8,17 +8,13 @@
     </div>
     <div class="dt-sel__layout" [class.dt-sel__layout--tray-collapsed]="trayCollapsed">
         <div class="dt-sel__calendar">
-            <app-datetime-calendar
-                [workerId]="wizard.lockedWorkerId()"
-                [clientId]="wizard.currentUserId()"
-                [clientAppointments]="clientAppointments"
-                [availabilityDay]="availabilityDay"
+            <app-datetime-calendar [workerId]="wizard.lockedWorkerId()" [clientId]="wizard.currentUserId()"
+                [clientAppointments]="clientAppointments" [availabilityDay]="availabilityDay"
                 (dateChange)="onDateChange($event)" />
         </div>
         <div class="dt-sel__tray" [class.dt-sel__tray--collapsed]="trayCollapsed">
             <button class="dt-sel__tray-toggle" type="button"
-                [title]="trayCollapsed ? 'Expandir panel' : 'Minimizar panel'"
-                (click)="toggleTray()">
+                [title]="trayCollapsed ? 'Expandir panel' : 'Minimizar panel'" (click)="toggleTray()">
                 <span class="dt-sel__tray-toggle__track"></span>
                 <span class="material-symbols-outlined dt-sel__tray-toggle__icon" translate="no">
                     {{ trayCollapsed ? 'chevron_left' : 'chevron_right' }}
@@ -34,22 +30,13 @@
                             <span class="material-symbols-outlined dtf-label__icon" translate="no">calendar_today</span>
                             Fecha
                         </label>
-                        <div class="dtf-input-wrap" [class.dtf-input-wrap--focus]="dateInputFocused">
+                        <div class="dtf-input-wrap dtf-input-wrap--date"
+                            [class.dtf-input-wrap--focus]="activePicker === 'date'" style="cursor:pointer"
+                            (click)="openDatePicker($event)">
                             <span class="material-symbols-outlined dtf-input-wrap__icon" translate="no">event</span>
-                            <input
-                                class="dtf-input dtf-input--date"
-                                type="date"
-                                [value]="dateInputValue()"
-                                (focus)="dateInputFocused = true"
-                                (blur)="dateInputFocused = false; onDateInputChange($event)" />
-                            <button
-                                class="dtf-picker-btn"
-                                type="button"
-                                title="Abrir calendario"
-                                (click)="openDatePicker($event)">
-                                <span class="dtf-picker-btn__shimmer"></span>
-                                <span class="material-symbols-outlined" translate="no">calendar_month</span>
-                            </button>
+                            <input class="dtf-input dtf-input--readonly"
+                                [attr.data-has-value]="dateDisplayText() ? true : null" [value]="dateDisplayText()"
+                                placeholder="Selecciona la fecha" readonly />
                         </div>
                     </div>
                     <div class="dtf-divider"></div>
@@ -59,16 +46,13 @@
                             Hora de inicio
                         </label>
                         <div class="dtf-input-wrap dtf-input-wrap--time"
-                             [class.dtf-input-wrap--focus]="activePicker === 'startTime'"
-                             style="cursor:pointer"
-                             (click)="openTimePicker('startTime', $event)">
+                            [class.dtf-input-wrap--focus]="activePicker === 'startTime'" style="cursor:pointer"
+                            (click)="openTimePicker('startTime', $event)">
                             <span class="material-symbols-outlined dtf-input-wrap__icon" translate="no">schedule</span>
-                            <input
-                                class="dtf-input dtf-input--readonly"
+                            <input class="dtf-input dtf-input--readonly"
                                 [attr.data-has-value]="hasTimeSelection() ? true : null"
                                 [value]="hasTimeSelection() ? startTimeDisplay() : ''"
-                                [placeholder]="'Selecciona la hora'"
-                                readonly />
+                                [placeholder]="'Selecciona la hora'" readonly />
                         </div>
                     </div>
                     <div class="dtf-group">
@@ -77,16 +61,13 @@
                             Hora de finalización
                         </label>
                         <div class="dtf-input-wrap dtf-input-wrap--time dtf-input-wrap--end"
-                             [class.dtf-input-wrap--focus]="activePicker === 'endTime'"
-                             style="cursor:pointer"
-                             (click)="openTimePicker('endTime', $event)">
+                            [class.dtf-input-wrap--focus]="activePicker === 'endTime'" style="cursor:pointer"
+                            (click)="openTimePicker('endTime', $event)">
                             <span class="material-symbols-outlined dtf-input-wrap__icon" translate="no">timer</span>
-                            <input
-                                class="dtf-input dtf-input--readonly dtf-input--end"
+                            <input class="dtf-input dtf-input--readonly dtf-input--end"
                                 [attr.data-has-value]="hasTimeSelection() ? true : null"
                                 [value]="hasTimeSelection() ? endTimeDisplay() : ''"
-                                [placeholder]="'Selecciona la hora'"
-                                readonly />
+                                [placeholder]="'Selecciona la hora'" readonly />
                         </div>
                     </div>
                     <div class="dtf-duration">

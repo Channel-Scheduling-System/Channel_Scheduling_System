@@ -19,23 +19,11 @@
       <div class="do-modal__body" [formGroup]="form">
         <div class="do-field-group">
           <label class="do-label">Fecha</label>
-          <div
-            class="do-input-wrap"
-            [class.do-input-wrap--error]="!!getFieldError('date')">
-            <span class="material-symbols-outlined do-input-wrap__icon" translate="no">
-              calendar_today
-            </span>
-            <input
-              class="do-input do-input--date"
-              type="date"
-              formControlName="date">
-            <button
-              type="button"
-              class="do-input-wrap__picker-btn"
-              title="Seleccionar fecha"
-              (click)="openDatePicker($event)">
-              <span class="material-symbols-outlined" translate="no">event</span>
-            </button>
+          <div class="do-input-wrap" [class.do-input-wrap--error]="!!getFieldError('date')" style="cursor:pointer"
+            (click)="openDatePicker($event)">
+            <span class="material-symbols-outlined do-input-wrap__icon" translate="no">calendar_today</span>
+            <input class="do-input do-input--readonly" [attr.data-has-value]="form.get('date')?.value ? true : null"
+              [value]="displayDate(form.get('date')?.value)" readonly />
           </div>
           <span class="do-field-error" *ngIf="getFieldError('date')">
             <span class="material-symbols-outlined" translate="no">error</span>
@@ -47,20 +35,12 @@
             Motivo
             <span class="do-label__optional">(Opcional)</span>
           </label>
-          <div
-            class="do-input-wrap do-input-wrap--textarea"
-            [class.do-input-wrap--error]="!!getFieldError('reason')">
-            <span
-              class="material-symbols-outlined do-input-wrap__icon do-input-wrap__icon--top"
-              translate="no">
+          <div class="do-input-wrap do-input-wrap--textarea" [class.do-input-wrap--error]="!!getFieldError('reason')">
+            <span class="material-symbols-outlined do-input-wrap__icon do-input-wrap__icon--top" translate="no">
               notes
             </span>
-            <textarea
-              class="do-textarea"
-              formControlName="reason"
-              placeholder="Describe el motivo del día libre..."
-              rows="3"
-              maxlength="200">
+            <textarea class="do-textarea" formControlName="reason" placeholder="Describe el motivo del día libre..."
+              rows="3" maxlength="200">
             </textarea>
           </div>
           <div class="do-field-bottom">
@@ -68,9 +48,7 @@
               <span class="material-symbols-outlined" translate="no">error</span>
               {{ getFieldError('reason') }}
             </span>
-            <span
-              class="do-char-count"
-              [class.do-char-count--warn]="reasonLength > 180">
+            <span class="do-char-count" [class.do-char-count--warn]="reasonLength > 180">
               {{ reasonLength }}/200
             </span>
           </div>
@@ -81,11 +59,7 @@
         <button class="do-modal__cancel" type="button" (click)="onCancel()">
           Cancelar
         </button>
-        <button
-          class="do-modal__submit"
-          type="button"
-          (click)="onSubmit()"
-          [disabled]="isSubmitting"
+        <button class="do-modal__submit" type="button" (click)="onSubmit()" [disabled]="isSubmitting"
           [class.do-modal__submit--loading]="isSubmitting">
           <span class="material-symbols-outlined" translate="no">event_busy</span>
           <span>{{ isSubmitting ? 'Guardando...' : 'Añadir día libre' }}</span>

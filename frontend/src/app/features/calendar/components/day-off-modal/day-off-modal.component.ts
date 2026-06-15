@@ -33,16 +33,16 @@ export class DayOffModalComponent implements OnInit, OnDestroy {
   protected form!: FormGroup;
   protected isSubmitting = false;
   protected activeDatePicker = false;
-  private readonly injector    = inject(Injector);
+  private readonly injector = inject(Injector);
   private _dateOverlayRef: OverlayRef | null = null;
   private _datePickerRef: ComponentRef<DatePickerComponent> | null = null;
   public constructor(
-    private readonly fb:        FormBuilder,
+    private readonly fb: FormBuilder,
     private readonly dialogRef: MatDialogRef<DayOffModalComponent>,
-    private readonly overlay:   Overlay,
+    private readonly overlay: Overlay,
     private readonly messageService: MessageService,
     @Inject(MAT_DIALOG_DATA) public readonly data: DayOffModalData,
-  ) {}
+  ) { }
   public ngOnInit(): void {
     this.buildForm();
   }
@@ -67,9 +67,9 @@ export class DayOffModalComponent implements OnInit, OnDestroy {
   private _createOverlay(): OverlayRef {
     const ref = this.overlay.create({
       positionStrategy: this.overlay.position().global().centerHorizontally().centerVertically(),
-      scrollStrategy:   this.overlay.scrollStrategies.reposition(),
-      hasBackdrop:      true,
-      backdropClass:    'cdk-overlay-transparent-backdrop',
+      scrollStrategy: this.overlay.scrollStrategies.reposition(),
+      hasBackdrop: true,
+      backdropClass: 'cdk-overlay-transparent-backdrop',
     });
     ref.backdropClick().subscribe(() => this._closeDateOverlay());
     return ref;
@@ -80,7 +80,7 @@ export class DayOffModalComponent implements OnInit, OnDestroy {
       parent: this.injector,
     });
     const portal = new ComponentPortal(DatePickerComponent, null, inj);
-    const ref    = overlayRef.attach(portal);
+    const ref = overlayRef.attach(portal);
     this._datePickerRef = ref;
     ref.instance.label = 'Día libre';
     ref.changeDetectorRef.detectChanges();
@@ -95,7 +95,7 @@ export class DayOffModalComponent implements OnInit, OnDestroy {
   private _closeDateOverlay(): void {
     this._dateOverlayRef?.dispose();
     this._dateOverlayRef = null;
-    this._datePickerRef  = null;
+    this._datePickerRef = null;
     this.activeDatePicker = false;
   }
   protected getFieldError(field: string): string {
@@ -104,8 +104,8 @@ export class DayOffModalComponent implements OnInit, OnDestroy {
   }
   protected displayDate(value: string | null | undefined): string {
     if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return 'Selecciona la fecha';
-    const [y, m, d] = value.split('-').map(Number);
-    return `${String(d).padStart(2, '0')} ${MONTHS_SHORT_ES[m - 1]} ${y}`;
+    const [y, m, d] = value.split('-');
+    return `${d}/${m}/${y}`;
   }
   protected get reasonLength(): number {
     return (this.form.get('reason')?.value as string)?.length ?? 0;
@@ -118,7 +118,7 @@ export class DayOffModalComponent implements OnInit, OnDestroy {
       return;
     }
     this.isSubmitting = true;
-    const v       = this.form.value as Record<string, string>;
+    const v = this.form.value as Record<string, string>;
     const request: SetDayOffRequest = {
       date: v['date'],
       ...(v['reason']?.trim() ? { reason: v['reason'] } : {}),
