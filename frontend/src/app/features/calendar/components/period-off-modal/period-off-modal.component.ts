@@ -107,9 +107,9 @@ export class PeriodOffModalComponent implements OnInit, OnDestroy {
         return typeof msg === 'string' ? msg : '';
     }
     protected displayDate(value: string | null | undefined): string {
-        if (!value || !DATE_REGEX.test(value)) return 'Selecciona la fecha';
-        const [y, m, d] = value.split('-').map(Number);
-        return `${String(d).padStart(2, '0')} ${MONTHS_SHORT_ES[m - 1]} ${y}`;
+        if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return 'Selecciona la fecha';
+        const [y, m, d] = value.split('-');
+        return `${d}/${m}/${y}`;
     }
     protected get reasonLength(): number {
         return (this.form.get('reason')?.value as string)?.length ?? 0;
