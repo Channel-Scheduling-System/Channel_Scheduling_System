@@ -48,13 +48,11 @@
         </div>
         <div class="tb-field-group" *ngIf="blockType === 'SPECIFIC'">
           <label class="tb-label">Fecha</label>
-          <div class="tb-input-wrap" [class.tb-input-wrap--error]="!!getFieldError('date')">
+          <div class="tb-input-wrap" [class.tb-input-wrap--error]="!!getFieldError('date')" style="cursor:pointer"
+            (click)="openDatePicker($event)">
             <span class="material-symbols-outlined tb-input-wrap__icon" translate="no">calendar_today</span>
-            <input class="tb-input tb-input--date" type="date" formControlName="date">
-            <button type="button" class="tb-input-wrap__picker-btn" title="Seleccionar fecha"
-              (click)="openDatePicker($event)">
-              <span class="material-symbols-outlined" translate="no">event</span>
-            </button>
+            <input class="tb-input tb-input--readonly" [attr.data-has-value]="form.get('date')?.value ? true : null"
+              [value]="displayDate(form.get('date')?.value)" readonly />
           </div>
           <span class="tb-field-error" *ngIf="getFieldError('date')">
             <span class="material-symbols-outlined" translate="no">error</span>

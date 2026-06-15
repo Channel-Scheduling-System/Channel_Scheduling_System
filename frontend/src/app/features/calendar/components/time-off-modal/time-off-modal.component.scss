@@ -399,85 +399,31 @@ $ink: #1a0005;
   border-radius: 0.5rem;
   border: 1px solid rgba(255, 255, 255, 0.09);
   background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
   transition: border-color $t, background $t, box-shadow $t;
-  &__picker-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    width: 2.1rem;
-    height: 2.1rem;
-    border-radius: 0.5rem;
-    border: 1px solid rgba($mauve, 0.28);
-    background: linear-gradient(135deg,
-        rgba($mauve, 0.07) 0%,
-        rgba($mauve-deep, 0.14) 100%);
-    color: rgba($rose, 0.60);
-    cursor: pointer;
-    transition: background $t, border-color $t, color $t,
-      transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
-    .material-symbols-outlined {
-      font-size: 1.3rem !important;
-      line-height: 1 !important;
-      transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
-        filter $t;
-    }
-    &:hover {
-      background: rgba($mauve, 0.18);
-      border-color: rgba($mauve, 0.55);
-      color: $rose;
-      box-shadow:
-        0 0 0 3px rgba($mauve, 0.12),
-        0 0 14px rgba($mauve, 0.22);
-      transform: scale(1.12);
-      .material-symbols-outlined {
-        transform: scale(1.18);
-        filter: drop-shadow(0 0 5px rgba($mauve, 0.55));
-      }
-    }
-    &:active {
-      transform: scale(0.92);
-      box-shadow: 0 0 0 2px rgba($mauve, 0.18);
-    }
-  }
   &__icon {
     font-size: 0.9rem !important;
     line-height: 1 !important;
     color: rgba(255, 255, 255, 0.22);
     flex-shrink: 0;
     transition: color $t;
-    &--top {
-      align-self: flex-start;
-      margin-top: 0.1rem;
-    }
+    &--top { align-self: flex-start; margin-top: 0.1rem; }
   }
-  &:focus-within {
-    border-color: rgba($mauve, 0.65);
-    background: rgba($mauve, 0.08);
-    box-shadow: 0 0 0 3px rgba($mauve, 0.12);
-    .tb-input-wrap__icon {
-      color: rgba($rose, 0.85);
-    }
-  }
-  &:hover:not(:focus-within):not(.tb-input-wrap--error) {
+  &:hover:not(.tb-input-wrap--error) {
     border-color: rgba($mauve, 0.36);
     background: rgba(255, 255, 255, 0.06);
+    .tb-input-wrap__icon { color: rgba($rose, 0.85); }
   }
   &--error {
     border-color: rgba($error-col, 0.65);
     background: rgba($error-col, 0.05);
     animation: errorShake 0.38s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
-    &:focus-within {
-      border-color: rgba($error-col, 0.70);
-      box-shadow: 0 0 0 3px rgba($error-col, 0.10);
-    }
-    .tb-input-wrap__icon {
-      color: rgba($error-col, 0.70);
-    }
+    .tb-input-wrap__icon { color: rgba($error-col, 0.70); }
   }
   &--textarea {
     align-items: flex-start;
     padding: 0.5rem 0.7rem;
+    cursor: default;
   }
 }
 .tb-input {
@@ -485,7 +431,6 @@ $ink: #1a0005;
   background: transparent;
   border: none;
   outline: none;
-  color: rgba(255, 255, 255, 0.90);
   font-family: 'Manrope', sans-serif;
   font-size: 0.8rem;
   font-weight: 600;
@@ -493,21 +438,11 @@ $ink: #1a0005;
   &--readonly {
     cursor: pointer;
     user-select: none;
-    &:not([data-has-value]) {
-      color: rgba(255, 255, 255, 0.28);
-      font-size: 0.78rem;
-    }
-  }
-  &--date {
-    color-scheme: dark;
-    &::-webkit-calendar-picker-indicator {
-      filter: invert(0.7) sepia(1) hue-rotate(280deg) saturate(1.8) brightness(1.1);
-      opacity: 0.6;
-      cursor: pointer;
-      transition: opacity $t;
-      &:hover {
-        opacity: 1;
-      }
+    color: rgba(255, 255, 255, 0.28);
+    font-size: 0.78rem;
+    &[data-has-value] {
+      color: rgba(255, 255, 255, 0.90);
+      font-size: 0.8rem;
     }
   }
 }

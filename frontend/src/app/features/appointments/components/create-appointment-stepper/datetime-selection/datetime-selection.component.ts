@@ -51,12 +51,12 @@ export class DatetimeSelectionComponent implements OnInit, OnDestroy {
     private readonly dateChange$ = new Subject<Date>();
     protected trayCollapsed = false;
     protected dateInputFocused = false;
-    protected activePicker: 'startTime' | 'endTime' | null = null;
+    protected activePicker: 'startTime' | 'endTime' | 'date' | null = null;
     public isVerifying = false;
     private _overlayRef: OverlayRef | null = null;
     private _pickerRef: ComponentRef<any> | null = null;
     private readonly _pendingDate = signal<Date | null>(null);
-    private readonly _pendingTime = signal<number | null>(null); 
+    private readonly _pendingTime = signal<number | null>(null);
     protected clientAppointments: AppointmentCalendarItem[] = [];
     protected availabilityDay: WorkerAvailabilityDay | null = null;
     private _loadedDateStr: string | null = null;
@@ -170,6 +170,14 @@ export class DatetimeSelectionComponent implements OnInit, OnDestroy {
         }
         return this.wizard.lockedWorkerId();
     }
+    protected readonly dateDisplayText = computed(() => {
+        const dt = this.wizard.selectedDateTime() ?? this._pendingDate();
+        if (!dt) return '';
+        const d = String(dt.getDate()).padStart(2, '0');
+        const m = String(dt.getMonth() + 1).padStart(2, '0');
+        const y = dt.getFullYear();
+        return `${d}/${m}/${y}`;
+    });
     private formatDateParam(date: Date): string {
         const y = date.getFullYear();
         const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -184,7 +192,7 @@ export class DatetimeSelectionComponent implements OnInit, OnDestroy {
         this.dateChange$.next(date);
     }
     protected onDateInputChange(event: Event): void {
-        const raw = (event.target as HTMLInputElement).value; 
+        const raw = (event.target as HTMLInputElement).value;
         if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) return;
         const [y, m, d] = raw.split('-').map(Number);
         if (y < 2000 || y > 2100) {
@@ -202,12 +210,12 @@ export class DatetimeSelectionComponent implements OnInit, OnDestroy {
     }
     protected openDatePicker(e: MouseEvent): void {
         e.stopPropagation();
-        if (this.activePicker === ('date' as any)) {
+        if (this.activePicker === ('date')) {
             this._closeOverlay();
             return;
         }
         this._closeOverlay();
-        (this.activePicker as any) = 'date';
+        (this.activePicker) = 'date';
         const seed = this.dateInputValue();
         this._overlayRef = this._createOverlay();
         const inj = Injector.create({
@@ -262,7 +270,7 @@ export class DatetimeSelectionComponent implements OnInit, OnDestroy {
         this._pickerRef = ref;
     }
     private _onTimeConfirmed(field: 'startTime' | 'endTime', val: string): void {
-        const MINUTES_IN_DAY = 24 * 60; 
+        const MINUTES_IN_DAY = 24 * 60;
         const durationMin = this.wizard.totalDuration();
         const [hh, mm] = val.split(':').map(Number);
         let startTotalMin: number;

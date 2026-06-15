@@ -19,15 +19,13 @@
             <div class="po-modal__body" [formGroup]="form">
                 <div class="po-field-group">
                     <label class="po-label">Fecha de inicio</label>
-                    <div class="po-input-wrap" [class.po-input-wrap--error]="!!getFieldError('startDate')">
-                        <span class="material-symbols-outlined po-input-wrap__icon" translate="no">
-                            event_available
-                        </span>
-                        <input class="po-input po-input--date" type="date" formControlName="startDate">
-                        <button type="button" class="po-input-wrap__picker-btn" title="Seleccionar fecha"
-                            (click)="openDatePicker('startDate', $event)">
-                            <span class="material-symbols-outlined" translate="no">event</span>
-                        </button>
+                    <div class="po-input-wrap" [class.po-input-wrap--error]="!!getFieldError('startDate')"
+                        style="cursor:pointer" (click)="openDatePicker('startDate', $event)">
+                        <span class="material-symbols-outlined po-input-wrap__icon"
+                            translate="no">event_available</span>
+                        <input class="po-input po-input--readonly"
+                            [attr.data-has-value]="form.get('startDate')?.value ? true : null"
+                            [value]="displayDate(form.get('startDate')?.value)" readonly />
                     </div>
                     <span class="po-field-error" *ngIf="getFieldError('startDate')">
                         <span class="material-symbols-outlined" translate="no">error</span>
@@ -37,15 +35,12 @@
                 <div class="po-field-group">
                     <label class="po-label">Fecha de finalización</label>
                     <div class="po-input-wrap"
-                        [class.po-input-wrap--error]="!!getFieldError('endDate') || !!getCrossDateError()">
-                        <span class="material-symbols-outlined po-input-wrap__icon" translate="no">
-                            event_busy
-                        </span>
-                        <input class="po-input po-input--date" type="date" formControlName="endDate">
-                        <button type="button" class="po-input-wrap__picker-btn" title="Seleccionar fecha"
-                            (click)="openDatePicker('endDate', $event)">
-                            <span class="material-symbols-outlined" translate="no">event</span>
-                        </button>
+                        [class.po-input-wrap--error]="!!getFieldError('endDate') || !!getCrossDateError()"
+                        style="cursor:pointer" (click)="openDatePicker('endDate', $event)">
+                        <span class="material-symbols-outlined po-input-wrap__icon" translate="no">event_busy</span>
+                        <input class="po-input po-input--readonly"
+                            [attr.data-has-value]="form.get('endDate')?.value ? true : null"
+                            [value]="displayDate(form.get('endDate')?.value)" readonly />
                     </div>
                     <span class="po-field-error" *ngIf="getFieldError('endDate') || getCrossDateError()">
                         <span class="material-symbols-outlined" translate="no">error</span>
