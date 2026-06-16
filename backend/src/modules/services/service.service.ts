@@ -1,12 +1,12 @@
 import { IServiceRepository } from './service.repository.js';
 
 import {
-    Service,
     CreateServiceInput,
     ServiceResponse,
     ServiceFilters,
     UpdateServiceInput,
     UpdateStateInput,
+    ServiceWithWorker,
 } from './service.types.js';
 import {
     mapToCreateServiceData,
@@ -25,7 +25,7 @@ import { SERVICE_ERRORS } from '../../shared/constants/messages.js';
 import { AuthContext } from '../users/user-role.validator.js';
 
 export interface IServiceService {
-    add(input: CreateServiceInput): Promise<ServiceResponse>;
+    add(input: CreateServiceInput): Promise<void>;
     existsById(id: number): Promise<boolean>;
     getById(id: number): Promise<ServiceResponse>;
     getAll(filters: ServiceFilters): Promise<ServiceResponse[]>;
@@ -40,13 +40,10 @@ export class ServiceService implements IServiceService {
         private readonly userService: IUserService,
     ) {}
 
-    async add(input: CreateServiceInput): Promise<ServiceResponse> {
+    async add(input: CreateServiceInput): Promise<void> {
         await this.ensureWorkerExists(input.workerId);
         await this.ensureNameIsUnique(input.workerId, input.name);
-        const service = await this.serviceRepo.create(
-            mapToCreateServiceData(input),
-        );
-        return mapToServiceResponse(service);
+        await this.serviceRepo.create(mapToCreateServiceData(input));
     }
 
     async existsById(id: number): Promise<boolean> {
@@ -91,7 +88,7 @@ export class ServiceService implements IServiceService {
     private async getServiceOrFail(
         id: number,
         includeInactive: boolean = false,
-    ): Promise<Service> {
+    ): Promise<ServiceWithWorker> {
         const service = await this.serviceRepo.findById(id);
         if (!service) throw new NotFoundError(SERVICE_ERRORS.ID_NOTFOUND);
         if (includeInactive === false && !service.isActive)

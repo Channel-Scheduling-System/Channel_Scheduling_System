@@ -1,0 +1,538 @@
+@use '../../../../shared/styles/animations.scss';
+@use '../../styles/calendar-variables.scss' as *;
+@use '../../components/calendar-grid/month/calendar-grid-month.component.scss' as month-styles;
+@use '../../components/calendar-grid/base/calendar-grid.component.scss' as grid-styles;
+@use '../../components/calendar-sidebar/calendar-sidebar.component.scss' as sidebar-styles;
+@use '../../components/calendar-footer/calendar-footer.component.scss' as footer-styles; // ← nuevo
+
+:host ::ng-deep {
+
+    @keyframes cal-loading-pulse {
+
+        0%,
+        100% {
+            transform: scale(1);
+            opacity: 0.65;
+        }
+
+        50% {
+            transform: scale(1.12);
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    .calendar-page {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        padding-bottom: 6rem;
+        animation: fadeSlideUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+        &__header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        &__eyebrow {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            color: $muted;
+            margin-bottom: 0.4rem;
+        }
+
+        &__title {
+            font-family: 'Manrope', sans-serif;
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: $primary;
+            letter-spacing: -0.03em;
+            line-height: 1;
+        }
+    }
+
+    .cal-loading-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 20;
+        background: rgba(255, 255, 255, 0.72);
+        backdrop-filter: blur(3px);
+        -webkit-backdrop-filter: blur(3px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: inherit;
+        animation: fadeIn 0.15s ease both;
+
+        &__content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        &__icon {
+            font-size: 2rem !important;
+            line-height: 1 !important;
+            color: $vinotinto;
+            animation: cal-loading-pulse 1.4s ease-in-out infinite;
+        }
+
+        &__text {
+            font-family: 'Manrope', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: $vinotinto;
+            opacity: 0.75;
+        }
+    }
+
+    .calendar-shell {
+        background: white;
+        border-radius: 1.25rem;
+        box-shadow:
+            0 4px 40px rgba($primary, 0.06),
+            0 1px 0 rgba($primary, 0.04) inset;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        transition: box-shadow $transition;
+
+        &::before {
+            content: '';
+            height: 3px;
+            flex-shrink: 0;
+            background: linear-gradient(90deg, #c4899a 0%, #000000 100%);
+        }
+
+        &--delete-mode {
+            box-shadow:
+                0 0 0 2px rgba($error, 0.4),
+                0 4px 40px rgba($error, 0.12);
+        }
+    }
+
+    .cal-empty-state {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: $sidebar-w;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        background: rgba(255, 255, 255, 0.92);
+        pointer-events: none;
+        transform: translateZ(0);
+        will-change: opacity, transform;
+        backface-visibility: hidden;
+        animation: fadeIn 0.3s ease both;
+
+        &__icon {
+            font-size: 3rem !important;
+            line-height: 1 !important;
+            color: $vinotinto;
+            opacity: 0.35;
+        }
+
+        &__title {
+            font-family: 'Manrope', sans-serif;
+            font-size: 1rem;
+            font-weight: 800;
+            color: $primary;
+            letter-spacing: -0.02em;
+            margin: 0;
+        }
+
+        &__subtitle {
+            font-family: 'Manrope', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: $muted;
+            text-align: center;
+            line-height: 1.6;
+            margin: 0;
+        }
+    }
+
+    .cal-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 1rem 1.25rem 1rem 1rem;
+        background: white;
+        background-image:
+            linear-gradient(to right, transparent 0%, $vinotinto-mid 5%, $vinotinto-mid 95%, transparent 100%);
+        background-size: 100% 2px;
+        background-position: bottom;
+        background-repeat: no-repeat;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+
+        &__nav {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        &__range {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            min-width: 12rem;
+        }
+    }
+
+    .cal-nav-btn {
+        border: 2px solid rgba($vinotinto, 0.5);
+        color: $vinotinto;
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 0.625rem;
+        background: transparent;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background $transition, border-color $transition, color $transition, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+        .material-symbols-outlined {
+            font-size: 1.1rem !important;
+        }
+
+        &:hover,
+        &:focus {
+            background: $vinotinto;
+            border-color: $vinotinto;
+            color: white;
+            transform: scale(1.08);
+        }
+
+        &:active {
+            transform: scale(0.92);
+        }
+    }
+
+    .cal-today-btn {
+        border: 2px solid rgba($vinotinto, 0.5);
+        color: $vinotinto;
+        height: 2.25rem;
+        padding: 0 0.875rem;
+        border-radius: 0.625rem;
+        background: transparent;
+        font-family: 'Manrope', sans-serif;
+        font-size: 0.775rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        cursor: pointer;
+        transition: background $transition, border-color $transition, color $transition, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+        &:hover,
+        &:focus {
+            background: $vinotinto;
+            border-color: $vinotinto;
+            color: white;
+            transform: scale(1.08);
+        }
+
+        &:active {
+            transform: scale(0.92);
+        }
+    }
+
+    .cal-range-label {
+        font-family: 'Manrope', sans-serif;
+        font-size: 1.05rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        white-space: nowrap;
+        text-transform: capitalize;
+        background: linear-gradient(135deg,
+                $primary 0%,
+                $crimson 40%,
+                $vinotinto 70%,
+                #a83250 100%);
+        background-size: 200% 200%;
+        animation: smoothGradientFlow 8s ease-in-out infinite;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        filter: drop-shadow(0 1px 8px rgba($vinotinto, 0.18));
+    }
+
+    .cal-view-switcher {
+        display: flex;
+        align-items: center;
+        background: $surface-low;
+        border-radius: 0.75rem;
+        padding: 0.2rem;
+        gap: 0.1rem;
+    }
+
+    .cal-view-btn {
+        -webkit-appearance: none;
+        appearance: none;
+        -webkit-tap-highlight-color: transparent;
+        height: 2rem;
+        padding: 0 1rem;
+        border-radius: 0.55rem;
+        border: none;
+        background: transparent;
+        color: $muted;
+        font-family: 'Manrope', sans-serif;
+        font-size: 0.775rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        cursor: pointer;
+        transition: all $transition;
+
+        &:hover:not(&--active) {
+            color: $primary;
+            background: rgba($primary, 0.06);
+        }
+
+        &.cal-view-btn--active,
+        &.cal-view-btn--active:focus,
+        &.cal-view-btn--active:focus-visible,
+        &.cal-view-btn--active:active {
+            background: $vinotinto !important;
+            color: white !important;
+            box-shadow: 0 2px 8px rgba($vinotinto, 0.4);
+        }
+    }
+
+    .cal-body {
+        display: flex;
+        align-items: stretch;
+        overflow: visible;
+        position: relative;
+    }
+
+    .cal-grid-wrap {
+        position: relative;
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: auto;
+        min-width: 0;
+        max-height: calc(100svh - 10rem);
+        scrollbar-width: thin;
+        scrollbar-color: rgba($vinotinto, 0.3) transparent;
+        will-change: transform;
+        backface-visibility: hidden;
+
+        &::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: rgba($vinotinto, 0.25);
+            border-radius: 99px;
+        }
+    }
+
+    @include grid-styles.styles();
+    @include month-styles.styles();
+    @include sidebar-styles.styles();
+    @include footer-styles.styles(); // ← nuevo
+
+    @media (max-width: 640px) {
+        .cal-empty-state {
+            right: 3.25rem;
+        }
+
+        .cal-grid__segment-label {
+            max-width: 100%;
+            overflow: hidden;
+
+            &__reason {
+                display: block;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                max-width: 4rem;
+            }
+        }
+
+        .cal-topbar {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.75rem;
+
+            &__range {
+                justify-content: flex-start;
+            }
+        }
+
+        .cal-range-label {
+            font-size: 0.9rem;
+        }
+
+        .cal-sidebar {
+            contain: layout paint;
+            width: 3.25rem;
+            padding: 1rem 0.4rem;
+            align-items: stretch;
+
+            &__config-group {
+                align-items: stretch;
+            }
+
+            &__btn-label {
+                display: none;
+            }
+
+            &__btn {
+                padding: 0.6rem 0.5rem;
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        .cal-grid--week {
+            grid-template-columns: 3rem repeat(7, minmax(2.5rem, 1fr));
+        }
+
+        .cal-delete-banner {
+            right: 3.25rem;
+            font-size: 0.72rem;
+        }
+    }
+
+    .calendar-shell--delete-mode {
+
+        .cal-grid__cell--periodoff,
+        .cal-grid__cell--dayoff,
+        .cal-grid__cell--timeblock {
+            cursor: pointer;
+        }
+
+        .cal-grid__segment--periodoff,
+        .cal-grid__segment--dayoff,
+        .cal-grid__segment--timeblock {
+            cursor: pointer;
+        }
+
+        .cal-month__day--periodoff,
+        .cal-month__day--dayoff {
+            cursor: pointer;
+        }
+
+        .cal-grid__segment--hovered {
+            cursor: pointer;
+
+            &.cal-grid__segment--timeblock,
+            &.cal-grid__segment--periodoff,
+            &.cal-grid__segment--dayoff {
+                filter: none;
+                background: rgba(#7f0000, 0.97) !important;
+
+                &::before {
+                    background: rgba(#7f0000, 0.97) !important;
+                }
+
+                &::after {
+                    display: block !important;
+                    background: transparent !important;
+                    box-shadow:
+                        inset 2px 0 0 0 rgba(#ff6b6b, 0.85),
+                        inset -2px 0 0 0 rgba(#ff6b6b, 0.85),
+                        inset 4px 0 0 0 rgba(#ff6b6b, 0.15),
+                        inset -4px 0 0 0 rgba(#ff6b6b, 0.15) !important;
+                }
+
+                &.cal-grid__segment--group-start::after {
+                    box-shadow:
+                        inset 2px 0 0 0 rgba(#ff6b6b, 0.85),
+                        inset -2px 0 0 0 rgba(#ff6b6b, 0.85),
+                        inset 4px 0 0 0 rgba(#ff6b6b, 0.15),
+                        inset -4px 0 0 0 rgba(#ff6b6b, 0.15),
+                        inset 0 2px 0 0 rgba(#ff6b6b, 0.85),
+                        inset 0 4px 0 0 rgba(#ff6b6b, 0.15) !important;
+                }
+
+                &.cal-grid__segment--group-end::after {
+                    box-shadow:
+                        inset 2px 0 0 0 rgba(#ff6b6b, 0.85),
+                        inset -2px 0 0 0 rgba(#ff6b6b, 0.85),
+                        inset 4px 0 0 0 rgba(#ff6b6b, 0.15),
+                        inset -4px 0 0 0 rgba(#ff6b6b, 0.15),
+                        inset 0 -2px 0 0 rgba(#ff6b6b, 0.85),
+                        inset 0 -4px 0 0 rgba(#ff6b6b, 0.15) !important;
+                }
+
+                &.cal-grid__segment--group-start.cal-grid__segment--group-end::after {
+                    box-shadow:
+                        inset 2px 0 0 0 rgba(#ff6b6b, 0.85),
+                        inset -2px 0 0 0 rgba(#ff6b6b, 0.85),
+                        inset 4px 0 0 0 rgba(#ff6b6b, 0.15),
+                        inset -4px 0 0 0 rgba(#ff6b6b, 0.15),
+                        inset 0 2px 0 0 rgba(#ff6b6b, 0.85),
+                        inset 0 4px 0 0 rgba(#ff6b6b, 0.15),
+                        inset 0 -2px 0 0 rgba(#ff6b6b, 0.85),
+                        inset 0 -4px 0 0 rgba(#ff6b6b, 0.15) !important;
+                }
+
+                .cal-grid__segment-label {
+                    color: #fecaca;
+                    text-shadow:
+                        0 0 2px #ffb3b3,
+                        0 0 6px #ff9090,
+                        0 0 14px rgba(#ff6b6b, 0.9),
+                        0 0 30px rgba(#ff6b6b, 0.7),
+                        0 0 60px rgba(#ff6b6b, 0.4);
+                    z-index: 2;
+                }
+            }
+        }
+
+        .cal-month__day--hovered-periodoff,
+        .cal-month__day--hovered-dayoff {
+            filter: none;
+            background: #7f0000 !important;
+            box-shadow:
+                inset 0 0 0 1.5px rgba(#ff6b6b, 0.7),
+                0 0 16px rgba($error, 0.55) !important;
+
+            &::before {
+                box-shadow:
+                    inset 0 -1px 0 rgba(#ff6b6b, 0.7),
+                    inset -1px 0 0 rgba(#ff6b6b, 0.5) !important;
+            }
+
+            &:nth-child(7n)::before {
+                box-shadow: inset 0 -1px 0 rgba(#ff6b6b, 0.7) !important;
+            }
+
+            &::after {
+                display: none !important;
+            }
+
+            .cal-month__day-number {
+                color: #fecaca !important;
+            }
+        }
+    }
+}

@@ -1,14 +1,4 @@
-@keyframes smoothGradientFlow {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
+@use 'animations.scss'; 
 
 .animated-bg {
   background: linear-gradient(135deg, #2c2c2c, #4a0010);

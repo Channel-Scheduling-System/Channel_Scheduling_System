@@ -41,6 +41,9 @@ logs/
 coverage/
 .nyc_output/
 
+# SonarQube / SonarCloud
+.scannerwork/
+
 # Angular build outputs
 /dist
 /dist-*/

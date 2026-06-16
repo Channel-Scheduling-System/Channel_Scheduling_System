@@ -5,9 +5,9 @@ import {
     ServiceFilters,
     UpdateServiceInput,
     UpdateServiceData,
+    ServiceWithWorker,
 } from './service.types.js';
-import type { Service } from '@prisma/client.js';
-import { ServiceFiltersSchema } from './service.validator.js';
+import { serviceFiltersSchema } from './service.validator.js';
 
 /**
  * Maps a service input to an Service entity for database
@@ -49,7 +49,9 @@ export function mapToUpdateServiceData(
  * @param service - Service entity from the database
  * @returns ServiceResponse object formatted for API responses
  */
-export function mapToServiceResponse(service: Service): ServiceResponse {
+export function mapToServiceResponse(
+    service: ServiceWithWorker,
+): ServiceResponse {
     return {
         id: service.id,
         name: service.name,
@@ -58,6 +60,10 @@ export function mapToServiceResponse(service: Service): ServiceResponse {
         price: service.defaultPrice,
         duration: service.defaultDurationMin,
         isActive: service.isActive,
+        worker: {
+            id: service.worker.id,
+            name: `${service.worker.firstName} ${service.worker.lastName}`,
+        },
     };
 }
 
@@ -66,7 +72,9 @@ export function mapToServiceResponse(service: Service): ServiceResponse {
  * @param services - Array of Service entities from the database
  * @returns Array of ServiceResponse objects formatted for API responses
  */
-export function mapToServicesResponse(services: Service[]): ServiceResponse[] {
+export function mapToServicesResponse(
+    services: ServiceWithWorker[],
+): ServiceResponse[] {
     return services.map(mapToServiceResponse);
 }
 
@@ -79,5 +87,5 @@ export function mapToServiceFilters(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     filters: Record<string, any>,
 ): ServiceFilters {
-    return ServiceFiltersSchema.parse(filters);
+    return serviceFiltersSchema.parse(filters);
 }

@@ -3,10 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import { ValidationDTOError } from '../errors/validation.error.js';
 
 /**
- * Generic validator factory for Express middleware
- * Parses input using Zod schema and validates it
- * If validation fails, throws ValidationDTOError
- *
+ * **Validator factory to create zod DTO validator middlewares**
  * @param schema - Zod schema for validation
  * @param extractor - Function to extract data from request
  * @param setter - Function to set validated data back to request
@@ -18,34 +15,20 @@ const createValidator = <T = unknown>(
     setter: (req: Request, data: T) => void,
     validator?: (req: Request) => void,
 ) => {
-    return (req: Request, res: Response, next: NextFunction) => {
+    return (req: Request, _res: Response, next: NextFunction) => {
         try {
-            // Optional pre-validation (e.g., check if cookie exists)
-            if (validator) {
-                validator(req);
-            }
-
-            const dataToValidate = extractor(req);
-            const result = schema.safeParse(dataToValidate);
-
-            if (!result.success) {
-                const errorTree = z.treeifyError(result.error);
-                throw new ValidationDTOError(errorTree);
-            }
-
-            setter(req, result.data);
+            validator?.(req);
+            const result = schema.parse(extractor(req));
+            setter(req, result);
             next();
         } catch (error) {
+            if (error instanceof z.ZodError)
+                next(new ValidationDTOError(z.treeifyError(error)));
             next(error);
         }
     };
 };
 
-/**
- * Validates request body against schema
- * @example
- * router.post('/login', validateBodyDTO(loginSchema), controller.login)
- */
 export const validateBodyDTO = <T = unknown>(schema: z.ZodSchema<T>) => {
     return createValidator(
         schema,
@@ -56,43 +39,26 @@ export const validateBodyDTO = <T = unknown>(schema: z.ZodSchema<T>) => {
     );
 };
 
-/**
- * Validates query parameters against schema
- * @example
- * router.get('/search', validateQueryDTO(searchSchema), controller.search)
- */
-export const validateQueryDTO = <T = unknown>(schema: z.ZodSchema<T>) => {
-    return createValidator(
-        schema,
-        (req) => req.query,
-        (req, data) => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            Object.assign(req.query, data as Record<string, any>);
-        },
-    );
-};
-
-/**
- * Validates URL parameters/route params against schema
- * @example
- * router.get('/:id', validateParamsDTO(idSchema), controller.getOne)
- */
 export const validateParamsDTO = <T = unknown>(schema: z.ZodSchema<T>) => {
     return createValidator(
         schema,
         (req) => req.params,
         (req, data) => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            req.params = data as Record<string, any>;
+            Object.assign(req.params, data as Record<string, unknown>);
         },
     );
 };
 
-/**
- * Validates specific cookie against schema
- * @example
- * router.get('/profile', validateCookieDTO('sessionId', sessionSchema), controller.profile)
- */
+export const validateQueryDTO = <T = unknown>(schema: z.ZodSchema<T>) => {
+    return createValidator(
+        schema,
+        (req) => req.query,
+        (req, data) => {
+            Object.assign(req.query, data as Record<string, unknown>);
+        },
+    );
+};
+
 export const validateCookieDTO = <T = unknown>(
     cookieName: string,
     schema: z.ZodSchema<T>,
@@ -104,18 +70,10 @@ export const validateCookieDTO = <T = unknown>(
             req.cookies[cookieName] = data;
         },
         (req) => {
-            if (!req.cookies?.[cookieName]) {
+            if (!req.cookies?.[cookieName])
                 throw new ValidationDTOError({
                     [cookieName]: `Cookie "${cookieName}" es requerida`,
                 });
-            }
         },
     );
 };
-
-export const ParamIdDTO = z.object({
-    id: z.coerce
-        .number('El id debe ser un número')
-        .int('El id debe ser un número entero')
-        .positive('El id debe ser un número positivo'),
-});

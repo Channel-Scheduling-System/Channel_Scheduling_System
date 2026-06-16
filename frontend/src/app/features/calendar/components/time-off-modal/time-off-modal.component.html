@@ -1,0 +1,156 @@
+<div class="tb-modal" (click)="closeDropdowns(); $event.stopPropagation()">
+  <div class="tb-modal__inner">
+    <div class="tb-modal__scroll">
+      <div class="tb-modal__header">
+        <div class="tb-modal__header-left">
+          <span class="material-symbols-outlined tb-modal__header-icon" translate="no">
+            lock_clock
+          </span>
+          <div>
+            <h2 class="tb-modal__title">Bloqueo de tiempo</h2>
+            <p class="tb-modal__subtitle">Define un bloqueo en tu horario de atención</p>
+          </div>
+        </div>
+        <button class="tb-modal__close" type="button" (click)="onCancel()" title="Cerrar">
+          <span class="material-symbols-outlined" translate="no">close</span>
+        </button>
+      </div>
+      <div class="tb-modal__divider"></div>
+      <div class="tb-modal__body" [formGroup]="form">
+        <div class="tb-field-group">
+          <label class="tb-label">
+            Tipo de bloqueo
+          </label>
+          <div class="tb-select-wrap" [class.tb-select-wrap--open]="selectOpen" (click)="$event.stopPropagation()">
+            <span class="material-symbols-outlined tb-select-wrap__icon" translate="no">category</span>
+            <button type="button" class="tb-select-btn" (click)="selectOpen = !selectOpen">
+              <span>{{ blockType === 'SPECIFIC' ? 'Fecha específica' : 'Recurrente semanal' }}</span>
+              <span class="material-symbols-outlined tb-select-wrap__arrow" translate="no">expand_more</span>
+            </button>
+            <div class="tb-select-options" *ngIf="selectOpen">
+              <button type="button" class="tb-select-option" [class.tb-select-option--active]="blockType === 'SPECIFIC'"
+                (click)="form.get('type')!.setValue('SPECIFIC'); selectOpen = false">
+                <span class="material-symbols-outlined" translate="no">calendar_today</span>
+                <span>Fecha específica</span>
+                <span *ngIf="blockType === 'SPECIFIC'" class="material-symbols-outlined tb-select-option__check"
+                  translate="no">check</span>
+              </button>
+              <button type="button" class="tb-select-option tb-select-option--last"
+                [class.tb-select-option--active]="blockType === 'RECURRING'"
+                (click)="form.get('type')!.setValue('RECURRING'); selectOpen = false">
+                <span class="material-symbols-outlined" translate="no">repeat</span>
+                <span>Recurrente semanal</span>
+                <span *ngIf="blockType === 'RECURRING'" class="material-symbols-outlined tb-select-option__check"
+                  translate="no">check</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="tb-field-group" *ngIf="blockType === 'SPECIFIC'">
+          <label class="tb-label">Fecha</label>
+          <div class="tb-input-wrap" [class.tb-input-wrap--error]="!!getFieldError('date')">
+            <span class="material-symbols-outlined tb-input-wrap__icon" translate="no">calendar_today</span>
+            <input class="tb-input tb-input--date" type="date" formControlName="date">
+            <button type="button" class="tb-input-wrap__picker-btn" title="Seleccionar fecha"
+              (click)="openDatePicker($event)">
+              <span class="material-symbols-outlined" translate="no">event</span>
+            </button>
+          </div>
+          <span class="tb-field-error" *ngIf="getFieldError('date')">
+            <span class="material-symbols-outlined" translate="no">error</span>
+            {{ getFieldError('date') }}
+          </span>
+        </div>
+        <div class="tb-field-group" *ngIf="blockType === 'RECURRING'">
+          <label class="tb-label">Día de la semana</label>
+          <div class="tb-select-wrap" [class.tb-select-wrap--open]="weekdaySelectOpen"
+            (click)="$event.stopPropagation()">
+            <span class="material-symbols-outlined tb-select-wrap__icon" translate="no">
+              calendar_view_week
+            </span>
+            <button type="button" class="tb-select-btn" (click)="weekdaySelectOpen = !weekdaySelectOpen">
+              <span>{{ selectedWeekdayLabel }}</span>
+              <span class="material-symbols-outlined tb-select-wrap__arrow" translate="no">
+                expand_more
+              </span>
+            </button>
+            <div class="tb-select-options" *ngIf="weekdaySelectOpen">
+              <button *ngFor="let d of weekdayOptions; let last = last" type="button" class="tb-select-option"
+                [class.tb-select-option--active]="form.get('dayOfWeek')?.value === d.value"
+                [class.tb-select-option--last]="last"
+                (click)="form.get('dayOfWeek')!.setValue(d.value); weekdaySelectOpen = false">
+                <span class="tb-select-option__bullet">•</span>
+                <span>{{ d.label }}</span>
+                <span *ngIf="form.get('dayOfWeek')?.value === d.value"
+                  class="material-symbols-outlined tb-select-option__check" translate="no">check</span>
+              </button>
+            </div>
+          </div>
+          <span class="tb-field-error" *ngIf="getFieldError('dayOfWeek')">
+            <span class="material-symbols-outlined" translate="no">error</span>
+            {{ getFieldError('dayOfWeek') }}
+          </span>
+        </div>
+        <div class="tb-field-group">
+          <label class="tb-label">Hora de inicio</label>
+          <div class="tb-input-wrap" [class.tb-input-wrap--error]="!!getFieldError('startTime')" style="cursor:pointer"
+            (click)="openPicker('startTime', $event)">
+            <span class="material-symbols-outlined tb-input-wrap__icon" translate="no">schedule</span>
+            <input class="tb-input tb-input--readonly" [attr.data-has-value]="form.get('startTime')?.value || null"
+              [value]="display12h(form.get('startTime')?.value)" readonly (click)="openPicker('startTime', $event)">
+          </div>
+          <span class="tb-field-error" *ngIf="getFieldError('startTime')">
+            <span class="material-symbols-outlined" translate="no">error</span>
+            {{ getFieldError('startTime') }}
+          </span>
+        </div>
+        <div class="tb-field-group">
+          <label class="tb-label">Hora de finalización</label>
+          <div class="tb-input-wrap" [class.tb-input-wrap--error]="!!getFieldError('endTime') || !!getCrossTimeError()"
+            style="cursor:pointer" (click)="openPicker('endTime', $event)">
+            <span class="material-symbols-outlined tb-input-wrap__icon" translate="no">timer</span>
+            <input class="tb-input tb-input--readonly" [attr.data-has-value]="form.get('endTime')?.value || null"
+              [value]="display12h(form.get('endTime')?.value)" readonly (click)="openPicker('endTime', $event)">
+          </div>
+          <span class="tb-field-error" *ngIf="getFieldError('endTime') || getCrossTimeError()">
+            <span class="material-symbols-outlined" translate="no">error</span>
+            {{ getFieldError('endTime') || getCrossTimeError() }}
+          </span>
+        </div>
+        <div class="tb-field-group">
+          <label class="tb-label">
+            Motivo
+            <span class="tb-label__optional">(Opcional)</span>
+          </label>
+          <div class="tb-input-wrap tb-input-wrap--textarea" [class.tb-input-wrap--error]="!!getFieldError('reason')">
+            <span class="material-symbols-outlined tb-input-wrap__icon tb-input-wrap__icon--top"
+              translate="no">notes</span>
+            <textarea class="tb-textarea" formControlName="reason" placeholder="Describe la razón del bloqueo..."
+              rows="2" maxlength="200">
+            </textarea>
+          </div>
+          <div class="tb-field-bottom">
+            <span class="tb-field-error" *ngIf="getFieldError('reason')">
+              <span class="material-symbols-outlined" translate="no">error</span>
+              {{ getFieldError('reason') }}
+            </span>
+            <span class="tb-char-count" [class.tb-char-count--warn]="reasonLength > 180">
+              {{ reasonLength }}/200
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="tb-modal__divider"></div>
+      <div class="tb-modal__footer">
+        <button class="tb-modal__cancel" type="button" (click)="onCancel()">
+          Cancelar
+        </button>
+        <button class="tb-modal__submit" type="button" (click)="onSubmit()" [disabled]="isSubmitting"
+          [class.tb-modal__submit--loading]="isSubmitting">
+          <span class="material-symbols-outlined" translate="no">lock_clock</span>
+          <span>{{ isSubmitting ? 'Guardando...' : 'Añadir bloqueo' }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

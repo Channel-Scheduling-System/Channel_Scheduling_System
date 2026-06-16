@@ -1,0 +1,26 @@
+<div class="avl__container" aria-hidden="true">
+  <ng-container *ngFor="let block of blocks; trackBy: trackByBlock">
+    <div
+      *ngIf="isOutOfHours(block)"
+      class="avl__block avl__block--ooh"
+      [style.top]="block.top"
+      [style.height]="block.height">
+      <div class="avl__block__hatch"></div>
+      <div class="avl__block__edge"></div>
+    </div>
+    <div
+      *ngIf="isOccupied(block)"
+      class="avl__block avl__block--occupied"
+      [style.top]="block.top"
+      [style.height]="block.height">
+      <div class="avl__block__noise"></div>
+      <div class="avl__block__shimmer"></div>
+      <div class="avl__block__label" *ngIf="showOccupiedLabel(block)">
+        <span class="material-symbols-outlined avl__block__label-icon" translate="no">
+          block
+        </span>
+        <span class="avl__block__label-text">Ocupado</span>
+      </div>
+    </div>
+  </ng-container>
+</div>

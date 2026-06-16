@@ -4,65 +4,44 @@ import {
     validateCookieDTO,
 } from '../../shared/middlewares/validateDTO.middleware.js';
 import {
-    UserPassword,
-    UserAlias,
-    UserEmail,
-    UserPhone,
-    CreateUserInput,
+    userPassword,
+    userAlias,
+    userEmail,
+    userPhone,
+    createUserInput,
 } from '../users/user.validator.js';
-import { ResetCodeRequestDTO } from '../reset-codes/reset-code.validator.js';
+import { resetCodeRequestInput } from '../reset-codes/reset-code.validator.js';
 
-// REGISTER
-//* -----------------------------
-export const RegisterDTO = CreateUserInput.omit({ role: true }).strict();
+// ============================================================
+// * INPUT DTOs
+// ============================================================
+const registerInput = createUserInput.omit({ role: true }).strict();
 
-// LOGIN
-//* -----------------------------
-export const LoginDTO = z
+const loginInput = z
     .object({
-        identifier: z.union([UserAlias, UserEmail, UserPhone]),
-        password: UserPassword,
+        identifier: z.union([userAlias, userEmail, userPhone]),
+        password: userPassword,
     })
     .strict();
 
-// REFRESH TOKEN
-//* -----------------------------
-export const RefreshTokenDTO = z
-    .string()
-    .min(1, 'El token es requerido')
-    .regex(
-        /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/,
-        'Token JWT inválido',
-    );
+const refreshTokenInput = z.jwt({ alg: 'HS256' });
 
-// VERIFY RESET CODE
-//* -----------------------------
-export const VerifyResetCodeDTO = z
+const verifyResetCodeInput = z
     .object({
-        email: UserEmail,
+        email: userEmail,
         code: z.string().length(6, 'El código debe tener 6 dígitos'),
     })
     .strict();
 
-// RESET PASSWORD
-//* -----------------------------
-export const ResetPasswordDTO = z
-    .object({ newPassword: UserPassword })
-    .strict();
-
-// TYPES (DTOs)
-//* -----------------------------
-export type LoginRequestDTO = z.infer<typeof LoginDTO>;
-export type RegisterRequestDTO = z.infer<typeof RegisterDTO>;
-export type RefreshTokenRequest = z.infer<typeof RefreshTokenDTO>;
+const resetPasswordInput = z.object({ newPassword: userPassword }).strict();
 
 // Export centralizado
 //* -----------------------------
 export const authValidator = {
-    register: validateBodyDTO(RegisterDTO),
-    login: validateBodyDTO(LoginDTO),
-    refreshToken: validateCookieDTO('refreshToken', RefreshTokenDTO),
-    requestPasswordReset: validateBodyDTO(ResetCodeRequestDTO),
-    verifyResetCode: validateBodyDTO(VerifyResetCodeDTO),
-    resetPassword: validateBodyDTO(ResetPasswordDTO),
+    register: validateBodyDTO(registerInput),
+    login: validateBodyDTO(loginInput),
+    refreshToken: validateCookieDTO('refreshToken', refreshTokenInput),
+    requestPasswordReset: validateBodyDTO(resetCodeRequestInput),
+    verifyResetCode: validateBodyDTO(verifyResetCodeInput),
+    resetPassword: validateBodyDTO(resetPasswordInput),
 };

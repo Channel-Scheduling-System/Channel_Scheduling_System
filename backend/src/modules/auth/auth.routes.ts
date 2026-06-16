@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authController } from './auth.module.js';
+import { authController } from '../index.js';
 import { authValidator } from './auth.validator.js';
 import {
     loginLimiter,

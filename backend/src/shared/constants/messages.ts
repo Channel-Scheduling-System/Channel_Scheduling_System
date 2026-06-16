@@ -48,3 +48,45 @@ export const SERVICE_ERRORS = {
     ID_NOTFOUND: 'El servicio con el id solicitado no existe',
     SERVICE_DEACTIVATED: 'Servicio desactivado. Contacta al trabajador.',
 } as const;
+
+export const AVAILABILITY_ERRORS = {
+    NOT_FOUND: 'Bloque de tiempo no encontrado',
+    WORKER_NOT_FOUND: 'El trabajador asociado no existe',
+    OWNER_MISMATCH: 'No tienes permisos para modificar este bloque de tiempo',
+    CANNOT_VIEW:
+        'No tienes permisos para ver la disponibilidad detallada de este trabajador',
+    INVALID_TIME_INTERVAL: 'El intervalo de tiempo es inválido',
+    DUPLICATE_DAYOFWEEK:
+        'No puede haber más de un horario por día de la semana',
+    OVERLAPPING_DAY_OFF:
+        'Ya existe un bloque de tiempo que solapa con esta fecha',
+    DAY_OFF_IN_PAST: 'No se puede crear un bloqueo en una fecha pasada',
+} as const;
+
+export const APPOINTMENT_ERRORS = {
+    WORKER_NOT_FOUND: 'El trabajador asociado a la cita no existe',
+    CLIENT_NOT_FOUND: 'El cliente asociado a la cita no existe',
+    SERVICE_NOT_FOUND(serviceId: number) {
+        return `El servicio con id ${serviceId} no existe`;
+    },
+    DATE_IN_PAST: 'No se puede crear una cita en una fecha pasada',
+    DATE_EXPIRED:
+        'Esta acción no se puede realizar porque la fecha de la cita ya pasó',
+    OUT_OF_WORKING_HOURS:
+        'La cita no está dentro de los horarios laborales del trabajador',
+    CANT_BE_REQUESTED:
+        'No se puede solicitar la cita. Este horario no esta disponible',
+    MAX_OVERLAPS_ALLOWED: `No se puede crear la cita. Ya se alcanzó el máximo de citas permitidas en este horario`,
+    NOT_FOUND: 'Cita no encontrada',
+    OWNER_CREATION_MISMATCH: 'No tienes permisos para crear esta cita',
+    OWNER_ACCESS_MISMATCH: 'No tienes permisos para acceder a esta cita',
+    OWNER_STATUSCHANGE_MISMATCH:
+        'No tienes permisos para cambiar el estado de esta cita',
+    STATUS_MISMATCH: 'La cita no está en un estado que permita esta acción',
+} as const;
+
+export const APPOINTMENT_MESSAGES = {
+    CAN_BE_CREATED: 'Horario disponible. La cita puede ser creada.',
+    CONFIRMATION_NEEDED: (count: number) =>
+        `Hay ${count} cita(s) en este horario. Confirme si desea agregar una cita adicional (máximo permitido: 2).`,
+} as const;

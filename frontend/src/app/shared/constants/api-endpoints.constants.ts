@@ -1,3 +1,4 @@
+import { id } from 'date-fns/locale';
 import { environment } from '../../../environments/environment';
 
 export const API_ENDPOINTS = {
@@ -11,6 +12,28 @@ export const API_ENDPOINTS = {
     RECOVERY_SEND_CODE: `${environment.apiUrl}/auth/password-reset/request`,
     RECOVERY_VERIFY_CODE: `${environment.apiUrl}/auth/password-reset/verify`,
     RECOVERY_RESET_PASSWORD: `${environment.apiUrl}/auth/password-reset/reset`
+  },
+  CALENDAR: {
+    UPDATE_WORKING_HOURS: (id: number) =>`${environment.apiUrl}/availability/${id}/working-hours`,
+    SET_TIME_OFF: (id: number) => `${environment.apiUrl}/availability/${id}/time-off`,
+    SET_DAY_OFF: (id: number) => `${environment.apiUrl}/availability/${id}/day-off`,
+    SET_PERIOD_OFF: (id: number) => `${environment.apiUrl}/availability/${id}/period-off`,
+    AVAILABILITY_CONFIG: (id: number) => `${environment.apiUrl}/availability/${id}/config`,
+    AVAILABILITY_WORKER: (id: number) => `${environment.apiUrl}/availability/worker/${id}`,
+    DELETE_BLOCK: (id: number) => `${environment.apiUrl}/availability/${id}`,
+  },
+  APPOINTMENTS: {
+    VERIFY_OVERLAP: `${environment.apiUrl}/appointments/verify-overlap`,
+    CREATE: `${environment.apiUrl}/appointments`,
+    LIST_HISTORY: `${environment.apiUrl}/appointments/history`,
+    LIST: `${environment.apiUrl}/appointments/calendar`,
+    UPDATE: (id: number) => `${environment.apiUrl}/appointments/${id}`,
+    RESCHEDULE: (id: number) => `${environment.apiUrl}/appointments/${id}/reschedule`,
+    GET_STATUS_QUANTITY: `${environment.apiUrl}/appointments/quantity`,
+    APPROVE: (id: number) => `${environment.apiUrl}/appointments/${id}/approve`,
+    REJECT: (id: number) => `${environment.apiUrl}/appointments/${id}/reject`,
+    CANCEL: (id: number) => `${environment.apiUrl}/appointments/${id}/cancel`,
+    SET_STATE: (id: number) => `${environment.apiUrl}/appointments/${id}/status`,
   },
   SERVICES: {
     LIST: `${environment.apiUrl}/services`,

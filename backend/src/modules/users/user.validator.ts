@@ -1,15 +1,21 @@
 import {
-    ParamIdDTO,
     validateBodyDTO,
     validateParamsDTO,
     validateQueryDTO,
 } from '../../shared/middlewares/validateDTO.middleware.js';
-import { Id, oneOrMany, UpdateStateDTO } from '../../shared/zod/shemas.js';
+import {
+    id,
+    limitSchema,
+    oneOrMany,
+    pageSchema,
+    paramId,
+    updateStateDTO,
+} from '../../shared/zod/schemas.js';
 import { z } from 'zod';
 
-export const Role = z.enum(['ADMIN', 'CLIENT', 'WORKER']);
+export const role = z.enum(['ADMIN', 'CLIENT', 'WORKER']);
 
-export const UserAlias = z
+export const userAlias = z
     .string()
     .regex(
         /^[a-zA-Z0-9_-]+$/,
@@ -18,7 +24,7 @@ export const UserAlias = z
     .min(3, 'El alias debe tener al menos 3 caracteres')
     .max(30, 'El alias no puede exceder 30 caracteres');
 
-export const UserEmail = z
+export const userEmail = z
     .string()
     .regex(
         /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
@@ -27,13 +33,13 @@ export const UserEmail = z
     .min(5, 'El email debe tener al menos 5 caracteres')
     .max(80, 'El email no puede exceder 80 caracteres');
 
-export const UserPhone = z
+export const userPhone = z
     .string()
     .regex(/^\d+$/, 'El teléfono solo debe contener números')
     .min(10, 'El teléfono debe tener 10 dígitos')
     .max(10, 'El teléfono no puede exceder los 10 dígitos');
 
-export const UserPassword = z
+export const userPassword = z
     .string()
     .min(8, 'La contraseña debe tener al menos 8 caracteres')
     .max(50, 'La contraseña no puede exceder 50 caracteres')
@@ -45,9 +51,9 @@ export const UserPassword = z
         'La contraseña debe contener al menos un carácter especial',
     );
 
-export const UserSchema = z.object({
-    id: Id,
-    alias: UserAlias,
+const userSchema = z.object({
+    id: id,
+    alias: userAlias,
     firstName: z
         .string()
         .regex(
@@ -64,74 +70,73 @@ export const UserSchema = z.object({
         )
         .min(2, 'El apellido debe tener al menos 2 caracteres')
         .max(80, 'El apellido no puede exceder 50 caracteres'),
-    phone: UserPhone,
-    email: UserEmail,
-    role: Role,
+    phone: userPhone,
+    email: userEmail,
+    role: role,
 });
 
 // TYPES (DTOs)
 //* -----------------------------
-export type UserData = z.infer<typeof UserSchema>;
-
-export const CreateUserInput = UserSchema.extend({
-    password: UserPassword,
-})
+export const createUserInput = userSchema
+    .extend({
+        password: userPassword,
+    })
     .omit({ id: true })
     .strict();
 
-export const CreateFirstAdminDTO = CreateUserInput.extend({
-    secretCode: z.string().length(10, 'Código secreto con longitud incorrecta'),
-})
+const createFirstAdminDTO = createUserInput
+    .extend({
+        secretCode: z
+            .string()
+            .length(10, 'Código secreto con longitud incorrecta'),
+    })
     .omit({ role: true })
     .strict();
 
-export const UpdateUserDTO = UserSchema.partial()
+const updateUserDTO = userSchema
+    .partial()
     .omit({
         id: true,
         role: true,
     })
     .strict();
 
-export const UpdatePasswordDTO = z
+const updatePasswordDTO = z
     .object({
-        password: UserPassword,
-        newPassword: UserPassword,
+        password: userPassword,
+        newPassword: userPassword,
     })
     .strict();
 
-export const DeactivateMeDTO = z
+const deactivateMeDTO = z
     .object({
-        password: UserPassword,
+        password: userPassword,
     })
     .strict();
 
 // FILTERS
-export const UserPaginationSchema = z.object({
-    page: z.coerce.number().positive('Página debe ser positiva').optional(),
-    limit: z.coerce
-        .number()
-        .positive('Límite debe ser positivo')
-        .max(100, 'Límite máximo es 100 registros')
-        .optional(),
+export const userPaginationSchema = z.object({
+    page: pageSchema.optional(),
+    limit: limitSchema(100).optional(),
 });
 
-export const UserFiltersSchema = z.object({
-    role: oneOrMany(Role),
+export const userFiltersSchema = z.object({
+    role: oneOrMany(role),
     isActive: z.union([z.boolean(), z.stringbool()]).optional(),
     identifier: z.string().optional(),
 });
 
-export const UserQuerySchema = UserFiltersSchema.and(UserPaginationSchema);
+const userQuerySchema = userFiltersSchema.and(userPaginationSchema);
 
 // Export centralizado
 //* -----------------------------
 export const userValidator = {
-    create: validateBodyDTO(CreateUserInput),
-    createFirstAdmin: validateBodyDTO(CreateFirstAdminDTO),
-    update: validateBodyDTO(UpdateUserDTO),
-    updatePassword: validateBodyDTO(UpdatePasswordDTO),
-    updateState: validateBodyDTO(UpdateStateDTO),
-    deactivateMe: validateBodyDTO(DeactivateMeDTO),
-    id: validateParamsDTO(ParamIdDTO),
-    filters: validateQueryDTO(UserQuerySchema),
+    create: validateBodyDTO(createUserInput),
+    createFirstAdmin: validateBodyDTO(createFirstAdminDTO),
+    update: validateBodyDTO(updateUserDTO),
+    updatePassword: validateBodyDTO(updatePasswordDTO),
+    updateState: validateBodyDTO(updateStateDTO),
+    deactivateMe: validateBodyDTO(deactivateMeDTO),
+    id: validateParamsDTO(paramId),
+    filters: validateQueryDTO(userQuerySchema),
 };

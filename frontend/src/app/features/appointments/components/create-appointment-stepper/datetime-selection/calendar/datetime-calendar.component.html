@@ -1,0 +1,77 @@
+<div class="dt-agenda">
+  <div class="dt-agenda__toolbar">
+    <div class="dt-agenda__toolbar-nav" role="group" aria-label="Navegación de día">
+      <button class="dt-agenda__nav-btn" type="button" aria-label="Día anterior"
+        (click)="goToPrevDay()">
+        <span class="toolbar-btn__shimmer"></span>
+        <span class="toolbar-btn__glow"></span>
+        <span class="material-symbols-outlined" translate="no">chevron_left</span>
+      </button>
+      <button class="dt-agenda__today-btn"
+        [class.dt-agenda__today-btn--current]="isToday"
+        type="button"
+        (click)="goToToday()">
+        <span class="toolbar-btn__shimmer"></span>
+        <span class="toolbar-btn__glow"></span>
+        <span class="dt-agenda__today-btn__content">Hoy</span>
+      </button>
+      <button class="dt-agenda__nav-btn" type="button" aria-label="Día siguiente"
+        (click)="goToNextDay()">
+        <span class="toolbar-btn__shimmer"></span>
+        <span class="toolbar-btn__glow"></span>
+        <span class="material-symbols-outlined" translate="no">chevron_right</span>
+      </button>
+    </div>
+    <div class="dt-agenda__toolbar-range">
+      <span class="dt-agenda__range-label">{{ dayLabel }}</span>
+    </div>
+    <div class="dt-agenda__toolbar-actions">
+    </div>
+  </div>
+  <div class="dt-agenda__body" #calendarBodyRef>
+    <div class="dt-agenda__day-wrap">
+      <app-datetime-calendar-day-grid-layer
+        [currentDate]="currentDate" />
+      <app-datetime-calendar-day-availability-layer
+        [availabilityDay]="availabilityDay"
+        [isWorker]="isWorkerRole" />
+      <app-datetime-calendar-day-appointment-layer
+        [currentDate]="currentDate"
+        [appointments]="clientAppointments" />
+      <app-datetime-calendar-day-selection-layer
+        [currentDate]="currentDate"
+        [clientAppointments]="clientAppointments"
+        [availabilityDay]="availabilityDay"
+        (slotSelected)="onSlotSelected($event)" />
+    </div>
+  </div>
+  <div class="dt-agenda__legend" aria-label="Referencias del calendario">
+    <div class="dt-legend__item">
+      <span class="dt-legend__swatch dt-legend__swatch--free"></span>
+      <span class="dt-legend__label">Libre</span>
+    </div>
+    <div class="dt-legend__item">
+      <span class="dt-legend__swatch dt-legend__swatch--selection"></span>
+      <span class="dt-legend__label">Tu cita</span>
+    </div>
+    <div class="dt-legend__item">
+      <span class="dt-legend__swatch dt-legend__swatch--appointment"></span>
+      <span class="dt-legend__label">Cita existente</span>
+    </div>
+    <div class="dt-legend__item">
+      <span class="dt-legend__swatch dt-legend__swatch--occupied">
+        <span class="dt-legend__swatch-noise"></span>
+        <span class="dt-legend__swatch-stripes"></span>
+        <span class="dt-legend__swatch-icon material-symbols-outlined" translate="no">block</span>
+      </span>
+      <span class="dt-legend__label">Ocupado</span>
+    </div>
+    <div class="dt-legend__item">
+      <span class="dt-legend__swatch dt-legend__swatch--ooh">
+        <span class="dt-legend__swatch-hatch"></span>
+        <span class="dt-legend__swatch-edge"></span>
+      </span>
+      <span class="dt-legend__label">Fuera de horario</span>
+    </div>
+  </div>
+</div>

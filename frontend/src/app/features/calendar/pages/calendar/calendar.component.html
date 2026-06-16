@@ -1,0 +1,93 @@
+<div class="calendar-page">
+  <div class="calendar-page__header">
+    <div>
+      <span class="calendar-page__eyebrow">Gestión</span>
+      <h1 class="calendar-page__title">Mi disponibilidad</h1>
+    </div>
+  </div>
+  <div class="calendar-shell" [class.calendar-shell--delete-mode]="isDeleteMode">
+    <div class="cal-topbar">
+      <div class="cal-topbar__nav">
+        <button class="cal-nav-btn" (click)="goToPrev()" title="Anterior">
+          <span class="material-symbols-outlined" translate="no">chevron_left</span>
+        </button>
+        <button class="cal-today-btn" (click)="goToToday()" title="Hoy">Hoy</button>
+        <button class="cal-nav-btn" (click)="goToNext()" title="Siguiente">
+          <span class="material-symbols-outlined" translate="no">chevron_right</span>
+        </button>
+      </div>
+      <div class="cal-topbar__range">
+        <span class="cal-range-label">{{ dateRangeLabel }}</span>
+      </div>
+      <div class="cal-view-switcher">
+        <button class="cal-view-btn" [class.cal-view-btn--active]="currentView === 'month'"
+          (click)="setView('month')">Mes</button>
+        <button class="cal-view-btn" [class.cal-view-btn--active]="currentView === 'week'"
+          (click)="setView('week')">Semana</button>
+        <button class="cal-view-btn" [class.cal-view-btn--active]="currentView === 'day'"
+          (click)="setView('day')">Día</button>
+      </div>
+    </div>
+    <div class="cal-body">
+      <div class="cal-grid-wrap" #gridWrap (scroll)="onGridScroll()">
+        <app-calendar-scroll-hint *ngIf="currentView !== 'month'" [gridEl]="activeGridEl"
+          [scrollContainer]="scrollGridContainer" [view]="currentView" [visibleDays]="visibleDays"
+          [currentDate]="currentDate" [headerH]="headerH" [availabilityData]="availabilityData">
+        </app-calendar-scroll-hint>
+        <ng-container *ngIf="currentView === 'week'">
+          <div #weekGrid class="cal-grid cal-grid--week" appCalendarGridWeek [currentDate]="currentDate"
+            [visibleDays]="visibleDays" [timeSlots]="timeSlots" [availabilityData]="availabilityData"
+            [deleteMode]="isDeleteMode" (deleteEntity)="onDeleteEntity($event)"
+            (slotClick)="onSlotClick($event.day, $event.slot)" (boundaryChange)="onBoundaryChange($event)"
+            (dayHeaderClick)="onDayHeaderClick($event)" (selectionComplete)="onSelectionComplete($event)"></div>
+        </ng-container>
+        <ng-container *ngIf="currentView === 'day'">
+          <div #dayGrid class="cal-grid cal-grid--day" appCalendarGridDay [currentDate]="currentDate"
+            [timeSlots]="timeSlots" [availabilityData]="availabilityData" [deleteMode]="isDeleteMode"
+            (deleteEntity)="onDeleteEntity($event)" (slotClick)="onSlotClick($event.day, $event.slot)"
+            (boundaryChange)="onBoundaryChange($event)" (dayHeaderClick)="onDayHeaderClick($event)"
+            (selectionComplete)="onSelectionComplete($event)">
+          </div>
+        </ng-container>
+        <ng-container *ngIf="currentView === 'month'">
+          <div class="cal-month" appCalendarGridMonth [visibleDays]="visibleDays" [currentDate]="currentDate"
+            [weekDayNames]="weekDayNames" [availabilityData]="availabilityData"
+            (monthDayClick)="onMonthDayClick($event)" (monthDayPointerDown)="onMonthDayPointerDown($event)"
+            [deleteMode]="isDeleteMode" (deleteEntity)="onDeleteEntity($event)"
+            (selectionComplete)="onMonthSelectionComplete($event)" (monthDayContextMenu)="onMonthDayContextMenu($event)"
+            (weekdayHeaderContextMenu)="onWeekdayHeaderContextMenu($event)">
+            ></div>
+        </ng-container>
+      </div>
+      <div class="cal-empty-state" *ngIf="isAvailabilityEmpty && !isLoading">
+        <span class="material-symbols-outlined cal-empty-state__icon" translate="no">
+          edit_calendar
+        </span>
+        <p class="cal-empty-state__title">Tu agenda está en blanco</p>
+        <p class="cal-empty-state__subtitle">
+          Configura tu horario y disponibilidad<br>usando los botones de la derecha
+        </p>
+      </div>
+      <aside class="cal-sidebar" appCalendarSidebar [isDeleteMode]="isDeleteMode"
+        (openWorkingHoursConfig)="openWorkingHoursConfig()" (openDayOffConfig)="openDayOffConfig()"
+        (openTimeOffConfig)="openTimeOffConfig()" (openPeriodOffConfig)="openPeriodOffConfig()"
+        (toggleDeleteMode)="toggleDeleteMode()"></aside>
+    </div>
+    <footer class="cal-footer" appCalendarFooter></footer>
+    <div class="cal-delete-banner" *ngIf="isDeleteMode">
+      <span class="material-symbols-outlined" translate="no">warning</span>
+      <span>Modo eliminar activo — presiona sobre un elemento para eliminarlo</span>
+      <button class="cal-delete-banner__close" (click)="toggleDeleteMode()">
+        <span class="material-symbols-outlined" translate="no">close</span>
+      </button>
+    </div>
+    <div class="cal-loading-overlay" *ngIf="isLoading">
+      <div class="cal-loading-overlay__content">
+        <span class="material-symbols-outlined cal-loading-overlay__icon" translate="no">calendar_month</span>
+        <span class="cal-loading-overlay__text">Cargando agenda...</span>
+      </div>
+    </div>
+  </div>
+</div>
+<app-calendar-tooltip></app-calendar-tooltip>
+<app-calendar-options-menu></app-calendar-options-menu>

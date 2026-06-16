@@ -1,122 +1,151 @@
 /// <reference types="jest" />
 
-import {
-    CreateFirstAdminDTO,
-    CreateUserInput,
-    UpdatePasswordDTO,
-    UpdateUserDTO,
-    UserFiltersSchema,
-    UserQuerySchema,
-} from '../../../src/modules/users/user.validator';
+import { userValidator } from '../../../src/modules/users/user.validator';
+import { ValidationDTOError } from '../../../src/shared/errors/validation.error';
 
 describe('User DTO validators', () => {
-    it('should validate a correct CreateUserInput payload', () => {
-        const result = CreateUserInput.safeParse({
-            alias: 'johangil',
-            firstName: 'Johan',
-            lastName: 'Gil',
-            phone: '3001234567',
-            email: 'johan@test.com',
-            password: 'Password123!',
-            role: 'CLIENT',
+    const runMiddleware = async (
+        middleware: (req: any, res: any, next: jest.Mock) => void | Promise<void>,
+        req: Record<string, any>,
+    ) => {
+        const res = {} as any;
+        const next = jest.fn();
+
+        await middleware(req, res, next);
+
+        return { req, res, next };
+    };
+
+    it('should accept a correct create payload', async () => {
+        const { next } = await runMiddleware(userValidator.create, {
+            body: {
+                alias: 'johangil',
+                firstName: 'Johan',
+                lastName: 'Gil',
+                phone: '3001234567',
+                email: 'johan@test.com',
+                password: 'Password123!',
+                role: 'CLIENT',
+            },
         });
 
-        expect(result.success).toBe(true);
+        expect(next).toHaveBeenCalledWith();
     });
 
-    it('should reject CreateUserInput with missing password', () => {
-        const result = CreateUserInput.safeParse({
-            alias: 'johangil',
-            firstName: 'Johan',
-            lastName: 'Gil',
-            phone: '3001234567',
-            email: 'johan@test.com',
-            role: 'CLIENT',
+    it('should reject create payloads with missing password', async () => {
+        const { next } = await runMiddleware(userValidator.create, {
+            body: {
+                alias: 'johangil',
+                firstName: 'Johan',
+                lastName: 'Gil',
+                phone: '3001234567',
+                email: 'johan@test.com',
+                role: 'CLIENT',
+            },
         });
 
-        expect(result.success).toBe(false);
+        expect(next).toHaveBeenCalledWith(expect.any(ValidationDTOError));
     });
 
-    it('should validate CreateFirstAdminInput payload', () => {
-        const result = CreateFirstAdminDTO.safeParse({
-            alias: 'adminone',
-            firstName: 'Admin',
-            lastName: 'One',
-            phone: '3000000001',
-            email: 'admin@test.com',
-            password: 'Password123!',
-            secretCode: '1234567890',
+    it('should accept a valid first admin payload', async () => {
+        const { next } = await runMiddleware(userValidator.createFirstAdmin, {
+            body: {
+                alias: 'adminone',
+                firstName: 'Admin',
+                lastName: 'One',
+                phone: '3000000001',
+                email: 'admin@test.com',
+                password: 'Password123!',
+                secretCode: '1234567890',
+            },
         });
 
-        expect(result.success).toBe(true);
+        expect(next).toHaveBeenCalledWith();
     });
 
-    it('should reject CreateFirstAdminInput without secretCode', () => {
-        const result = CreateFirstAdminDTO.safeParse({
-            alias: 'adminone',
-            firstName: 'Admin',
-            lastName: 'One',
-            phone: '3000000001',
-            email: 'admin@test.com',
-            password: 'Password123!',
+    it('should reject first admin payload without secret code', async () => {
+        const { next } = await runMiddleware(userValidator.createFirstAdmin, {
+            body: {
+                alias: 'adminone',
+                firstName: 'Admin',
+                lastName: 'One',
+                phone: '3000000001',
+                email: 'admin@test.com',
+                password: 'Password123!',
+            },
         });
 
-        expect(result.success).toBe(false);
+        expect(next).toHaveBeenCalledWith(expect.any(ValidationDTOError));
     });
 
-    it('should validate UpdateUserInput payload', () => {
-        const result = UpdateUserDTO.safeParse({
-            firstName: 'Carlos',
-            lastName: 'Gil',
+    it('should accept a partial update payload', async () => {
+        const { next } = await runMiddleware(userValidator.update, {
+            body: {
+                firstName: 'Carlos',
+                lastName: 'Gil',
+            },
         });
 
-        expect(result.success).toBe(true);
+        expect(next).toHaveBeenCalledWith();
     });
 
-    it('should reject UpdateUserInput with role field', () => {
-        const result = UpdateUserDTO.safeParse({
-            id: 1,
-            role: 'ADMIN',
+    it('should reject update payloads with read only fields', async () => {
+        const { next } = await runMiddleware(userValidator.update, {
+            body: {
+                id: 1,
+                role: 'ADMIN',
+            },
         });
 
-        expect(result.success).toBe(false);
+        expect(next).toHaveBeenCalledWith(expect.any(ValidationDTOError));
     });
 
-    it('should validate UpdatePasswordInput payload', () => {
-        const result = UpdatePasswordDTO.safeParse({
-            password: 'OldPass123!',
-            newPassword: 'NewPass123!',
+    it('should accept a valid password update payload', async () => {
+        const { next } = await runMiddleware(userValidator.updatePassword, {
+            body: {
+                password: 'OldPass123!',
+                newPassword: 'NewPass123!',
+            },
         });
 
-        expect(result.success).toBe(true);
+        expect(next).toHaveBeenCalledWith();
     });
 
-    it('should reject UpdatePasswordInput with invalid password', () => {
-        const result = UpdatePasswordDTO.safeParse({
-            password: 'old',
-            newPassword: 'NewPass123!',
+    it('should reject password updates with invalid password', async () => {
+        const { next } = await runMiddleware(userValidator.updatePassword, {
+            body: {
+                password: 'old',
+                newPassword: 'NewPass123!',
+            },
         });
 
-        expect(result.success).toBe(false);
+        expect(next).toHaveBeenCalledWith(expect.any(ValidationDTOError));
     });
 
-    it('should validate UserFiltersSchema with role and identifier', () => {
-        const result = UserFiltersSchema.safeParse({
-            role: 'ADMIN',
-            identifier: 'johan',
+    it('should accept query filters with role and identifier', async () => {
+        const { next, req } = await runMiddleware(userValidator.filters, {
+            query: {
+                role: 'ADMIN',
+                identifier: 'johan',
+            },
         });
 
-        expect(result.success).toBe(true);
+        expect(req.query.role).toEqual(['ADMIN']);
+        expect(next).toHaveBeenCalledWith();
     });
 
-    it('should validate UserQuerySchema with pagination and filters', () => {
-        const result = UserQuerySchema.safeParse({
-            page: '2',
-            limit: '10',
-            role: ['ADMIN', 'WORKER'],
-            isActive: 'true',
+    it('should accept pagination and filters in query params', async () => {
+        const { next, req } = await runMiddleware(userValidator.filters, {
+            query: {
+                page: '2',
+                limit: '10',
+                role: ['ADMIN', 'WORKER'],
+                isActive: 'true',
+            },
         });
 
-        expect(result.success).toBe(true);
+        expect(req.query.page).toBe(2);
+        expect(req.query.limit).toBe(10);
+        expect(next).toHaveBeenCalledWith();
     });
 });

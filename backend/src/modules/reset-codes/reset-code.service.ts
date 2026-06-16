@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import { env } from '../../config/env.js';
 import { emailService } from '../../shared/services/email/index.js';
 import { generatePasswordResetEmailHTML } from '../../shared/services/email/templates/password-reset.template.js';
@@ -22,7 +22,7 @@ const SUBJECT = 'Restablece tu contraseña - Channel Scheduling System';
 const MAX_ATTEMPTS = 3;
 
 export class ResetCodeService implements IResetCodeService {
-    constructor(private resetCodeRepo: IResetCodeRepository) {}
+    constructor(private readonly resetCodeRepo: IResetCodeRepository) {}
 
     async generateAndSend(input: ResetCodeRequestInput): Promise<void> {
         const otp = this.generateOTP();

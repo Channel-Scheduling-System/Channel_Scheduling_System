@@ -11,7 +11,10 @@
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
         "format": "prettier --write .",
-        "test": "jest --forceExit"
+        "test": "jest --forceExit",
+        "test:coverage": "jest --coverage --forceExit",
+        "seed": "tsx prisma/seed.ts",
+        "seed:rollback": "tsx prisma/seed.ts --rollback"
     },
     "repository": {
         "type": "git",
@@ -26,7 +29,7 @@
     "homepage": "https://github.com/Channel-Scheduling-System/Channel_Scheduling_System#readme",
     "dependencies": {
         "@prisma/adapter-mariadb": "^7.5.0",
-        "@prisma/client": "^7.5.0",
+        "@prisma/client": "^7.8.0",
         "bcrypt": "^6.0.0",
         "cookie-parser": "^1.4.7",
         "cors": "^2.8.6",
@@ -36,6 +39,7 @@
         "helmet": "^8.1.0",
         "jose": "^6.2.2",
         "nodemailer": "^8.0.5",
+        "temporal-polyfill": "^0.3.2",
         "zod": "^4.1.13"
     },
     "devDependencies": {
@@ -52,7 +56,7 @@
         "globals": "^16.5.0",
         "jest": "^30.2.0",
         "prettier": "^3.6.2",
-        "prisma": "^7.5.0",
+        "prisma": "^7.8.0",
         "ts-jest": "^29.4.6",
         "tsx": "^4.20.6",
         "typescript": "^5.9.3",

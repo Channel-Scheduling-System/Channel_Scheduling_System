@@ -1,0 +1,832 @@
+@use '../../../../shared/styles/animations.scss';
+@use '../../../../shared/styles/components/filter-dropdown.scss' as fd;
+
+// ── Tokens ────────────────────────────────────────────────────────────────────
+$primary:       #2a0002;
+$vinotinto:     #4a0010;
+$vinotinto-mid: #4A0E0E;
+$crimson:       #8B1a3a;
+$gold:          #c9a84c;
+$gold-light:    #e8c97e;
+$muted:         #877270;
+$surface:       #f0edec;
+$surface-low:   #faf8f7;
+$white:         #ffffff;
+$ink:           #1c1b1b;
+$ink-soft:      #3a2f2f;
+$transition:    0.22s ease;
+$spring:        0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+$smooth:        0.4s cubic-bezier(0.22, 1, 0.36, 1);
+
+// Status palette
+$status-pending:     #b45309;
+$status-scheduled:   #1d4ed8;
+$status-in-progress: #6d28d9;
+$status-completed:   #15803d;
+$status-cancelled:   #6b7280;
+$status-rejected:    #b91c1c;
+$status-no-show:     #92400e;
+
+// ── Host ──────────────────────────────────────────────────────────────────────
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+// ── Page shell ────────────────────────────────────────────────────────────────
+.ah-page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding-bottom: 4rem;
+  animation: fadeSlideUp 0.4s $smooth both;
+}
+
+// ── Filters bar ───────────────────────────────────────────────────────────────
+.ah-filters {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.ah-filters__label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: $muted;
+  white-space: nowrap;
+}
+
+// ── Filter dropdown (mixin applied) ──────────────────────────────────────────
+// Include the shared mixin using .ah-filter as the BEM namespace
+.ah-filter {
+  &__dropdown {
+    position: relative;
+
+    &--open {
+      .ah-filter__trigger {
+        background: linear-gradient(135deg, $vinotinto-mid 0%, #7a1a1a 100%);
+        border-color: $vinotinto-mid;
+        color: $white;
+        box-shadow:
+          0 0 0 3px rgba($vinotinto-mid, 0.2),
+          0 8px 24px rgba($vinotinto-mid, 0.35);
+
+        .ah-filter__trigger-icon,
+        .ah-filter__arrow {
+          color: $white;
+        }
+      }
+
+      .ah-filter__arrow {
+        transform: rotate(180deg);
+      }
+    }
+
+    &--date {
+      // date pickers can expand wider than the trigger
+    }
+  }
+
+  &__trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 1.1rem;
+    background: $white;
+    border: 2px solid $vinotinto-mid;
+    border-radius: 999px;
+    color: $vinotinto-mid;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+      border-color 0.25s ease,
+      background 0.25s ease,
+      box-shadow 0.25s ease,
+      color 0.25s ease,
+      transform 0.2s $spring;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+
+    &:hover {
+      background: linear-gradient(135deg, $vinotinto-mid 0%, #7a1a1a 100%);
+      border-color: $vinotinto-mid;
+      color: $white;
+      box-shadow:
+        0 0 0 3px rgba($vinotinto-mid, 0.15),
+        0 8px 20px rgba($vinotinto-mid, 0.3);
+
+      .ah-filter__trigger-icon,
+      .ah-filter__arrow,
+      .ah-filter__clear {
+        color: $white;
+      }
+    }
+
+    &--active {
+      background: linear-gradient(135deg, $vinotinto-mid 0%, #7a1a1a 100%);
+      border-color: $vinotinto-mid;
+      color: $white;
+
+      .ah-filter__trigger-icon,
+      .ah-filter__clear {
+        color: $white;
+      }
+    }
+  }
+
+  &__trigger-icon {
+    font-size: 1rem !important;
+    line-height: 1 !important;
+    color: $vinotinto-mid;
+    transition: color 0.25s ease;
+  }
+
+  &__trigger-label {
+    max-width: 10rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__arrow {
+    font-size: 1rem !important;
+    line-height: 1 !important;
+    color: $vinotinto-mid;
+    transition: transform 0.25s $spring, color 0.25s ease;
+  }
+
+  &__clear {
+    font-size: 0.9rem !important;
+    line-height: 1 !important;
+    color: rgba($white, 0.85);
+    transition: color 0.2s ease, transform 0.15s ease;
+    cursor: pointer;
+    border-radius: 50%;
+    padding: 0.05rem;
+
+    &:hover {
+      transform: scale(1.2);
+      color: $white;
+    }
+  }
+
+  // ── Status dropdown options ──────────────────────────────────────────────────
+  &__options {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    min-width: 100%;
+    background: $white;
+    border: 2px solid $vinotinto-mid;
+    border-radius: 0.875rem;
+    box-shadow:
+      0 0 0 4px rgba($vinotinto-mid, 0.08),
+      0 16px 40px rgba($vinotinto-mid, 0.2);
+    overflow: hidden;
+    z-index: 100;
+    animation: fadeInUp 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+    &--checklist {
+      min-width: 13rem;
+    }
+  }
+
+  &__option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.55rem 0.9rem;
+    background: none;
+    border: none;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #544341;
+    cursor: pointer;
+    text-align: left;
+    transition: background-color 0.15s ease, color 0.15s ease;
+    white-space: nowrap;
+
+    &:hover {
+      background-color: #f6f3f2;
+      color: $vinotinto-mid;
+    }
+
+    &--selected {
+      color: $vinotinto-mid;
+      background-color: rgba($vinotinto-mid, 0.05);
+    }
+
+    &--check {
+      gap: 0.6rem;
+    }
+  }
+
+  &__status-icon {
+    font-size: 0.9rem !important;
+    line-height: 1 !important;
+    color: $muted;
+  }
+
+  // ── Checkbox element ─────────────────────────────────────────────────────────
+  &__check-box {
+    width: 1.1rem;
+    height: 1.1rem;
+    border-radius: 0.3rem;
+    border: 2px solid rgba($vinotinto-mid, 0.3);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.18s ease, border-color 0.18s ease;
+
+    &--checked {
+      background: $vinotinto-mid;
+      border-color: $vinotinto-mid;
+    }
+  }
+
+  &__check-icon {
+    font-size: 0.65rem !important;
+    line-height: 1 !important;
+    color: $white;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+
+    .ah-filter__check-box--checked & {
+      opacity: 1;
+    }
+  }
+
+  // ── Date picker panel ─────────────────────────────────────────────────────────
+  &__picker-panel {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    z-index: 200;
+    animation: fadeInUp 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+
+// ── Card list (single column, full width) ─────────────────────────────────────
+.ah-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+// ── Card ──────────────────────────────────────────────────────────────────────
+.ah-card {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  background: $white;
+  border-radius: 1.25rem;
+  border: 1.5px solid rgba($primary, 0.07);
+  overflow: hidden;
+  box-shadow:
+    0 4px 24px rgba($primary, 0.07),
+    0 1px 0 rgba($primary, 0.04) inset;
+  animation: fadeSlideUp 0.35s $smooth both;
+  transition:
+    box-shadow $transition,
+    border-color $transition,
+    transform 0.2s ease;
+  will-change: transform, box-shadow;
+  transform: translateZ(0);
+
+  &:hover {
+    box-shadow:
+      0 20px 56px rgba($primary, 0.18),
+      0 4px 16px rgba($vinotinto, 0.12),
+      0 0 0 2px rgba($vinotinto, 0.18),
+      0 2px 0 rgba($primary, 0.05) inset;
+    border-color: rgba($vinotinto, 0.45);
+    transform: translateY(-3px);
+
+    .ah-card__glow { opacity: 1; }
+  }
+
+  &__glow {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(ellipse at 30% 0%, rgba($gold, 0.07) 0%, transparent 65%);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 0;
+    transition: opacity 0.45s ease;
+  }
+
+  // Top accent bar spans the full width
+  &__accent-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, $vinotinto 0%, $crimson 40%, $gold 100%);
+    z-index: 1;
+  }
+
+  // ── Left column ────────────────────────────────────────────────────────────
+  &__left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding-top: 3px; // offset for accent bar
+    min-width: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  &__header {
+    padding: 1rem 1.25rem 0.875rem;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  &__date-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+  }
+
+  &__date-icon {
+    font-size: 1.5rem !important;
+    line-height: 1 !important;
+    color: $vinotinto-mid;
+    opacity: 0.75;
+  }
+
+  &__date {
+    display: block;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: $ink;
+    text-transform: capitalize;
+    line-height: 1.2;
+  }
+
+  &__time {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: $crimson;
+    margin-top: 0.12rem;
+    letter-spacing: 0.02em;
+  }
+
+  // ── Status badge ───────────────────────────────────────────────────────────
+  &__status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.28rem 0.7rem;
+    border-radius: 9999px;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+
+    &[data-status='PENDING'] {
+      background: rgba($status-pending, 0.1);
+      border: 1.5px solid rgba($status-pending, 0.25);
+      color: $status-pending;
+    }
+    &[data-status='SCHEDULED'] {
+      background: rgba($status-scheduled, 0.1);
+      border: 1.5px solid rgba($status-scheduled, 0.25);
+      color: $status-scheduled;
+    }
+    &[data-status='IN_PROGRESS'] {
+      background: rgba($status-in-progress, 0.1);
+      border: 1.5px solid rgba($status-in-progress, 0.25);
+      color: $status-in-progress;
+    }
+    &[data-status='COMPLETED'] {
+      background: rgba($status-completed, 0.1);
+      border: 1.5px solid rgba($status-completed, 0.25);
+      color: $status-completed;
+    }
+    &[data-status='CANCELLED'] {
+      background: rgba($status-cancelled, 0.1);
+      border: 1.5px solid rgba($status-cancelled, 0.25);
+      color: $status-cancelled;
+    }
+    &[data-status='REJECTED'] {
+      background: rgba($status-rejected, 0.1);
+      border: 1.5px solid rgba($status-rejected, 0.25);
+      color: $status-rejected;
+    }
+    &[data-status='NO_SHOW'] {
+      background: rgba($status-no-show, 0.1);
+      border: 1.5px solid rgba($status-no-show, 0.25);
+      color: $status-no-show;
+    }
+  }
+
+  &__status-icon {
+    font-size: 0.82rem !important;
+    line-height: 1 !important;
+  }
+
+  &__status-label {
+    line-height: 1;
+  }
+
+  // ── Dividers ───────────────────────────────────────────────────────────────
+  &__divider {
+    height: 1px;
+    background: linear-gradient(90deg,
+      transparent,
+      rgba($primary, 0.08) 20%,
+      rgba($primary, 0.08) 80%,
+      transparent);
+    margin: 0 1.25rem;
+    flex-shrink: 0;
+  }
+
+  &__col-divider {
+    width: 1px;
+    background: linear-gradient(180deg,
+      transparent,
+      rgba($primary, 0.08) 10%,
+      rgba($primary, 0.08) 90%,
+      transparent);
+    flex-shrink: 0;
+    margin: 1rem 0;
+    align-self: stretch;
+  }
+
+  // ── People ─────────────────────────────────────────────────────────────────
+  &__people {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.25rem;
+    flex-shrink: 0;
+  }
+
+  &__person {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-width: 0;
+  }
+
+  &__person-avatar {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    .material-symbols-outlined {
+      font-size: 1.05rem !important;
+      line-height: 1 !important;
+      color: $white;
+      font-variation-settings: 'FILL' 1;
+    }
+
+    &--client {
+      background: linear-gradient(145deg, #1a3a6e, #2a5a9e);
+      box-shadow: 0 2px 10px rgba(26, 58, 110, 0.3);
+    }
+
+    &--worker {
+      background: linear-gradient(145deg, $vinotinto, $crimson);
+      box-shadow: 0 2px 10px rgba($vinotinto, 0.3);
+    }
+  }
+
+  &__person-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  &__person-role {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: $ink-soft;
+    line-height: 1;
+    margin-bottom: 0.2rem;
+  }
+
+  &__person-name {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: $ink;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__people-sep {
+    color: rgba($muted, 0.4);
+    flex-shrink: 0;
+
+    .material-symbols-outlined {
+      font-size: 1.1rem !important;
+      line-height: 1 !important;
+    }
+  }
+
+  // ── Notes ──────────────────────────────────────────────────────────────────
+  &__notes {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.4rem;
+    margin: 0 1.25rem 0.875rem;
+    padding: 0.6rem 0.75rem;
+    background: rgba($gold, 0.06);
+    border: 1px solid rgba($gold, 0.22);
+    border-radius: 0.625rem;
+    flex-shrink: 0;
+    margin-top: auto;
+  }
+
+  &__notes-icon {
+    font-size: 0.9rem !important;
+    line-height: 1 !important;
+    color: darken($gold, 15%);
+    flex-shrink: 0;
+    margin-top: 0.05rem;
+  }
+
+  &__notes-text {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: darken($gold, 28%);
+    line-height: 1.5;
+  }
+
+  // ── Right column: services ─────────────────────────────────────────────────
+  &__right {
+    flex: 0 0 42%;
+    max-width: 42%;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 1.25rem 1rem 1.25rem;
+    padding-top: calc(1rem + 3px); // offset for accent bar
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+  }
+
+  &__services-header {
+    margin-bottom: 0.6rem;
+    flex-shrink: 0;
+  }
+
+  &__services-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: $ink-soft;
+
+    .material-symbols-outlined {
+      font-size: 0.8rem !important;
+      line-height: 1 !important;
+      color: $vinotinto-mid;
+    }
+  }
+
+  &__services-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding-right: 0.25rem;
+    min-height: 0;
+    scrollbar-width: thin;
+    scrollbar-color: rgba($vinotinto, 0.2) transparent;
+
+    &::-webkit-scrollbar       { width: 4px; }
+    &::-webkit-scrollbar-track { background: transparent; }
+    &::-webkit-scrollbar-thumb { background: rgba($vinotinto, 0.2); border-radius: 2px; }
+    &::-webkit-scrollbar-thumb:hover { background: rgba($vinotinto, 0.38); }
+  }
+}
+
+.ah-filters__divider {
+  width: 1.5px;
+  height: 2.5rem;
+  background: linear-gradient(to bottom, transparent, rgba($vinotinto-mid, 0.25) 30%, rgba($vinotinto-mid, 0.25) 70%, transparent);
+  border-radius: 1px;
+  flex-shrink: 0;
+  align-self: center;
+
+  @media (max-width: 480px) {
+    display: none;
+  }
+}
+
+.ah-filters__range-sep {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: $muted;
+  opacity: 0.6;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+// Separador visual dentro del dropdown antes de "Todos"
+.ah-filter__options-divider {
+  height: 1px;
+  background: rgba($primary, 0.07);
+  margin: 0.2rem 0;
+}
+
+// Énfasis sutil al botón de "Todos los estados"
+.ah-filter__option--select-all {
+  font-weight: 700;
+  color: $vinotinto-mid;
+}
+
+// ── Service chip ──────────────────────────────────────────────────────────────
+.ah-svc-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.75rem;
+  background: $surface-low;
+  border: 1.5px solid rgba($primary, 0.06);
+  border-radius: 0.5rem;
+  flex-shrink: 0;
+  transition: background $transition, border-color $transition;
+
+  &__dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 2px rgba(white, 0.9);
+  }
+
+  &__name {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: $ink;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+}
+
+// ── Empty state ────────────────────────────────────────────────────────────────
+.ah-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 4rem 2rem;
+  background: $white;
+  border-radius: 1.25rem;
+  border: 1.5px dashed rgba($primary, 0.1);
+  animation: fadeSlideUp 0.35s $smooth both;
+
+  &__icon {
+    font-size: 3rem !important;
+    line-height: 1 !important;
+    color: $vinotinto;
+    opacity: 0.28;
+    font-variation-settings: 'FILL' 0;
+  }
+
+  &__title {
+    font-family: 'Manrope', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    color: $primary;
+    margin: 0;
+    opacity: 0.6;
+  }
+
+  &__desc {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: $muted;
+    text-align: center;
+    margin: 0;
+    max-width: 28rem;
+    line-height: 1.55;
+  }
+}
+
+// ── Skeleton ──────────────────────────────────────────────────────────────────
+.ah-skeleton {
+  display: flex;
+  flex-direction: row;
+  gap: 1.25rem;
+  background: $white;
+  border-radius: 1.25rem;
+  padding: 1.25rem;
+  border: 1.5px solid rgba($primary, 0.05);
+  animation: ahSkeletonPulse 1.4s ease-in-out infinite;
+
+  &__left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  &__right {
+    flex: 0 0 42%;
+    max-width: 42%;
+  }
+
+  &__bar {
+    height: 0.85rem;
+    border-radius: 0.4rem;
+    background: $surface;
+
+    &--short  { width: 40%; }
+    &--long   { width: 80%; }
+    &--medium { width: 62%; }
+  }
+
+  &__people {
+    height: 3rem;
+    border-radius: 0.625rem;
+    background: $surface;
+  }
+
+  &__services {
+    height: 100%;
+    min-height: 8rem;
+    border-radius: 0.625rem;
+    background: $surface;
+  }
+}
+
+// ── Pagination ────────────────────────────────────────────────────────────────
+.ah-pagination { padding-top: 0.5rem; }
+
+// ── Keyframes ─────────────────────────────────────────────────────────────────
+@keyframes ahSkeletonPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.55; }
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+@media (max-width: 680px) {
+  .ah-card {
+    flex-direction: column;
+
+    &__col-divider {
+      width: auto;
+      height: 1px;
+      margin: 0 1.25rem;
+      background: linear-gradient(90deg,
+        transparent,
+        rgba($primary, 0.08) 20%,
+        rgba($primary, 0.08) 80%,
+        transparent);
+    }
+
+    &__right {
+      flex: unset;
+      max-width: unset;
+      padding-top: 0;
+      border-top: none;
+    }
+  }
+
+  .ah-card__people { flex-wrap: wrap; gap: 0.75rem; }
+  .ah-card__people-sep { display: none; }
+  .ah-card__person { flex: 0 0 100%; }
+}
+
+@media (max-width: 480px) {
+  .ah-filters { gap: 0.5rem; }
+  .ah-filter__trigger-label { max-width: 7rem; }
+}

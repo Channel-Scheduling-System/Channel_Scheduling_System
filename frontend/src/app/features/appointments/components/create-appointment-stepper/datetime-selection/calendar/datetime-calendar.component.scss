@@ -1,0 +1,385 @@
+$primary:       #2a0002;
+$vinotinto:     #4a0010;
+$vinotinto-mid: #4A0E0E;
+$crimson:       #8B1a3a;
+$gold:          #c9a84c;
+$gold-light:    #e8c97e;
+$muted:         #877270;
+$surface-low:   #f0edec;
+$transition:    0.22s ease;
+:host {
+  display: block;
+  width: 100%;
+}
+.dt-agenda {
+  background: white;
+  border-radius: 1.25rem;
+  box-shadow:
+    0 4px 40px rgba($primary, 0.06),
+    0 1px 0   rgba($primary, 0.04) inset;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 480px;
+
+  &::before {
+    content: '';
+    height: 5px;
+    flex-shrink: 0;
+    background: linear-gradient(90deg, #c4899a 0%, #3a3a3a 100%);
+  }
+}
+.dt-agenda__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 1rem 1.25rem 1rem 1rem;
+  background: white;
+  background-image:
+    linear-gradient(
+      to right,
+      transparent 0%,
+      $vinotinto-mid 5%,
+      $vinotinto-mid 95%,
+      transparent 100%
+    );
+  background-size: 100% 2px;
+  background-position: bottom;
+  background-repeat: no-repeat;
+}
+.dt-agenda__toolbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.dt-agenda__toolbar-range {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  min-width: 12rem;
+}
+.dt-agenda__toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: calc(2 * 2.25rem + 2 * 0.875rem + 0.5rem);
+}
+.dt-agenda__nav-btn {
+  position: relative;
+  overflow: hidden;
+  border: 2px solid rgba($vinotinto, 0.5);
+  color: $vinotinto;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.625rem;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    background  $transition,
+    border-color $transition,
+    color        $transition,
+    transform    0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  .material-symbols-outlined {
+    font-size: 1.1rem !important;
+    line-height: 1 !important;
+    position: relative;
+    z-index: 1;
+  }
+  &:hover,
+  &:focus-visible {
+    background: $vinotinto;
+    border-color: $vinotinto;
+    color: white;
+    transform: scale(1.08);
+    .toolbar-btn__shimmer { animation: dtShimmer 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+    .toolbar-btn__glow    { opacity: 1; }
+  }
+  &:active { transform: scale(0.92); }
+}
+.dt-agenda__today-btn {
+  position: relative;
+  overflow: hidden;
+  border: 2px solid rgba($vinotinto, 0.5);
+  color: $vinotinto;
+  height: 2.25rem;
+  padding: 0 0.875rem;
+  border-radius: 0.625rem;
+  background: transparent;
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.775rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition:
+    background   $transition,
+    border-color $transition,
+    color        $transition,
+    transform    0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  &__content {
+    position: relative;
+    z-index: 1;
+  }
+  &:hover,
+  &:focus-visible {
+    background: $vinotinto;
+    border-color: $vinotinto;
+    color: white;
+    transform: scale(1.08);
+    .toolbar-btn__shimmer { animation: dtShimmer 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+    .toolbar-btn__glow    { opacity: 1; }
+  }
+  &:active { transform: scale(0.92); }
+  &--current {
+    background:   $vinotinto;
+    border-color: $vinotinto;
+    color:        white;
+    box-shadow:   0 2px 10px rgba($vinotinto, 0.35);
+  }
+}
+.toolbar-btn__shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    -115deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.26) 50%,
+    transparent 80%
+  );
+  transform: translateX(110%) skewX(8deg);
+  pointer-events: none;
+}
+.toolbar-btn__glow {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.12) 0%, transparent 70%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.dt-agenda__range-label {
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  text-transform: capitalize;
+  background: linear-gradient(
+    135deg,
+    $primary 0%,
+    $crimson 40%,
+    $vinotinto 70%,
+    #a83250 100%
+  );
+  background-size: 200% 200%;
+  animation: smoothGradientFlow 8s ease-in-out infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 1px 8px rgba($vinotinto, 0.18));
+  user-select: none;
+  transform: translateZ(0);
+}
+.dt-agenda__body {
+  flex: 1;
+  position: relative;
+  overflow-y: auto;
+  overflow-x: auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  max-height: calc(100svh - 16rem);
+  scrollbar-width: thin;
+  scrollbar-color: rgba($vinotinto, 0.3) transparent;
+  &::-webkit-scrollbar       { width: 4px; height: 4px; }
+  &::-webkit-scrollbar-thumb { background: rgba($vinotinto, 0.25); border-radius: 99px; }
+}
+.dt-agenda__day-wrap {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: min-content;
+}
+@keyframes dtShimmer {
+  from { transform: translateX(110%)  skewX(8deg); }
+  to   { transform: translateX(-210%) skewX(8deg); }
+}
+@keyframes smoothGradientFlow {
+  0%   { background-position: 0%   50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0%   50%; }
+}
+@media (max-width: 640px) {
+  .dt-agenda__toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  .dt-agenda__toolbar-range {
+    justify-content: flex-start;
+  }
+  .dt-agenda__range-label {
+    font-size: 0.9rem;
+  }
+  .dt-agenda__toolbar-actions {
+    min-width: unset;
+  }
+}
+$avl-primary:   #2a0002;
+$avl-vinotinto: #4a0010;
+.dt-agenda__legend {
+  display:         flex;
+  align-items:     center;
+  flex-wrap:       wrap;
+  gap:             0.5rem 1.25rem;
+  padding:         0.75rem 1.25rem;
+  border-top:      1px solid rgba($vinotinto, 0.10);
+  background:      rgba($avl-primary, 0.015);
+}
+.dt-legend__item {
+  display:     flex;
+  align-items: center;
+  gap:         0.45rem;
+  flex-shrink: 0;
+}
+.dt-legend__label {
+  font-family:    'Manrope', sans-serif;
+  font-size:      0.68rem;
+  font-weight:    600;
+  letter-spacing: 0.01em;
+  color:          rgba($avl-primary, 0.55);
+  white-space:    nowrap;
+  user-select:    none;
+}
+.dt-legend__swatch {
+  display:       block;
+  position:      relative;
+  width:         2rem;
+  height:        0.875rem;
+  border-radius: 0.25rem;
+  overflow:      hidden;
+  flex-shrink:   0;
+}
+.dt-legend__swatch--selection {
+  background: linear-gradient(
+    160deg,
+    rgba($avl-vinotinto, 0.22) 0%,
+    rgba($avl-vinotinto, 0.42) 50%,
+    rgba($avl-vinotinto, 0.18) 100%
+  );
+  border: 1.5px solid $avl-vinotinto;
+  box-shadow:
+    0 0 0   1px rgba($avl-vinotinto, 0.12),
+    0 0 6px 2px rgba($avl-vinotinto, 0.16);
+}
+.dt-legend__swatch--appointment {
+  background: linear-gradient(
+    135deg,
+    rgba($crimson, 0.18) 0%,
+    rgba($crimson, 0.32) 100%
+  );
+  border: 1.5px solid rgba($crimson, 0.55);
+  box-shadow: 0 0 4px rgba($crimson, 0.18);
+}
+.dt-legend__swatch--occupied {
+  background: linear-gradient(
+    150deg,
+    #1a1a1e 0%,
+    #0e0e10 55%,
+    #141417 100%
+  );
+  border-left:  1.5px solid rgba(255, 255, 255, 0.06);
+  border-right: 1.5px solid rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0  0  0 0.5px rgba(255, 255, 255, 0.06) inset,
+    0  1px 0     rgba(255, 255, 255, 0.05) inset,
+    0 -1px 0     rgba(0,   0,   0,   0.35) inset,
+    0  2px 8px   rgba(0,   0,   0,   0.22);
+  .dt-legend__swatch-noise {
+    position:       absolute;
+    inset:          0;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+    opacity:        0.55;
+    mix-blend-mode: overlay;
+  }
+  .dt-legend__swatch-stripes {
+    position:       absolute;
+    inset:          0;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+      -45deg,
+      rgba(255, 255, 255, 0.06)  0px,
+      rgba(255, 255, 255, 0.06)  2px,
+      transparent                 2px,
+      transparent                 9px
+    );
+    background-size: 12.73px 12.73px;
+  }
+  .dt-legend__swatch-icon {
+    position:    absolute;
+    inset:       0;
+    display:     flex;
+    align-items: center;
+    justify-content: center;
+    font-size:   0.6rem !important;
+    line-height: 1      !important;
+    color:       rgba(255, 255, 255, 0.40);
+    font-variation-settings: 'wght' 300, 'FILL' 0;
+  }
+}
+.dt-legend__swatch--ooh {
+  background:   rgba($avl-primary, 0.26);
+  border-left:  1.5px solid rgba($avl-vinotinto, 0.30);
+  border-right: 1.5px solid rgba($avl-vinotinto, 0.30);
+  .dt-legend__swatch-hatch {
+    position:       absolute;
+    inset:          0;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+      -45deg,
+      rgba($avl-vinotinto, 0.04)  0px,
+      rgba($avl-vinotinto, 0.04)  2px,
+      transparent                  2px,
+      transparent                  9px
+    );
+    background-size: 12.73px 12.73px;
+  }
+  .dt-legend__swatch-edge {
+    position:       absolute;
+    inset:          0;
+    pointer-events: none;
+    background: linear-gradient(
+      to right,
+      rgba($avl-vinotinto, 0.22) 0%,
+      transparent                 8px
+    );
+  }
+}
+.dt-legend__swatch--free {
+  background: #ffffff;
+  border: 1.5px solid rgba($avl-vinotinto, 0.10);
+  box-shadow:
+    0 1px 3px rgba($avl-primary, 0.05) inset,
+    0 1px 4px rgba($avl-primary, 0.04);
+}
+@media (max-width: 480px) {
+  .dt-agenda__legend {
+    gap:     0.4rem 0.85rem;
+    padding: 0.6rem 1rem;
+  }
+  .dt-legend__label {
+    font-size: 0.62rem;
+  }
+  .dt-legend__swatch {
+    width:  1.6rem;
+    height: 0.75rem;
+  }
+}

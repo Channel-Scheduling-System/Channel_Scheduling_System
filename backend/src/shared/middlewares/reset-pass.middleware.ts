@@ -1,14 +1,17 @@
 import { Request, Response, NextFunction } from 'express';
-import { jwtVerify } from 'jose';
 import { env } from '../../config/env.js';
-import {
-    CustomJwtPayload,
-    extractToken,
-    validateActiveUser,
-} from './auth.middleware.js';
-import { InvalidTokenError } from '../errors/validation.error.js';
+import { extractToken, assertUserIsActive } from './auth.middleware.js';
 import { AUTH_ERRORS } from '../constants/messages.js';
+import { verifyJwt } from '../utils/jwt.util.js';
+import { JwtPayload } from '../types/jwt.js';
 
+const RESET_PASS_SECRET = new TextEncoder().encode(env.jwt.resetPass);
+const RESET_PASS_AUDIENCE = 'reset-pass';
+
+/**
+ * **Reset Password Token Middleware**
+ * @description Validate the token, decode it, and verify user status.
+ */
 export async function resetTokenMiddleware(
     req: Request,
     _res: Response,
@@ -17,7 +20,7 @@ export async function resetTokenMiddleware(
     try {
         const token = extractToken(req.headers.authorization);
         const payload = await verifyToken(token);
-        await validateActiveUser(payload.sub);
+        await assertUserIsActive(payload.sub);
         req.user = payload;
         next();
     } catch (error) {
@@ -25,22 +28,14 @@ export async function resetTokenMiddleware(
     }
 }
 
-async function verifyToken(token: string): Promise<CustomJwtPayload> {
-    try {
-        const secret = new TextEncoder().encode(env.jwt.resetPass);
-        const { payload } = await jwtVerify(token, secret, {
-            audience: 'password-reset',
-        });
-        if (!payload.sub)
-            throw new InvalidTokenError(AUTH_ERRORS.RESETPASS_TOKEN_INVALID);
-
-        return { sub: Number(payload.sub) };
-    } catch (error) {
-        if (error instanceof Error && error.message.includes('expired')) {
-            throw new InvalidTokenError(AUTH_ERRORS.RESETPASS_TOKEN_EXPIRED);
-        }
-        throw error instanceof InvalidTokenError
-            ? error
-            : new InvalidTokenError(AUTH_ERRORS.RESETPASS_TOKEN_INVALID);
-    }
+async function verifyToken(token: string): Promise<JwtPayload> {
+    const payload = await verifyJwt(token, {
+        secret: RESET_PASS_SECRET,
+        audience: RESET_PASS_AUDIENCE,
+        errorMessages: {
+            expired: AUTH_ERRORS.RESETPASS_TOKEN_EXPIRED,
+            invalid: AUTH_ERRORS.RESETPASS_TOKEN_INVALID,
+        },
+    });
+    return { sub: Number(payload.sub) };
 }

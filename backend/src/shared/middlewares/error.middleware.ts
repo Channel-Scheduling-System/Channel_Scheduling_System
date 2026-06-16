@@ -1,84 +1,68 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-import { z } from 'zod';
 import { Request, Response, NextFunction } from 'express';
+import { z } from 'zod';
 import { DomainError } from '../errors/domain.error.js';
+import { InfrastructureError } from '../errors/infrastructure.error.js';
 import { ValidationError } from '../errors/validation.error.js';
 
-// Utilidad para respuestas rápidas y consistentes
 const send = (
     res: Response,
     status: number,
     message: string,
-    extra: any = {},
+    extra: Record<string, unknown> = {},
 ) => res.status(status).json({ message, ...extra });
 
+/**
+ * **Error handler middleware**
+ * @description Centralized error handling for Express
+ */
 export function handleErrorMiddleware(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     error: any,
-    req: Request,
+    _req: Request,
     res: Response,
     next: NextFunction,
 ) {
-    if (res.headersSent) {
-        return next(error);
-    }
+    if (res.headersSent) return next(error);
 
-    // 1. Validaciones Zod
-    //* -----------------------------
-    if (error instanceof z.ZodError) {
+    if (error instanceof z.ZodError)
         return send(res, 400, 'Error de validación', {
             code: 'VALIDATION_ERROR',
-            errors: error.issues,
         });
-    }
-    // 2. Validaciones Zod (con ValidationDTOError)
-    //* -----------------------------
-    if (error instanceof ValidationError) {
+
+    if (error instanceof ValidationError)
         return send(res, error.status, error.message, {
             code: error.code,
         });
-    }
 
-    // 3. Errores de dominio (reglas de negocio)
-    //* ----------------------------------------
-    if (error instanceof DomainError) {
+    if (error instanceof DomainError)
         return send(res, error.status, error.message, {
             code: error.code,
         });
-    }
 
-    // 4. Errores de Prisma (infraestructura)
-    //* -------------------------------------
+    if (error instanceof InfrastructureError)
+        return send(res, error.status, error.message, {
+            code: error.code,
+        });
+
     if (error?.name === 'PrismaClientKnownRequestError') {
         switch (error.code) {
             case 'P2025':
                 return send(res, 404, 'Registro no encontrado');
             case 'P2003':
-                return send(res, 404, 'Fallo en Foreign Key', {
-                    errors: error.meta,
-                });
+                return send(res, 404, 'Fallo en Foreign Key');
             case 'P2002':
-                return send(res, 409, 'Violación de restricción única', {
-                    errors: error.meta,
-                });
+                return send(res, 409, 'Violación de restricción única');
             default:
-                return send(
-                    res,
-                    500,
-                    'Error en la base de datos:' + error.code,
-                    { errors: error.meta },
-                );
+                console.error(error);
+                return send(res, 500, 'Error en la base de datos');
         }
     }
 
-    // 5. Errores estándar de JS
-    //* -----------------------------
     if (error instanceof Error) {
         console.error('Unhandled error:', error);
         return send(res, 500, error.message);
     }
 
-    // 6. Caso final (fallback)
-    //* -----------------------------
+    console.error('Unknown error:', error);
     return send(res, 500, 'Error interno del servidor');
 }

@@ -1,3 +1,4 @@
+import { JwtPayload } from '../../shared/types/jwt.js';
 import {
     SystemRole,
     CreateUserInput,
@@ -6,12 +7,32 @@ import {
 
 export type { SystemRole };
 
-// PERSISTENCE
-//* -----------------------------
+export interface TokenGenParams {
+    payload: JwtPayload;
+    algorithm: string;
+    secret: Uint8Array;
+    audience: string;
+    expiresIn: string;
+}
+
+export interface JwtPayloadWithExpiry extends JwtPayload {
+    exp: number;
+}
+
+// ============================================================
+// * PERSISTENCE MODELS
+// ============================================================
 export type { CreateUserData };
 
-// INPUTS
-//* -----------------------------
+export interface CreateRefreshTokenData {
+    userId: number;
+    tokenHash: string;
+    expireAt: Date;
+}
+
+// ============================================================
+// * INPUTS
+// ============================================================
 export interface RegisterInput extends Omit<CreateUserInput, 'role'> {}
 
 export interface LoginInput {
@@ -21,7 +42,7 @@ export interface LoginInput {
 
 export interface LogoutInput {
     refreshToken: string;
-    userId?: number; // Id extraído del JWT para validación adicional
+    userId: number;
 }
 
 export interface RefreshTokenInput {
@@ -33,15 +54,14 @@ export interface VerifyResetCodeInput {
     code: string;
 }
 
-// TOKENS
-//* -----------------------------
+// ============================================================
+// * RESPONSES
+// ============================================================
 export interface AuthTokens {
     accessToken: string;
     refreshToken: string;
 }
 
-// AUTH USER
-//* -----------------------------
 export interface AuthUser {
     id: number;
     name: string;
@@ -49,15 +69,6 @@ export interface AuthUser {
     role: SystemRole;
 }
 
-// JWT
-//* -----------------------------
-export interface JwtPayload {
-    sub: number;
-    role: SystemRole;
-}
-
-// AUTH RESULT
-//* -----------------------------
 export interface AuthResult {
     user: AuthUser;
     tokens: AuthTokens;

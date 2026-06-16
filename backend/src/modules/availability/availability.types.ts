@@ -1,0 +1,214 @@
+import { Slot } from '../../shared/types/slots.types.js';
+
+export enum dayOfWeek {
+    MONDAY = 'MONDAY',
+    TUESDAY = 'TUESDAY',
+    WEDNESDAY = 'WEDNESDAY',
+    THURSDAY = 'THURSDAY',
+    FRIDAY = 'FRIDAY',
+    SATURDAY = 'SATURDAY',
+    SUNDAY = 'SUNDAY',
+}
+
+export type TimeInterval = 'HOUR' | 'DAY' | 'PERIOD';
+export type ViewType = 'DAY' | 'WEEK' | 'MONTH';
+export type AvailabilityType =
+    | 'workingHours'
+    | 'timesOff'
+    | 'daysOff'
+    | 'periodsOff';
+
+// ============================================================
+// * ENTITIES
+// ============================================================
+export interface WorkingHour {
+    id: number;
+    workerId: number;
+    dayOfWeek: number;
+    startTime: Date;
+    endTime: Date;
+}
+
+export interface BlockedTime {
+    id: number;
+    workerId: number;
+    type: TimeInterval;
+    startDate: Date;
+    endDate: Date | null;
+    startTime: Date | null;
+    endTime: Date | null;
+    dayOfWeek: number | null;
+    reason: string | null;
+}
+
+// ============================================================
+// * PERSISTENCE MODELS
+// ============================================================
+export interface CreateWorkingHourData {
+    workerId: number;
+    dayOfWeek: number;
+    startTime: string;
+    endTime: string;
+}
+
+export interface CreateBlockedTimeData {
+    workerId: number;
+    type: TimeInterval;
+    startDate: string;
+    endDate?: string;
+    startTime?: string;
+    endTime?: string;
+    dayOfWeek?: number;
+    reason?: string;
+}
+
+// ============================================================
+// * INPUTs
+// ============================================================
+export interface WorkingHourInput {
+    dayOfWeek: dayOfWeek;
+    startTime: string; // ISO time string
+    endTime: string; // ISO time string
+}
+
+export interface CreateWorkingHoursInput {
+    workerId: number;
+    workingHours: WorkingHourInput[];
+}
+
+export type CreateRecurringTimeOffInput = {
+    workerId: number;
+    type: 'RECURRING';
+    dayOfWeek: dayOfWeek;
+    startTime: string;
+    endTime: string;
+    reason?: string;
+};
+
+export type CreateSpecificTimeOffInput = {
+    workerId: number;
+    type: 'SPECIFIC';
+    date: string;
+    startTime: string;
+    endTime: string;
+    reason?: string;
+};
+
+export type CreateTimeOffInput =
+    | CreateRecurringTimeOffInput
+    | CreateSpecificTimeOffInput;
+
+export interface CreateDayOffInput {
+    workerId: number;
+    date: string; // ISO date string
+    reason?: string;
+}
+
+export interface CreatePeriodOffInput {
+    workerId: number;
+    startDate: string; // ISO date string
+    endDate: string; // ISO date string
+    reason?: string;
+}
+
+export interface WorkerAndDayInput {
+    workerId: number;
+    date: string; // ISO date string
+    dayOfWeek: number;
+}
+
+// ============================================================
+// * RESPONSES
+// ============================================================
+export interface WorkingHourResponse {
+    dayOfWeek: dayOfWeek;
+    startTime: string; // ISO time string
+    endTime: string; // ISO time string
+}
+
+export interface RecurringTimeOffResponse {
+    id: number;
+    dayOfWeek: dayOfWeek;
+    startTime: string; // ISO time string
+    endTime: string; // ISO time string
+    reason?: string;
+}
+
+export interface SpecificTimeOffResponse {
+    id: number;
+    date: string; // ISO date string
+    startTime: string; // ISO time string
+    endTime: string; // ISO time string
+    reason?: string;
+}
+
+export interface DayOffResponse {
+    id: number;
+    date: string; // ISO date string
+    reason?: string;
+}
+
+export interface PeriodOffResponse {
+    id: number;
+    startDate: string; // ISO date string
+    endDate: string; // ISO date string
+    reason?: string;
+}
+
+// Represents a day's availability in the client's response
+export interface DayAvailability {
+    date: string;
+    available: Slot[];
+    occupied: Slot[];
+}
+
+// Response for workers
+// Note: Only includes fields matching the 'include' filter from AvailabilityWorkerFilter
+export interface AvailabilityWorkerResponse {
+    workingHours?: WorkingHourResponse[];
+    timesOff?: {
+        recurring: RecurringTimeOffResponse[];
+        specific: SpecificTimeOffResponse[];
+    };
+    daysOff?: DayOffResponse[];
+    periodsOff?: PeriodOffResponse[];
+}
+
+// Response for clients
+export type AvailabilityClientResponse = DayAvailability[];
+
+// ============================================================
+// * FILTERS
+// ============================================================
+export interface WorkingHourFilter {
+    workerId: number;
+    dayOfWeek?: number;
+}
+
+export interface BlockedTimeFilter {
+    workerId: number;
+    startDate?: string; // ISO date string
+    endDate?: string; // ISO date string
+    dayOfWeek?: number;
+}
+
+export interface BlockedTimeByDateFilter {
+    workerId: number;
+    date: string; // ISO date string
+    dayOfWeek: number;
+}
+
+// Filters for worker availability query
+export interface AvailabilityWorkerFilter {
+    workerId: number;
+    include?: AvailabilityType[];
+    view?: ViewType;
+    date?: string; // ISO date string
+}
+
+// Filters for client availability query
+export interface AvailabilityClientFilter {
+    workerId: number;
+    view?: ViewType;
+    date?: string; // ISO date string
+}

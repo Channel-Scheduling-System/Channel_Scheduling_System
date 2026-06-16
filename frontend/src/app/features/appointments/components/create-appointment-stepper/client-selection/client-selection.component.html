@@ -1,0 +1,151 @@
+<div class="cli-sel">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <div class="cli-sel__header">
+    <div>
+      <span class="cli-sel__eyebrow">Paso 2</span>
+      <h2 class="cli-sel__title">Elige al cliente</h2>
+    </div>
+  </div>
+
+  <!-- ── Two-column layout ───────────────────────────────────────────────── -->
+  <div class="cli-sel__layout">
+
+    <!-- ═══════════════ LEFT COLUMN — Client search ══════════════════════ -->
+    <div class="cli-sel__catalog">
+
+      <!-- Search bar -->
+      <div class="client-search__bar">
+        <button class="client-search__bar-btn" type="button" title="Buscar"
+          (click)="triggerSearch(searchInput.value)">
+          <span class="client-search__bar-ripple"></span>
+          <span class="client-search__bar-icon material-symbols-outlined text-[1.1rem] leading-none relative z-[1]"
+            translate="no">search</span>
+        </button>
+        <input #searchInput
+          class="client-search__bar-input"
+          placeholder="Buscar cliente por nombre, correo..."
+          type="text"
+          [value]="searchTerm"
+          (keyup.enter)="triggerSearch(searchInput.value)"
+          autocomplete="off"
+          name="identifier">
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="clientsLoading" class="client-search__loading">
+        <mat-spinner diameter="28"></mat-spinner>
+        <span>Cargando clientes...</span>
+      </div>
+
+      <!-- Empty state -->
+      <div *ngIf="!clientsLoading && clients.length === 0" class="client-search__empty">
+        <span class="material-symbols-outlined" translate="no">person_off</span>
+        <p>
+          {{ searchTerm
+            ? 'Sin resultados para "' + searchTerm + '"'
+            : 'No hay clientes disponibles.' }}
+        </p>
+      </div>
+
+      <!-- Client card list -->
+      <div class="client-search__list" *ngIf="!clientsLoading && clients.length > 0">
+        <div
+          *ngFor="let client of clients"
+          class="client-card"
+          [class.client-card--selected]="selectedClient?.id === client.id"
+          (click)="onSelectClient(client)">
+
+          <!-- Avatar initials -->
+          <div class="client-card__avatar">
+            <span class="material-symbols-outlined" translate="no">account_circle</span>
+          </div>
+
+          <div class="client-card__body">
+            <span class="client-card__name">{{ client.firstName }} {{ client.lastName }}</span>
+            <span class="client-card__alias" *ngIf="client.alias">@{{ client.alias }}</span>
+            <div class="client-card__contact">
+              <span class="client-card__email">
+                <span class="material-symbols-outlined" translate="no">mail</span>
+                {{ client.email }}
+              </span>
+              <span class="client-card__phone" *ngIf="client.phone">
+                <span class="material-symbols-outlined" translate="no">call</span>
+                {{ client.phone }}
+              </span>
+            </div>
+          </div>
+
+          <span class="client-card__cta">
+            <span class="material-symbols-outlined" translate="no">
+              {{ selectedClient?.id === client.id ? 'check_circle' : 'chevron_right' }}
+            </span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="client-search__pagination" *ngIf="!clientsLoading && clientsMeta.total > 0">
+        <app-pagination
+          [currentPage]="currentPage"
+          [totalPages]="clientsMeta.totalPages"
+          [totalItems]="clientsMeta.total"
+          [displayedItems]="clients.length"
+          [itemLabel]="'cliente'"
+          [itemLabelPlural]="'clientes'"
+          [showFiltered]="searchTerm !== ''"
+          (pageChange)="goToPage($event)">
+        </app-pagination>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════ RIGHT COLUMN — Selection tray ════════════════════ -->
+    <div class="cli-sel__tray">
+
+      <div class="cli-sel__tray-header">
+        <h3 class="cli-sel__tray-title">Cliente seleccionado</h3>
+      </div>
+
+      <!-- Empty state -->
+      <div class="cli-sel__tray-empty" *ngIf="!selectedClient">
+        <span class="material-symbols-outlined" translate="no">person_search</span>
+        <p>Selecciona un cliente del listado</p>
+      </div>
+
+      <!-- Selected client chip -->
+      <div class="cli-sel__tray-client" *ngIf="selectedClient">
+        <div class="tray-client-card">
+          <div class="tray-client-card__avatar">
+            <span>{{ clientInitials(selectedClient) }}</span>
+          </div>
+          <div class="tray-client-card__body">
+            <span class="tray-client-card__name">
+              {{ selectedClient.firstName }} {{ selectedClient.lastName }}
+            </span>
+            <span class="tray-client-card__alias" *ngIf="selectedClient.alias">
+              @{{ selectedClient.alias }}
+            </span>
+            <span class="tray-client-card__email">
+              <span class="material-symbols-outlined" translate="no">mail</span>
+              {{ selectedClient.email }}
+            </span>
+            <span class="tray-client-card__phone" *ngIf="selectedClient.phone">
+              <span class="material-symbols-outlined" translate="no">call</span>
+              {{ selectedClient.phone }}
+            </span>
+          </div>
+          <button
+            class="tray-client-card__remove"
+            type="button"
+            title="Quitar cliente"
+            (click)="onRemoveClient()">
+            <span class="material-symbols-outlined" translate="no">close</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

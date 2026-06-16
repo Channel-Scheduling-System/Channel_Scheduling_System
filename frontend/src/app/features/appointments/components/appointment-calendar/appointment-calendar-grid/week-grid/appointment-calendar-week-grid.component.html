@@ -1,0 +1,31 @@
+<!-- ── Corner (sticky top-left anchor) ───────────────────────────────────── -->
+<div class="wcg__corner"></div>
+
+<!-- ── Day headers (display only — no click, no tooltip) ─────────────────── -->
+<div
+  *ngFor="let day of visibleDays; trackBy: trackByDay"
+  class="wcg__day-header"
+  [class.wcg__day-header--today]="isDayToday(day)">
+  <span class="wcg__day-name">{{ formatDayName(day) }}</span>
+  <span class="wcg__day-number">{{ formatDayNumber(day) }}</span>
+</div>
+
+<!-- ── Time rows ──────────────────────────────────────────────────────────── -->
+<ng-container *ngFor="let slot of timeSlots; trackBy: trackBySlot">
+
+  <!-- Time label (sticky left) -->
+  <div
+    class="wcg__time-label"
+    [class.wcg__time-label--half]="slot.minute === 30">
+    <span *ngIf="slot.minute === 0">{{ slot.label }}</span>
+  </div>
+
+  <!-- 7 cells for this slot, one per day -->
+  <div
+    *ngFor="let day of visibleDays; trackBy: trackByDay"
+    class="wcg__cell"
+    [class.wcg__cell--today]="isDayToday(day)"
+    [class.wcg__cell--half]="slot.minute === 30">
+  </div>
+
+</ng-container>

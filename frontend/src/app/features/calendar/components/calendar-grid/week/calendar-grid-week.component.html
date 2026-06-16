@@ -1,0 +1,71 @@
+<div class="cal-grid__corner"></div>
+<div *ngFor="let day of visibleDays; trackBy: trackByDay" class="cal-grid__day-header"
+    [class.cal-grid__day-header--today]="isDayToday(day)" [class.cal-grid__day-header--selected]="isSelectedDay(day)"
+    (click)="onDayHeaderClick($event, day)" title="Configurar disponibilidad del día">
+    <span class="cal-grid__day-name">{{ formatDayName(day) }}</span>
+    <span class="cal-grid__day-number">{{ formatDayNumber(day) }}</span>
+</div>
+<ng-container *ngFor="let slot of timeSlots; trackBy: trackBySlot">
+    <div class="cal-grid__time-label" [class.cal-grid__time-label--half]="slot.minute === 30">
+        <span *ngIf="slot.minute === 0">{{ slot.label }}</span>
+    </div>
+    <div *ngFor="let day of visibleDays; trackBy: trackByDay" class="cal-grid__cell"
+        [class.cal-grid__cell--today]="isDayToday(day)" [class.cal-grid__cell--half]="slot.minute === 30"
+        [class.cal-grid__cell--drag-selected]="isCellInSelection(day, slot)"
+        [class.cal-grid__cell--today]="isDayToday(day)" [class.cal-grid__cell--half]="slot.minute === 30"
+        [class.cal-grid__cell--periodoff]="availabilityData && cellService.isInPeriodOff(day)"
+        [class.cal-grid__cell--dayoff]="availabilityData && !cellService.isInPeriodOff(day) && cellService.isDayOff(day)"
+        [class.cal-grid__cell--timeblock]="availabilityData && !cellService.isInPeriodOff(day) && !cellService.isDayOff(day) && cellService.isWorkingDay(day) && !cellService.isCellFullyNonWorking(day, slot) && cellService.isCellFullyInTimeBlock(day, slot)"
+        [class.cal-grid__cell--non-working]="cellService.isCellFullyNonWorking(day, slot)"
+        [class.cal-grid__cell--group-continues]="cellContinuesGroup(day, slot)"
+        [class.cal-grid__cell--selection-start]="isCellSelectionStart(day, slot)"
+        [class.cal-grid__cell--selection-end]="isCellSelectionEnd(day, slot)" [attr.data-slot-hour]="slot.hour"
+        [attr.data-slot-minute]="slot.minute" [attr.data-day]="formatDate(day)"
+        (touchstart)="onCellTouchStart($event, day, slot)" (mousedown)="onCellMouseDown($event, day, slot)"
+        (mouseenter)="onCellMouseEnter(day, slot)" (click)="onSlotClick(day, slot)">
+        <div *ngFor="let seg of cellService.getCellSegments(day, slot)" class="cal-grid__segment"
+            [class.cal-grid__segment--free]="seg.type === 'free'"
+            [class.cal-grid__segment--non-working]="seg.type === 'non-working'"
+            [class.cal-grid__segment--timeblock]="seg.type === 'timeoff'"
+            [class.cal-grid__segment--periodoff]="seg.type === 'periodoff'"
+            [class.cal-grid__segment--dayoff]="seg.type === 'dayoff'"
+            [class.cal-grid__segment--hovered]="isSegmentHovered(seg)"
+            [class.cal-grid__segment--group-start]="seg.isFragmentStart ?? seg.isGroupStart"
+            [class.cal-grid__segment--group-end]="seg.isFragmentEnd ?? seg.isGroupEnd"
+            [attr.data-sh-start]="getShStartKey(day, seg)" [attr.data-sh-end]="getShEndKey(day, seg)"
+            [attr.data-sh-type]="getShStartKey(day, seg) ? seg.type : null"
+            [attr.data-sh-reason]="getShStartKey(day, seg) ? (seg.reason || (seg.type === 'periodoff' ? 'Período libre' : seg.type === 'dayoff' ? 'Día libre' : null)) : null"
+            [attr.data-sh-day]="getShStartKey(day, seg) ? formatDate(day) : null" [style.top.%]="seg.startPct"
+            [style.height.%]="seg.endPct - seg.startPct" (mouseenter)="onSegmentEnter($event, seg)"
+            (mousemove)="onSegmentMove($event, seg)" (mouseleave)="onSegmentLeave()"
+            (contextmenu)="onCellContextMenu($event, day, slot)"
+            (click)="$event.stopPropagation(); onSegmentClick(day, seg)">
+            <span
+                *ngIf="seg.isGroupStart && seg.reason && (seg.type === 'timeoff' || seg.type === 'periodoff' || seg.type === 'dayoff')"
+                class="cal-grid__segment-label">
+                <span class="cal-grid__segment-label__reason">{{ seg.reason }}</span>
+            </span>
+            <span *ngIf="seg.isFragmentStart && !seg.isGroupStart && seg.reason && seg.type === 'timeoff'"
+                class="cal-grid__segment-label cal-grid__segment-label--continuation">
+                <span class="cal-grid__segment-label__dot">↳</span>
+                <span class="cal-grid__segment-label__reason">{{ seg.reason }}</span>
+            </span>
+        </div>
+        <button *ngIf="getUpperBoundaryPct(day, slot) !== null"
+            [class.cal-grid__boundary-handle--dragging]="isBoundaryDragging(day, 'start')"
+            class="cal-grid__boundary-handle cal-grid__boundary-handle--start" type="button"
+            title="Ajustar inicio de jornada" [style.top.%]="getUpperBoundaryPct(day, slot)"
+            (pointerdown)="onBoundaryPointerDown($event, day, 'start')"
+            (click)="$event.stopPropagation()">
+            <span class="material-symbols-outlined cal-grid__boundary-handle__icon">keyboard_arrow_down</span>
+        </button>
+        <button *ngIf="getLowerBoundaryPct(day, slot) !== null"
+            [class.cal-grid__boundary-handle--dragging]="isBoundaryDragging(day, 'end')"
+            class="cal-grid__boundary-handle cal-grid__boundary-handle--end" type="button"
+            title="Ajustar fin de jornada" [style.top.%]="getLowerBoundaryPct(day, slot)"
+            (pointerdown)="onBoundaryPointerDown($event, day, 'end')"
+            (click)="$event.stopPropagation()">
+            <span class="material-symbols-outlined cal-grid__boundary-handle__icon">keyboard_arrow_up</span>
+        </button>
+    </div>
+</ng-container>

@@ -3,6 +3,7 @@ import type { Service } from '@prisma/client.js';
 import {
     CreateServiceData,
     ServiceFilters,
+    ServiceWithWorker,
     UpdateServiceData,
 } from './service.types.js';
 
@@ -10,8 +11,8 @@ export interface IServiceRepository {
     create(data: CreateServiceData): Promise<Service>;
     existsById(id: number): Promise<boolean>;
     existsByName(workerId: number, name: string): Promise<boolean>;
-    findById(id: number): Promise<Service | null>;
-    findAll(filters: ServiceFilters): Promise<Service[]>;
+    findById(id: number): Promise<ServiceWithWorker | null>;
+    findAll(filters: ServiceFilters): Promise<ServiceWithWorker[]>;
     update(id: number, data: UpdateServiceData): Promise<Service>;
     updateIsActive(id: number, isActive: boolean): Promise<void>;
     delete(id: number): Promise<Service>;
@@ -38,16 +39,26 @@ export class ServiceRepository implements IServiceRepository {
         return !!exists;
     }
 
-    async findById(id: number): Promise<Service | null> {
+    async findById(id: number): Promise<ServiceWithWorker | null> {
         return await prisma.service.findUnique({
             where: { id },
+            include: {
+                worker: {
+                    select: { id: true, firstName: true, lastName: true },
+                },
+            },
         });
     }
 
-    async findAll(filters: ServiceFilters): Promise<Service[]> {
+    async findAll(filters: ServiceFilters): Promise<ServiceWithWorker[]> {
         return await prisma.service.findMany({
             where: { ...filters },
             orderBy: { createdAt: 'desc' },
+            include: {
+                worker: {
+                    select: { id: true, firstName: true, lastName: true },
+                },
+            },
         });
     }
 

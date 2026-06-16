@@ -1,8 +1,7 @@
 import { z } from 'zod';
 
-import { UserEmail } from '../users/user.validator.js';
+import { userEmail } from '../users/user.validator.js';
 
 // RESET CODE REQUEST
 //* -----------------------------
-export const ResetCodeRequestDTO = z.object({ email: UserEmail }).strict();
-
+export const resetCodeRequestInput = z.object({ email: userEmail }).strict();

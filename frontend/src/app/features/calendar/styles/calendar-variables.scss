@@ -1,0 +1,52 @@
+$primary:       #2a0002;
+$vinotinto:     #4a0010;
+$vinotinto-mid: #4a0e0e;
+$crimson:       #7c1d1d;
+$surface:       #fcf9f8;
+$surface-low:   #f0edec;
+$surface-mid:   #ebe7e7;
+$on-surface:    #1c1b1b;
+$muted:         #5e504f;
+$outline:       #b3b3b3;
+$error:         #ba1a1a;
+$transition:    0.25s ease;
+$slot-h:    3rem;
+$time-col:  4.5rem;
+$sidebar-w: 3.75rem;
+@keyframes fadeSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+@keyframes shimmerRow {
+    from {
+        transform: translateX(-100%) skewX(-8deg);
+    }
+    to {
+        transform: translateX(220%) skewX(-8deg);
+    }
+}
+@keyframes deletePulse {
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba($error, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 6px rgba($error, 0);
+    }
+}
+@keyframes bannerSlide {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}

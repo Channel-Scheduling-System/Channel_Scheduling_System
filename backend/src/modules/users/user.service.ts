@@ -1,22 +1,19 @@
+import { IUserRepository } from './user.repository.js';
+import { IAuthRepository } from '../auth/auth.repository.js';
 import bcrypt from 'bcrypt';
-
 import { env } from '../../config/env.js';
 import {
     ConflictError,
     NotFoundError,
 } from '../../shared/errors/domain.error.js';
 import { InvalidCredentialsError } from '../../shared/errors/validation.error.js';
-
-import { IUserRepository } from './user.repository.js';
-import { IAuthRepository } from '../auth/auth.repository.js';
-
+import { Pagination } from '../../shared/types/pagination.types.js';
 import {
     SystemRole,
     User,
     UniqueFields,
     CreateUserInput,
     UserFilters,
-    UserPagination,
     UserResponse,
     CreateFirstAdminInput,
     PaginatedUserResponse,
@@ -46,7 +43,7 @@ export interface IUserService {
     getByEmail(email: string): Promise<User | null>;
     getByIdentifier(identifier: string): Promise<User | null>;
     getAll(
-        pagination: UserPagination,
+        pagination: Pagination,
         filters: UserFilters,
         authRole?: SystemRole,
     ): Promise<PaginatedUserResponse>;
@@ -125,7 +122,7 @@ export class UserService implements IUserService {
     }
 
     async getAll(
-        pagination: UserPagination,
+        pagination: Pagination,
         filters: UserFilters,
         authRole?: SystemRole,
     ): Promise<PaginatedUserResponse> {

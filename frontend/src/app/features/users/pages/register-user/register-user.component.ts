@@ -14,12 +14,12 @@ import { MessageService } from '../../../../core/services/message.service';
 import { SessionService } from '../../../../core/services/session.service';
 import { AlertType } from '../../../../core/utils/enums/AlertType';
 import { UserFormFieldsComponent } from '../../components/user-form-fields/user-form-fields.component';
-import { UserFormHeaderComponent } from '../../components/user-form-header/user-form-header.component';
 import {
   registerUserFieldValidator,
   passwordMatchValidator,
 } from './../../validators/register-user.validators';
 import { RegisterUserRequest } from '../../models/requests/register-request.model';
+import { FormHeaderComponent } from '../../../../core/components/form-header/form-header.component';
 
 @Component({
   selector: 'app-register-user',
@@ -29,7 +29,7 @@ import { RegisterUserRequest } from '../../models/requests/register-request.mode
     ReactiveFormsModule,
     MatProgressSpinnerModule,
     UserFormFieldsComponent,
-    UserFormHeaderComponent,
+    FormHeaderComponent,
   ],
   templateUrl: './register-user.component.html',
   styleUrl: './register-user.component.scss',

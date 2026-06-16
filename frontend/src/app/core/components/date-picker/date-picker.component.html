@@ -1,0 +1,76 @@
+<div class="dp-card" (click)="$event.stopPropagation()">
+  <!-- Header -->
+  <div class="dp-header">
+    <span class="material-symbols-outlined dp-header__icon" translate="no">calendar_today</span>
+    <div class="dp-header__text">
+      <span class="dp-header__label">{{ label }}</span>
+      <span class="dp-header__display">{{ displayValue }}</span>
+    </div>
+  </div>
+  <!-- Navigation -->
+  <div class="dp-nav">
+    <button type="button" class="dp-nav__arrow" (click)="prevNav()">
+      <span class="material-symbols-outlined" translate="no">chevron_left</span>
+    </button>
+    <button type="button" class="dp-nav__title" (click)="toggleMode()">
+      {{ navTitle }}
+      <span class="material-symbols-outlined dp-nav__title-icon" translate="no">
+        {{ viewMode === 'year' ? 'unfold_less' : 'expand_more' }}
+      </span>
+    </button>
+    <button type="button" class="dp-nav__arrow" (click)="nextNav()">
+      <span class="material-symbols-outlined" translate="no">chevron_right</span>
+    </button>
+  </div>
+  <!-- Calendar view -->
+  <div class="dp-body" *ngIf="viewMode === 'calendar'">
+    <div class="dp-weekdays">
+      <span *ngFor="let d of WEEKDAYS" class="dp-weekday">{{ d }}</span>
+    </div>
+    <div class="dp-grid">
+      <button
+        *ngFor="let day of calendarDays"
+        type="button"
+        class="dp-cell"
+        [class.dp-cell--today]="day !== null && isToday(day)"
+        [class.dp-cell--selected]="day !== null && isSelected(day)"
+        [class.dp-cell--empty]="day === null"
+        [disabled]="day === null || undefined"
+        (click)="pickDay(day)">
+        {{ day !== null ? day : '' }}
+      </button>
+    </div>
+  </div>
+  <!-- Month selection view -->
+  <div class="dp-body dp-body--grid" *ngIf="viewMode === 'month'">
+    <button
+      *ngFor="let name of MONTHS_SHORT; let i = index"
+      type="button"
+      class="dp-period-cell"
+      [class.dp-period-cell--selected]="i === selectedMonth && viewYear === selectedYear"
+      [class.dp-period-cell--current]="i === currentMonth && viewYear === currentYear"
+      (click)="pickMonth(i)">
+      {{ name }}
+    </button>
+  </div>
+  <!-- Year selection view -->
+  <div class="dp-body dp-body--grid" *ngIf="viewMode === 'year'">
+    <button
+      *ngFor="let y of yearRange"
+      type="button"
+      class="dp-period-cell"
+      [class.dp-period-cell--selected]="y === selectedYear"
+      [class.dp-period-cell--current]="y === currentYear"
+      (click)="pickYear(y)">
+      {{ y }}
+    </button>
+  </div>
+  <!-- Footer -->
+  <div class="dp-footer">
+    <button type="button" class="dp-footer__cancel" (click)="onCancel()">Cancelar</button>
+    <button type="button" class="dp-footer__confirm" (click)="onConfirm()">
+      <span class="material-symbols-outlined" translate="no">check</span>
+      Listo
+    </button>
+  </div>
+</div>

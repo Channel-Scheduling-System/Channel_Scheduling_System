@@ -31,21 +31,69 @@ jobs:
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
           cache-dependency-path: backend/package-lock.json
+
       - name: Instalar dependencias
         run: npm ci
+
       - name: Generar cliente Prisma
         run: npx prisma generate
+
       - name: Build TypeScript
         run: npm run build
+
       - name: Lint
         run: npm run lint
+
       - name: Ejecutar migraciones
         run: npx prisma migrate deploy
-      - name: Ejecutar tests
-        run: npm test
+
+      - name: Ejecutar tests con cobertura
+        run: npm run test:coverage
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: .
+
+  deploy:
+    name: Deploy to VPS
+    needs: ci
+    runs-on: ubuntu-latest
+    if: (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/master') && github.event_name == 'push'
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /home/deploy/apps/Channel_Scheduling_System
+            git pull origin develop
+
+            # Backend
+            cd backend
+            npm ci
+            npx prisma generate
+            npx prisma migrate deploy
+            npm run build
+            pm2 restart backend
+
+            # Frontend
+            cd ../frontend
+            npm ci
+            npm run build -- --configuration production
+
+            sudo systemctl reload nginx

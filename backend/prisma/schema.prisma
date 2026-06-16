@@ -147,21 +147,23 @@ model Notification {
 model BlockedTime {
   id        Int          @id @default(autoincrement())
   type      TimeInterval @default(HOUR)
-  startDate DateTime?    @db.Date
+  startDate DateTime     @db.Date
   endDate   DateTime?    @db.Date
-  startHour DateTime?    @db.Time()
-  endHour   DateTime?    @db.Time()
+  startTime DateTime?    @db.Time()
+  endTime   DateTime?    @db.Time()
+  dayOfWeek Int?         @db.UnsignedTinyInt
   reason    String?      @db.VarChar(200)
   worker    User         @relation(fields: [workerId], references: [id], onDelete: Cascade)
   workerId  Int
 
+  @@index([workerId, type])
   @@map("blocked_times")
 }
 
 enum TimeInterval {
-  HOUR     @map("hour")
-  DAY      @map("day")
-  VACATION @map("vacation")
+  HOUR   @map("hour")
+  DAY    @map("day")
+  PERIOD @map("period")
 
   @@map("time_interval")
 }
@@ -176,6 +178,7 @@ model WorkingHour {
   worker    User     @relation(fields: [workerId], references: [id], onDelete: Cascade)
   workerId  Int
 
+  @@index([workerId, dayOfWeek])
   @@map("working_hours")
 }
 

@@ -1,0 +1,482 @@
+@use '../../../../appointment-calendar-grid/appointment-calendar-grid.base' as base;
+@keyframes dtslShake {
+  0%        { transform: translateX(0);     }
+  12%       { transform: translateX(-7px);  }
+  25%       { transform: translateX( 7px);  }
+  37%       { transform: translateX(-5px);  }
+  50%       { transform: translateX( 5px);  }
+  62%       { transform: translateX(-3px);  }
+  75%       { transform: translateX( 3px);  }
+  87%       { transform: translateX(-1px);  }
+  100%      { transform: translateX(0);     }
+}
+$vinotinto:       #4a0010;
+$vinotinto-mid:   #4A0E0E;
+$vinotinto-light: #e8758f;   
+$outline:         base.$outline;
+$slot-h:          base.$slot-h;   
+$time-col:        base.$time-col; 
+$error:           #c0392b;   
+$error-light:     #ff6b5b;   
+$error-dark:      #7b0e0e;   
+$error-bg:        #fff0ee;   
+:host {
+  position:       absolute;
+  top:            0;        
+  left:           0;
+  right:          0;
+  bottom:         0;
+  pointer-events: none;
+  z-index:        5;
+  display:        grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    min(calc(100% - 2rem), 20rem)
+    minmax(0, 1fr);
+  width: 100%;
+  overflow: visible;
+}
+.dtsl__spacer-left,
+.dtsl__spacer-right {
+  pointer-events: none;
+}
+.dtsl__column {
+  pointer-events: none;
+  display:        flex;
+  flex-direction: column;
+  min-height:     100%;
+}
+.dtsl__cells-wrap {
+  position:       relative;
+  pointer-events: none;
+  display:        flex;
+  flex-direction: column;
+  flex:           1;
+}
+.dtsl__cell {
+  height:         $slot-h;
+  flex-shrink:    0;
+  pointer-events: auto;
+  cursor:         crosshair;
+  position:       relative;
+  z-index:        1;
+}
+.dtsl__ghost {
+  position:       absolute;
+  left:           0;
+  right:          0;
+  pointer-events: none;
+  z-index:        10;   
+  border:        2px dashed rgba($vinotinto, 0.35);
+  border-radius: 0.5rem;
+  overflow:      hidden;
+  animation: dtslGhostIn 0.10s ease both;
+}
+.dtsl__ghost__fill {
+  position:   absolute;
+  inset:      0;
+  background: linear-gradient(
+    160deg,
+    rgba($vinotinto, 0.04) 0%,
+    rgba($vinotinto, 0.07) 50%,
+    rgba($vinotinto, 0.03) 100%
+  );
+}
+.dtsl__ghost__label {
+  position:        absolute;
+  inset:           0;
+  display:         flex;
+  flex-direction:  column;
+  align-items:     center;
+  justify-content: center;
+  gap:             0.08rem;
+  pointer-events:  none;
+  user-select:     none;
+  padding:         0.25rem 0.5rem;
+  overflow:        hidden;
+}
+.dtsl__ghost__label-heading {
+  font-family:    'Manrope', sans-serif;
+  font-size:      0.68rem;
+  font-weight:    800;
+  letter-spacing: 0.02em;
+  white-space:    nowrap;
+  color:          rgba($vinotinto, 0.40);
+  line-height:    1;
+  text-shadow:
+    0 0 6px  rgba(255, 255, 255, 0.90),
+    0 0 12px rgba(255, 255, 255, 0.60);
+}
+.dtsl__ghost__label-range {
+  display:     flex;
+  align-items: center;
+  gap:         0.22rem;
+  line-height: 1;
+}
+.dtsl__ghost__label-start,
+.dtsl__ghost__label-end {
+  font-family:    'Manrope', sans-serif;
+  font-size:      0.68rem;
+  font-weight:    800;
+  letter-spacing: 0.02em;
+  white-space:    nowrap;
+  color:          rgba($vinotinto, 0.40);
+  text-shadow:
+    0 0 6px  rgba(255, 255, 255, 0.90),
+    0 0 12px rgba(255, 255, 255, 0.60);
+}
+.dtsl__ghost__label-sep {
+  font-size:   0.52rem;
+  font-weight: 500;
+  color:       rgba($vinotinto, 0.25);
+  flex-shrink: 0;
+}
+.dtsl__rect {
+  position:        absolute;
+  left:            0;
+  right:           0;
+  pointer-events:  auto;
+  z-index:         20;
+  cursor:          grab;
+  border:          2px solid $vinotinto;
+  border-radius:   0.5rem;
+  overflow:        hidden;
+  --rect-color:     #{$vinotinto};
+  --rect-sep-color: #{rgba($vinotinto, 0.45)};
+  box-shadow:
+    0 0  0    1px  rgba($vinotinto, 0.12),
+    0 0  8px  3px  rgba($vinotinto, 0.18),
+    0 0  24px 6px  rgba($vinotinto, 0.08),
+    inset 0 0 0 1px rgba($vinotinto, 0.05);
+  transition:
+    transform    0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+    border-color 0.20s ease,
+    box-shadow   0.22s ease;
+  animation: dtslFadeIn 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+  &.dtsl__rect--dragging {
+    cursor:     grabbing;
+    transition: none;
+    transform:  scaleX(1.022) scaleY(1.015);
+    border-color: $vinotinto-light;
+    --rect-color:     #{$vinotinto-light};
+    --rect-sep-color: #{rgba($vinotinto-light, 0.50)};
+    box-shadow:
+      0 0  0    1px  rgba($vinotinto-light, 0.22),
+      0 0  12px 4px  rgba($vinotinto-light, 0.30),
+      0 0  32px 8px  rgba($vinotinto-light, 0.14),
+      0 6px 20px 0   rgba($vinotinto,       0.22),
+      inset 0 0 0 1px rgba($vinotinto-light, 0.10);
+    .dtsl__rect__fill {
+      opacity: 1;
+      background: linear-gradient(
+        160deg,
+        rgba($vinotinto-light, 0.08) 0%,
+        rgba($vinotinto-light, 0.16) 50%,
+        rgba($vinotinto-light, 0.07) 100%
+      );
+    }
+  }
+  &:hover:not(.dtsl__rect--dragging) {
+    transform:    scaleX(1.018) scaleY(1.012);
+    border-color: $vinotinto-light;
+    --rect-color:     #{$vinotinto-light};
+    --rect-sep-color: #{rgba($vinotinto-light, 0.50)};
+    box-shadow:
+      0 0  0    1px  rgba($vinotinto-light, 0.22),
+      0 0  10px 3px  rgba($vinotinto-light, 0.28),
+      0 0  30px 8px  rgba($vinotinto-light, 0.14),
+      0 4px 16px 0   rgba($vinotinto,       0.20),
+      inset 0 0 0 1px rgba($vinotinto-light, 0.10);
+    .dtsl__rect__fill {
+      opacity: 1;
+      background: linear-gradient(
+        160deg,
+        rgba($vinotinto-light, 0.07) 0%,
+        rgba($vinotinto-light, 0.13) 50%,
+        rgba($vinotinto-light, 0.06) 100%
+      );
+    }
+  }
+}
+.dtsl__rect--invalid {
+  cursor:       grab;
+  border-color: $error !important;
+  border-width: 2.5px;
+  box-shadow:
+    0 0  0    2px  rgba($error,       0.35),
+    0 0  12px 4px  rgba($error-light, 0.50),
+    0 0  28px 8px  rgba($error,       0.30),
+    0 0  48px 16px rgba($error,       0.15),
+    inset 0 0  0   1px  rgba($error-light, 0.20) !important;
+  transition:
+    transform    0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+    border-color 0.15s ease,
+    box-shadow   0.15s ease;
+  animation:
+    dtslFadeIn  0.22s cubic-bezier(0.22, 1, 0.36, 1) both,
+    dtslErrPulse 1.8s ease-in-out infinite;
+  &:hover:not(.dtsl__rect--dragging) {
+    cursor:       grab;
+    transform:    scaleX(1.018) scaleY(1.012);
+    border-color: $error-light !important;
+    box-shadow:
+      0 0  0    2px  rgba($error-light, 0.40),
+      0 0  14px 5px  rgba($error-light, 0.55),
+      0 0  36px 10px rgba($error,       0.30),
+      0 4px 16px 0   rgba($error-dark,  0.30),
+      inset 0 0 0 1px rgba($error-light, 0.18) !important;
+  }
+  .dtsl__rect__fill {
+    background: linear-gradient(
+      160deg,
+      rgba($error, 0.18) 0%,
+      rgba($error, 0.38) 50%,
+      rgba($error, 0.15) 100%
+    ) !important;
+    animation: dtslErrFillPulse 1.8s ease-in-out infinite !important;
+  }
+}
+.dtsl__rect__error-shimmer {
+  position:       absolute;
+  inset:          0;
+  pointer-events: none;
+  overflow:       hidden;
+  border-radius:  inherit;
+  z-index:        5;
+  &::before {
+    content:    '';
+    position:   absolute;
+    inset:      0;
+    background: repeating-linear-gradient(
+      -45deg,
+      rgba($error, 0.07)  0px,
+      rgba($error, 0.07)  4px,
+      transparent          4px,
+      transparent          10px
+    );
+    animation: dtslShimmerMove 2s linear infinite;
+  }
+}
+.dtsl__rect__error-label {
+  position:        absolute;
+  inset:           0;
+  display:         flex;
+  flex-direction:  column;
+  align-items:     center;
+  justify-content: center;
+  gap:             0.12rem;
+  pointer-events:  none;
+  user-select:     none;
+  padding:         0.3rem 0.5rem;
+  overflow:        hidden;
+  z-index:         10;
+}
+.dtsl__rect__error-icon {
+  font-size:   1.1rem !important;
+  line-height: 1 !important;
+  color: $error;
+  text-shadow:
+    0 1px 3px  rgba($error-dark, 0.90),
+    0 0  10px  rgba($error-light, 0.60);
+  animation: dtslErrIconPulse 1.8s ease-in-out infinite;
+  flex-shrink: 0;
+}
+.dtsl__rect__error-heading {
+  font-family:    'Manrope', sans-serif;
+  font-size:      0.65rem;
+  font-weight:    800;
+  letter-spacing: 0.03em;
+  white-space:    nowrap;
+  color: #ffe8e6;
+  text-shadow:    0 1px 3px rgba($error-dark, 0.80);
+  line-height:    1;
+}
+.dtsl__rect__error-range {
+  display:     flex;
+  align-items: center;
+  gap:         0.22rem;
+  line-height: 1;
+}
+.dtsl__rect__error-time {
+  font-family:    'Manrope', sans-serif;
+  font-size:      0.63rem;
+  font-weight:    700;
+  letter-spacing: 0.02em;
+  white-space:    nowrap;
+  color: #ffe8e6;
+  text-shadow:    0 1px 2px rgba($error-dark, 0.70);
+}
+.dtsl__rect__error-sep {
+  font-size:   0.50rem;
+  font-weight: 500;
+  color: rgba(#ffe8e6, 0.75);
+  flex-shrink: 0;
+}
+.dtsl__rect__error-reasons {
+  list-style:  none;
+  margin:      0.1rem 0 0;
+  padding:     0;
+  display:     flex;
+  flex-direction: column;
+  align-items: center;
+  gap:         0.06rem;
+  max-width:   100%;
+  overflow:    hidden;
+}
+.dtsl__rect__error-reason {
+  font-family:    'Manrope', sans-serif;
+  font-size:      0.55rem;
+  font-weight:    600;
+  letter-spacing: 0.01em;
+  white-space:    nowrap;
+  overflow:       hidden;
+  text-overflow:  ellipsis;
+  max-width:      100%;
+  color:          #ffffff;
+  text-shadow:    0 1px 2px rgba($error-dark, 0.70);
+  line-height:    1.2;
+  &::before {
+    content: '· ';
+  }
+}
+.dtsl__rect__fill {
+  position:   absolute;
+  inset:      0;
+  background: linear-gradient(
+    160deg,
+    rgba($vinotinto, 0.22) 0%,
+    rgba($vinotinto, 0.42) 50%,
+    rgba($vinotinto, 0.18) 100%
+  );
+  opacity:    0.6;
+  transition: opacity 0.22s ease, background 0.22s ease;
+  animation:  dtslPulse 3.2s ease-in-out infinite;
+}
+.dtsl__rect__label {
+  position:        absolute;
+  inset:           0;
+  display:         flex;
+  flex-direction:  column;
+  align-items:     center;
+  justify-content: center;
+  gap:             0.08rem;
+  pointer-events:  none;
+  user-select:     none;
+  padding:         0.25rem 0.5rem;
+  overflow:        hidden;
+}
+.dtsl__rect__label-heading {
+  font-family:    'Manrope', sans-serif;
+  font-size:      0.68rem;
+  font-weight:    800;
+  letter-spacing: 0.02em;
+  white-space:    nowrap;
+  color:          var(--rect-color);
+  transition:     color 0.20s ease;
+  text-shadow:
+    0 0 6px  rgba(255, 255, 255, 0.95),
+    0 0 14px rgba(255, 255, 255, 0.70);
+  line-height: 1;
+}
+.dtsl__rect__label-range {
+  display:     flex;
+  align-items: center;
+  gap:         0.22rem;
+  line-height: 1;
+}
+.dtsl__rect__label-start,
+.dtsl__rect__label-end {
+  font-family:    'Manrope', sans-serif;
+  font-size:      0.68rem;
+  font-weight:    800;
+  letter-spacing: 0.02em;
+  white-space:    nowrap;
+  color:          var(--rect-color);
+  transition:     color 0.20s ease;
+  text-shadow:
+    0 0 6px  rgba(255, 255, 255, 0.95),
+    0 0 14px rgba(255, 255, 255, 0.70);
+}
+.dtsl__rect__label-sep {
+  font-size:   0.52rem;
+  font-weight: 500;
+  color:       var(--rect-sep-color);
+  flex-shrink: 0;
+  transition:  color 0.20s ease;
+  opacity:     0.8;
+}
+.dtsl__rect--shake {
+  animation:
+    dtslFadeIn   0.22s cubic-bezier(0.22, 1, 0.36, 1) both,
+    dtslErrPulse 1.8s  ease-in-out infinite,
+    dtslShake    0.42s cubic-bezier(0.36, 0.07, 0.19, 0.97) both !important;
+}
+@keyframes dtslFadeIn {
+  from {
+    opacity:   0;
+    transform: scaleY(0.84) scaleX(0.97);
+  }
+  to {
+    opacity:   1;
+    transform: scaleY(1) scaleX(1);
+  }
+}
+@keyframes dtslGhostIn {
+  from { opacity: 0; transform: scaleY(0.92); }
+  to   { opacity: 1; transform: scaleY(1);    }
+}
+@keyframes dtslPulse {
+  0%   { opacity: 0.15; }
+  25%  { opacity: 1.00; }
+  50%  { opacity: 0.20; }
+  75%  { opacity: 1.00; }
+  100% { opacity: 0.15; }
+}
+@media (max-width: 640px) {
+  :host {
+    grid-template-columns:
+      minmax(0, 1fr)
+      min(calc(100% - 1rem), 20rem)
+      minmax(0, 1fr);
+  }
+}
+@media (max-width: 420px) {
+  :host {
+    grid-template-columns: $time-col 1fr;
+  }
+  .dtsl__spacer-right { display: none; }
+}
+@keyframes dtslErrPulse {
+  0%   { box-shadow:
+    0 0  0    2px  rgba(#c0392b, 0.35),
+    0 0  12px 4px  rgba(#ff6b5b, 0.50),
+    0 0  28px 8px  rgba(#c0392b, 0.30),
+    0 0  48px 16px rgba(#c0392b, 0.15),
+    inset 0 0 0 1px rgba(#ff6b5b, 0.20); }
+  50%  { box-shadow:
+    0 0  0    3px  rgba(#c0392b, 0.60),
+    0 0  18px 7px  rgba(#ff6b5b, 0.75),
+    0 0  40px 14px rgba(#c0392b, 0.50),
+    0 0  70px 24px rgba(#c0392b, 0.25),
+    inset 0 0 0 1px rgba(#ff6b5b, 0.35); }
+  100% { box-shadow:
+    0 0  0    2px  rgba(#c0392b, 0.35),
+    0 0  12px 4px  rgba(#ff6b5b, 0.50),
+    0 0  28px 8px  rgba(#c0392b, 0.30),
+    0 0  48px 16px rgba(#c0392b, 0.15),
+    inset 0 0 0 1px rgba(#ff6b5b, 0.20); }
+}
+@keyframes dtslErrFillPulse {
+  0%   { opacity: 0.55; }
+  50%  { opacity: 1.00; }
+  100% { opacity: 0.55; }
+}
+@keyframes dtslErrIconPulse {
+  0%   { text-shadow: 0 1px 3px rgba(#7b0e0e, 0.90), 0 0 10px rgba(#ff6b5b, 0.50); filter: brightness(0.9);  }
+  50%  { text-shadow: 0 1px 4px rgba(#7b0e0e, 1.00), 0 0 18px rgba(#ff6b5b, 0.80); filter: brightness(1.25); }
+  100% { text-shadow: 0 1px 3px rgba(#7b0e0e, 0.90), 0 0 10px rgba(#ff6b5b, 0.50); filter: brightness(0.9);  }
+}
+@keyframes dtslShimmerMove {
+  from { background-position: 0 0; }
+  to   { background-position: 28px 28px; }
+}

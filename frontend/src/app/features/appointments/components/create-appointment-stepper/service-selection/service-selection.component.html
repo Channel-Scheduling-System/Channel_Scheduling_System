@@ -1,0 +1,160 @@
+<div class="svc-sel">
+  <div class="svc-sel__header">
+    <div>
+      <span class="svc-sel__eyebrow">Paso 1</span>
+      <h2 class="svc-sel__title">
+        {{ activePanel() === 'workers' ? 'Elige tu estilista' : 'Elige los servicios' }}
+      </h2>
+      <p class="svc-sel__subtitle" *ngIf="isWorker">
+        <span class="material-symbols-outlined svc-sel__lock-icon" translate="no">lock</span>
+        Mostrando tus servicios
+      </p>
+      <p class="svc-sel__subtitle"
+         *ngIf="!isWorker"
+         [class.svc-sel__subtitle--hidden]="!(lockedWorkerId && activePanel() === 'services')">
+        <span class="material-symbols-outlined svc-sel__lock-icon" translate="no">lock</span>
+        Mostrando servicios de <strong>{{ lockedWorkerName ?? 'estilista seleccionado' }}</strong>
+      </p>
+    </div>
+    <button
+      *ngIf="!isWorker"
+      class="svc-sel__toggle-btn"
+      [class.svc-sel__toggle-btn--clear]="lockedWorkerId !== null"
+      type="button"
+      (click)="onTogglePanel()">
+      <span class="svc-sel__toggle-btn__shimmer"></span>
+      <span class="svc-sel__toggle-btn__content">
+        <span class="material-symbols-outlined svc-sel__toggle-btn__icon" translate="no">
+          {{ toggleBtnIcon }}
+        </span>
+        <span class="svc-sel__toggle-btn__label">{{ toggleBtnLabel }}</span>
+      </span>
+    </button>
+  </div>
+  <div class="svc-sel__layout">
+    <div class="svc-sel__catalog">
+      <app-service-search
+        *ngIf="activePanel() === 'services'"
+        [services]="services"
+        [loading]="servicesLoading"
+        [isFiltered]="lockedWorkerId !== null"
+        [hideWorkerName]="hideWorkerName"
+        (serviceSelected)="onServiceSelected($event)"
+        (serviceDeselected)="onRemoveService($event)">
+      </app-service-search>
+      <app-worker-search
+        *ngIf="activePanel() === 'workers'"
+        [workers]="workers"
+        [meta]="workersMeta"
+        [loading]="workersLoading"
+        (workerSelected)="onWorkerSelected($event)"
+        (searchChanged)="onWorkerSearchChanged($event)"
+        (pageChange)="onWorkersPageChange($event)">
+      </app-worker-search>
+    </div>
+    <div class="svc-sel__tray">
+      <div class="svc-sel__tray-header">
+        <h3 class="svc-sel__tray-title">Servicios seleccionados</h3>
+        <span
+          class="svc-sel__tray-count"
+          [class.svc-sel__tray-count--full]="selectedServices.length >= maxServices">
+          {{ selectedServices.length }}/{{ maxServices }}
+        </span>
+      </div>
+      <div class="svc-sel__tray-empty" *ngIf="selectedServices.length === 0">
+        <span class="material-symbols-outlined" translate="no">cut</span>
+        <p>Selecciona un servicio del catálogo</p>
+      </div>
+      <div class="svc-sel__tray-list" *ngIf="selectedServices.length > 0" [formGroup]="durationForm">
+        <div *ngFor="let svc of selectedServices" class="tray-chip">
+          <div class="tray-chip__accent" [style.background-color]="svc.color"></div>
+          <div class="tray-chip__body">
+            <span class="tray-chip__name">{{ svc.name }}</span>
+            <div class="tray-chip__meta">
+              <ng-container *ngIf="!isWorker">
+                <span class="tray-chip__price">
+                  {{ svc.price | currency:'COP':'symbol-narrow':'1.0-0' }}
+                </span>
+                <span class="tray-chip__sep">·</span>
+                <span class="tray-chip__duration">
+                  <span class="material-symbols-outlined" translate="no">schedule</span>
+                  {{ formatDuration(svc.duration) }}
+                </span>
+              </ng-container>
+            </div>
+            <ng-container *ngIf="isWorker">
+              <div class="tray-chip__duration-field"
+                   [class.tray-chip__duration-field--error]="getPriceError(svc.id)"
+                   [formGroup]="priceForm">
+                <label class="tray-chip__duration-label">
+                  <span class="material-symbols-outlined" translate="no">payments</span>
+                  Precio
+                </label>
+                <div class="tray-chip__duration-input-row">
+                  <input
+                    class="tray-chip__duration-input"
+                    type="number"
+                    [formControlName]="svc.id"
+                    (input)="onPriceInput(svc.id)"
+                    (keydown)="onDurationKeydown($event)">
+                  <span class="tray-chip__duration-unit">COP</span>
+                </div>
+                <div *ngIf="getPriceError(svc.id)" class="tray-chip__duration-error">
+                  <span class="material-symbols-outlined" translate="no">error</span>
+                  {{ getPriceError(svc.id) }}
+                </div>
+              </div>
+            </ng-container>
+            <ng-container *ngIf="isWorker">
+              <div class="tray-chip__duration-field"
+                   [class.tray-chip__duration-field--error]="getDurationError(svc.id)">
+                <label class="tray-chip__duration-label">
+                  <span class="material-symbols-outlined" translate="no">schedule</span>
+                  Duración
+                </label>
+                <div class="tray-chip__duration-input-row">
+                  <input
+                    class="tray-chip__duration-input"
+                    type="number"
+                    [formControlName]="svc.id"
+                    (input)="onDurationInput(svc.id)"
+                    (keydown)="onDurationKeydown($event)">
+                  <span class="tray-chip__duration-unit">min</span>
+                </div>
+                <div *ngIf="getDurationError(svc.id)" class="tray-chip__duration-error">
+                  <span class="material-symbols-outlined" translate="no">error</span>
+                  {{ getDurationError(svc.id) }}
+                </div>
+              </div>
+            </ng-container>
+          </div>
+          <button
+            class="tray-chip__remove"
+            type="button"
+            title="Quitar servicio"
+            (click)="onRemoveService(svc.id)">
+            <span class="material-symbols-outlined" translate="no">close</span>
+          </button>
+        </div>
+      </div>
+      <div class="svc-sel__tray-totals" *ngIf="selectedServices.length > 0">
+        <div class="svc-sel__total-row">
+          <span class="svc-sel__total-label">
+            <span class="material-symbols-outlined" translate="no">payments</span>
+            Total
+          </span>
+          <span class="svc-sel__total-value">
+            {{ totalPrice | currency:'COP':'symbol-narrow':'1.0-0' }}
+          </span>
+        </div>
+        <div class="svc-sel__total-row">
+          <span class="svc-sel__total-label">
+            <span class="material-symbols-outlined" translate="no">schedule</span>
+            Duración aprox.
+          </span>
+          <span class="svc-sel__total-value">{{ formatDuration(totalDuration) }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,31 +1,33 @@
 import cors from 'cors';
 import { env } from './env.js';
+import { CorsError } from '../shared/errors/infrastructure.error.js';
 
-const allowedOrigins = env.frontendUrl
-    .split(',')
-    .map((origin) => origin.trim())
-    .filter(Boolean);
+const CORS_PREFLIGHT_CACHE_SECONDS = 60 * 60 * 24;
 
-/**
- * CORS configuration
- * Whitelist de orígenes permitidos
- */
+const allowedOrigins = new Set(
+    env.frontendUrl
+        .split(',')
+        .map((origin) => origin.trim())
+        .filter(Boolean),
+);
+
+const validateOrigin = (
+    origin: string | undefined,
+    callback: (error: Error | null, allow?: boolean) => void,
+) => {
+    if (!origin || allowedOrigins.has(origin)) {
+        callback(null, true);
+        return;
+    }
+    callback(new CorsError(origin));
+};
+
 export const corsOptions: cors.CorsOptions = {
-    origin: (origin, callback) => {
-        if (!origin) {
-            callback(null, true);
-            return;
-        }
-        if (allowedOrigins.includes(origin)) {
-            callback(null, true);
-            return;
-        }
-        callback(new Error(`CORS: Origin not allowed -> ${origin}`));
-    },
+    origin: validateOrigin,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     credentials: true,
     optionsSuccessStatus: 200,
-    maxAge: 86400, // 24 horas
+    maxAge: CORS_PREFLIGHT_CACHE_SECONDS,
 };
 
 export const corsMiddleware = cors(corsOptions);

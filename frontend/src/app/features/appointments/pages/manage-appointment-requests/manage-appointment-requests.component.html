@@ -1,0 +1,147 @@
+<div class="mar-page">
+  <app-form-header
+    eyebrow="Gestión"
+    title="Mis solicitudes de citas"
+    description="Revisa tus solicitudes para citas"
+    (back)="goBack()">
+  </app-form-header>
+  <div class="mar-grid" *ngIf="isLoading">
+    <div class="mar-skeleton" *ngFor="let i of [1,2,3]">
+      <div class="mar-skeleton__bar mar-skeleton__bar--short"></div>
+      <div class="mar-skeleton__bar mar-skeleton__bar--long"></div>
+      <div class="mar-skeleton__bar mar-skeleton__bar--medium"></div>
+      <div class="mar-skeleton__services"></div>
+      <div class="mar-skeleton__actions">
+        <div class="mar-skeleton__btn"></div>
+        <div class="mar-skeleton__btn"></div>
+      </div>
+    </div>
+  </div>
+  <div class="mar-empty" *ngIf="!isLoading && appointments.length === 0">
+    <span class="material-symbols-outlined mar-empty__icon" translate="no">event_available</span>
+    <h3 class="mar-empty__title">Sin solicitudes pendientes</h3>
+    <p class="mar-empty__desc">No tienes solicitudes de citas esperando confirmación en este momento.</p>
+  </div>
+  <div class="mar-grid" *ngIf="!isLoading && appointments.length > 0">
+    <div
+      class="mar-card"
+      *ngFor="let appt of appointments"
+      [class.mar-card--approving]="isApproving(appt.id)"
+      [class.mar-card--rejecting]="isRejecting(appt.id)">
+      <div class="mar-card__glow"></div>
+      <div class="mar-card__accent-bar"></div>
+      <div class="mar-card__header">
+        <div class="mar-card__datetime">
+          <div class="mar-card__date-badge">
+            <span class="material-symbols-outlined mar-card__date-icon" translate="no">calendar_month</span>
+            <div>
+              <span class="mar-card__date">{{ formatDate(appt.startAt) }}</span>
+              <span class="mar-card__time">
+                {{ formatTime(appt.startAt) }} — {{ formatTime(appt.endAt) }}
+              </span>
+            </div>
+          </div>
+          <div class="mar-card__duration-badge">
+            <span class="material-symbols-outlined" translate="no">schedule</span>
+            {{ formatDuration(appt.startAt, appt.endAt) }}
+          </div>
+        </div>
+      </div>
+      <div class="mar-card__divider"></div>
+      <div class="mar-card__people">
+        <a class="mar-card__person mar-card__person--link"
+           [routerLink]="['/appointments', appt.client.id, 'history']"
+           title="Ver historial de citas del cliente">
+          <div class="mar-card__person-avatar mar-card__person-avatar--client">
+            <span class="material-symbols-outlined" translate="no">person</span>
+          </div>
+          <div class="mar-card__person-info">
+            <span class="mar-card__person-role">Cliente</span>
+            <span class="mar-card__person-name">{{ appt.client.name }}</span>
+          </div>
+        </a>
+        <div class="mar-card__people-sep">
+          <span class="material-symbols-outlined" translate="no">chevron_right</span>
+        </div>
+        <div class="mar-card__person">
+          <div class="mar-card__person-avatar mar-card__person-avatar--worker">
+            <span class="material-symbols-outlined" translate="no">person</span>
+          </div>
+          <div class="mar-card__person-info">
+            <span class="mar-card__person-role">Estilista</span>
+            <span class="mar-card__person-name">{{ appt.worker.name }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="mar-card__divider"></div>
+      <div class="mar-card__services-section">
+        <div class="mar-card__services-header">
+          <span class="mar-card__services-label">
+            <span class="material-symbols-outlined" translate="no">content_cut</span>
+            Servicios ({{ appt.services.length }})
+          </span>
+        </div>
+        <div class="mar-card__services-list">
+          <div class="mar-svc-chip" *ngFor="let svc of appt.services">
+            <div class="mar-svc-chip__dot" [style.background-color]="svc.color"></div>
+            <span class="mar-svc-chip__name">{{ svc.name }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="mar-card__notes" *ngIf="appt.notes">
+        <span class="material-symbols-outlined mar-card__notes-icon" translate="no">notes</span>
+        <span class="mar-card__notes-text">{{ appt.notes }}</span>
+      </div>
+      <div class="mar-card__actions">
+        <button
+          class="mar-btn mar-btn--approve"
+          type="button"
+          title="Aceptar solicitud de cita"
+          [disabled]="isActionDisabled(appt.id)"
+          (click)="onApprove(appt.id)">
+          <span class="mar-approve-border"></span>
+          <span class="mar-approve-ring mar-approve-ring--1"></span>
+          <span class="mar-approve-ring mar-approve-ring--2"></span>
+          <span class="mar-btn__content">
+            <ng-container *ngIf="!isApproving(appt.id)">
+              <span class="material-symbols-outlined mar-btn__icon" translate="no">check_circle</span>
+              <span class="mar-btn__label">Aceptar cita</span>
+            </ng-container>
+            <ng-container *ngIf="isApproving(appt.id)">
+              <span class="mar-btn__spinner"></span>
+              <span class="mar-btn__label">Aceptando...</span>
+            </ng-container>
+          </span>
+        </button>
+        <button
+          class="mar-btn mar-btn--reject"
+          type="button"
+          title="Rechazar solicitud de cita"
+          [disabled]="isActionDisabled(appt.id)"
+          (click)="onReject(appt.id)">
+          <span class="mar-btn__content">
+            <ng-container *ngIf="!isRejecting(appt.id)">
+              <span class="material-symbols-outlined mar-btn__icon" translate="no">cancel</span>
+              <span class="mar-btn__label">Rechazar</span>
+            </ng-container>
+            <ng-container *ngIf="isRejecting(appt.id)">
+              <span class="mar-btn__spinner"></span>
+              <span class="mar-btn__label">Rechazando...</span>
+            </ng-container>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="mar-pagination" *ngIf="!isLoading && meta.total > 0">
+    <app-pagination
+      [currentPage]="meta.page"
+      [totalPages]="meta.totalPages"
+      [totalItems]="meta.total"
+      [displayedItems]="appointments.length"
+      itemLabel="solicitud"
+      itemLabelPlural="solicitudes"
+      (pageChange)="onPageChange($event)">
+    </app-pagination>
+  </div>
+</div>

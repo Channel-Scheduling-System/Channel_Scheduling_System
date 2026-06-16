@@ -1,0 +1,92 @@
+<div class="po-modal" (click)="$event.stopPropagation()">
+    <div class="po-modal__inner">
+        <div class="po-modal__scroll">
+            <div class="po-modal__header">
+                <div class="po-modal__header-left">
+                    <span class="material-symbols-outlined po-modal__header-icon" translate="no">
+                        beach_access
+                    </span>
+                    <div>
+                        <h2 class="po-modal__title">Período libre</h2>
+                        <p class="po-modal__subtitle">Define un rango de días fuera de tu jornada</p>
+                    </div>
+                </div>
+                <button class="po-modal__close" type="button" (click)="onCancel()" title="Cerrar">
+                    <span class="material-symbols-outlined" translate="no">close</span>
+                </button>
+            </div>
+            <div class="po-modal__divider"></div>
+            <div class="po-modal__body" [formGroup]="form">
+                <div class="po-field-group">
+                    <label class="po-label">Fecha de inicio</label>
+                    <div class="po-input-wrap" [class.po-input-wrap--error]="!!getFieldError('startDate')">
+                        <span class="material-symbols-outlined po-input-wrap__icon" translate="no">
+                            event_available
+                        </span>
+                        <input class="po-input po-input--date" type="date" formControlName="startDate">
+                        <button type="button" class="po-input-wrap__picker-btn" title="Seleccionar fecha"
+                            (click)="openDatePicker('startDate', $event)">
+                            <span class="material-symbols-outlined" translate="no">event</span>
+                        </button>
+                    </div>
+                    <span class="po-field-error" *ngIf="getFieldError('startDate')">
+                        <span class="material-symbols-outlined" translate="no">error</span>
+                        {{ getFieldError('startDate') }}
+                    </span>
+                </div>
+                <div class="po-field-group">
+                    <label class="po-label">Fecha de finalización</label>
+                    <div class="po-input-wrap"
+                        [class.po-input-wrap--error]="!!getFieldError('endDate') || !!getCrossDateError()">
+                        <span class="material-symbols-outlined po-input-wrap__icon" translate="no">
+                            event_busy
+                        </span>
+                        <input class="po-input po-input--date" type="date" formControlName="endDate">
+                        <button type="button" class="po-input-wrap__picker-btn" title="Seleccionar fecha"
+                            (click)="openDatePicker('endDate', $event)">
+                            <span class="material-symbols-outlined" translate="no">event</span>
+                        </button>
+                    </div>
+                    <span class="po-field-error" *ngIf="getFieldError('endDate') || getCrossDateError()">
+                        <span class="material-symbols-outlined" translate="no">error</span>
+                        {{ getFieldError('endDate') || getCrossDateError() }}
+                    </span>
+                </div>
+                <div class="po-field-group">
+                    <label class="po-label">
+                        Motivo
+                        <span class="po-label__optional">(Opcional)</span>
+                    </label>
+                    <div class="po-input-wrap po-input-wrap--textarea"
+                        [class.po-input-wrap--error]="!!getFieldError('reason')">
+                        <span class="material-symbols-outlined po-input-wrap__icon po-input-wrap__icon--top"
+                            translate="no">notes</span>
+                        <textarea class="po-textarea" formControlName="reason"
+                            placeholder="Describe el motivo del período libre..." rows="3" maxlength="200">
+            </textarea>
+                    </div>
+                    <div class="po-field-bottom">
+                        <span class="po-field-error" *ngIf="getFieldError('reason')">
+                            <span class="material-symbols-outlined" translate="no">error</span>
+                            {{ getFieldError('reason') }}
+                        </span>
+                        <span class="po-char-count" [class.po-char-count--warn]="reasonLength > 180">
+                            {{ reasonLength }}/200
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="po-modal__divider"></div>
+            <div class="po-modal__footer">
+                <button class="po-modal__cancel" type="button" (click)="onCancel()">
+                    Cancelar
+                </button>
+                <button class="po-modal__submit" type="button" (click)="onSubmit()" [disabled]="isSubmitting"
+                    [class.po-modal__submit--loading]="isSubmitting">
+                    <span class="material-symbols-outlined" translate="no">beach_access</span>
+                    <span>{{ isSubmitting ? 'Guardando...' : 'Añadir período libre' }}</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,88 @@
+<div class="dtsl__spacer-left"></div>
+
+
+<div class="dtsl__column">
+
+  
+  <div class="dtsl__cells-wrap" #cellsWrapRef>
+
+    <div
+      *ngFor="let slot of timeSlots; trackBy: trackBySlot"
+      class="dtsl__cell"
+      [attr.data-hour]="slot.hour"
+      [attr.data-minute]="slot.minute"
+      (click)="onCellClick(slot)"
+      (mouseenter)="onCellMouseEnter(slot)"
+      (mouseleave)="onCellMouseLeave()">
+    </div>
+
+    
+    <div
+      *ngIf="ghostRect"
+      class="dtsl__ghost"
+      [style.top.px]="ghostRect.topPx"
+      [style.height.px]="ghostRect.heightPx">
+
+      <div class="dtsl__ghost__fill"></div>
+
+      <div class="dtsl__ghost__label">
+        <span class="dtsl__ghost__label-heading">Cita</span>
+        <div class="dtsl__ghost__label-range">
+          <span class="dtsl__ghost__label-start">{{ ghostRect.startLabel }}</span>
+          <span class="dtsl__ghost__label-sep">→</span>
+          <span class="dtsl__ghost__label-end">{{ ghostRect.endLabel }}</span>
+        </div>
+      </div>
+
+    </div>
+
+    
+    <div
+      *ngIf="selectionRect"
+      class="dtsl__rect"
+      [class.dtsl__rect--dragging]="isDragging"
+      [class.dtsl__rect--invalid]="isRangeInvalid"
+      [class.dtsl__rect--shake]="isShaking"
+      [style.top.px]="selectionRect.topPx"
+      [style.height.px]="selectionRect.heightPx"
+      (mousedown)="onRectMouseDown($event)"
+      (touchstart)="onRectTouchStart($event)">
+
+      <div class="dtsl__rect__fill"></div>
+
+      
+      <div class="dtsl__rect__error-shimmer" *ngIf="isRangeInvalid"></div>
+
+      
+      <div class="dtsl__rect__label" *ngIf="!isRangeInvalid">
+        <span class="dtsl__rect__label-heading">Cita</span>
+        <div class="dtsl__rect__label-range">
+          <span class="dtsl__rect__label-start">{{ selectionRect.startLabel }}</span>
+          <span class="dtsl__rect__label-sep">→</span>
+          <span class="dtsl__rect__label-end">{{ selectionRect.endLabel }}</span>
+        </div>
+      </div>
+
+      
+      <div class="dtsl__rect__error-label" *ngIf="isRangeInvalid">
+        <span class="material-symbols-outlined dtsl__rect__error-icon" translate="no">error</span>
+        <span class="dtsl__rect__error-heading">Horario no disponible</span>
+        <div class="dtsl__rect__error-range">
+          <span class="dtsl__rect__error-time">{{ selectionRect.startLabel }}</span>
+          <span class="dtsl__rect__error-sep">→</span>
+          <span class="dtsl__rect__error-time">{{ selectionRect.endLabel }}</span>
+        </div>
+        <ul class="dtsl__rect__error-reasons" *ngIf="invalidReasons.length > 0">
+          <li *ngFor="let reason of invalidReasons" class="dtsl__rect__error-reason">
+            {{ reason }}
+          </li>
+        </ul>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div class="dtsl__spacer-right"></div>

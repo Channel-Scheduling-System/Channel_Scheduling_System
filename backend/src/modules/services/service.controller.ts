@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { StatusCodes } from 'http-status-codes';
 import { IServiceService } from './service.service.js';
 import { mapToServiceFilters } from './service.mapper.js';
 import { extractRequestContextWithId } from '../../shared/utils/request-parser.util.js';
@@ -9,7 +10,7 @@ export class ServiceController {
     add = async (req: Request, res: Response, next: NextFunction) => {
         try {
             await this.serviceService.add(req.body);
-            return res.status(201).json({
+            return res.status(StatusCodes.CREATED).json({
                 message: 'Servicio creado exitosamente',
             });
         } catch (error) {
@@ -21,7 +22,7 @@ export class ServiceController {
         try {
             const id = req.params.id as unknown as number;
             const data = await this.serviceService.getById(id);
-            return res.status(200).json({
+            return res.status(StatusCodes.OK).json({
                 message: 'Servicio recuperado exitosamente',
                 data,
             });
@@ -34,7 +35,7 @@ export class ServiceController {
         try {
             const filters = mapToServiceFilters(req.query);
             const data = await this.serviceService.getAll(filters);
-            return res.status(200).json({
+            return res.status(StatusCodes.OK).json({
                 message: 'Servicios recuperados exitosamente',
                 data,
             });
@@ -47,7 +48,7 @@ export class ServiceController {
         try {
             const id = req.params.id as unknown as number;
             await this.serviceService.update({ id, ...req.body });
-            return res.status(200).json({
+            return res.status(StatusCodes.OK).json({
                 message: 'Servicio actualizado exitosamente',
             });
         } catch (error) {
@@ -57,12 +58,12 @@ export class ServiceController {
 
     updateState = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { id, authRole, authId } = extractRequestContextWithId(req);
+            const { id, auth } = extractRequestContextWithId(req);
             const state = await this.serviceService.updateState(
                 { id, ...req.body },
-                { role: authRole, id: authId },
+                auth,
             );
-            return res.status(200).json({
+            return res.status(StatusCodes.OK).json({
                 message: `Servicio ${state ? 'activado' : 'desactivado'} exitosamente`,
             });
         } catch (error) {
@@ -75,7 +76,7 @@ export class ServiceController {
             const id = req.params.id as unknown as number;
             await this.serviceService.delete(id);
             return res
-                .status(200)
+                .status(StatusCodes.OK)
                 .json({ message: 'Servicio eliminado exitosamente' });
         } catch (error) {
             next(error);

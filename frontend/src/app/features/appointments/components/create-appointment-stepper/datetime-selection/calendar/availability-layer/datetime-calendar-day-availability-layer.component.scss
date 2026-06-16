@@ -1,0 +1,210 @@
+// ── Tokens (shared with the rest of the datetime calendar) ───────────────────
+$primary:    #2a0002;
+$vinotinto:  #4a0010;
+$crimson:    #8B1a3a;
+$muted:      #877270;
+$outline:    #c8b8bc;
+$transition: 0.22s ease;
+// ── Column layout — mirrors the grid layer's 3-column setup ──────────────────
+// Col 1: time-label gutter  (sticky, read-only)
+// Col 2: day column         ← blocks live here
+// Col 3: right spacer
+//
+// We use the same grid-template-columns so that absolute positioning inside
+// the container aligns perfectly with the grid cells below.
+:host {
+  // Stacked on top of the grid (z-index 1) but below appointments (z-index 2+)
+  display: block;
+  position: absolute;
+  top:   0;
+  left:  0;
+  right: 0;
+  min-height: 100%;
+  // Blocks themselves re-enable pointer-events selectively
+  pointer-events: none;
+  // Layer 3: above grid (1) but below appointments (2+)
+  z-index: 1;
+  contain: layout style;
+}
+// ── Container ─────────────────────────────────────────────────────────────────
+.avl__container {
+  // Needs relative positioning so child blocks can use absolute top/height
+  position: relative;
+  width:    100%;
+  height:   100%;
+}
+// ── Shared block base ─────────────────────────────────────────────────────────
+.avl__block {
+  position: absolute;
+  // Align to the day column (col 2).
+  // The grid layer uses: minmax(0,1fr) | min(calc(100% - 2rem), 20rem) | minmax(0,1fr)
+  // We replicate that with left/right so the block sits exactly over col 2.
+  left:  calc(max(0px, (100% - 20rem) / 2));
+  right: calc(max(0px, (100% - 20rem) / 2));
+  overflow: hidden;
+  border-radius: 0;          // flush with cell borders
+  will-change: opacity;
+  transform: translateZ(0);  // layer promotion — cheap for many tall divs
+}
+// ─────────────────────────────────────────────────────────────────────────────
+// OUT-OF-HOURS  — subtle dark veil + crosshatch texture
+// ─────────────────────────────────────────────────────────────────────────────
+.avl__block--ooh {
+  background: rgba($primary, 0.26);
+  border-left:  2px solid rgba($vinotinto, 0.30);
+  border-right: 2px solid rgba($vinotinto, 0.30);
+  animation: oohFadeIn 0.4s ease-out both;
+  // ── Crosshatch / diagonal stripe texture ──────────────────────────────────
+  .avl__block__hatch {
+    position:       absolute;
+    inset:          0;
+    pointer-events: none;
+    background-image:
+      repeating-linear-gradient(
+        -45deg,
+        rgba($vinotinto, 0.04)  0px,
+        rgba($vinotinto, 0.04)  2px,
+        transparent              2px,
+        transparent              9px
+      );
+    background-size: 12.73px 12.73px; // √(9²+9²) ≈ 12.73 for perfect 45° tiles
+  }
+  // ── Left-edge accent ──────────────────────────────────────────────────────
+  .avl__block__edge {
+    position: absolute;
+    inset:    0;
+    pointer-events: none;
+    background: linear-gradient(
+      to right,
+      rgba($vinotinto, 0.22) 0%,
+      transparent            18px
+    );
+  }
+}
+// ─────────────────────────────────────────────────────────────────────────────
+// OCCUPIED  — solid dark block with shimmer + "Ocupado" label
+// ─────────────────────────────────────────────────────────────────────────────
+.avl__block--occupied {
+  // Pointer events re-enabled so the chip can receive hover/focus on WORKER role
+  pointer-events:  auto;
+  cursor:          default;
+  // Rich layered dark background — not pure black so it doesn't completely
+  // obscure the grid lines, but clearly "blocked"
+  background:
+    linear-gradient(
+      150deg,
+      #1a1a1e 0%,
+      #0e0e10 55%,
+      #141417 100%
+    );
+  border-left:  2px solid rgba(255, 255, 255, 0.06);
+  border-right: 2px solid rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0  0  0 0.5px rgba(255, 255, 255, 0.06) inset,
+    0  1px 0     rgba(255, 255, 255, 0.05) inset,
+    0 -1px 0     rgba(0,   0,   0,   0.35) inset,
+    0  4px 16px  rgba(0,   0,   0,   0.22);
+  animation: occupiedFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+  // ── Fine noise / grain texture ────────────────────────────────────────────
+  .avl__block__noise {
+    position:       absolute;
+    inset:          0;
+    pointer-events: none;
+    // Simulated grain using a small SVG data URI turbulence pattern
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+    opacity: 0.55;
+    mix-blend-mode: overlay;
+  }
+  // ── Diagonal stripe overlay ───────────────────────────────────────────────
+  .avl__block__shimmer {
+    position:       absolute;
+    inset:          0;
+    pointer-events: none;
+    // White diagonal stripes on top of the dark background
+    background-image:
+      repeating-linear-gradient(
+        -45deg,
+        rgba(255, 255, 255, 0.06)  0px,
+        rgba(255, 255, 255, 0.06)  2px,
+        transparent                 2px,
+        transparent                 9px
+      );
+    background-size: 12.73px 12.73px;
+  }
+}
+// ── Occupied label ────────────────────────────────────────────────────────────
+.avl__block__label {
+  position: absolute;
+  // Centre vertically for short blocks, stick to top for tall ones
+  top:   50%;
+  left:  50%;
+  transform: translate(-50%, -50%);
+  display:     flex;
+  align-items: center;
+  gap:         0.3rem;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  animation: labelFadeIn 0.5s 0.15s ease-out both;
+  // Clamp to block dimensions so it never overflows
+  max-width: calc(100% - 0.5rem);
+  overflow:  hidden;
+}
+.avl__block__label-icon {
+  font-size:   0.95rem !important;
+  line-height: 1       !important;
+  color:       rgba(255, 255, 255, 0.45);
+  flex-shrink: 0;
+  font-variation-settings: 'wght' 300, 'FILL' 0;
+}
+.avl__block__label-text {
+  font-family:    'Manrope', sans-serif;
+  font-size:      0.68rem;
+  font-weight:    700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color:          rgba(255, 255, 255, 0.38);
+  overflow:       hidden;
+  text-overflow:  ellipsis;
+}
+// ── "Ocupado" label hides on very short blocks (< 1.5 rem height) ─────────────
+// We cannot use container queries on a non-replaced absolute element easily,
+// so we rely on a min-height guard instead.
+.avl__block--occupied:not([style*="height: 0"]) .avl__block__label {
+  // Visible by default; hidden if the block is too short to hold the label
+  // (handled via CSS clamp trick below)
+  display: flex;
+}
+// ── Keyframes ─────────────────────────────────────────────────────────────────
+@keyframes oohFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes occupiedFadeIn {
+  from {
+    opacity:   0;
+    transform: scaleY(0.96);
+  }
+  to {
+    opacity:   1;
+    transform: scaleY(1);
+  }
+}
+@keyframes labelFadeIn {
+  from {
+    opacity:   0;
+    transform: translate(-50%, calc(-50% + 4px));
+  }
+  to {
+    opacity:   1;
+    transform: translate(-50%, -50%);
+  }
+}
+// ── Responsive: narrow screens collapse the right spacer col ─────────────────
+@media (max-width: 420px) {
+  .avl__block {
+    left:  0;
+    right: 0;
+  }
+}

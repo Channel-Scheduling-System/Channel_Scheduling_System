@@ -1,3 +1,28 @@
+@keyframes smoothGradientFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes shimmer-slide {
+    0%     { transform: translateX(-100%) skewX(-15deg); }
+    20%    { transform: translateX(200%)  skewX(-15deg); }
+    20.01% { transform: translateX(-100%) skewX(-15deg); }
+    100%   { transform: translateX(-100%) skewX(-15deg); }
+}
+
+@keyframes gradient-flow {
+    0%   { background-position: 0%   50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0%   50%; }
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -17,5 +42,20 @@
 
   to {
     transform: translateX(250%) skewX(-8deg);
+  }
+}
+
+@keyframes logoPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 0 rgba(74, 0, 16, 0.45),
+      0 0 0px rgba(74, 0, 16, 0.3),
+      0 0 0px rgba(74, 0, 16, 0.15);
+  }
+  50% {
+    box-shadow:
+      0 0 0 12px rgba(74, 0, 16, 0),
+      0 0 20px rgba(74, 0, 16, 0.25),
+      0 0 40px rgba(74, 0, 16, 0.12);
   }
 }

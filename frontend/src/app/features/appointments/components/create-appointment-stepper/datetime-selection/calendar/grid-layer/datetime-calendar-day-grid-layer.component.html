@@ -1,0 +1,18 @@
+<div class="dtg__corner"></div>
+<div class="dtg__day-header"
+     [class.dtg__day-header--today]="isDayToday(currentDate)">
+  <span class="dtg__day-name">{{ formatDayName(currentDate) }}</span>
+  <span class="dtg__day-number">{{ formatDayNumber(currentDate) }}</span>
+</div>
+<div class="dtg__spacer-header"></div>
+<ng-container *ngFor="let slot of timeSlots; trackBy: trackBySlot">
+  <div class="dtg__time-label"
+       [class.dtg__time-label--half]="slot.minute === 30">
+    <span *ngIf="slot.minute === 0">{{ slot.label }}</span>
+  </div>
+  <div class="dtg__cell"
+       [class.dtg__cell--today]="isDayToday(currentDate)"
+       [class.dtg__cell--half]="slot.minute === 30">
+  </div>
+  <div class="dtg__spacer-cell"></div>
+</ng-container>

@@ -12,6 +12,16 @@ export interface Service {
     updatedAt: Date;
 }
 
+export interface Worker {
+    id: number;
+    firstName: string;
+    lastName: string;
+}
+
+export interface ServiceWithWorker extends Service {
+    worker: Worker;
+}
+
 // PERSISTENCE
 //* -----------------------------
 export interface CreateServiceData {
@@ -66,6 +76,10 @@ export interface ServiceResponse {
     price: number;
     duration: number;
     isActive: boolean;
+    worker: {
+        id: number;
+        name: string;
+    };
 }
 
 export interface ServiceFilters {

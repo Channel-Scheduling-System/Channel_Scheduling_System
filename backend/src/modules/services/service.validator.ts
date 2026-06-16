@@ -1,20 +1,23 @@
 import { z } from 'zod';
 import {
-    ParamIdDTO,
     validateBodyDTO,
     validateParamsDTO,
     validateQueryDTO,
 } from '../../shared/middlewares/validateDTO.middleware.js';
-import { Id, UpdateStateDTO } from '../../shared/zod/shemas.js';
+import {
+    id,
+    workerId,
+    paramId,
+    priceSchema,
+    durationSchema,
+    updateStateDTO,
+} from '../../shared/zod/schemas.js';
 
 // SERVICES
 //* -----------------------------
-export const ServiceSchema = z.object({
-    id: Id,
-    workerId: z
-        .number()
-        .int('El ID del trabajador debe ser un número entero')
-        .positive('El ID del trabajador debe ser un número positivo'),
+const serviceSchema = z.object({
+    id: id,
+    workerId: workerId,
     name: z
         .string()
         .regex(
@@ -30,39 +33,29 @@ export const ServiceSchema = z.object({
             'La descripción contiene caracteres no permitidos',
         )
         .min(10, 'La descripción debe tener al menos 10 caracteres')
-        .max(500, 'La descripción no puede exceder 500 caracteres'),
+        .max(500, 'La descripción no puede exceder 500 caracteres')
+        .optional(),
     color: z
         .string()
         .regex(
             /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/,
             'El color debe ser un código hexadecimal válido (#RRGGBB o #RGB)',
         ),
-    price: z
-        .number('El precio debe ser un número')
-        .int('El precio debe ser un número entero')
-        .positive('El precio debe ser un número positivo')
-        .min(1, 'El precio mínimo es 1')
-        .max(999999, 'El precio no puede exceder 999,999'),
-    duration: z
-        .number('La duración debe ser un número')
-        .int('La duración debe ser un número entero')
-        .positive('La duración debe ser un número positivo')
-        .min(5, 'La duración mínima es 5 minutos')
-        .max(300, 'La duración máxima es 300 minutos'),
+    price: priceSchema,
+    duration: durationSchema,
 });
 
 // TYPES (DTOs)
 //* -----------------------------
-export type ServiceData = z.infer<typeof ServiceSchema>;
+const createServiceDTO = serviceSchema.omit({ id: true }).strict();
 
-export const CreateServiceDTO = ServiceSchema.omit({ id: true }).strict();
-
-export const UpdateServiceDTO = ServiceSchema.partial()
+const updateServiceDTO = serviceSchema
+    .partial()
     .omit({ workerId: true })
     .strict();
 
 // FILTERS
-export const ServiceFiltersSchema = z
+export const serviceFiltersSchema = z
     .object({
         workerId: z.coerce.number().int().positive().optional(),
         isActive: z.union([z.boolean(), z.stringbool()]).optional(),
@@ -72,9 +65,9 @@ export const ServiceFiltersSchema = z
 // Export centralizado
 //* -----------------------------
 export const serviceValidator = {
-    create: validateBodyDTO(CreateServiceDTO),
-    update: validateBodyDTO(UpdateServiceDTO),
-    updateState: validateBodyDTO(UpdateStateDTO),
-    id: validateParamsDTO(ParamIdDTO),
-    filters: validateQueryDTO(ServiceFiltersSchema),
+    id: validateParamsDTO(paramId),
+    create: validateBodyDTO(createServiceDTO),
+    update: validateBodyDTO(updateServiceDTO),
+    updateState: validateBodyDTO(updateStateDTO),
+    filters: validateQueryDTO(serviceFiltersSchema),
 };
