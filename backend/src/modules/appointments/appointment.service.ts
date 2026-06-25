@@ -32,6 +32,7 @@ import { AuthContext } from '../../shared/utils/request-parser.util.js';
 import { ConflictError } from '../../shared/errors/domain.error.js';
 import { APPOINTMENT_ERRORS } from '../../shared/constants/messages.js';
 import { AppointmentNotifier } from './util/appointment.notifier.js';
+import { INotificationService } from '../notifications/notification.service.js';
 
 export interface IAppointmentService {
     verifyOverlap(
@@ -70,13 +71,14 @@ export interface IAppointmentService {
 export class AppointmentService implements IAppointmentService {
     private readonly appointmentDomain: AppointmentDomainService;
     private readonly filtersProcessor: AppointmentFiltersProcessor;
-    private readonly notifier = new AppointmentNotifier();
+    private readonly notifier;
 
     constructor(
         private readonly appointmentRepo: IAppointmentRepository,
         private readonly userService: IUserService,
         private readonly serviceService: IServiceService,
         private readonly availabilityService: () => IAvailabilityService,
+        private readonly notificationService: INotificationService,
     ) {
         this.appointmentDomain = new AppointmentDomainService(
             appointmentRepo,
@@ -87,6 +89,7 @@ export class AppointmentService implements IAppointmentService {
         this.filtersProcessor = new AppointmentFiltersProcessor(
             appointmentRepo,
         );
+        this.notifier = new AppointmentNotifier(notificationService);
     }
 
     async verifyOverlap(

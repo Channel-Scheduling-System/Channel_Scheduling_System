@@ -1,27 +1,19 @@
-import { ServiceData } from './appointment-scheduled.template.js';
+import { AppointmentRequestedData } from '../../../notification.types.js';
 
-export interface AppointmentRequestedEmailData {
-    workerName: string;
-    clientName: string;
-    dateStr: string;
-    timeStr: string;
-    services: ServiceData[];
-}
-
-export function generateAppointmentRequestedHTML(
-    data: AppointmentRequestedEmailData,
+export function appointmentRequestedHTML(
+    data: AppointmentRequestedData,
 ): string {
-    // Mapeamos los servicios simulando bloques reales de bloques de un calendario/agenda de trabajo
-    const calendarBlocksRendered = data.services
-        .map(
-            (service) => `
+    const calendarBlocksRendered =
+        data.services
+            ?.map(
+                (service) => `
         <div class="calendar-item" style="border-left: 5px solid ${service.color}; background-color: ${service.color}12;">
             <span class="calendar-item__color-dot" style="background-color: ${service.color}; box-shadow: 0 0 10px ${service.color};"></span>
             <p class="calendar-item__name" style="color: #1c1b1b;">${service.name}</p>
         </div>
     `,
-        )
-        .join('');
+            )
+            .join('') ?? '';
 
     return `
         <!DOCTYPE html>
@@ -173,8 +165,8 @@ export function generateAppointmentRequestedHTML(
                     <div class="agenda-container">
                         <div class="agenda-meta">
                             <p class="agenda-meta__title">Fecha y Horario Propuesto</p>
-                            <p class="agenda-meta__value">📅 ${data.dateStr}</p>
-                            <p style="font-size: 0.9rem; font-weight: 700; color: #1c1b1b; margin-top: 0.2rem;">⏱ Horas: ${data.timeStr}</p>
+                            <p class="agenda-meta__value">📅 ${data.date}</p>
+                            <p style="font-size: 0.9rem; font-weight: 700; color: #1c1b1b; margin-top: 0.2rem;">⏱ Horas: ${data.time}</p>
                         </div>
 
                         <p class="agenda-meta__title" style="margin-bottom: 0.75rem;">Servicios requeridos</p>

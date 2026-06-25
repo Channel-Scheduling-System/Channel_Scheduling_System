@@ -1,111 +1,116 @@
-import { emailService } from '../../../shared/services/email/index.js';
-import { generateAppointmentApprovedEmailHTML } from '../../../shared/services/email/templates/appointment-approved.template.js';
-import { generateAppointmentRejectedEmailHTML } from '../../../shared/services/email/templates/appointment-rejected.template.js';
-import { generateAppointmentCancelledEmailHTML } from '../../../shared/services/email/templates/appointment-cancelled.template.js';
+import { INotificationService } from '../../notifications/notification.service.js';
 import { NotifyAppointmentResponse, Role } from '../appointment.types.js';
-import { generateAppointmentScheduledHTML } from '../../../shared/services/email/templates/appointment-scheduled.template.js';
-import { generateAppointmentRequestedHTML } from '../../../shared/services/email/templates/appointment-requested.template.js';
-
-const SCHEDULE_SUBJECT = '¡Nueva cita programada! - Channel Scheduling System';
-const REQUEST_SUBJECT = '¡Nueva solicitud de cita! - Channel Scheduling System';
-const APPROVE_SUBJECT =
-    '¡Tu cita ha sido confirmada! - Channel Scheduling System';
-const REJECT_SUBJECT =
-    'Solicitud de cita rechazada - Channel Scheduling System';
-const CANCEL_SUBJECT = 'Cita cancelada - Channel Scheduling System';
+import {
+    NotificationEvent,
+    NotificationPayload,
+} from '../../notifications/notification.types.js';
 
 export class AppointmentNotifier {
-    async sendScheduledNotification(
-        appointment: NotifyAppointmentResponse,
-        notes?: string,
-    ) {
-        const html = generateAppointmentScheduledHTML({
-            clientName: appointment.client.name,
-            workerName: appointment.worker.name,
-            dateStr: appointment.dateStr,
-            timeStr: appointment.timeStr,
-            services: appointment.services,
-            notes: notes,
-        });
-        await emailService.send({
-            to: appointment.client.email,
-            subject: SCHEDULE_SUBJECT,
-            html,
-        });
-    }
-
-    async sendRequestedNotification(appointment: NotifyAppointmentResponse) {
-        const html = generateAppointmentRequestedHTML({
-            clientName: appointment.client.name,
-            workerName: appointment.worker.name,
-            dateStr: appointment.dateStr,
-            timeStr: appointment.timeStr,
-            services: appointment.services,
-        });
-        await emailService.send({
-            to: appointment.worker.email,
-            subject: REQUEST_SUBJECT,
-            html,
-        });
-    }
+    constructor(private readonly notificationService: INotificationService) {}
 
     async sendApprovedNotification(
-        appointment: NotifyAppointmentResponse,
+        apm: NotifyAppointmentResponse,
         notes?: string,
     ) {
-        const html = generateAppointmentApprovedEmailHTML({
-            clientName: appointment.client.name,
-            workerName: appointment.worker.name,
-            dateStr: appointment.dateStr,
-            timeStr: appointment.timeStr,
-            notes: notes,
-        });
-        await emailService.send({
-            to: appointment.client.email,
-            subject: APPROVE_SUBJECT,
-            html,
-        });
-    }
-
-    async sendRejectedNotification(appointment: NotifyAppointmentResponse) {
-        const html = generateAppointmentRejectedEmailHTML({
-            clientName: appointment.client.name,
-            workerName: appointment.worker.name,
-            dateStr: appointment.dateStr,
-            timeStr: appointment.timeStr,
-        });
-        await emailService.send({
-            to: appointment.client.email,
-            subject: REJECT_SUBJECT,
-            html,
-        });
+        const payload: NotificationPayload = {
+            recipient: {
+                name: apm.client.name,
+                email: apm.client.email,
+            },
+            event: NotificationEvent.APPOINTMENT_APPROVED,
+            data: {
+                date: apm.date,
+                time: apm.time,
+                workerName: apm.worker.name,
+                clientName: apm.client.name,
+                services: apm.services,
+                notes,
+            },
+        };
+        await this.notificationService.notify([payload]);
     }
 
     async sendCancelledNotification(
-        appointment: NotifyAppointmentResponse,
+        apm: NotifyAppointmentResponse,
         submittedBy: Role,
         reason?: string,
     ) {
-        const html = generateAppointmentCancelledEmailHTML({
-            recipientName:
-                submittedBy === Role.CLIENT
-                    ? appointment.worker.name
-                    : appointment.client.name,
-            cancelledByName:
-                submittedBy === Role.CLIENT
-                    ? appointment.client.name
-                    : appointment.worker.name,
-            dateStr: appointment.dateStr,
-            timeStr: appointment.timeStr,
-            reason,
-        });
-        await emailService.send({
-            to:
-                submittedBy === Role.CLIENT
-                    ? appointment.worker.email
-                    : appointment.client.email,
-            subject: CANCEL_SUBJECT,
-            html,
-        });
+        const isClient = submittedBy === Role.CLIENT;
+        const payload: NotificationPayload = {
+            recipient: {
+                name: isClient ? apm.worker.name : apm.client.name,
+                email: isClient ? apm.worker.email : apm.client.email,
+            },
+            event: NotificationEvent.APPOINTMENT_CANCELLED,
+            data: {
+                date: apm.date,
+                time: apm.time,
+                isClient,
+                cancelledByName: isClient ? apm.client.name : apm.worker.name,
+                cancelledToName: isClient ? apm.worker.name : apm.client.name,
+                reason,
+                phone:
+                    (isClient ? apm.client.phone : apm.worker.phone) ||
+                    undefined,
+            },
+        };
+        await this.notificationService.notify([payload]);
+    }
+
+    async sendRejectedNotification(apm: NotifyAppointmentResponse) {
+        const payload: NotificationPayload = {
+            recipient: {
+                name: apm.client.name,
+                email: apm.client.email,
+            },
+            event: NotificationEvent.APPOINTMENT_REJECTED,
+            data: {
+                date: apm.date,
+                time: apm.time,
+                workerName: apm.worker.name,
+                clientName: apm.client.name,
+            },
+        };
+        await this.notificationService.notify([payload]);
+    }
+
+    async sendRequestedNotification(apm: NotifyAppointmentResponse) {
+        const payload: NotificationPayload = {
+            recipient: {
+                name: apm.worker.name,
+                email: apm.worker.email,
+            },
+            event: NotificationEvent.APPOINTMENT_REQUESTED,
+            data: {
+                date: apm.date,
+                time: apm.time,
+                workerName: apm.worker.name,
+                clientName: apm.client.name,
+                services: apm.services,
+            },
+        };
+        await this.notificationService.notify([payload]);
+    }
+
+    async sendScheduledNotification(
+        apm: NotifyAppointmentResponse,
+        notes?: string,
+    ) {
+        const payload: NotificationPayload = {
+            recipient: {
+                name: apm.client.name,
+                email: apm.client.email,
+            },
+            event: NotificationEvent.APPOINTMENT_SCHEDULED,
+            data: {
+                date: apm.date,
+                time: apm.time,
+                workerName: apm.worker.name,
+                clientName: apm.client.name,
+                services: apm.services,
+                notes,
+            },
+        };
+        await this.notificationService.notify([payload]);
     }
 }

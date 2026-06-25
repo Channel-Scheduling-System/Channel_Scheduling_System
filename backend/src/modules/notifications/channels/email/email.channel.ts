@@ -1,7 +1,11 @@
 import nodemailer from 'nodemailer';
-import { env } from '../../../config/env.js';
-import { ServiceError } from '../../errors/domain.error.js';
-import { EmailOptions, IEmailService } from './email.types.js';
+import { env } from '../../../../config/env.js';
+import { ServiceError } from '../../../../shared/errors/domain.error.js';
+import {
+    INotificationChannel,
+    NotificationPayload,
+} from '../../notification.types.js';
+import { resolveEmailTemplate } from './templates/index.js';
 
 const transporter = nodemailer.createTransport({
     host: env.email.host,
@@ -20,19 +24,24 @@ const transporter = nodemailer.createTransport({
     socketTimeout: 10000,
 });
 
-export class NodemailerEmailService implements IEmailService {
-    async send(options: EmailOptions): Promise<void> {
+export class EmailChannel implements INotificationChannel {
+    private readonly transporter = transporter;
+
+    async send(payload: NotificationPayload): Promise<void> {
+        if (!payload.recipient.email) return;
+        const { subject, html } = resolveEmailTemplate(payload);
+        
         try {
-            await transporter.sendMail({
+            await this.transporter.sendMail({
                 from: env.email.from,
-                to: options.to,
-                subject: options.subject,
-                html: options.html,
+                to: payload.recipient.email,
+                subject,
+                html,
             });
         } catch (error) {
             const message =
                 error instanceof Error ? error.message : 'Unknown error';
-            throw new ServiceError(`Fallo al enviar email: ${message}`);
+            throw new ServiceError(`Email failed: ${message}`);
         }
     }
 
@@ -45,5 +54,3 @@ export class NodemailerEmailService implements IEmailService {
         }
     }
 }
-
-export const emailService = new NodemailerEmailService();

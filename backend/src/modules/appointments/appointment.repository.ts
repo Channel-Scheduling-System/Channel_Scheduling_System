@@ -256,10 +256,10 @@ const forStatusChangeSelect = {
     workerId: true,
     clientId: true,
     worker: {
-        select: { firstName: true, lastName: true, email: true },
+        select: { firstName: true, lastName: true, email: true, phone: true },
     },
     client: {
-        select: { firstName: true, lastName: true, email: true },
+        select: { firstName: true, lastName: true, email: true, phone: true },
     },
     services: {
         select: {

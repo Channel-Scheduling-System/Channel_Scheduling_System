@@ -1,20 +1,13 @@
-export interface AppointmentRejectedEmailData {
-    clientName: string;
-    workerName: string;
-    dateStr: string;
-    timeStr: string;
-}
+import { AppointmentApprovedData } from '../../../notification.types.js';
 
-export function generateAppointmentRejectedEmailHTML(
-    data: AppointmentRejectedEmailData,
-): string {
+export function appointmentApprovedHTML(data: AppointmentApprovedData): string {
     return `
         <!DOCTYPE html>
         <html lang="es">
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Cita No Disponible - Channel</title>
+            <title>Cita Confirmada - Channel</title>
             <style>
                 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap');
                 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -33,13 +26,13 @@ export function generateAppointmentRejectedEmailHTML(
                     box-shadow: 0 32px 80px rgba(42, 0, 2, 0.22), 0 0 0 1px rgba(42, 0, 2, 0.06);
                 }
                 .header {
-                    background: linear-gradient(135deg, #2c2c2c 0%, #3a3a3a 60%, #1c1c1c 100%);
+                    background: linear-gradient(135deg, #2c2c2c 0%, #4a0010 60%, #2c2c2c 100%);
                     padding: 2.5rem 2rem 2rem;
                     text-align: center;
                 }
                 .header__bar {
                     height: 3px;
-                    background: linear-gradient(90deg, #2c2c2c, #877270, #c97b1a, #877270, #2c2c2c);
+                    background: linear-gradient(90deg, #2c2c2c, #ff6b6b, #4a0010, #ff6b6b, #2c2c2c);
                     margin-bottom: 1.75rem;
                     border-radius: 9999px;
                     opacity: 0.8;
@@ -66,7 +59,7 @@ export function generateAppointmentRejectedEmailHTML(
                     margin-top: 0.4rem;
                 }
                 .content {
-                    background: linear-gradient(to bottom, #faf6f6 0%, #ffffff 60%);
+                    background: linear-gradient(to bottom, #fff6f7 0%, #ffffff 60%);
                     padding: 2.5rem 2.5rem 2rem;
                 }
                 .content__greeting {
@@ -83,37 +76,59 @@ export function generateAppointmentRejectedEmailHTML(
                     line-height: 1.7;
                 }
                 .details-wrap {
-                    background: #fdf6f6;
-                    border: 1px dashed #d32f2f;
+                    background: linear-gradient(135deg, #1c1c1c 0%, #4a0010 100%);
                     border-radius: 1rem;
-                    padding: 1.5rem;
+                    padding: 2rem;
                     margin: 1.75rem 0;
                 }
-                .details-wrap__title {
-                    font-size: 0.75rem;
+                .details-wrap__header {
+                    font-size: 0.7rem;
                     font-weight: 700;
+                    letter-spacing: 0.25em;
                     text-transform: uppercase;
-                    color: #c62828;
-                    letter-spacing: 0.1em;
+                    color: rgba(255, 255, 255, 0.45);
+                    margin-bottom: 1.25rem;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                    padding-bottom: 0.5rem;
+                }
+                .details-grid {
                     margin-bottom: 0.5rem;
                 }
-                .details-wrap__text {
-                    font-size: 0.875rem;
-                    color: #5c4444;
+                .details-grid__item {
+                    margin-bottom: 1rem;
+                }
+                .details-grid__label {
+                    font-size: 0.75rem;
+                    color: rgba(255, 255, 255, 0.5);
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                }
+                .details-grid__value {
+                    font-size: 1.1rem;
+                    color: #ffffff;
+                    font-weight: 700;
                 }
                 .divider {
                     height: 1px;
                     background: #f0edec;
                     margin: 1.5rem 0;
                 }
-                .security-note {
+                .info-box {
+                    background: #f4f9f4;
+                    border-left: 3px solid #2e7d32;
+                    border-radius: 0 0.5rem 0.5rem 0;
+                    padding: 0.85rem 1rem;
+                    margin: 1.5rem 0;
+                }
+                .info-box__text {
                     font-size: 0.825rem;
-                    color: #877270;
-                    font-weight: 500;
-                    line-height: 1.6;
+                    font-weight: 600;
+                    color: #1b5e20;
+                    line-height: 1.5;
                 }
                 .footer {
-                    background: linear-gradient(135deg, #2c2c2c 0%, #3a3a3a 100%);
+                    background: linear-gradient(135deg, #2c2c2c 0%, #4a0010 100%);
                     padding: 1.25rem 2rem;
                     text-align: center;
                 }
@@ -144,34 +159,54 @@ export function generateAppointmentRejectedEmailHTML(
                 <div class="header">
                     <div class="header__bar"></div>
                     <p class="header__brand">Salón de Belleza Channel</p>
-                    <h1 class="header__title">Cita No Disponible</h1>
-                    <p class="header__subtitle">Actualización del estado de tu solicitud</p>
+                    <h1 class="header__title">¡Tu cita ha sido confirmada!</h1>
                 </div>
                 <div class="content">
                     <p class="content__greeting">Hola ${data.clientName},</p>
                     <p class="content__text">
-                        Lamentamos informarte que la solicitud de cita que realizaste con el profesional <strong>${data.workerName}</strong> no ha podido ser confirmada debido a conflictos imprevistos en la agenda o falta de disponibilidad.
+                        Nos complace informarte que tu solicitud de cita ha sido revisada y <strong>aprobada</strong> por nuestro equipo. 
+                        A continuación, encontrarás los detalles de tu reserva:
                     </p>
 
                     <div class="details-wrap">
-                        <p class="details-wrap__title">Solicitud Rechazada</p>
-                        <p class="details-wrap__text">
-                            <strong>Fecha original solicitada:</strong> ${data.dateStr}<br>
-                            <strong>Horario original solicitado:</strong> ${data.timeStr}
-                        </p>
+                        <p class="details-wrap__header">Detalles de la Reserva</p>
+                        <div class="details-grid">
+                            <div class="details-grid__item">
+                                <p class="details-grid__label">Profesional</p>
+                                <p class="details-grid__value">${data.workerName}</p>
+                            </div>
+                            <div class="details-grid__item">
+                                <p class="details-grid__label">Fecha</p>
+                                <p class="details-grid__value">${data.date}</p>
+                            </div>
+                            <div class="details-grid__item">
+                                <p class="details-grid__label">Horario</p>
+                                <p class="details-grid__value">${data.time}</p>
+                            </div>
+                            ${
+                                data.notes
+                                    ? `
+                            <div class="details-grid__item" style="margin-bottom: 0;">
+                                <p class="details-grid__label">Notas del servicio</p>
+                                <p class="details-grid__value" style="font-size: 0.95rem; font-weight: 400; color: rgba(255,255,255,0.8);">${data.notes}</p>
+                            </div>
+                            `
+                                    : ''
+                            }
+                        </div>
                     </div>
 
                     <div class="divider"></div>
 
-                    <div class="warning">
-                        <p class="warning__text">
-                            💡 Te invitamos a ingresar nuevamente a nuestro sistema de agendamiento para seleccionar un nuevo horario alternativo con ${data.workerName} u otro de nuestros profesionales disponibles.
+                    <div class="info-box">
+                        <p class="info-box__text">
+                            ✨ Te recomendamos asistir con 5 o 10 minutos de anticipación para garantizar el correcto flujo de tu atención. ¡Nos vemos pronto!
                         </p>
                     </div>
                 </div>
                 <div class="footer">
                     <div class="footer__bar"></div>
-                    <p class="footer__text">Este es un correo automático del sistema, por favor no respondas a este mensaje.</p>
+                    <p class="footer__text">Este es un correo automático de confirmación, por favor no respondas a este mensaje.</p>
                     <p class="footer__brand">&copy; 2026 Channel Scheduling System</p>
                 </div>
             </div>

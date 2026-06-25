@@ -1,9 +1,12 @@
 import crypto from 'node:crypto';
 import { env } from '../../config/env.js';
-import { emailService } from '../../shared/services/email/index.js';
-import { generatePasswordResetEmailHTML } from '../../shared/services/email/templates/password-reset.template.js';
 import { IResetCodeRepository } from './reset-code.repository.js';
 import { ResetCode, ResetCodeRequestInput } from './reset-code.types.js';
+import { INotificationService } from '../notifications/notification.service.js';
+import {
+    NotificationEvent,
+    NotificationPayload,
+} from '../notifications/notification.types.js';
 import {
     BusinessValidationError,
     NotFoundError,
@@ -18,11 +21,13 @@ export interface IResetCodeService {
 
 const CODE_HASH_ALGORITHM = 'sha256';
 const OTP_LENGTH = 6;
-const SUBJECT = 'Restablece tu contraseña - Channel Scheduling System';
 const MAX_ATTEMPTS = 3;
 
 export class ResetCodeService implements IResetCodeService {
-    constructor(private readonly resetCodeRepo: IResetCodeRepository) {}
+    constructor(
+        private readonly resetCodeRepo: IResetCodeRepository,
+        private readonly notificationService: INotificationService,
+    ) {}
 
     async generateAndSend(input: ResetCodeRequestInput): Promise<void> {
         const otp = this.generateOTP();
@@ -32,9 +37,13 @@ export class ResetCodeService implements IResetCodeService {
         await this.storeResetCode(input.userId, codeHash);
     }
 
-    private async sendEmail(to: string, otp: string, expiresInMinutes: number) {
-        const html = generatePasswordResetEmailHTML({ otp, expiresInMinutes });
-        await emailService.send({ to, subject: SUBJECT, html });
+    private async sendEmail(to: string, otp: string, expiresIn: number) {
+        const payload: NotificationPayload = {
+            recipient: { email: to },
+            event: NotificationEvent.PASSWORD_RESET,
+            data: { otp, expiresIn },
+        };
+        await this.notificationService.notify([payload]);
     }
 
     private async storeResetCode(userId: number, codeHash: string) {

@@ -1,33 +1,21 @@
-export interface ServiceData {
-    name: string;
-    color: string;
-}
+import { AppointmentScheduledData } from '../../../notification.types.js';
 
-export interface AppointmentScheduledEmailData {
-    clientName: string;
-    workerName: string;
-    dateStr: string;
-    timeStr: string;
-    services: ServiceData[];
-    notes?: string | null;
-}
-
-export function generateAppointmentScheduledHTML(
-    data: AppointmentScheduledEmailData,
+export function appointmentScheduledHTML(
+    data: AppointmentScheduledData,
 ): string {
-    // Tomamos el color del primer servicio para acentuar sutilmente partes del diseño exterior
-    const primaryServiceColor = data.services[0]?.color || '#4a0010';
+    const primaryServiceColor = data.services?.[0].color ?? '#4a0010';
 
-    const servicesRendered = data.services
-        .map(
-            (service) => `
+    const servicesRendered =
+        data.services
+            ?.map(
+                (service) => `
         <div class="service-badge" style="border-left: 4px solid ${service.color};">
             <span class="service-badge__color-dot" style="background-color: ${service.color}; box-shadow: 0 0 10px ${service.color};"></span>
             <span class="service-badge__name">${service.name}</span>
         </div>
     `,
-        )
-        .join('');
+            )
+            .join('') ?? '';
 
     return `
         <!DOCTYPE html>
@@ -217,8 +205,8 @@ export function generateAppointmentScheduledHTML(
                         <p class="ticket-box__title">Resumen de tu Turno</p>
                         
                         <div class="time-badge">
-                            <p class="time-badge__date">📅 ${data.dateStr}</p>
-                            <p class="time-badge__hours">⏱ Horario: ${data.timeStr}</p>
+                            <p class="time-badge__date">📅 ${data.date}</p>
+                            <p class="time-badge__hours">⏱ Horario: ${data.time}</p>
                         </div>
 
                         <p class="ticket-box__title" style="margin-bottom: 0.5rem;">Servicios incluidos</p>

@@ -30,13 +30,21 @@ const serviceService = new ServiceService(serviceRepository, userService);
 const serviceController = new ServiceController(serviceService);
 
 // ============================================================================
+// NOTIFICATIONS MODULE - Sin dependencias
+// ============================================================================
+import { notificationService } from './notifications/notification.module.js';
+
+// ============================================================================
 // RESET-CODES MODULE - Sin dependencias
 // ============================================================================
 import { ResetCodeRepository } from './reset-codes/reset-code.repository.js';
 import { ResetCodeService } from './reset-codes/reset-code.service.js';
 
 const resetCodeRepository = new ResetCodeRepository();
-const resetCodeService = new ResetCodeService(resetCodeRepository);
+const resetCodeService = new ResetCodeService(
+    resetCodeRepository,
+    notificationService,
+);
 
 // ============================================================================
 // AUTH SERVICE - Depende de userService y resetCodeService (instanciar aquí)
@@ -56,12 +64,12 @@ import { AppointmentService } from './appointments/appointment.service.js';
 import { AppointmentController } from './appointments/appointment.controller.js';
 
 const appointmentRepository = new AppointmentRepository();
-// Instanciar con null temporalmente - se asignará después
 const appointmentService = new AppointmentService(
     appointmentRepository,
     userService,
     serviceService,
     getAvailabilityService,
+    notificationService,
 );
 const appointmentController = new AppointmentController(appointmentService);
 
