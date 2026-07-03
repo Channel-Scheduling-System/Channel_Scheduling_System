@@ -125,8 +125,8 @@ export function mapToNotifyAppointmentResponse(
     appointment: NotifyAppointment,
 ): NotifyAppointmentResponse {
     return {
-        dateStr: formatLongDate(appointment.startAt),
-        timeStr:
+        date: formatLongDate(appointment.startAt),
+        time:
             formatTime(appointment.startAt) +
             ' - ' +
             formatTime(appointment.endAt),
@@ -134,10 +134,12 @@ export function mapToNotifyAppointmentResponse(
         worker: {
             name: `${appointment.worker.firstName} ${appointment.worker.lastName}`,
             email: appointment.worker.email,
+            phone: appointment.worker.phone,
         },
         client: {
             name: `${appointment.client.firstName} ${appointment.client.lastName}`,
             email: appointment.client.email,
+            phone: appointment.client.phone,
         },
         services: appointment.services.map((s) => ({
             name: s.service.name,

@@ -1,21 +1,13 @@
-export interface AppointmentCancelledEmailData {
-    recipientName: string; // Quién recibe el correo (Cliente o Trabajador)
-    cancelledByName: string; // Quién ejecutó la cancelación (Nombre del Cliente o Trabajador)
-    dateStr: string;
-    timeStr: string;
-    reason?: string | null; // Nota o motivo opcional de la cancelación
-}
+import { AppointmentRejectedData } from '../../../notification.types.js';
 
-export function generateAppointmentCancelledEmailHTML(
-    data: AppointmentCancelledEmailData,
-): string {
+export function appointmentRejectedHTML(data: AppointmentRejectedData): string {
     return `
         <!DOCTYPE html>
         <html lang="es">
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Cita Cancelada - Channel</title>
+            <title>Cita No Disponible - Channel</title>
             <style>
                 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap');
                 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -84,15 +76,23 @@ export function generateAppointmentCancelledEmailHTML(
                     line-height: 1.7;
                 }
                 .details-wrap {
-                    background: #f4f0f0;
+                    background: #fdf6f6;
+                    border: 1px dashed #d32f2f;
                     border-radius: 1rem;
                     padding: 1.5rem;
                     margin: 1.75rem 0;
                 }
-                .details-wrap__item {
+                .details-wrap__title {
+                    font-size: 0.75rem;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    color: #c62828;
+                    letter-spacing: 0.1em;
                     margin-bottom: 0.5rem;
-                    font-size: 0.9rem;
-                    color: #4a3e3e;
+                }
+                .details-wrap__text {
+                    font-size: 0.875rem;
+                    color: #5c4444;
                 }
                 .divider {
                     height: 1px;
@@ -137,38 +137,34 @@ export function generateAppointmentCancelledEmailHTML(
                 <div class="header">
                     <div class="header__bar"></div>
                     <p class="header__brand">Salón de Belleza Channel</p>
-                    <h1 class="header__title">Cita Cancelada</h1>
-                    <p class="header__subtitle">Notificación de cancelación de agenda</p>
+                    <h1 class="header__title">Cita No Disponible</h1>
+                    <p class="header__subtitle">Actualización del estado de tu solicitud</p>
                 </div>
                 <div class="content">
-                    <p class="content__greeting">Hola ${data.recipientName},</p>
+                    <p class="content__greeting">Hola ${data.clientName},</p>
                     <p class="content__text">
-                        Te informamos que la cita que estaba programada en el sistema ha sido <strong>cancelada</strong> por <strong>${data.cancelledByName}</strong>.
+                        Lamentamos informarte que la solicitud de cita que realizaste con el profesional <strong>${data.workerName}</strong> no ha podido ser confirmada debido a conflictos imprevistos en la agenda o falta de disponibilidad.
                     </p>
 
                     <div class="details-wrap">
-                        <div class="details-wrap__item"><strong>Fecha de la cita:</strong> ${data.dateStr}</div>
-                        <div class="details-wrap__item"><strong>Horario establecido:</strong> ${data.timeStr}</div>
-                        ${
-                            data.reason
-                                ? `
-                        <div class="details-wrap__item" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(0,0,0,0.05);">
-                            <strong>Motivo indicado:</strong> "${data.reason}"
-                        </div>
-                        `
-                                : ''
-                        }
+                        <p class="details-wrap__title">Solicitud Rechazada</p>
+                        <p class="details-wrap__text">
+                            <strong>Fecha original solicitada:</strong> ${data.date}<br>
+                            <strong>Horario original solicitado:</strong> ${data.time}
+                        </p>
                     </div>
 
                     <div class="divider"></div>
 
-                    <p class="security-note">
-                        El espacio que ocupaba esta cita en la agenda ha sido liberado de manera automática. Si crees que se trata de un error, por favor ponte en contacto con la otra parte o accede al panel de Channel para revisar tu itinerario.
-                    </p>
+                    <div class="warning">
+                        <p class="warning__text">
+                            💡 Te invitamos a ingresar nuevamente a nuestro sistema de agendamiento para seleccionar un nuevo horario alternativo con ${data.workerName} u otro de nuestros profesionales disponibles.
+                        </p>
+                    </div>
                 </div>
                 <div class="footer">
                     <div class="footer__bar"></div>
-                    <p class="footer__text">Este es un correo automático, por favor no respondas a este mensaje.</p>
+                    <p class="footer__text">Este es un correo automático del sistema, por favor no respondas a este mensaje.</p>
                     <p class="footer__brand">&copy; 2026 Channel Scheduling System</p>
                 </div>
             </div>

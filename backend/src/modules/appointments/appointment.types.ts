@@ -115,8 +115,18 @@ export interface NotifyAppointment {
     status: Status;
     workerId: number;
     clientId: number;
-    worker: { firstName: string; lastName: string; email: string };
-    client: { firstName: string; lastName: string; email: string };
+    worker: {
+        firstName: string;
+        lastName: string;
+        email: string;
+        phone: string | null;
+    };
+    client: {
+        firstName: string;
+        lastName: string;
+        email: string;
+        phone: string | null;
+    };
     services: { service: { name: string; colorHex: string } }[];
 }
 
@@ -290,11 +300,11 @@ export interface ExtendedAppointmentResponse {
 }
 
 export interface NotifyAppointmentResponse {
-    dateStr: string;
-    timeStr: string;
+    date: string;
+    time: string;
     status: Status;
-    worker: { name: string; email: string };
-    client: { name: string; email: string };
+    worker: { name: string; email: string; phone: string | null };
+    client: { name: string; email: string; phone: string | null };
     services: { name: string; color: string }[];
 }
 

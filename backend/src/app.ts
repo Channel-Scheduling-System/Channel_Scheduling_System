@@ -10,6 +10,7 @@ import userRouter from './modules/users/index.js';
 import serviceRouter from './modules/services/index.js';
 import availabilityRouter from './modules/availability/index.js';
 import appointmentRouter from './modules/appointments/index.js';
+import notificationRouter from './modules/notifications/index.js';
 
 const API_PREFIX = '/api';
 const REQUEST_BODY_LIMIT = '10mb';
@@ -43,6 +44,8 @@ app.use(`${API_PREFIX}/users`, userRouter);
 app.use(`${API_PREFIX}/services`, serviceRouter);
 app.use(`${API_PREFIX}/availability`, availabilityRouter);
 app.use(`${API_PREFIX}/appointments`, appointmentRouter);
+
+app.use(API_PREFIX, notificationRouter);
 
 // =================================================================
 

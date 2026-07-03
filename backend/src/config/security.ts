@@ -60,6 +60,6 @@ const addAppointmentLimiter = createRateLimiter(
 
 export const apiLimiter = createRateLimiter(
     5 * MINUTE,
-    50,
+    100,
     'Demasiadas solicitudes. Intenta más tarde.',
 );
