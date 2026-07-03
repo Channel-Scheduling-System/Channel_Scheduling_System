@@ -57,6 +57,7 @@ export const env = {
     },
     whatsapp: {
         enabled: process.env.WHATSAPP_ENABLED === 'true',
+        verifyToken: process.env.WHATSAPP_VERIFY_TOKEN as string,
         phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID,
         accessToken: process.env.WHATSAPP_ACCESS_TOKEN,
         businessAccountId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID,

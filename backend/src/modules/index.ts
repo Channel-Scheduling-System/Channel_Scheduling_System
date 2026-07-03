@@ -106,6 +106,8 @@ export {
     serviceRepository,
     serviceService,
     serviceController,
+    // Notifications
+    notificationService,
     // ResetCodes
     resetCodeRepository,
     resetCodeService,

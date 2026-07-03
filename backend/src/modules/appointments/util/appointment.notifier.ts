@@ -16,6 +16,7 @@ export class AppointmentNotifier {
             recipient: {
                 name: apm.client.name,
                 email: apm.client.email,
+                phone: apm.client.phone || undefined,
             },
             event: NotificationEvent.APPOINTMENT_APPROVED,
             data: {
@@ -40,6 +41,9 @@ export class AppointmentNotifier {
             recipient: {
                 name: isClient ? apm.worker.name : apm.client.name,
                 email: isClient ? apm.worker.email : apm.client.email,
+                phone:
+                    (isClient ? apm.worker.phone : apm.client.phone) ||
+                    undefined,
             },
             event: NotificationEvent.APPOINTMENT_CANCELLED,
             data: {
@@ -62,6 +66,7 @@ export class AppointmentNotifier {
             recipient: {
                 name: apm.client.name,
                 email: apm.client.email,
+                phone: apm.client.phone || undefined,
             },
             event: NotificationEvent.APPOINTMENT_REJECTED,
             data: {
@@ -79,6 +84,7 @@ export class AppointmentNotifier {
             recipient: {
                 name: apm.worker.name,
                 email: apm.worker.email,
+                phone: apm.client.phone || undefined,
             },
             event: NotificationEvent.APPOINTMENT_REQUESTED,
             data: {
@@ -100,6 +106,7 @@ export class AppointmentNotifier {
             recipient: {
                 name: apm.client.name,
                 email: apm.client.email,
+                phone: apm.client.phone || undefined,
             },
             event: NotificationEvent.APPOINTMENT_SCHEDULED,
             data: {

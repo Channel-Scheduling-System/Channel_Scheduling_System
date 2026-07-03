@@ -11,11 +11,16 @@ export class NotificationService implements INotificationService {
     constructor(private readonly channels: INotificationChannel[]) {}
 
     async notify(notifications: NotificationPayload[]): Promise<void> {
-        console.log(this.channels)
-        await Promise.allSettled(
+        const results = await Promise.allSettled(
             notifications.flatMap((notification) =>
                 this.channels.map((channel) => channel.send(notification)),
             ),
         );
+
+        results
+            .filter((result) => result.status === 'rejected')
+            .forEach((result) => {
+                console.error(result.reason);
+            });
     }
 }

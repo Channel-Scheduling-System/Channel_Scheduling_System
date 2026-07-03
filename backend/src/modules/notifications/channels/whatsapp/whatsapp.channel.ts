@@ -13,7 +13,6 @@ export class WhatsAppChannel implements INotificationChannel {
         if (!payload.recipient.phone) return;
 
         const body = resolveWhatsAppTemplate(payload);
-        console.log(body);
         const response = await fetch(
             `${BASE_URL}/${env.whatsapp.phoneNumberId}/messages`,
             {
