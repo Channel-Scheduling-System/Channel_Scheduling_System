@@ -2,6 +2,7 @@ import { env } from '../../../../config/env.js';
 import { ServiceError } from '../../../../shared/errors/domain.error.js';
 import {
     INotificationChannel,
+    NotificationChannelName,
     NotificationPayload,
 } from '../../notification.types.js';
 import { resolveWhatsAppTemplate } from './templates/index.js';
@@ -9,6 +10,8 @@ import { resolveWhatsAppTemplate } from './templates/index.js';
 const BASE_URL = `https://graph.facebook.com/${env.whatsapp.apiVersion}`;
 
 export class WhatsAppChannel implements INotificationChannel {
+    name = NotificationChannelName.WHATSAPP;
+
     async send(payload: NotificationPayload): Promise<void> {
         if (!payload.recipient.phone) return;
 

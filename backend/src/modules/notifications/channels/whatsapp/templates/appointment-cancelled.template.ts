@@ -5,9 +5,9 @@ export function appointmentCancelledTemplate(
 ): object {
     return {
         name: data.isClient
-            ? 'appointment_cancelled_client'
-            : 'appointment_cancelled_worker',
-        language: { code: 'es' },
+            ? 'appointment_cancelled_worker'
+            : 'appointment_cancelled_client',
+        language: { code: 'es_CO' },
         components: [
             {
                 type: 'body',
@@ -20,7 +20,9 @@ export function appointmentCancelledTemplate(
                         type: 'text',
                         text: data.reason ?? 'Sin motivo especificado',
                     },
-                    { type: 'text', text: data.phone },
+                    ...(!data.isClient
+                        ? [{ type: 'text', text: data.phone }]
+                        : []),
                 ],
             },
         ],

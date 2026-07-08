@@ -3,6 +3,7 @@ import { env } from '../../../../config/env.js';
 import { ServiceError } from '../../../../shared/errors/domain.error.js';
 import {
     INotificationChannel,
+    NotificationChannelName,
     NotificationPayload,
 } from '../../notification.types.js';
 import { resolveEmailTemplate } from './templates/index.js';
@@ -25,12 +26,13 @@ const transporter = nodemailer.createTransport({
 });
 
 export class EmailChannel implements INotificationChannel {
+    name = NotificationChannelName.EMAIL;
     private readonly transporter = transporter;
 
     async send(payload: NotificationPayload): Promise<void> {
         if (!payload.recipient.email) return;
         const { subject, html } = resolveEmailTemplate(payload);
-        
+
         try {
             await this.transporter.sendMail({
                 from: env.email.from,

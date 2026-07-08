@@ -18,10 +18,10 @@ const requiredEnvVars = [
     'SMTP_PASS',
     'EMAIL_FROM',
     'WHATSAPP_ENABLED',
-    'WHATSAPP_PHONE_NUMBER_ID',
-    'WHATSAPP_ACCESS_TOKEN',
-    'WHATSAPP_BUSINESS_ACCOUNT_ID',
     'WHATSAPP_API_VERSION',
+    'WHATSAPP_VERIFY_TOKEN',
+    'WHATSAPP_ACCESS_TOKEN',
+    'WHATSAPP_PHONE_NUMBER_ID',
 ] as const;
 
 for (const key of requiredEnvVars) {
@@ -57,11 +57,10 @@ export const env = {
     },
     whatsapp: {
         enabled: process.env.WHATSAPP_ENABLED === 'true',
+        apiVersion: process.env.WHATSAPP_API_VERSION,
         verifyToken: process.env.WHATSAPP_VERIFY_TOKEN as string,
-        phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID,
         accessToken: process.env.WHATSAPP_ACCESS_TOKEN,
-        businessAccountId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID,
-        apiVersion: process.env.WHATSAPP_API_VERSION ?? 'v19.0',
+        phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID,
     },
     firstAdminSecretCode: process.env.FIRST_ADMIN_SECRET_CODE as string,
 };

@@ -4,6 +4,7 @@ import { IResetCodeRepository } from './reset-code.repository.js';
 import { ResetCode, ResetCodeRequestInput } from './reset-code.types.js';
 import { INotificationService } from '../notifications/notification.service.js';
 import {
+    NotificationChannelName,
     NotificationEvent,
     NotificationPayload,
 } from '../notifications/notification.types.js';
@@ -43,7 +44,9 @@ export class ResetCodeService implements IResetCodeService {
             event: NotificationEvent.PASSWORD_RESET,
             data: { otp, expiresIn },
         };
-        await this.notificationService.notify([payload]);
+        await this.notificationService.notify([payload], {
+            channels: [NotificationChannelName.EMAIL],
+        });
     }
 
     private async storeResetCode(userId: number, codeHash: string) {
