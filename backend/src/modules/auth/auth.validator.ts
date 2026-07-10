@@ -20,7 +20,7 @@ const registerInput = createUserInput.omit({ role: true }).strict();
 const loginInput = z
     .object({
         identifier: z.union([userAlias, userEmail, userPhone]),
-        password: userPassword,
+        password: z.string(),
     })
     .strict();
 

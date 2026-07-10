@@ -1,3 +1,4 @@
+import { formatServicesList } from '../../../utils/list-format.util.js';
 import { AppointmentApprovedData } from '../../../notification.types.js';
 
 export function appointmentApprovedTemplate(
@@ -5,7 +6,7 @@ export function appointmentApprovedTemplate(
 ): object {
     return {
         name: 'appointment_approved',
-        language: { code: 'es' },
+        language: { code: 'es_CO' },
         components: [
             {
                 type: 'body',
@@ -14,7 +15,12 @@ export function appointmentApprovedTemplate(
                     { type: 'text', text: data.workerName },
                     { type: 'text', text: data.date },
                     { type: 'text', text: data.time },
-                    { type: 'text', text: data.services },
+                    {
+                        type: 'text',
+                        text: formatServicesList(
+                            data.services.map((service) => service.name),
+                        ),
+                    },
                     {
                         type: 'text',
                         text: data.notes ?? 'Sin notas',

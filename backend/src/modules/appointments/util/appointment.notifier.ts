@@ -1,9 +1,15 @@
 import { INotificationService } from '../../notifications/notification.service.js';
 import { NotifyAppointmentResponse, Role } from '../appointment.types.js';
 import {
+    NotificationChannelName,
     NotificationEvent,
     NotificationPayload,
 } from '../../notifications/notification.types.js';
+
+const NOTIFICATION_CHANNELS = {
+    channels: [NotificationChannelName.WHATSAPP],
+    fallbackChannels: [NotificationChannelName.EMAIL],
+};
 
 export class AppointmentNotifier {
     constructor(private readonly notificationService: INotificationService) {}
@@ -28,7 +34,7 @@ export class AppointmentNotifier {
                 notes,
             },
         };
-        await this.notificationService.notify([payload]);
+        await this.notificationService.notify([payload], NOTIFICATION_CHANNELS);
     }
 
     async sendCancelledNotification(
@@ -54,11 +60,11 @@ export class AppointmentNotifier {
                 cancelledToName: isClient ? apm.worker.name : apm.client.name,
                 reason,
                 phone:
-                    (isClient ? apm.client.phone : apm.worker.phone) ||
+                    (isClient ? apm.worker.phone : apm.client.phone) ||
                     undefined,
             },
         };
-        await this.notificationService.notify([payload]);
+        await this.notificationService.notify([payload], NOTIFICATION_CHANNELS);
     }
 
     async sendRejectedNotification(apm: NotifyAppointmentResponse) {
@@ -76,7 +82,7 @@ export class AppointmentNotifier {
                 clientName: apm.client.name,
             },
         };
-        await this.notificationService.notify([payload]);
+        await this.notificationService.notify([payload], NOTIFICATION_CHANNELS);
     }
 
     async sendRequestedNotification(apm: NotifyAppointmentResponse) {
@@ -84,7 +90,7 @@ export class AppointmentNotifier {
             recipient: {
                 name: apm.worker.name,
                 email: apm.worker.email,
-                phone: apm.client.phone || undefined,
+                phone: apm.worker.phone || undefined,
             },
             event: NotificationEvent.APPOINTMENT_REQUESTED,
             data: {
@@ -95,7 +101,7 @@ export class AppointmentNotifier {
                 services: apm.services,
             },
         };
-        await this.notificationService.notify([payload]);
+        await this.notificationService.notify([payload], NOTIFICATION_CHANNELS);
     }
 
     async sendScheduledNotification(
@@ -118,6 +124,6 @@ export class AppointmentNotifier {
                 notes,
             },
         };
-        await this.notificationService.notify([payload]);
+        await this.notificationService.notify([payload], NOTIFICATION_CHANNELS);
     }
 }

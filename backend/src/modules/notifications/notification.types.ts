@@ -1,4 +1,15 @@
+export enum NotificationChannelName {
+    EMAIL = 'email',
+    WHATSAPP = 'whatsapp',
+}
+
+export interface NotifyOptions {
+    channels?: NotificationChannelName[];
+    fallbackChannels?: NotificationChannelName[];
+}
+
 export interface INotificationChannel {
+    name: NotificationChannelName;
     send(payload: NotificationPayload): Promise<void>;
 }
 

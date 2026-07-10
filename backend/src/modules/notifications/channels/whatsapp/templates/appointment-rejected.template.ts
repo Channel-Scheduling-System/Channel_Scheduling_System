@@ -5,7 +5,7 @@ export function appointmentRejectedTemplate(
 ): object {
     return {
         name: 'appointment_rejected',
-        language: { code: 'es' },
+        language: { code: 'es_CO' },
         components: [
             {
                 type: 'body',
