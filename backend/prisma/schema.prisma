@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
 }
 
 //* USERS
@@ -52,8 +52,8 @@ model Service {
   name               String                @db.VarChar(100)
   description        String?               @db.VarChar(300)
   colorHex           String                @db.Char(7)
-  defaultDurationMin Int                   @db.UnsignedSmallInt
-  defaultPrice       Int                   @db.UnsignedMediumInt
+  defaultDurationMin Int                   @db.SmallInt
+  defaultPrice       Int
   isActive           Boolean               @default(true)
   createdAt          DateTime              @default(now())
   updatedAt          DateTime              @updatedAt
@@ -69,8 +69,8 @@ model Service {
 // ============================================
 model Appointment {
   id            Int                   @id @default(autoincrement())
-  startAt       DateTime              @db.DateTime()
-  endAt         DateTime              @db.DateTime()
+  startAt       DateTime              @db.Timestamp(0)
+  endAt         DateTime              @db.Timestamp(0)
   status        Status                @default(PENDING)
   createdBy     AppointmentRole       @default(CLIENT)
   notes         String?               @db.VarChar(300)
@@ -111,8 +111,8 @@ enum AppointmentRole {
 // ============================================
 model AppointmentServices {
   id                Int         @id @default(autoincrement())
-  customDurationMin Int         @db.UnsignedSmallInt
-  customPrice       Int         @db.UnsignedMediumInt
+  customDurationMin Int         @db.SmallInt
+  customPrice       Int
   appointment       Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
   appointmentId     Int
   service           Service     @relation(fields: [serviceId], references: [id], onDelete: Cascade)
@@ -131,7 +131,7 @@ model Notification {
   title         String      @db.VarChar(100)
   message       String      @db.VarChar(200)
   sent_email    Boolean
-  sending_date  DateTime    @db.DateTime()
+  sending_date  DateTime    @db.Timestamp(0)
   createdAt     DateTime    @default(now())
   user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        Int
@@ -151,7 +151,7 @@ model BlockedTime {
   endDate   DateTime?    @db.Date
   startTime DateTime?    @db.Time()
   endTime   DateTime?    @db.Time()
-  dayOfWeek Int?         @db.UnsignedTinyInt
+  dayOfWeek Int?         @db.SmallInt
   reason    String?      @db.VarChar(200)
   worker    User         @relation(fields: [workerId], references: [id], onDelete: Cascade)
   workerId  Int
@@ -172,7 +172,7 @@ enum TimeInterval {
 // ============================================
 model WorkingHour {
   id        Int      @id @default(autoincrement())
-  dayOfWeek Int      @db.UnsignedTinyInt
+  dayOfWeek Int      @db.SmallInt
   startTime DateTime @db.Time()
   endTime   DateTime @db.Time()
   worker    User     @relation(fields: [workerId], references: [id], onDelete: Cascade)
@@ -189,7 +189,7 @@ model ResetCode {
   codeHash  String   @db.Char(64)
   used      Boolean  @default(false)
   attempts  Int      @default(0)
-  expireAt  DateTime @db.DateTime()
+  expireAt  DateTime @db.Timestamp(0)
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int
@@ -204,7 +204,7 @@ model RefreshToken {
   id        Int      @id @default(autoincrement())
   tokenHash String   @unique @db.Char(64)
   revoked   Boolean  @default(false)
-  expireAt  DateTime @db.DateTime()
+  expireAt  DateTime @db.Timestamp(0)
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int
