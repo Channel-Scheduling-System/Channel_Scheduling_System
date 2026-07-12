@@ -1,6 +1,6 @@
 import { Temporal } from 'temporal-polyfill';
 
-const TIME_ZONE = 'America/Bogota';
+export const TIME_ZONE = 'America/Bogota';
 const LONG_DATE_FORMATTER = new Intl.DateTimeFormat('es-CO', {
     weekday: 'long',
     day: 'numeric',
